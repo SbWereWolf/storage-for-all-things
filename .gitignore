@@ -1,0 +1,12 @@
+.idea/
+configuration/
+composer.lock
+
+vendor/autoload.php
+
+vendor/composer
+vendor/container-interop
+vendor/nikic
+vendor/pimple
+vendor/psr
+vendor/slim
