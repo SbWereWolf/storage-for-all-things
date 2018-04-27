@@ -36,19 +36,20 @@
 
 ## Создать сущность с характеристиками
 
-- создать характеристику
-- задать характеристике способ поиска
 - создать сущность
+- задать свойства сущности
+- создать характеристику
+- задать свойства характеристики
 - задать сушности характеристику
 
 ## Создавать экземпляр с определёнными характеристиками
 
 - создать экземпляр сущности
-- задать характеристикам значения
+- задать значения для характеристики экземпляра 
 
 ## Найти экземпляры по определённому условию
 
-- определить допустимые условия
+- определить перечень условий
 - задать значения условиям
 - найти экземпляры по заданным условиям (прямым поиском, поиском в представлении, поиском в таблице)
 
@@ -60,26 +61,13 @@
 - сформировать запрос на создание таблицы и индексов
 - создать таблицу
 - обновить таблицу
-- подготовить данные для вывода
 
 # API
-
-## essence - Сущность (вид)
-
-POST '/essence/add'
-
-GET '/essence/{code}/get'
-
-PUT '/essence/{code}/change'
-
-GET '/essence-catalog/{code}/get'
-
-GET '/essence-catalog/{code}/find/[{params:.*}]'
 
 ```
 $params = array();
 $len = count($array);
-$len++;
+$len += 1;
 $i = 0 ;
 while($i+1 < $len){    
     $params[$array[$i]] = $array[$i+1];
@@ -87,34 +75,143 @@ while($i+1 < $len){
 }
 ```
 
+## essence - Сущность (вид)
+
+POST '/essence/{code}' add
+
+GET '/essence/{code}' get
+```
+result:
+code
+title
+remark
+```
+PUT '/essence/{code}' change
+```
+params:
+code => value || not specified
+title => value || not specified
+remark => value || not specified
+```
+
+## essence-catalog - Каталог видов
+
+GET '/essence-catalog' get
+```
+result:
+code
+title
+remark
+```
+
+GET '/essence-catalog/filter/[{params:.*}]' search
+```
+params:
+code => %like%
+title => %like%
+remark => %like%
+
+result:
+essence-code
+```
 ## kind - Характеристика
 
-POST '/kind/add'
+POST '/kind/{code}' add
 
-GET '/kind/{code}/get'
+GET '/kind/{code}' get
+```
+result:
+code
+title
+remark
+data-type : float || timestamp || interval || symbol
+range-type : continuous || discrete
+```
+PUT '/kind/{code}' change
+```
+params:
+code => value || not specified
+title => value || not specified
+remark => value || not specified
+data-type => value ( float || timestamp || interval || symbol ) || not specified
+range-type => value ( continuous || discrete ) || not specified
+```
 
-PUT '/kind/{code}/change'
+## kind-catalog - Каталог характеристик
 
-GET '/kind-catalog/{code}/get'
+GET '/kind-catalog' get
+```
+result:
+kind-code
+kind-title
+kind-remark
+```
+GET '/kind-catalog/filter/[{params:.*}]' search
+```
+params:
+code => %like%
+title => %like%
+remark => %like%
+data-type => float || timestamp || interval || symbol
+range-type => continuous || discrete
 
-GET '/kind-catalog/{code}/find/[{params:.*}]'
+result:
+kind-code
+```
+## essence-kind - характеристики видов
 
+POST '/essence-kind/{essence-code}/{kind-code}' link essence with kind
+
+DELETE '/essence-kind/{essence-code}/{kind-code}' unlink essence and kind
+
+GET '/essence-kind/filter/[{params:.*}]' search
+```
+params:
+essence-code => strict equality || not specified
+
+result:
+essence-code
+kind-code
+```  
 ## thing - Модель (экземпляр сущности)
 
-POST '/thing/add'
+POST '/thing/{essence-code}/{thing-code}' add
 
-GET '/thing/{code}/get'
+GET '/thing/{code}' get
+```
+result:
+essence-code
+thing-code
+thing-title
+thing-remark
+```
+PUT '/thing/{code}' change
+```
+params:
+code => value || not specified
+title => value || not specified
+remark => value || not specified
+```
 
-PUT '/thing/{code}/change'
+## thing-kind - Значение характеристики модели
 
-GET '/thing-catalog/{code}/get'
+POST '/thing-kind/{thing-code}/{kind-code}' add
 
-GET '/thing-catalog/{code}/find/[{params:.*}]'
+PUT '/thing-kind/{thing-code}/{kind-code}' change
+```
+params:
+value => value || not specified 
+```
 
-## content - Показатель (значение характеристики)
+GET '/thing-kind/filter/[{params:.*}]' search
+```
+params:
+essence-code => strict equality || not specified
+[kind-code=>value] (kind-code => strict equality || not specified)
 
-POST '/content/thing/{thing-code}/kind/{kind-code}/add'
-
-GET '/content/thing/{thing-code}/kind/{kind-code}/get'
-
-PUT '/content/thing/{thing-code}/kind/{kind-code}/change'
+result:
+essence-code
+thing-code
+kind-code
+value
+```
