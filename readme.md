@@ -124,8 +124,8 @@ result:
 code
 title
 remark
-data-type : float || timestamp || interval || symbol
-range-type : continuous || discrete
+data-type is one of : decimal || timestamp || interval || symbol
+range-type is one of : continuous || discrete
 ```
 PUT '/kind/{code}' change
 ```
@@ -133,8 +133,8 @@ params:
 code => value || not specified
 title => value || not specified
 remark => value || not specified
-data-type => value ( float || timestamp || interval || symbol ) || not specified
-range-type => value ( continuous || discrete ) || not specified
+data-type => value ( is one of : decimal || timestamp || interval || symbol ) || not specified
+range-type => value ( is one of : continuous || discrete ) || not specified
 ```
 
 ## kind-catalog - Каталог характеристик
@@ -152,7 +152,7 @@ params:
 code => %like%
 title => %like%
 remark => %like%
-data-type => float || timestamp || interval || symbol
+data-type => decimal || timestamp || interval || symbol
 range-type => continuous || discrete
 
 result:
@@ -170,8 +170,9 @@ params:
 essence-code => strict equality || not specified
 
 result:
-essence-code
-kind-code
+[
+    essence-code => [kind-code1, kind-code2, .. , kind-codeN]
+]
 ```  
 ## thing - Модель (экземпляр сущности)
 
@@ -193,6 +194,21 @@ title => value || not specified
 remark => value || not specified
 ```
 
+## essence-filer - Фильтры для вида (для экземпляров сущности)
+
+GET '/essence-filer/{essence-code}' get
+```
+result:
+[kind-code =>
+    [
+        'data-type' => decimal || timestamp || interval || symbol ,
+        range-type => continuous || discrete ,
+        'values' => [min,max] || [value1, value2, .. , valueN] ,
+    ]
+] 
+      
+```
+
 ## thing-kind - Значение характеристики модели
 
 POST '/thing-kind/{thing-code}/{kind-code}' add
@@ -207,11 +223,12 @@ GET '/thing-kind/filter/[{params:.*}]' search
 ```
 params:
 essence-code => strict equality || not specified
-[kind-code=>value] (kind-code => strict equality || not specified)
+[kind-code=>filter] (filter is one of [min,max] or [value1, value2, .. , valueN] )
 
 result:
-essence-code
-thing-code
-kind-code
-value
+[ 
+    essence-code  => [
+            thing-code => [ kind-code => value ] 
+        ]
+]
 ```
