@@ -2,6 +2,10 @@
 
 "Хранилище для всего" - исследовательский проект для разработки движка "Универсального каталога"
 
+# Соглашения
+
+The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and “OPTIONAL” in this document are to be interpreted as described in [RFC 2119](http://tools.ietf.org/html/rfc2119]).
+
 # Модули
 
 ## A1 essence processing
@@ -34,33 +38,43 @@
 
 # Услуги
 
-## Создать сущность с характеристиками
+## S001 Создать экземпляр с определёнными характеристиками
 
-- создать сущность
-- задать свойства сущности
-- создать характеристику
-- задать свойства характеристики
-- задать сушности характеристику
+- S001A1S01 создать сущность
+- S001A1S02 задать свойства сущности
+- S001A1S03 создать характеристику
+- S001A1S04 задать свойства характеристики
+- S001A1S05 задать сушности характеристику
+- S001A3S01 создать представление для экземпляров сущности
+- S001A2S01 создать экземпляр сущности
+- S001A2S02 задать значения для характеристики экземпляра
+- S001A3S02 получить данные представления 
 
-## Создавать экземпляр с определёнными характеристиками
+## S002 Найти экземпляры по определённому условию
 
-- создать экземпляр сущности
-- задать значения для характеристики экземпляра 
+- S002A3S03 определить возможные условия для поиска
+- S002A3S04 сделать выборку экземпляров по заданным условиям поиска (поиск в представлении)
 
-## Найти экземпляры по определённому условию
+## E003 Создать структуру для быстрого поиска
 
-- определить перечень условий
-- задать значения условиям
-- найти экземпляры по заданным условиям (прямым поиском, поиском в представлении, поиском в таблице)
+- E003A4S01 сформировать запрос на создание материализованного представления и индексов
+- E003A4S02 создать материализованное представление и индексы
 
-## Дополнительные услуги
+## E004 Обновить данные для быстрого поиска
 
-- сформировать запрос на создание представления и индексов
-- создать представление
-- обновить представление
-- сформировать запрос на создание таблицы и индексов
-- создать таблицу
-- обновить таблицу
+- E004A2S03 изменить значение характеристики экземпляра
+- E004A4S03 обновить данные в материализованном представлении
+
+## E005 Создать структуру для быстрого обновления
+
+- E005A5S01 сформировать запрос на создание таблицы и индексов
+- E005A5S02 создать таблицу и индексы
+- E005A5S04 заполнить таблицу
+
+## S006 Выполнить быстрое обновление
+
+- E004A2S03 изменить значение характеристики экземпляра
+- S006A5S03 обновить данные в таблице
 
 # API
 
@@ -85,6 +99,7 @@ result:
 code
 title
 remark
+storage
 ```
 PUT '/essence/{code}' change
 ```
@@ -92,6 +107,7 @@ params:
 code => value || not specified
 title => value || not specified
 remark => value || not specified
+storage => value ( MUST be one of : view || matherial view || table ) || not specified
 ```
 
 ## essence-catalog - Каталог видов
@@ -102,6 +118,7 @@ result:
 code
 title
 remark
+storage
 ```
 
 GET '/essence-catalog/filter/[{params:.*}]' search
@@ -110,6 +127,7 @@ params:
 code => %like%
 title => %like%
 remark => %like%
+storage => SHOULD be one of : view || matherial view || table
 
 result:
 essence-code
@@ -124,8 +142,8 @@ result:
 code
 title
 remark
-data-type is one of : decimal || timestamp || interval || symbol
-range-type is one of : continuous || discrete
+data-type
+range-type
 ```
 PUT '/kind/{code}' change
 ```
@@ -133,8 +151,8 @@ params:
 code => value || not specified
 title => value || not specified
 remark => value || not specified
-data-type => value ( is one of : decimal || timestamp || interval || symbol ) || not specified
-range-type => value ( is one of : continuous || discrete ) || not specified
+data-type => value ( MUST be one of : decimal || timestamp || interval || symbol ) || not specified
+range-type => value ( MUST be one of : continuous || discrete ) || not specified
 ```
 
 ## kind-catalog - Каталог характеристик
@@ -152,8 +170,8 @@ params:
 code => %like%
 title => %like%
 remark => %like%
-data-type => decimal || timestamp || interval || symbol
-range-type => continuous || discrete
+data-type => SHOULD be one of : decimal || timestamp || interval || symbol
+range-type => SHOULD be one of : continuous || discrete
 
 result:
 kind-code
@@ -164,11 +182,8 @@ POST '/essence-kind/{essence-code}/{kind-code}' link essence with kind
 
 DELETE '/essence-kind/{essence-code}/{kind-code}' unlink essence and kind
 
-GET '/essence-kind/filter/[{params:.*}]' search
+GET '/essence-kind[/{essence-code}]' search
 ```
-params:
-essence-code => strict equality || not specified
-
 result:
 [
     essence-code => [kind-code1, kind-code2, .. , kind-codeN]
@@ -223,7 +238,7 @@ GET '/thing-kind/filter/[{params:.*}]' search
 ```
 params:
 essence-code => strict equality || not specified
-[kind-code=>filter] (filter is one of [min,max] or [value1, value2, .. , valueN] )
+[kind-code=>filter] (filter MUST be one of [min,max] or [value1, value2, .. , valueN] )
 
 result:
 [ 
@@ -232,3 +247,56 @@ result:
         ]
 ]
 ```
+# Пример использования API для реализации Услуг
+
+## S001 Создавать экземпляр с определёнными характеристиками
+
+## S001A1S01 создать сущность
+
+## S001A1S02 задать свойства сущности
+
+## S001A1S03 создать характеристику
+
+## S001A1S04 задать свойства характеристики
+
+## S001A1S05 задать сушности характеристику
+
+## S001A3S01 создать представление для экземпляров сущности
+
+## S001A2S01 создать экземпляр сущности
+
+## S001A2S02 задать значения для характеристики экземпляра
+
+## S001A3S02 получить данные представления 
+
+## S002 Найти экземпляры по определённому условию
+
+## S002A3S03 определить возможные условия для поиска
+
+## S002A3S04 сделать выборку экземпляров по заданным условиям поиска (поиск в представлении)
+
+## E003 Создать структуру для быстрого поиска
+
+## E003A4S01 сформировать запрос на создание материализованного представления и индексов
+
+## E003A4S02 создать материализованное представление и индексы
+
+## E004 Обновить данные для быстрого поиска
+
+## E004A2S03 изменить значение характеристики экземпляра
+
+## E004A4S03 обновить данные в материализованном представлении
+
+## E005 Создать структуру для быстрого обновления
+
+## E005A5S01 сформировать запрос на создание таблицы и индексов
+
+## E005A5S02 создать таблицу и индексы
+
+## E005A5S04 заполнить таблицу
+
+## S006 Выполнить быстрое обновление
+
+## E004A2S03 изменить значение характеристики экземпляра
+
+## S006A5S03 обновить данные в таблице
