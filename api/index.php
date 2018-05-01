@@ -23,6 +23,92 @@ $app = new \Slim\App($container);
 
 // Define app routes
 
+/**
+ * @SWG\Swagger(
+ *   schemes={"http"},
+ *   host="localhost",
+ *   basePath="/",
+ *   produces={"application/json"},
+ *   consumes={"application/json"},
+ *     @SWG\Info(
+ *         version="1.0.0",
+ *         title="Swagger Petstore",
+ *         description="A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification",
+ *         termsOfService="http://swagger.io/terms/",
+ *         @SWG\Contact(name="Swagger API Team"),
+ *         @SWG\License(name="MIT")
+ *     ),
+ * )
+ */
+
+/**
+ * @SWG\Definition(
+ *   definition="essence-code",
+ *   type="string",
+ *   description="unique name for type of thing"
+ * )
+ * @SWG\Definition(
+ *   definition="essence-title",
+ *   type="string",
+ *   description="name for type of thing"
+ * )
+ * @SWG\Definition(
+ *   definition="essence-remark",
+ *   type="string",
+ *   description="description for type of thing"
+ * )
+ * @SWG\Definition(
+ *   definition="essence-storage",
+ *   type="string",
+ *   description="mode for storage data of thing, MUST be one of 'view' | 'materialized view' | 'table'"
+ * )
+ * @SWG\Definition(
+ *   definition="kind-code",
+ *   type="string",
+ *   description="unique name for kind of thing"
+ * )
+ * @SWG\Definition(
+ *   definition="kind-title",
+ *   type="string",
+ *   description="name for kind of thing"
+ * )
+ * @SWG\Definition(
+ *   definition="kind-remark",
+ *   type="string",
+ *   description="description for kind of thing"
+ * )
+ * @SWG\Definition(
+ *   definition="data-type",
+ *   type="string",
+ *   description="data type for value of kind, MUST be one of 'decimal' | 'datetime' | 'string'"
+ * )
+ * @SWG\Definition(
+ *   definition="range-type",
+ *   type="string",
+ *   description="mode for define range of values, MUST be one of 'continuous' | 'discrete'"
+ * )
+ * @SWG\Definition(
+ *   definition="thing-code",
+ *   type="string",
+ *   description="unique name for thing"
+ * )
+ * @SWG\Definition(
+ *   definition="thing-title",
+ *   type="string",
+ *   description="name for thing"
+ * )
+ * @SWG\Definition(
+ *   definition="thing-remark",
+ *   type="string",
+ *   description="description for thing"
+ * )
+ * @SWG\Definition(
+ *   definition="filter-parameters",
+ *   type="string",
+ *   description="parameters for filtering items, MUST be 'key-value' pairs, for example: '/key1/value1/key1/value2'"
+ * )
+ */
+
 $app->get('/', function (Request $request, Response $response, array $arguments) {
     $router = $this->get(ROUTER_COMPONENT);
     $viewer = $this->get(VIEWER_COMPONENT);
@@ -33,12 +119,53 @@ $app->get('/', function (Request $request, Response $response, array $arguments)
     return $response;
 })->setName(Page::DEFAULT);
 
+/**
+ * @SWG\Post(
+ *     path="/essence/{code}",
+ *     description="ADD_ESSENCE",
+ *     @SWG\Parameter(
+ *         name="code",
+ *         in="path",
+ *         type="string",
+ *         required=true,
+ *     ),
+ *     @SWG\Response(response=201, description="Null response"),
+ * )
+ */
 $app->post('/essence/{code}', function (Request $request, Response $response, array $arguments) {
-    return $response->write($arguments['code']);
+    return $response->withStatus(200);
 })->setName(Page::ADD_ESSENCE);
 
+/**
+ * @SWG\Get(
+ *     path="/essence/{code}",
+ *     description="VIEW_ESSENCE",
+ *     @SWG\Parameter(
+ *         name="code",
+ *         in="path",
+ *         type="string",
+ *         required=true,
+ *         @SWG\Schema(ref="#/definitions/essence-code"),
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="VIEW_ESSENCE response",
+ *         @SWG\Schema(
+ *             type="string",
+ *             @SWG\Items(ref="#/definitions/essence-code")
+ *         ),
+ *     ),
+ * )
+ */
 $app->get('/essence/{code}', function (Request $request, Response $response, array $arguments) {
-    return $response->write($arguments['code']);
+
+    $response = $response->withJson(array(
+        "code" => $arguments['code'],
+        "title" => "empty",
+        "remark" => "empty",
+    ));
+
+    return $response;
 })->setName(Page::VIEW_ESSENCE);
 
 $app->put('/essence/{code}', function (Request $request, Response $response, array $arguments) {
