@@ -93,14 +93,11 @@ GET '/essence-catalog' get
 ```
 result:
 code
-title
-remark
-storage
 ```
 
-GET '/essence-catalog/filter/[{params:.*}]' search
+GET '/essence-catalog/{search-parameters}' search
 ```
-params:
+search-parameters:
 code => %like%
 title => %like%
 remark => %like%
@@ -109,11 +106,11 @@ storage => SHOULD be one of : view || matherial view || table
 result:
 essence-code
 ```
-## kind - Характеристика
+## attribute - Характеристика
 
-POST '/kind/{code}' add
+POST '/attribute/{code}' add
 
-GET '/kind/{code}' get
+GET '/attribute/{code}' get
 ```
 result:
 code
@@ -122,7 +119,7 @@ remark
 data-type
 range-type
 ```
-PUT '/kind/{code}' change
+PUT '/attribute/{code}' change
 ```
 params:
 code => value || not specified
@@ -132,18 +129,16 @@ data-type => value ( MUST be one of : decimal || timestamp || symbol ) || not sp
 range-type => value ( MUST be one of : continuous || discrete ) || not specified
 ```
 
-## kind-catalog - Каталог характеристик
+## attribute-catalog - Каталог характеристик
 
-GET '/kind-catalog' get
+GET '/attribute-catalog' get
 ```
 result:
-kind-code
-kind-title
-kind-remark
+code
 ```
-GET '/kind-catalog/filter/[{params:.*}]' search
+GET '/attribute-catalog/filter/{search-parameters}' search
 ```
-params:
+search-parameters:
 code => %like%
 title => %like%
 remark => %like%
@@ -151,19 +146,19 @@ data-type => SHOULD be one of : decimal || timestamp || symbol
 range-type => SHOULD be one of : continuous || discrete
 
 result:
-kind-code
+attribute-code
 ```
-## essence-kind - характеристики видов
+## essence-attribute - характеристики видов
 
-POST '/essence-kind/{essence-code}/{kind-code}' link essence with kind
+POST '/essence-attribute/{essence-code}/{attribute-code}' link essence with attribute
 
-DELETE '/essence-kind/{essence-code}/{kind-code}' unlink essence and kind
+DELETE '/essence-attribute/{essence-code}/{attribute-code}' unlink essence and attribute
 
-GET '/essence-kind[/{essence-code}]' search
+GET '/essence-attribute/{essence-code}' search
 ```
 result:
 [
-    essence-code => [kind-code1, kind-code2, .. , kind-codeN]
+    essence-code => [attribute-code1, attribute-code2, .. , attribute-codeN]
 ]
 ```  
 ## thing - Модель (экземпляр сущности)
@@ -191,7 +186,7 @@ remark => value || not specified
 GET '/essence-filer/{essence-code}' get
 ```
 result:
-[kind-code =>
+[attribute-code =>
     [
         'data-type' => decimal || timestamp || symbol ,
         range-type => continuous || discrete ,
@@ -201,26 +196,26 @@ result:
       
 ```
 
-## thing-kind - Значение характеристики модели
+## thing-attribute - Значение характеристики модели
 
-POST '/thing-kind/{thing-code}/{kind-code}' add
+POST '/thing-attribute/{thing-code}/{attribute-code}' add
 
-PUT '/thing-kind/{thing-code}/{kind-code}' change
+PUT '/thing-attribute/{thing-code}/{attribute-code}' change
 ```
 params:
 value => value || not specified 
 ```
 
-GET '/thing-kind/filter/essence-code/{essence-code}[/{params:.*}]' search
+GET '/thing-attribute/filter/essence-code/{essence-code}/{params}' search
 ```
 params:
 essence-code => strict equality
-[kind-code=>filter] (filter MUST be one of [min,max] or [value1, value2, .. , valueN] )
+[attribute-code=>filter] (filter MUST be one of [min,max] or [value1, value2, .. , valueN] )
 
 result:
 [ 
     essence-code  => [
-            thing-code => [ kind-code => value ] 
+            thing-code => [ attribute-code => value ] 
         ]
 ]
 ```
@@ -242,25 +237,25 @@ PUT '/essence/cake'
 ```
 ## S001A1S03 создать характеристику
 ```
-POST '/kind/price'
-POST '/kind/production-date'
-POST '/kind/place-of-production'
+POST '/attribute/price'
+POST '/attribute/production-date'
+POST '/attribute/place-of-production'
 ```
 ## S001A1S04 задать свойства характеристики
 ```
-PUT '/kind/price'
+PUT '/attribute/price'
 {
   "title": "цена, руб.",
   "data-type": "decimal",
   "range-type": "continuous"
 }
-PUT '/kind/production-date'
+PUT '/attribute/production-date'
 {
   "title": "дата выработки",
   "data-type": "timestamp",
   "range-type": "continuous"
 }
-PUT '/kind/place-of-production'
+PUT '/attribute/place-of-production'
 {
   "title": "Место производства",
   "data-type": "symbol",
@@ -269,9 +264,9 @@ PUT '/kind/place-of-production'
 ```
 ## S001A1S05 задать сушности характеристику
 ```
-POST '/essence-kind/cake/price'
-POST '/essence-kind/cake/production-date'
-POST '/essence-kind/cake/place-of-production'
+POST '/essence-attribute/cake/price'
+POST '/essence-attribute/cake/production-date'
+POST '/essence-attribute/cake/place-of-production'
 ```
 
 ## S001A2S01 создать экземпляр сущности
@@ -297,46 +292,46 @@ PUT '/thing/cinnamon-bun'
 ```
 ## S001A2S03 задать значения для характеристики экземпляра
 ```
-PUT '/thing-kind/bun-with-jam/price'
+PUT '/thing-attribute/bun-with-jam/price'
 {
   "value": 15.50
 }
-PUT '/thing-kind/bun-with-jam/production-date'
+PUT '/thing-attribute/bun-with-jam/production-date'
 {
   "value": "20180429T1356"
 }
-PUT '/thing-kind/bun-with-jam/place-of-production'
+PUT '/thing-attribute/bun-with-jam/place-of-production'
 {
   "value": "Екатеринбург"
 }
-PUT '/thing-kind/bun-with-raisins/price'
+PUT '/thing-attribute/bun-with-raisins/price'
 {
   "value": 9.50
 }
-PUT '/thing-kind/bun-with-raisins/production-date'
+PUT '/thing-attribute/bun-with-raisins/production-date'
 {
   "value": "20180427"
 }
-PUT '/thing-kind/bun-with-raisins/place-of-production'
+PUT '/thing-attribute/bun-with-raisins/place-of-production'
 {
   "value": "Екатеринбург"
 }
-PUT '/thing-kind/cinnamon-bun/price'
+PUT '/thing-attribute/cinnamon-bun/price'
 {
   "value": 4.50
 }
-PUT '/thing-kind/cinnamon-bun/production-date'
+PUT '/thing-attribute/cinnamon-bun/production-date'
 {
   "value": "20180429"
 }
-PUT '/thing-kind/cinnamon-bun/place-of-production'
+PUT '/thing-attribute/cinnamon-bun/place-of-production'
 {
   "value": "Челябинск"
 }
 ```
 ## S001A4S04 получить данные представления
 ```
-GET '/thing-kind/filter/essence-code/cake'
+GET '/thing-attribute/filter/essence-code/cake'
 result:
 {
   "cake": [
@@ -434,7 +429,7 @@ result:
 ``` 
 ## S002A4S04 сделать выборку экземпляров по заданным условиям поиска (поиск в представлении)
 ```
-GET '/thing-kind/filter/essence-code/cake/price/4.5/price/10/production-date/20180427/production-date/20180429/place-of-production/Екатеринбург/place-of-production/Челябинск'
+GET '/thing-attribute/filter/essence-code/cake/price/4.5/price/10/production-date/20180427/production-date/20180429/place-of-production/Екатеринбург/place-of-production/Челябинск'
 result:
 {
   "cake": [

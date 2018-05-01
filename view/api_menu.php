@@ -15,7 +15,8 @@ use AllThings\Development\Page;
 <div id="links">
     <dl>
         <dt>Common</dt>
-        <dd><a href='<?= $actionLinks[Page::DEFAULT] ?>'>Меню вызовов API AllThings</a></dd>
+        <dd><a href='<?= $actionLinks[Page::DEFAULT] ?>'>Start page</a></dd>
+        <dd><a href='dist'>Меню вызовов API AllThings</a></dd>
     </dl>
     <dl>
         <dt>ESSENCE</dt>
@@ -30,20 +31,20 @@ use AllThings\Development\Page;
     </dl>
     <dl>
         <dt>KIND</dt>
-        <dd><a href='<?= $actionLinks[Page::ADD_KIND] ?>'>Добавить характеристику</a></dd>
-        <dd><a href='<?= $actionLinks[Page::VIEW_KIND] ?>'>Показать характеристику</a></dd>
-        <dd><a href='<?= $actionLinks[Page::STORE_KIND] ?>'>Записать свойства характеристики</a></dd>
+        <dd><a href='<?= $actionLinks[Page::ADD_ATTRIBUTE] ?>'>Добавить характеристику</a></dd>
+        <dd><a href='<?= $actionLinks[Page::VIEW_ATTRIBUTE] ?>'>Показать характеристику</a></dd>
+        <dd><a href='<?= $actionLinks[Page::STORE_ATTRIBUTE] ?>'>Записать свойства характеристики</a></dd>
     </dl>
     <dl>
         <dt>KIND-CATALOG</dt>
-        <dd><a href='<?= $actionLinks[Page::VIEW_KIND_CATALOG] ?>'>Показать весь каталог</a></dd>
-        <dd><a href='<?= $actionLinks[Page::FILTER_KIND_CATALOG] ?>'>Сделать выборку из каталога</a></dd>
+        <dd><a href='<?= $actionLinks[Page::VIEW_ATTRIBUTE_CATALOG] ?>'>Показать весь каталог</a></dd>
+        <dd><a href='<?= $actionLinks[Page::FILTER_ATTRIBUTE_CATALOG] ?>'>Сделать выборку из каталога</a></dd>
     </dl>
     <dl>
         <dt>ESSENCE-KIND-LINK</dt>
-        <dd><a href='<?= $actionLinks[Page::ADD_ESSENCE_KIND_LINK] ?>'>Добавить характеристику к сущности</a></dd>
-        <dd><a href='<?= $actionLinks[Page::REMOVE_ESSENCE_KIND_LINK] ?>'>Удалить характеристику у сущности</a></dd>
-        <dd><a href='<?= $actionLinks[Page::VIEW_KIND_OF_ESSENCE] ?>'>Показать все характеристики сущности</a></dd>
+        <dd><a href='<?= $actionLinks[Page::ADD_ESSENCE_ATTRIBUTE_LINK] ?>'>Добавить характеристику к сущности</a></dd>
+        <dd><a href='<?= $actionLinks[Page::REMOVE_ESSENCE_ATTRIBUTE_LINK] ?>'>Удалить характеристику у сущности</a></dd>
+        <dd><a href='<?= $actionLinks[Page::VIEW_ATTRIBUTE_OF_ESSENCE] ?>'>Показать все характеристики сущности</a></dd>
     </dl>
     <dl>
         <dt>THING</dt>
@@ -57,10 +58,10 @@ use AllThings\Development\Page;
     </dl>
     <dl>
         <dt>KIND-OF-THING</dt>
-        <dd><a href='<?= $actionLinks[Page::ADD_KIND_TO_THING] ?>'>Добавить характеристику к экземпляру</a></dd>
-        <dd><a href='<?= $actionLinks[Page::STORE_KIND_OF_THING] ?>'>Записать значение характеристики у
+        <dd><a href='<?= $actionLinks[Page::ADD_ATTRIBUTE_TO_THING] ?>'>Добавить характеристику к экземпляру</a></dd>
+        <dd><a href='<?= $actionLinks[Page::STORE_ATTRIBUTE_OF_THING] ?>'>Записать значение характеристики у
                 экземпляра</a></dd>
-        <dd><a href='<?= $actionLinks[Page::FILTER_THING_BY_KIND] ?>'>Сделать выборку из экземпляров сущности</a></dd>
+        <dd><a href='<?= $actionLinks[Page::FILTER_THING_BY_ATTRIBUTE] ?>'>Сделать выборку из экземпляров сущности</a></dd>
     </dl>
 
 </div>
