@@ -16,7 +16,7 @@ use AllThings\Development\Page;
     <dl>
         <dt>Common</dt>
         <dd><a href='<?= $actionLinks[Page::DEFAULT] ?>'>Start page</a></dd>
-        <dd><a href='dist'>Меню вызовов API AllThings</a></dd>
+        <dd><a href='dist'>Меню вызовов (Swagger-UI) API AllThings</a></dd>
     </dl>
     <dl>
         <dt>ESSENCE</dt>

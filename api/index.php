@@ -31,11 +31,9 @@ $app = new \Slim\App($container);
  *   produces={"application/json"},
  *   consumes={"application/json"},
  *     @SWG\Info(
- *         version="1.0.0",
- *         title="Swagger Petstore",
- *         description="A sample API that uses a petstore as an example to demonstrate features in the swagger-2.0 specification",
- *         termsOfService="http://swagger.io/terms/",
- *         @SWG\Contact(name="Swagger API Team"),
+ *         version="0.1.0",
+ *         title="storage-for-all-things",
+ *         description="API that uses a storage-for-all-things",
  *         @SWG\License(name="MIT")
  *     ),
  * )
@@ -134,62 +132,14 @@ $app = new \Slim\App($container);
  *   description="unique name for type of thing"
  * )
  * @SWG\Definition(
- *   definition="essence-title",
- *   type="string",
- *   description="name for type of thing"
- * )
- * @SWG\Definition(
- *   definition="essence-remark",
- *   type="string",
- *   description="description for type of thing"
- * )
- * @SWG\Definition(
- *   definition="essence-storage",
- *   type="string",
- *   description="mode for storage data of thing, MUST be one of 'view' | 'materialized view' | 'table'",
- *   enum={"view", "materialized view", "table"}
- * )
- * @SWG\Definition(
  *   definition="attribute-code",
  *   type="string",
  *   description="unique name for attribute of thing"
  * )
  * @SWG\Definition(
- *   definition="attribute-title",
- *   type="string",
- *   description="name for attribute of thing"
- * )
- * @SWG\Definition(
- *   definition="attribute-remark",
- *   type="string",
- *   description="description for attribute of thing"
- * )
- * @SWG\Definition(
- *   definition="data-type",
- *   type="string",
- *   description="data type for value of attribute, MUST be one of 'decimal' | 'datetime' | 'string'",
- *   enum={"decimal", "datetime", "string"}
- * )
- * @SWG\Definition(
- *   definition="range-type",
- *   type="string",
- *   description="mode for define range of values, MUST be one of 'continuous' | 'discrete'",
- *   enum={"continuous", "discrete"}
- * )
- * @SWG\Definition(
  *   definition="thing-code",
  *   type="string",
  *   description="unique name for thing"
- * )
- * @SWG\Definition(
- *   definition="thing-title",
- *   type="string",
- *   description="name for thing"
- * )
- * @SWG\Definition(
- *   definition="thing-remark",
- *   type="string",
- *   description="description for thing"
  * )
  * @SWG\Definition(
  *   definition="filter-parameters",
@@ -210,18 +160,19 @@ $app->get('/', function (Request $request, Response $response, array $arguments)
 
 /**
  * @SWG\Post(
- *    path="/essence/{code}",
- *    description="ADD_ESSENCE",
- *    @SWG\Parameter(
- *        name="code",
- *        in="path",
- *        type="string",
- *        required=true,
- *    ),
- *    @SWG\Response(
- *        response=201,
- *        description="Null response"
- *    ),
+ *     path="/essence/{code}",
+ *     summary="Create an essence object",
+ *     description="ADD_ESSENCE",
+ *     @SWG\Parameter(
+ *         name="code",
+ *         in="path",
+ *         type="string",
+ *         required=true,
+ *     ),
+ *     @SWG\Response(
+ *         response=201,
+ *         description="Null response"
+ *     ),
  * )
  */
 $app->post('/essence/{code}', function (Request $request, Response $response, array $arguments) {
@@ -231,6 +182,7 @@ $app->post('/essence/{code}', function (Request $request, Response $response, ar
 /**
  * @SWG\Get(
  *    path="/essence/{code}",
+ *     summary="Browse an essence object",
  *    description="VIEW_ESSENCE",
  *    @SWG\Parameter(
  *        name="code",
@@ -262,7 +214,7 @@ $app->get('/essence/{code}', function (Request $request, Response $response, arr
 /**
  * @SWG\Put(
  *     path="/essence/{code}",
- *     summary="Update an existing essence",
+ *     summary="Update an existing essence object",
  *     description="STORE_ESSENCE_PROPERTY",
  *     @SWG\Parameter(
  *         name="code",
@@ -291,6 +243,7 @@ $app->put('/essence/{code}', function (Request $request, Response $response, arr
 /**
  * @SWG\Get(
  *    path="/essence-catalog",
+ *     summary="Browse whole collection of essence objects",
  *    description="VIEW_ESSENCE_CATALOG",
  *     @SWG\Response(
  *         response=200,
@@ -314,10 +267,11 @@ $app->get('/essence-catalog', function (Request $request, Response $response, ar
 
 /**
  * @SWG\Get(
- *    path="/essence-catalog/filter/{params}",
+ *    path="/essence-catalog/filter/{filter}",
+ *     summary="Find an essence object with certain characteristics",
  *    description="FILTER_ESSENCE_CATALOG",
  *     @SWG\Parameter(
- *         name="params",
+ *         name="filter",
  *         in="path",
  *         type="string",
  *         description="parameters of filtering, SHOULD has format like this: 'key:value1;value2; .. valueN;key2:minimal-value;maximal-value'",
@@ -333,7 +287,7 @@ $app->get('/essence-catalog', function (Request $request, Response $response, ar
  *     ),
  * )
  */
-$app->get('/essence-catalog/filter/{params}', function (Request $request, Response $response, array $arguments) {
+$app->get('/essence-catalog/filter/{filter}', function (Request $request, Response $response, array $arguments) {
     $response = $response->withJson(array
     (
         'some' => array('code' => 'one')
@@ -345,6 +299,7 @@ $app->get('/essence-catalog/filter/{params}', function (Request $request, Respon
 /**
  * @SWG\Post(
  *    path="/attribute/{code}",
+ *     summary="Create an attribute object",
  *    description="ADD_ATTRIBUTE",
  *    @SWG\Parameter(
  *        name="code",
@@ -367,6 +322,7 @@ $app->post('/attribute/{code}', function (Request $request, Response $response, 
 /**
  * @SWG\Get(
  *    path="/attribute/{code}",
+ *     summary="Browse an attribute object",
  *    description="VIEW_ATTRIBUTE",
  *    @SWG\Parameter(
  *        name="code",
@@ -399,7 +355,7 @@ $app->get('/attribute/{code}', function (Request $request, Response $response, a
 /**
  * @SWG\Put(
  *     path="/attribute/{code}",
- *     summary="Update an existing attribute",
+ *     summary="Update an existing attribute object",
  *     description="STORE_ATTRIBUTE",
  *     @SWG\Parameter(
  *         name="code",
@@ -425,11 +381,12 @@ $app->put('/attribute/{code}', function (Request $request, Response $response, a
     $response = $response->withStatus(200);
 
     return $response;
-})->setName(Page::VIEW_ATTRIBUTE_CATALOG);
+})->setName(Page::STORE_ATTRIBUTE);
 
 /**
  * @SWG\Get(
  *    path="/attribute-catalog",
+ *     summary="Browse whole collection of attribute objects",
  *    description="VIEW_ATTRIBUTE_CATALOG",
  *     @SWG\Response(
  *         response=200,
@@ -453,10 +410,11 @@ $app->get('/attribute-catalog', function (Request $request, Response $response, 
 
 /**
  * @SWG\Get(
- *    path="/attribute-catalog/filter/{params}",
+ *    path="/attribute-catalog/filter/{filter}",
+ *     summary="Find an essence objects with certain characteristics",
  *    description="FILTER_ATTRIBUTE_CATALOG",
  *     @SWG\Parameter(
- *         name="params",
+ *         name="filter",
  *         in="path",
  *         type="string",
  *         description="parameters of filtering, SHOULD has format like this: 'key:value1;value2; .. valueN;key2:minimal-value;maximal-value'",
@@ -472,7 +430,7 @@ $app->get('/attribute-catalog', function (Request $request, Response $response, 
  *     ),
  * )
  */
-$app->get('/attribute-catalog/filter/{params}', function (Request $request, Response $response, array $arguments) {
+$app->get('/attribute-catalog/filter/{filter}', function (Request $request, Response $response, array $arguments) {
     $response = $response->withStatus(200);
 
     return $response;
@@ -481,6 +439,7 @@ $app->get('/attribute-catalog/filter/{params}', function (Request $request, Resp
 /**
  * @SWG\Post(
  *    path="/essence-attribute/{essence-code}/{attribute-code}",
+ *     summary="Create linkage of an essence object and an attribute object",
  *    description="ADD_ESSENCE_ATTRIBUTE_LINK",
  *    @SWG\Parameter(
  *        name="essence-code",
@@ -509,6 +468,7 @@ $app->post('/essence-attribute/{essence-code}/{attribute-code}', function (Reque
 /**
  * @SWG\Delete(
  *    path="/essence-attribute/{essence-code}/{attribute-code}",
+ *     summary="Remove linkage of an essence object and an attribute object",
  *    description="REMOVE_ESSENCE_ATTRIBUTE_LINK",
  *    @SWG\Parameter(
  *        name="essence-code",
@@ -537,6 +497,7 @@ $app->delete('/essence-attribute/{essence-code}/{attribute-code}', function (Req
 /**
  * @SWG\Get(
  *    path="/essence-attribute/{essence-code}",
+ *     summary="Browse collection of attribute objects linked with an essence object",
  *    description="VIEW_ATTRIBUTE_OF_ESSENCE",
  *     @SWG\Parameter(
  *         name="essence-code",
@@ -567,6 +528,7 @@ $app->get('/essence-attribute/{essence-code}', function (Request $request, Respo
 /**
  * @SWG\Post(
  *    path="/thing/{essence-code}/{thing-code}",
+ *     summary="Create a thing object of specified an essence object",
  *    description="ADD_ESSENCE_ATTRIBUTE_LINK",
  *    @SWG\Parameter(
  *        name="essence-code",
@@ -595,6 +557,7 @@ $app->post('/thing/{essence-code}/{thing-code}', function (Request $request, Res
 /**
  * @SWG\Get(
  *    path="/thing/{code}",
+ *     summary="Browse a thing object",
  *    description="VIEW_THING",
  *     @SWG\Parameter(
  *         name="code",
@@ -627,7 +590,7 @@ $app->get('/thing/{code}', function (Request $request, Response $response, array
 /**
  * @SWG\Put(
  *     path="/thing/{code}",
- *     summary="Update an existing thing",
+ *     summary="Update an existing thing object",
  *     description="STORE_THING",
  *     @SWG\Parameter(
  *         name="code",
@@ -658,6 +621,7 @@ $app->put('/thing/{code}', function (Request $request, Response $response, array
 /**
  * @SWG\Get(
  *    path="/essence-filer/{essence-code}",
+ *     summary="Browse a finds parameters of specified an essence object",
  *    description="FILTER_OF_ESSENCE",
  *     @SWG\Parameter(
  *         name="essence-code",
@@ -695,7 +659,8 @@ $app->get('/essence-filer/{essence-code}', function (Request $request, Response 
 
 /**
  * @SWG\Post(
- *    path="/thing/{thing-code}/{attribute-code}",
+ *    path="/thing-attribute/{thing-code}/{attribute-code}",
+ *     summary="Create a content object (value of the attribute) of the thing object with specified value",
  *    description="ADD_ATTRIBUTE_TO_THING",
  *    @SWG\Parameter(
  *        name="thing-code",
@@ -772,7 +737,8 @@ $app->put('/thing-attribute/{thing-code}/{attribute-code}', function (Request $r
 
 /**
  * @SWG\Get(
- *    path="/thing-attribute/filter/essence-code/{essence-code}/{params}",
+ *    path="/thing-attribute/essence-code/{essence-code}/filter/{filter}",
+ *     summary="Find an thing object with certain characteristics",
  *    description="FILTER_THING_BY_ATTRIBUTE",
  *     @SWG\Parameter(
  *         name="essence-code",
@@ -782,7 +748,7 @@ $app->put('/thing-attribute/{thing-code}/{attribute-code}', function (Request $r
  *         required=true,
  *     ),
  *     @SWG\Parameter(
- *         name="params",
+ *         name="filter",
  *         in="path",
  *         type="string",
  *         description="parameters of filtering, SHOULD has format like this: 'key:value1;value2; .. valueN;key2:minimal-value;maximal-value'",
@@ -798,7 +764,7 @@ $app->put('/thing-attribute/{thing-code}/{attribute-code}', function (Request $r
  *     ),
  * )
  */
-$app->get('/thing-attribute/filter/essence-code/{essence-code}/{params}', function (Request $request, Response $response, array $arguments) {
+$app->get('/thing-attribute/essence-code/{essence-code}/filter/{filter}', function (Request $request, Response $response, array $arguments) {
     $response = $response->withJson(array
     (
         'some' => array('red big thing', 'green medium model', 'light and bright glass')
