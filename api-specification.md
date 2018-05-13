@@ -24,7 +24,6 @@ title => value
 remark => value
 storage => value ( MUST be one of : view | matherial view | table )
 ```
-
 ## essence-catalog - Каталог сущностей
 
 GET '/essence-catalog' get
@@ -32,10 +31,9 @@ GET '/essence-catalog' get
 result, collection:
 essence-code
 ```
-
-GET '/essence-catalog/{search-parameters}' search
+GET '/essence-catalog/filter/{filter}' search
 ```
-search-parameters (any parameter can be omitted):
+filter (any parameter can be omitted):
 code => %like%
 title => %like%
 remark => %like%
@@ -66,7 +64,6 @@ remark => value
 data-type => value ( MUST be one of : decimal | timestamp | symbol )
 range-type => value ( MUST be one of : continuous | discrete )
 ```
-
 ## attribute-catalog - Каталог характеристик
 
 GET '/attribute-catalog' get
@@ -74,9 +71,9 @@ GET '/attribute-catalog' get
 result, collection:
 attribute-code
 ```
-GET '/attribute-catalog/filter/{search-parameters}' search
+GET '/attribute-catalog/filter/{filter}' search
 ```
-search-parameters (any parameter can be omitted):
+filter (any parameter can be omitted):
 code => %like%
 title => %like%
 remark => %like%
@@ -92,31 +89,44 @@ POST '/essence-attribute/{essence-code}/{attribute-code}' link essence with attr
 
 DELETE '/essence-attribute/{essence-code}/{attribute-code}' unlink essence and attribute
 
-GET '/essence-attribute/{essence-code}' get attributes of essence
+GET '/essence-attribute/{essence-code}' get all attributes of essence
 ```
 result, collection:
 [
     essence-code => [attribute-code1, attribute-code2, .. , attribute-codeN]
 ]
-```  
+```
+## essence-thing - предметы сущностей (набор предметов одного типа)
+
+POST '/essence-thing/{essence-code}/{thing-code}' link essence with thing
+
+DELETE '/essence-thing/{essence-code}/{thing-code}' unlink essence and thing
+
+GET '/essence-thing/{essence-code}' get all thing of essence
+```
+result, collection:
+[
+    essence-code => [thing-code1, thing-code2, .. , thing-codeN]
+]
+``` 
 ## thing - Предмет (экземпляр сущности)
 
 POST '/thing/{essence-code}/{thing-code}' create
 
-GET '/thing/{code}' get
+GET '/thing/{essence-code}/{thing-code}' get
 ```
 result:
-essence-code
-thing-code
-thing-title
-thing-remark
+code
+title
+remark
 ```
-PUT '/thing/{code}' change
+PUT '/thing/{essence-code}/{thing-code}' change
 ```
 parameters (any parameter can be omitted):
-code => value
-title => value
-remark => value
+essence-code => value
+thing-code => value
+thing-title => value
+thing-remark => value
 ```
 
 ## essence-filer - Фильтры для поиска предметов определённого типа
@@ -133,9 +143,7 @@ result, collection:
         ]
     ]
 ] 
-      
 ```
-
 ## thing-attribute (content) - Значение характеристики предмета (содержимое характеристики)
 
 POST '/thing-attribute/{thing-code}/{attribute-code}' create
@@ -145,7 +153,6 @@ PUT '/thing-attribute/{thing-code}/{attribute-code}' change
 parameter:
 content => value 
 ```
-
 GET '/thing-attribute/essence-code/filter/{essence-code}/{search-parameters}' search
 ```
 parameters:

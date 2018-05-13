@@ -9,6 +9,10 @@ define('APPLICATION_ROOT', realpath(__DIR__) . DIRECTORY_SEPARATOR . '..');
 
 require APPLICATION_ROOT . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
 
+define('CONFIGURATION_ROOT', APPLICATION_ROOT . DIRECTORY_SEPARATOR . 'configuration');
+define('DB_READ_CONFIGURATION', CONFIGURATION_ROOT . DIRECTORY_SEPARATOR . 'db_read.php');
+define('DB_WRITE_CONFIGURATION', CONFIGURATION_ROOT . DIRECTORY_SEPARATOR . 'db_write.php');
+
 
 // Create and configure Slim app
 $configuration['displayErrorDetails'] = true;
@@ -525,6 +529,98 @@ $app->get('/essence-attribute/{essence-code}', function (Request $request, Respo
     return $response;
 })->setName(Page::VIEW_ATTRIBUTE_OF_ESSENCE);
 
+
+
+/**
+ * @SWG\Post(
+ *    path="/essence-thing/{essence-code}/{thing-code}",
+ *     summary="Create linkage of an essence object and an attribute object",
+ *    description="ADD_ESSENCE_ATTRIBUTE_LINK",
+ *    @SWG\Parameter(
+ *        name="essence-code",
+ *        in="path",
+ *        type="string",
+ *        required=true,
+ *    ),
+ *    @SWG\Parameter(
+ *        name="attribute-code",
+ *        in="path",
+ *        type="string",
+ *        required=true,
+ *    ),
+ *    @SWG\Response(
+ *        response=201,
+ *        description="Null response"
+ *    ),
+ * )
+ */
+$app->post('/essence-thing/{essence-code}/{thing-code}', function (Request $request, Response $response, array $arguments) {
+    $response = $response->withStatus(201);
+
+    return $response;
+})->setName(Page::ADD_ESSENCE_ATTRIBUTE_LINK);
+
+/**
+ * @SWG\Delete(
+ *    path="/essence-thing/{essence-code}/{thing-code}",
+ *     summary="Remove linkage of an essence object and an attribute object",
+ *    description="REMOVE_ESSENCE_ATTRIBUTE_LINK",
+ *    @SWG\Parameter(
+ *        name="essence-code",
+ *        in="path",
+ *        type="string",
+ *        required=true,
+ *    ),
+ *    @SWG\Parameter(
+ *        name="attribute-code",
+ *        in="path",
+ *        type="string",
+ *        required=true,
+ *    ),
+ *    @SWG\Response(
+ *        response=200,
+ *        description="Null response"
+ *    ),
+ * )
+ */
+$app->delete('/essence-thing/{essence-code}/{thing-code}', function (Request $request, Response $response, array $arguments) {
+    $response = $response->withStatus(200);
+
+    return $response;
+})->setName(Page::REMOVE_ESSENCE_ATTRIBUTE_LINK);
+
+/**
+ * @SWG\Get(
+ *    path="/essence-thing/{essence-code}",
+ *     summary="Browse collection of attribute objects linked with an essence object",
+ *    description="VIEW_ATTRIBUTE_OF_ESSENCE",
+ *     @SWG\Parameter(
+ *         name="essence-code",
+ *         in="path",
+ *         type="string",
+ *         description="code of essence for browse attributes",
+ *         required=true,
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Successful operation",
+ *         @SWG\Schema(
+ *             type="array",
+ *             @SWG\Items(ref="#/definitions/attribute-code")
+ *         ),
+ *     ),
+ * )
+ */
+$app->get('/essence-thing/{essence-code}', function (Request $request, Response $response, array $arguments) {
+    $response = $response->withJson(array
+    (
+        'some' => array('color', 'size', 'weight', 'price')
+    ));
+
+    return $response;
+})->setName(Page::VIEW_ATTRIBUTE_OF_ESSENCE);
+
+
 /**
  * @SWG\Post(
  *    path="/thing/{essence-code}/{thing-code}",
@@ -556,11 +652,17 @@ $app->post('/thing/{essence-code}/{thing-code}', function (Request $request, Res
 
 /**
  * @SWG\Get(
- *    path="/thing/{code}",
+ *    path="/thing/{essence-code}/{thing-code}",
  *     summary="Browse a thing object",
  *    description="VIEW_THING",
+ *    @SWG\Parameter(
+ *        name="essence-code",
+ *        in="path",
+ *        type="string",
+ *        required=true,
+ *    ),
  *     @SWG\Parameter(
- *         name="code",
+ *         name="thing-code",
  *         in="path",
  *         type="string",
  *         description="code of the thing",
@@ -576,7 +678,7 @@ $app->post('/thing/{essence-code}/{thing-code}', function (Request $request, Res
  *     ),
  * )
  */
-$app->get('/thing/{code}', function (Request $request, Response $response, array $arguments) {
+$app->get('/thing/{essence-code}/{thing-code}', function (Request $request, Response $response, array $arguments) {
 
     $response = $response->withJson(array(
         'code' => $arguments['code'],
@@ -589,11 +691,17 @@ $app->get('/thing/{code}', function (Request $request, Response $response, array
 
 /**
  * @SWG\Put(
- *     path="/thing/{code}",
+ *     path="/thing/{essence-code}/{thing-code}",
  *     summary="Update an existing thing object",
  *     description="STORE_THING",
+ *    @SWG\Parameter(
+ *        name="essence-code",
+ *        in="path",
+ *        type="string",
+ *        required=true,
+ *    ),
  *     @SWG\Parameter(
- *         name="code",
+ *         name="thing-code",
  *         in="path",
  *         type="string",
  *         description="code of thing object",
@@ -612,7 +720,7 @@ $app->get('/thing/{code}', function (Request $request, Response $response, array
  *     ),
  * )
  */
-$app->put('/thing/{code}', function (Request $request, Response $response, array $arguments) {
+$app->put('/thing/{essence-code}/{thing-code}', function (Request $request, Response $response, array $arguments) {
     $response = $response->withStatus(200);
 
     return $response;

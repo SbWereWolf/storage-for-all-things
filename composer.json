@@ -1,9 +1,4 @@
 {
-    "require": {
-        "slim/slim": "^3.0",
-        "slim/php-view": "^2.2",
-        "zircote/swagger-php": "^2.0"
-    },
     "autoload": {
         "psr-4": {
             "AllThings\\": ["src/"]
