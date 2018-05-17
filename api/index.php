@@ -1,6 +1,8 @@
 <?php
 
 
+use Environment\DbConnection;
+use AllThings\DataObject\NamedEntity;
 use AllThings\Development\Page;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -180,7 +182,25 @@ $app->get('/', function (Request $request, Response $response, array $arguments)
  * )
  */
 $app->post('/essence/{code}', function (Request $request, Response $response, array $arguments) {
-    return $response->withStatus(201);
+
+    $body = $request->getParsedBody();
+    $code = $arguments['code'];
+    $entityCode = (new \AllThings\Reception\ToNamed())->fromCreate($code,$body);
+
+    $dataPath = (new DbConnection())->getForWrite();
+    $essence = new NamedEntity();
+    $handler = new AllThings\Essence\EssenceHandler($essence, $dataPath);
+    $isSuccess = $handler->create($entityCode);
+
+    if($isSuccess){
+        $response = $response->withStatus(201);
+    }
+    if(!$isSuccess){
+        $response = $response->withStatus(500);
+    }
+
+
+    return $response;
 })->setName(Page::ADD_ESSENCE);
 
 /**
@@ -529,13 +549,11 @@ $app->get('/essence-attribute/{essence-code}', function (Request $request, Respo
     return $response;
 })->setName(Page::VIEW_ATTRIBUTE_OF_ESSENCE);
 
-
-
 /**
  * @SWG\Post(
  *    path="/essence-thing/{essence-code}/{thing-code}",
  *     summary="Create linkage of an essence object and an attribute object",
- *    description="ADD_ESSENCE_ATTRIBUTE_LINK",
+ *    description="ADD_ESSENCE_THING_LINK",
  *    @SWG\Parameter(
  *        name="essence-code",
  *        in="path",
@@ -558,7 +576,7 @@ $app->post('/essence-thing/{essence-code}/{thing-code}', function (Request $requ
     $response = $response->withStatus(201);
 
     return $response;
-})->setName(Page::ADD_ESSENCE_ATTRIBUTE_LINK);
+})->setName(Page::ADD_ESSENCE_THING_LINK);
 
 /**
  * @SWG\Delete(
@@ -587,7 +605,7 @@ $app->delete('/essence-thing/{essence-code}/{thing-code}', function (Request $re
     $response = $response->withStatus(200);
 
     return $response;
-})->setName(Page::REMOVE_ESSENCE_ATTRIBUTE_LINK);
+})->setName(Page::REMOVE_ESSENCE_THING_LINK);
 
 /**
  * @SWG\Get(
@@ -618,22 +636,16 @@ $app->get('/essence-thing/{essence-code}', function (Request $request, Response 
     ));
 
     return $response;
-})->setName(Page::VIEW_ATTRIBUTE_OF_ESSENCE);
+})->setName(Page::VIEW_THINGS_OF_ESSENCE);
 
 
 /**
  * @SWG\Post(
- *    path="/thing/{essence-code}/{thing-code}",
+ *    path="/thing/{code}",
  *     summary="Create a thing object of specified an essence object",
- *    description="ADD_ESSENCE_ATTRIBUTE_LINK",
+ *    description="ADD_THING",
  *    @SWG\Parameter(
- *        name="essence-code",
- *        in="path",
- *        type="string",
- *        required=true,
- *    ),
- *    @SWG\Parameter(
- *        name="thing-code",
+ *        name="code",
  *        in="path",
  *        type="string",
  *        required=true,
@@ -644,7 +656,7 @@ $app->get('/essence-thing/{essence-code}', function (Request $request, Response 
  *    ),
  * )
  */
-$app->post('/thing/{essence-code}/{thing-code}', function (Request $request, Response $response, array $arguments) {
+$app->post('/thing/{code}', function (Request $request, Response $response, array $arguments) {
     $response = $response->withStatus(201);
 
     return $response;
@@ -652,17 +664,11 @@ $app->post('/thing/{essence-code}/{thing-code}', function (Request $request, Res
 
 /**
  * @SWG\Get(
- *    path="/thing/{essence-code}/{thing-code}",
+ *    path="/thing/{code}",
  *     summary="Browse a thing object",
  *    description="VIEW_THING",
- *    @SWG\Parameter(
- *        name="essence-code",
- *        in="path",
- *        type="string",
- *        required=true,
- *    ),
  *     @SWG\Parameter(
- *         name="thing-code",
+ *         name="code",
  *         in="path",
  *         type="string",
  *         description="code of the thing",
@@ -678,7 +684,7 @@ $app->post('/thing/{essence-code}/{thing-code}', function (Request $request, Res
  *     ),
  * )
  */
-$app->get('/thing/{essence-code}/{thing-code}', function (Request $request, Response $response, array $arguments) {
+$app->get('/thing/{code}', function (Request $request, Response $response, array $arguments) {
 
     $response = $response->withJson(array(
         'code' => $arguments['code'],
@@ -691,17 +697,11 @@ $app->get('/thing/{essence-code}/{thing-code}', function (Request $request, Resp
 
 /**
  * @SWG\Put(
- *     path="/thing/{essence-code}/{thing-code}",
+ *     path="/thing/{code}",
  *     summary="Update an existing thing object",
  *     description="STORE_THING",
- *    @SWG\Parameter(
- *        name="essence-code",
- *        in="path",
- *        type="string",
- *        required=true,
- *    ),
  *     @SWG\Parameter(
- *         name="thing-code",
+ *         name="code",
  *         in="path",
  *         type="string",
  *         description="code of thing object",
@@ -720,7 +720,7 @@ $app->get('/thing/{essence-code}/{thing-code}', function (Request $request, Resp
  *     ),
  * )
  */
-$app->put('/thing/{essence-code}/{thing-code}', function (Request $request, Response $response, array $arguments) {
+$app->put('/thing/{code}', function (Request $request, Response $response, array $arguments) {
     $response = $response->withStatus(200);
 
     return $response;
@@ -882,5 +882,11 @@ $app->get('/thing-attribute/essence-code/{essence-code}/filter/{filter}', functi
 })->setName(Page::FILTER_THING_BY_ATTRIBUTE);
 
 // Run app
-/** @noinspection PhpUnhandledExceptionInspection */
-$app->run();
+
+try {
+    $app->run();
+} catch (Exception $e) {
+    echo $e->getMessage();
+}
+
+

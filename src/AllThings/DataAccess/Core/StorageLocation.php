@@ -14,11 +14,16 @@ class StorageLocation implements ValuableWriter
 {
 
     private $tableName = '';
+    /**
+     * @var \PDO
+     */
+    private $storageLocation;
 
-    function __construct(string $table)
+    function __construct(string $table, \PDO $storageLocation)
     {
 
         $this->tableName = $table;
+        $this->storageLocation = $storageLocation;
     }
 
     function addNamed(Named $entity): bool
@@ -26,7 +31,7 @@ class StorageLocation implements ValuableWriter
         $suggestion_code = $entity->getCode();
 
         $sqlText = 'insert into ' . $this->tableName . ' (code)values(:code)';
-        $connection = (new DbConnection ())->getForWrite();
+        $connection = $this->storageLocation;
 
         $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
@@ -50,7 +55,7 @@ class StorageLocation implements ValuableWriter
         $target_code = $entity->getCode();
 
         $sqlText = 'update ' . $this->tableName . ' set is_hidden = 1 where code = :code';
-        $connection = (new DbConnection ())->getForWrite();
+        $connection = $this->storageLocation;
 
         $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
@@ -78,7 +83,7 @@ class StorageLocation implements ValuableWriter
         $sqlText = 'update '
             . $this->tableName
             . ' set code = :suggestion_code,title = :suggestion_title,remark=:suggestion_remark where code=:target_code';
-        $connection = (new DbConnection ())->getForWrite();
+        $connection = $this->storageLocation;
 
         $connection->beginTransaction();
         $query = $connection->prepare($sqlText);

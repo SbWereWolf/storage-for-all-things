@@ -16,16 +16,22 @@ use AllThings\DataObject\NamedEntity;
 class RetrievableNamedHandler implements Valuable, Hideable, Retrievable
 {
 
-    function __construct(Named $named)
+    /**
+     * @var \PDO
+     */
+    private $dataPath;
+
+    function __construct(Named $named, \PDO $dataPath)
     {
-        $this->container = $named;
+        $this->container = $named->getDuplicate();
+        $this->dataPath = $dataPath;
     }
 
     private $storageLocation = '';
     private $container = null;
 
 
-    function add(string $code): bool
+    function insert(string $code): bool
     {
 
         $entity = (new NamedEntity())->setCode($code);
@@ -81,14 +87,14 @@ class RetrievableNamedHandler implements Valuable, Hideable, Retrievable
     private function getStorageLocation(): StorageLocation
     {
 
-        $repository = new StorageLocation($this->storageLocation);
+        $repository = new StorageLocation($this->storageLocation,$this->dataPath);
         return $repository;
     }
 
     private function getDataSource(): DataSource
     {
 
-        $repository = new DataSource($this->storageLocation);
+        $repository = new DataSource($this->storageLocation,$this->dataPath);
         return $repository;
     }
 

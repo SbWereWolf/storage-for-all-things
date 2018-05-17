@@ -14,11 +14,16 @@ class DataSource implements ValuableReader
 {
 
     private $tableName = '';
+    /**
+     * @var \PDO
+     */
+    private $dataSource;
 
-    function __construct(string $table)
+    function __construct(string $table, \PDO $dataSource)
     {
 
         $this->tableName = $table;
+        $this->dataSource = $dataSource;
     }
 
     function readNamed(Named $entity): bool
@@ -28,7 +33,7 @@ class DataSource implements ValuableReader
         $sqlText = 'select code,title,remark from '
             . $this->tableName
             . ' where code=:target_code';
-        $connection = (new DbConnection ())->getForRead();
+        $connection = $this->dataSource;
 
         $connection->beginTransaction();
         $query = $connection->prepare($sqlText);

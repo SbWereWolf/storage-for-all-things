@@ -6,7 +6,7 @@
  * Time: 21:07
  */
 
-namespace AllThings\DataAccess\Core;
+namespace Environment;
 
 
 interface IDbCredentials

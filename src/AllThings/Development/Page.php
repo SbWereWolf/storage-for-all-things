@@ -43,6 +43,10 @@ class Page
     const ADD_ATTRIBUTE_TO_THING = 'post-thing-attribute';
     const STORE_ATTRIBUTE_OF_THING = 'put-thing-attribute';
     const FILTER_THING_BY_ATTRIBUTE = 'get-filtered-things';
+    /*thins of essence */
+    const ADD_ESSENCE_THING_LINK = 'post-essence-thing';
+    const REMOVE_ESSENCE_THING_LINK = 'delete-essence-thing';
+    const VIEW_THINGS_OF_ESSENCE = 'get-essence-thing';
 
     private $viewer;
     private $router;
@@ -74,22 +78,25 @@ class Page
         $actionLinks[self::VIEW_ESSENCE] = $this->router->pathFor(self::VIEW_ESSENCE,['code'=>'code']);
         $actionLinks[self::STORE_ESSENCE] = $this->router->pathFor(self::STORE_ESSENCE,['code'=>'code']);
         $actionLinks[self::VIEW_ESSENCE_CATALOG] = $this->router->pathFor(self::VIEW_ESSENCE_CATALOG);
-        $actionLinks[self::FILTER_ESSENCE_CATALOG] = $this->router->pathFor(self::FILTER_ESSENCE_CATALOG,['params'=>'']);
+        $actionLinks[self::FILTER_ESSENCE_CATALOG] = $this->router->pathFor(self::FILTER_ESSENCE_CATALOG, ['filter' => '']);
         $actionLinks[self::ADD_ATTRIBUTE] = $this->router->pathFor(self::ADD_ATTRIBUTE,['code'=>'code']);
         $actionLinks[self::VIEW_ATTRIBUTE] = $this->router->pathFor(self::VIEW_ATTRIBUTE,['code'=>'code']);
         $actionLinks[self::STORE_ATTRIBUTE] = $this->router->pathFor(self::STORE_ATTRIBUTE,['code'=>'code']);
         $actionLinks[self::VIEW_ATTRIBUTE_CATALOG] = $this->router->pathFor(self::VIEW_ATTRIBUTE_CATALOG);
-        $actionLinks[self::FILTER_ATTRIBUTE_CATALOG] = $this->router->pathFor(self::FILTER_ATTRIBUTE_CATALOG,['params'=>'']);
+        $actionLinks[self::FILTER_ATTRIBUTE_CATALOG] = $this->router->pathFor(self::FILTER_ATTRIBUTE_CATALOG, ['filter' => '']);
         $actionLinks[self::ADD_ESSENCE_ATTRIBUTE_LINK] = $this->router->pathFor(self::ADD_ESSENCE_ATTRIBUTE_LINK,['essence-code'=>'essence-code','attribute-code'=>'attribute-code']);
         $actionLinks[self::REMOVE_ESSENCE_ATTRIBUTE_LINK] = $this->router->pathFor(self::REMOVE_ESSENCE_ATTRIBUTE_LINK,['essence-code'=>'essence-code','attribute-code'=>'attribute-code']);
         $actionLinks[self::VIEW_ATTRIBUTE_OF_ESSENCE] = $this->router->pathFor(self::VIEW_ATTRIBUTE_OF_ESSENCE,['essence-code'=>'essence-code']);
-        $actionLinks[self::ADD_THING] = $this->router->pathFor(self::ADD_THING,['essence-code'=>'essence-code','thing-code'=>'thing-code']);
+        $actionLinks[self::ADD_THING] = $this->router->pathFor(self::ADD_THING, ['code' => 'code']);
         $actionLinks[self::VIEW_THING] = $this->router->pathFor(self::VIEW_THING,['code'=>'code']);
         $actionLinks[self::STORE_THING] = $this->router->pathFor(self::STORE_THING,['code'=>'code']);
         $actionLinks[self::FILTER_OF_ESSENCE] = $this->router->pathFor(self::FILTER_OF_ESSENCE,['essence-code'=>'essence-code']);
         $actionLinks[self::ADD_ATTRIBUTE_TO_THING] = $this->router->pathFor(self::ADD_ATTRIBUTE_TO_THING,['thing-code'=>'thing-code','attribute-code'=>'attribute-code']);
         $actionLinks[self::STORE_ATTRIBUTE_OF_THING] = $this->router->pathFor(self::STORE_ATTRIBUTE_OF_THING,['thing-code'=>'thing-code','attribute-code'=>'attribute-code']);
-        $actionLinks[self::FILTER_THING_BY_ATTRIBUTE] = $this->router->pathFor(self::FILTER_THING_BY_ATTRIBUTE,['essence-code'=>'essence-code','params'=>'']);
+        $actionLinks[self::FILTER_THING_BY_ATTRIBUTE] = $this->router->pathFor(self::FILTER_THING_BY_ATTRIBUTE, ['essence-code' => 'essence-code', 'filter' => '']);
+        $actionLinks[self::ADD_ESSENCE_THING_LINK] = $this->router->pathFor(self::ADD_ESSENCE_THING_LINK, ['essence-code' => 'essence', 'thing-code' => 'thing']);
+        $actionLinks[self::REMOVE_ESSENCE_THING_LINK] = $this->router->pathFor(self::REMOVE_ESSENCE_THING_LINK, ['essence-code' => 'essence', 'thing-code' => 'thing']);
+        $actionLinks[self::VIEW_THINGS_OF_ESSENCE] = $this->router->pathFor(self::VIEW_THINGS_OF_ESSENCE, ['essence-code' => 'essence']);
 
 
         return $actionLinks;

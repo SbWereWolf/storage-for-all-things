@@ -8,7 +8,7 @@
 namespace AllThings\DataAccess\Implementation;
 
 
-class Essence extends RetrievableNamedHandler
+class EssenceDriver extends RetrievableNamedHandler
 {
 
     private $storageLocation = 'essence';

@@ -5,7 +5,7 @@
  * Date: 13.05.2018 Time: 12:24
  */
 
-namespace AllThings\DataAccess\Core;
+namespace Environment;
 
 
 interface Connection

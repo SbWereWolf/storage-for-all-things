@@ -1,6 +1,6 @@
 <?php
 
-namespace AllThings\DataAccess\Core;
+namespace Environment;
 
 class DbCredentials implements IDbCredentials
 {

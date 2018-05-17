@@ -5,7 +5,7 @@
  * Date: 13.05.2018 Time: 13:01
  */
 
-namespace AllThings\DataAccess\Core;
+namespace Environment;
 
 
 class DbConnection implements Connection
