@@ -11,7 +11,7 @@ namespace AllThings\Essence;
 use AllThings\DataAccess\Implementation\DataHandler;
 use AllThings\DataAccess\Implementation\Retrievable;
 
-interface EssenceHandler extends DataHandler,Retrievable
+interface EssenceHandler extends DataHandler, Retrievable
 {
 
     function retrieveData(): IEssence;

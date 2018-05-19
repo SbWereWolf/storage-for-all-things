@@ -36,7 +36,7 @@ class ValuableHandler implements Valuable, Hideable, Retrievable
 
         $entity = (new NamedEntity())->setCode($code);
 
-        $result = ($this->getStorageLocation())->addNamed($entity);
+        $result = ($this->getStorageLocation())->add($entity);
 
         if ($result) {
             $this->container = $entity;
@@ -46,12 +46,19 @@ class ValuableHandler implements Valuable, Hideable, Retrievable
 
     }
 
+    private function getStorageLocation(): StorageLocation
+    {
+
+        $repository = new StorageLocation($this->storageLocation, $this->dataPath);
+        return $repository;
+    }
+
     function hide(string $code): bool
     {
 
         $entity = (new NamedEntity())->setCode($code);
 
-        $result = ($this->getStorageLocation())->hideNamed($entity);
+        $result = ($this->getStorageLocation())->hide($entity);
 
         return $result;
 
@@ -62,7 +69,7 @@ class ValuableHandler implements Valuable, Hideable, Retrievable
 
         $entity = (new NamedEntity())->setCode($code);
 
-        $result = ($this->getStorageLocation())->writeNamed($entity, $this->container);
+        $result = ($this->getStorageLocation())->write($entity, $this->container);
 
         return $result;
 
@@ -73,7 +80,7 @@ class ValuableHandler implements Valuable, Hideable, Retrievable
 
         $entity = (new NamedEntity())->setCode($code);
 
-        $result = ($this->getDataSource())->readNamed($entity);
+        $result = ($this->getDataSource())->read($entity);
 
         if ($result) {
 
@@ -84,17 +91,10 @@ class ValuableHandler implements Valuable, Hideable, Retrievable
 
     }
 
-    private function getStorageLocation(): StorageLocation
-    {
-
-        $repository = new StorageLocation($this->storageLocation,$this->dataPath);
-        return $repository;
-    }
-
     private function getDataSource(): DataSource
     {
 
-        $repository = new DataSource($this->storageLocation,$this->dataPath);
+        $repository = new DataSource($this->storageLocation, $this->dataPath);
         return $repository;
     }
 

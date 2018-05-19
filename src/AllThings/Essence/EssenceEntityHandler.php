@@ -9,17 +9,16 @@ namespace AllThings\Essence;
 
 
 use AllThings\DataAccess\Implementation\EssenceDriver;
-use AllThings\DataObject\Nameable;
 
 class EssenceEntityHandler implements EssenceHandler
 {
-    private $entity = null;
+    private $subject = null;
     private $dataPath = null;
 
 
-    public function __construct(IEssence $essence, \PDO $dataPath)
+    public function __construct(IEssence $subject, \PDO $dataPath)
     {
-        $this->entity = $essence;
+        $this->subject = $subject;
         $this->dataPath = $dataPath;
     }
 
@@ -33,6 +32,26 @@ class EssenceEntityHandler implements EssenceHandler
         $this->loadEntity($driver);
 
         return $result;
+    }
+
+    /**
+     * @return EssenceDriver
+     */
+    private function getDriver(): EssenceDriver
+    {
+        $subject = $this->subject;
+        $dataPath = $this->dataPath;
+        $driver = new EssenceDriver($subject, $dataPath);
+
+        return $driver;
+    }
+
+    /**
+     * @param $driver
+     */
+    private function loadEntity(EssenceDriver $driver): void
+    {
+        $this->subject = $driver->retrieveData();
     }
 
     function remove(string $code): bool
@@ -68,32 +87,12 @@ class EssenceEntityHandler implements EssenceHandler
         return $result;
     }
 
-    /**
-     * @return EssenceDriver
-     */
-    private function getDriver(): EssenceDriver
+    function retrieveData(): IEssence
     {
-        $named = $this->entity;
-        $dataPath = $this->dataPath;
-        $driver = new EssenceDriver($named, $dataPath);
+        $nameable = $this->subject->getNameableCopy();
+        $storable = $this->subject->getStorableCopy();
 
-        return $driver;
-    }
-
-    /**
-     * @param $driver
-     */
-    private function loadEntity(EssenceDriver $driver): void
-    {
-        $this->entity = $driver->retrieveData();
-    }
-
-    function retrieveData() :IEssence
-    {
-        $nameable = $this->entity->getNameableCopy();
-        $storable = $this->entity->getStorableCopy();
-
-        $data = new EssenceEntity($nameable,$storable);
+        $data = new EssenceEntity($nameable, $storable);
 
         return $data;
     }

@@ -24,11 +24,10 @@ class DbConnection implements Connection
         return $connection;
     }
 
-    function getForRead(): \PDO
+    private function getDbConnection($dbCredentials): \PDO
     {
-        $dbCredentials = DbCredentials::getReaderCredentials();
-
-        $connection = $this->getDbConnection($dbCredentials);
+        $this->setProperties($dbCredentials);
+        $connection = $this->getPdoConnection();
 
         return $connection;
     }
@@ -57,10 +56,11 @@ class DbConnection implements Connection
         return $connection;
     }
 
-    private function getDbConnection($dbCredentials): \PDO
+    function getForRead(): \PDO
     {
-        $this->setProperties($dbCredentials);
-        $connection = $this->getPdoConnection();
+        $dbCredentials = DbCredentials::getReaderCredentials();
+
+        $connection = $this->getDbConnection($dbCredentials);
 
         return $connection;
     }

@@ -12,7 +12,10 @@ namespace AllThings\Essence;
 use AllThings\DataObject\Nameable;
 use AllThings\DataObject\Storable;
 
-interface IEssence extends Nameable,Storable
+interface IEssence extends Nameable, Storable
 {
 
+    static function GetDefaultExemplar(): IEssence;
+
+    function GetEssenceCopy(): IEssence;
 }

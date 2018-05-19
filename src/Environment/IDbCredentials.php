@@ -26,7 +26,7 @@ interface IDbCredentials
     const DB_NAME = 'DB_NAME';
     const PDO_DBMS = 'PDO_DBMS';
 
-    public static function getReaderCredentials():array;
+    public static function getReaderCredentials(): array;
 
-    public static function getWriterCredentials():array;
+    public static function getWriterCredentials(): array;
 }

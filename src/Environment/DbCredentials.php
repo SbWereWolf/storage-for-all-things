@@ -14,7 +14,7 @@ class DbCredentials implements IDbCredentials
     /**
      * @return array
      */
-    public static function getReaderCredentials():array
+    public static function getReaderCredentials(): array
     {
         $dbReadCredentials = new self(DB_READ_CONFIGURATION);
         $readerCredentials = $dbReadCredentials->getPdoAttributes();
@@ -25,7 +25,7 @@ class DbCredentials implements IDbCredentials
     /**
      * @return array
      */
-    private function getPdoAttributes():array
+    private function getPdoAttributes(): array
     {
         $pdoDriver = $this->options[IDbCredentials::PDO_DBMS];
         $dbName = $this->options[IDbCredentials::DB_NAME];
@@ -53,7 +53,7 @@ class DbCredentials implements IDbCredentials
     /**
      * @return array
      */
-    public static function getWriterCredentials():array
+    public static function getWriterCredentials(): array
     {
         $dbWriteCredentials = new self(DB_WRITE_CONFIGURATION);
         $writerCredentials = $dbWriteCredentials->getPdoAttributes();

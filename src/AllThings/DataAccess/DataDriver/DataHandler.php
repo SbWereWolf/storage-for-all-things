@@ -13,7 +13,10 @@ interface DataHandler
 {
 
     function create(string $code): bool;
+
     function remove(string $code): bool;
+
     function correct(string $code): bool;
+
     function browse(string $code): bool;
 }

@@ -10,12 +10,18 @@ namespace AllThings\DataObject;
 
 interface Crossover
 {
-    function getPrimary():string;
-    function setPrimary():Crossover;
-    function getSecondary():string;
-    function setSecondary():Crossover;
-    function getContent():string;
-    function setContent():Crossover;
-    function getDuplicate():Crossover;
+    function getPrimary(): string;
+
+    function setPrimary(): Crossover;
+
+    function getSecondary(): string;
+
+    function setSecondary(): Crossover;
+
+    function getContent(): string;
+
+    function setContent(): Crossover;
+
+    function getDuplicate(): Crossover;
 
 }

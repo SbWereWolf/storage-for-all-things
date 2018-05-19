@@ -26,7 +26,7 @@ class DataSource implements ValuableReader
         $this->dataSource = $dataSource;
     }
 
-    function readNamed(Nameable $entity): bool
+    function read(Nameable $entity): bool
     {
         $target_code = $entity->getCode();
 
@@ -50,18 +50,18 @@ class DataSource implements ValuableReader
 
         $data = null;
         $isSuccess = $result === true;
-        if($isSuccess) {
+        if ($isSuccess) {
 
             $data = $query->fetchAll();
         }
 
         $isSuccess = !empty($data);
-        if(!$isSuccess){
+        if (!$isSuccess) {
             $result = false;
         }
-        if($isSuccess){
+        if ($isSuccess) {
 
-            $row= $data[0];
+            $row = $data[0];
 
             $code = $row['code'];
             $title = $row['title'];

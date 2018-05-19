@@ -1,39 +1,34 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: СЕРГЕЙ
- * Date: 19.05.2018
- * Time: 12:45
- */
+
 
 namespace AllThings\Presentation;
 
 
-use AllThings\Essence\EssenceEntity;
+use AllThings\Essence\IEssence;
 
-class ForEssenceEntity implements ForNamed,ForEssence
+class ForEssenceEntity implements ForEssence
 {
     private $entity = null;
 
-    public function __construct(EssenceEntity $entity)
+    function __construct(IEssence $entity)
     {
         $this->entity = $entity;
     }
 
-    function toJson(): \string
+    public function toJson(): \string
     {
         $entity = $this->entity;
 
         $code = $entity->getCode();
         $title = $entity->getTitle();
         $remark = $entity->getRemark();
-        $storage = $entity->getStorage();
+        $storeAt = $entity->getStoreAt();
 
         $data = array(
             'code' => $code,
             'title' => $title,
             'remark' => $remark,
-            'storage' => $storage
+            'store_at' => $storeAt
         );
 
         $json = json_encode($data);

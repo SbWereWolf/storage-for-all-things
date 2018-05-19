@@ -9,10 +9,8 @@
 namespace AllThings\Presentation;
 
 
-use AllThings\DataObject\Nameable;
-
 interface ForNamed
 {
 
-
+    function toJson(): \string;
 }

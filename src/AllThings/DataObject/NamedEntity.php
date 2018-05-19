@@ -15,13 +15,6 @@ class NamedEntity implements Nameable
     private $title = '';
     private $remark = '';
 
-    function setCode(string $code): Nameable
-    {
-        $this->code = $code;
-
-        return $this;
-    }
-
     function getCode(): string
     {
         $code = $this->code;
@@ -29,9 +22,9 @@ class NamedEntity implements Nameable
         return $code;
     }
 
-    function setTitle(string $title): Nameable
+    function setCode(string $code): Nameable
     {
-        $this->title = $title;
+        $this->code = $code;
 
         return $this;
     }
@@ -43,9 +36,9 @@ class NamedEntity implements Nameable
         return $title;
     }
 
-    function setRemark(string $remark): Nameable
+    function setTitle(string $title): Nameable
     {
-        $this->remark = $remark;
+        $this->title = $title;
 
         return $this;
     }
@@ -55,6 +48,13 @@ class NamedEntity implements Nameable
         $remark = $this->remark;
 
         return $remark;
+    }
+
+    function setRemark(string $remark): Nameable
+    {
+        $this->remark = $remark;
+
+        return $this;
     }
 
     function getNameableCopy(): Nameable

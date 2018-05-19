@@ -14,7 +14,7 @@ result, fields of essence object:
 code
 title
 remark
-storage
+store-at
 ```
 PUT '/essence/{code}' change
 ```
@@ -22,7 +22,7 @@ parameters (any parameter can be omitted):
 code => value
 title => value
 remark => value
-storage => value ( MUST be one of : view | matherial view | table )
+store-at => value ( MUST be one of : view | matherial view | table )
 ```
 ## essence-catalog - Каталог сущностей
 
@@ -37,7 +37,7 @@ filter (any parameter can be omitted):
 code => %like%
 title => %like%
 remark => %like%
-storage => SHOULD be one of : view | matherial view | table
+store-at => SHOULD be one of : view | matherial view | table
 
 result, collection:
 essence-code

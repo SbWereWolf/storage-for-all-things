@@ -8,9 +8,8 @@
 namespace AllThings\DataAccess\Implementation;
 
 
-use AllThings\DataAccess\Core\DataSource;
-use AllThings\DataAccess\Core\StorageLocation;
-use AllThings\DataObject\NamedEntity;
+use AllThings\DataAccess\Core\EssenceLocation;
+use AllThings\DataAccess\Core\EssenceSource;
 use AllThings\Essence\EssenceEntity;
 use AllThings\Essence\IEssence;
 
@@ -24,39 +23,66 @@ class EssenceDriver implements Valuable, Hideable, Retrievable
      * @var \PDO
      */
     private $dataPath;
-    private $container = null;
+    private $essence = null;
 
-    function __construct(IEssence $entity, \PDO $dataPath)
+    function __construct(IEssence $essence, \PDO $dataPath)
     {
-        $nameable = $entity->getNameableCopy();
-        $storable = $entity->getStorableCopy();
-        $essence = new EssenceEntity($nameable,$storable);
-
-        $this->container = $essence;
+        $this->essence = $essence;
         $this->dataPath = $dataPath;
     }
 
     function insert(string $code): bool
     {
+        $essence = $this->setEssenceByCode($code);
 
-        $entity = (new NamedEntity())->setCode($code);
+        $result = ($this->getEssenceLocation())->add($essence);
 
-        $result = ($this->getStorageLocation())->addNamed($entity);
-
-        if ($result) {
-            $this->container = $entity;
-        }
+        $this->setEssence($result, $essence);
 
         return $result;
 
     }
 
-    function hide(string $code): bool
+    /**
+     * @param string $code
+     * @return IEssence
+     */
+    private function setEssenceByCode(string $code): IEssence
+    {
+        $essence = EssenceEntity::GetDefaultExemplar();
+        $essence->setCode($code);
+
+        return $essence;
+    }
+
+    private function getEssenceLocation(): EssenceLocation
     {
 
-        $entity = (new NamedEntity())->setCode($code);
+        $repository = new EssenceLocation($this->storageLocation, $this->dataPath);
+        return $repository;
+    }
 
-        $result = ($this->getStorageLocation())->hideNamed($entity);
+    /**
+     * @param $result
+     * @param $essence
+     */
+    private function setEssence(bool $result, IEssence $essence): void
+    {
+        if ($result) {
+            $this->essence = $essence;
+        }
+        if (!$result) {
+            $this->essence = null;
+        }
+    }
+
+    function hide(string $code): bool
+    {
+        $essence = $this->setEssenceByCode($code);
+
+        $result = ($this->getEssenceLocation())->hide($essence);
+
+        $this->setEssence($result, $essence);
 
         return $result;
 
@@ -64,10 +90,13 @@ class EssenceDriver implements Valuable, Hideable, Retrievable
 
     function write(string $code): bool
     {
+        $essence = $this->setEssenceByCode($code);
 
-        $entity = (new NamedEntity())->setCode($code);
+        $resultData = EssenceEntity::GetDefaultExemplar();
 
-        $result = ($this->getStorageLocation())->writeNamed($entity, $this->container);
+        $result = ($this->getEssenceLocation())->write($essence, $resultData);
+
+        $this->setEssence($result, $resultData);
 
         return $result;
 
@@ -75,39 +104,26 @@ class EssenceDriver implements Valuable, Hideable, Retrievable
 
     function read(string $code): bool
     {
+        $essence = $this->setEssenceByCode($code);
 
-        $entity = (new NamedEntity())->setCode($code);
+        $result = ($this->getEssenceSource())->read($essence);
 
-        $result = ($this->getDataSource())->readNamed($entity);
-
-        if ($result) {
-
-            $this->container = $entity->getNameableCopy();
-        }
+        $this->setEssence($result, $essence);
 
         return $result;
 
     }
 
-    private function getStorageLocation(): StorageLocation
+    private function getEssenceSource(): EssenceSource
     {
 
-        $repository = new StorageLocation($this->storageLocation, $this->dataPath);
+        $repository = new EssenceSource($this->dataSource, $this->dataPath);
         return $repository;
     }
 
-    private function getDataSource(): DataSource
+    function retrieveData(): IEssence
     {
-
-        $repository = new DataSource($this->dataSource, $this->dataPath);
-        return $repository;
-    }
-
-    function retrieveData():IEssence
-    {
-        $nameable = $this->container->getNameableCopy();
-        $storable = $this->container->getStorableCopy();
-        $essence = new EssenceEntity($nameable,$storable);
+        $essence = $this->essence->GetEssenceCopy();
 
         return $essence;
     }

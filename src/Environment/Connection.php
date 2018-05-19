@@ -11,6 +11,7 @@ namespace Environment;
 interface Connection
 {
 
-    function getForWrite():\PDO;
-    function getForRead():\PDO;
+    function getForWrite(): \PDO;
+
+    function getForRead(): \PDO;
 }

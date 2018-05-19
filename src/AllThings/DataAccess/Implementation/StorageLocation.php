@@ -26,7 +26,7 @@ class StorageLocation implements ValuableWriter
         $this->storageLocation = $storageLocation;
     }
 
-    function addNamed(Nameable $entity): bool
+    function add(Nameable $entity): bool
     {
         $suggestion_code = $entity->getCode();
 
@@ -42,7 +42,7 @@ class StorageLocation implements ValuableWriter
         if ($isSuccess) {
             $result = $connection->commit();
         }
-        if(!$isSuccess){
+        if (!$isSuccess) {
             $connection->rollBack();
         }
 
@@ -50,7 +50,7 @@ class StorageLocation implements ValuableWriter
 
     }
 
-    function hideNamed(Nameable $entity): bool
+    function hide(Nameable $entity): bool
     {
         $target_code = $entity->getCode();
 
@@ -66,14 +66,14 @@ class StorageLocation implements ValuableWriter
         if ($isSuccess) {
             $result = $connection->commit();
         }
-        if(!$isSuccess){
+        if (!$isSuccess) {
             $connection->rollBack();
         }
 
         return $result;
     }
 
-    function writeNamed(Nameable $target_entity, Nameable $suggestion_entity): bool
+    function write(Nameable $target_entity, Nameable $suggestion_entity): bool
     {
         $target_code = $target_entity->getCode();
         $suggestion_code = $suggestion_entity->getCode();
@@ -97,7 +97,7 @@ class StorageLocation implements ValuableWriter
         if ($isSuccess) {
             $result = $connection->commit();
         }
-        if(!$isSuccess){
+        if (!$isSuccess) {
             $connection->rollBack();
         }
 

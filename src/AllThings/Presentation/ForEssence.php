@@ -12,5 +12,5 @@ namespace AllThings\Presentation;
 interface ForEssence
 {
 
-    function toJson():\string;
+    function toJson(): \string;
 }

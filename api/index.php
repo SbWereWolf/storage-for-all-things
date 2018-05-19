@@ -1,8 +1,8 @@
 <?php
 
 
+use AllThings\Essence\EssenceEntity;
 use Environment\DbConnection;
-use AllThings\DataObject\NamedEntity;
 use AllThings\Development\Page;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -184,17 +184,18 @@ $app->get('/', function (Request $request, Response $response, array $arguments)
 $app->post('/essence/{code}', function (Request $request, Response $response, array $arguments) {
 
     $dataPath = (new DbConnection())->getForWrite();
-    $essence = new NamedEntity();
+
+    $essence = EssenceEntity::GetDefaultExemplar();
     $handler = new AllThings\Essence\EssenceEntityHandler($essence, $dataPath);
 
-    $entityCode = (new \AllThings\Reception\ForNamedEntity($request, $arguments))->fromPost();
+    $essenceCode = (new \AllThings\Reception\ForEssenceEntity($request, $arguments))->fromPost();
 
-    $isSuccess = $handler->create($entityCode);
+    $isSuccess = $handler->create($essenceCode);
 
-    if($isSuccess){
+    if ($isSuccess) {
         $response = $response->withStatus(201);
     }
-    if(!$isSuccess){
+    if (!$isSuccess) {
         $response = $response->withStatus(500);
     }
 
@@ -224,29 +225,26 @@ $app->post('/essence/{code}', function (Request $request, Response $response, ar
  */
 $app->get('/essence/{code}', function (Request $request, Response $response, array $arguments) {
 
+    $parameter = (new \AllThings\Reception\ForEssenceEntity($request, $arguments))->fromGet();
+
+    $subject = EssenceEntity::GetDefaultExemplar();
     $dataPath = (new DbConnection())->getForRead();
-    $essence = new NamedEntity();
-    $handler = new AllThings\Essence\EssenceEntityHandler($essence, $dataPath);
+    $handler = new AllThings\Essence\EssenceEntityHandler($subject, $dataPath);
 
-    $entityCode = (new \AllThings\Reception\ForNamedEntity($request, $arguments))->fromGet();
+    $isSuccess = $handler->browse($parameter);
 
-    $isSuccess = $handler->browse($entityCode);
-
-    $data = null;
-    if(!$isSuccess){
+    if (!$isSuccess) {
         $response = $response->withStatus(500);
     }
+    if ($isSuccess) {
+        $result = $handler->retrieveData();
 
-    if($isSuccess){
+        $presentation = new \AllThings\Presentation\ForEssenceEntity($result);
+        $json = $presentation->toJson();
 
-        /* @var \Slim\Http\Response $response */
+        $response->write($json);
         $response = $response->withStatus(200);
-
-        $data = $handler->getData();
-        $json = (new \AllThings\Presentation\ForEssenceEntity($data))->toJson();
-        $response = $response->write($json);
     }
-
 
     return $response;
 })->setName(Page::VIEW_ESSENCE);
@@ -277,7 +275,24 @@ $app->get('/essence/{code}', function (Request $request, Response $response, arr
  * )
  */
 $app->put('/essence/{code}', function (Request $request, Response $response, array $arguments) {
-    return $response->withStatus(200);
+
+    $command = (new \AllThings\Reception\ForEssenceEntity($request, $arguments))->fromPut();
+
+    $subject = $command->getSubject();
+    $dataPath = (new DbConnection())->getForWrite();
+    $handler = new AllThings\Essence\EssenceEntityHandler($subject, $dataPath);
+
+    $parameter = $command->getParameter();
+    $isSuccess = $handler->correct($parameter);
+
+    if ($isSuccess) {
+        $response = $response->withStatus(200);
+    }
+    if (!$isSuccess) {
+        $response = $response->withStatus(500);
+    }
+
+    return $response;
 })->setName(Page::STORE_ESSENCE);
 
 /**
@@ -766,15 +781,15 @@ $app->put('/thing/{code}', function (Request $request, Response $response, array
 $app->get('/essence-filer/{essence-code}', function (Request $request, Response $response, array $arguments) {
 
     $response = $response->withJson(array(
-        'size'=> array(
+        'size' => array(
             'range-type' => 'continuous',
             'data-type' => 'decimal',
-            'value' => array(5.55,7.8),
+            'value' => array(5.55, 7.8),
         ),
-        'color'=> array(
+        'color' => array(
             'range-type' => 'discrete',
             'data-type' => 'string',
-            'value' => array('red','orange','yellow','green','blue','purple'),
+            'value' => array('red', 'orange', 'yellow', 'green', 'blue', 'purple'),
         ),
     ));
 

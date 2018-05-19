@@ -10,7 +10,9 @@ namespace AllThings\Essence;
 
 
 use AllThings\DataObject\Nameable;
+use AllThings\DataObject\NamedEntity;
 use AllThings\DataObject\Storable;
+use AllThings\DataObject\Storage;
 
 class EssenceEntity implements IEssence
 {
@@ -21,6 +23,18 @@ class EssenceEntity implements IEssence
     {
         $this->nameable = $nameable;
         $this->storable = $storable;
+    }
+
+    static function GetDefaultExemplar(): IEssence
+    {
+
+        $nameable = new NamedEntity();
+        $storable = new Storage();
+
+        $essence = new EssenceEntity($nameable, $storable);
+
+        return $essence;
+
     }
 
     function setCode(string $code): Nameable
@@ -65,20 +79,29 @@ class EssenceEntity implements IEssence
         return $remark;
     }
 
-    function getStorage(): \string
+    function getStoreAt(): \string
     {
-        $storage = $this->storable->getStorage();
+        $storage = $this->storable->getStoreAt();
 
         return $storage;
     }
 
-    function setStorage(\string $storage): Storable
+    function setStoreAt(\string $storeAt): Storable
     {
-        $this->storable->setStorage($storage);
+        $this->storable->setStoreAt($storeAt);
 
         return $this;
     }
 
+    function GetEssenceCopy(): IEssence
+    {
+        $nameable = $this->getNameableCopy();
+        $storable = $this->getStorableCopy();
+
+        $essence = new EssenceEntity($nameable, $storable);
+
+        return $essence;
+    }
 
     function getNameableCopy(): Nameable
     {

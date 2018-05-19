@@ -12,26 +12,26 @@ namespace AllThings\DataObject;
 class Storage implements Storable
 {
 
-    private $storage = '';
+    private $storeAt = '';
 
-    function setStorage(string $storage): Storable
+    function getStoreAt(): string
     {
-        $this->storage = $storage;
+        $storeAt = $this->storeAt;
 
-        return $this;
+        return $storeAt;
     }
 
-    function getStorage(): string
+    function setStoreAt(string $storeAt): Storable
     {
-        $storage = $this->storage;
+        $this->storeAt = $storeAt;
 
-        return $storage;
+        return $this;
     }
 
     function getStorableCopy(): Storable
     {
         $copy = new Storage();
-        $copy->setStorage($this->storage);
+        $copy->setStoreAt($this->storeAt);
 
         return $copy;
     }
