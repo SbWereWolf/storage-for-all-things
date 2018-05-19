@@ -7,10 +7,10 @@
 
 namespace AllThings\DataAccess\Core;
 
-use AllThings\DataObject\Named;
+use AllThings\DataObject\Nameable;
 
 interface ValuableReader
 {
 
-    function readNamed(Named $entity): bool;
+    function readNamed(Nameable $entity): bool;
 }

@@ -8,9 +8,9 @@
 namespace AllThings\DataAccess\Core;
 
 
-use AllThings\DataObject\Named;
+use AllThings\DataObject\Nameable;
 
-class DataSource implements ValuableReader
+class EssenceSource implements ValuableReader
 {
 
     private $tableName = '';
@@ -26,7 +26,7 @@ class DataSource implements ValuableReader
         $this->dataSource = $dataSource;
     }
 
-    function readNamed(Named $entity): bool
+    function readNamed(Nameable $entity): bool
     {
         $target_code = $entity->getCode();
 

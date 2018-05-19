@@ -2,96 +2,18 @@
 /**
  * storage-for-all-things
  * © Volkhin Nikolay M., 2018
- * Date: 18.05.2018 Time: 0:20
+ * Date: 18.05.2018 Time: 0:33
  */
 
 namespace AllThings\Essence;
 
 
-use AllThings\DataAccess\Implementation\EssenceDriver;
-use AllThings\DataObject\Named;
+use AllThings\DataAccess\Implementation\DataHandler;
+use AllThings\DataAccess\Implementation\Retrievable;
 
-class EssenceHandler implements NamedHandler
+interface EssenceHandler extends DataHandler,Retrievable
 {
-    private $entity = null;
-    private $dataPath = null;
 
+    function retrieveData(): IEssence;
 
-    public function __construct(Named $named, \PDO $dataPath)
-    {
-        $this->entity = $named;
-        $this->dataPath = $dataPath;
-    }
-
-    function create(string $code): bool
-    {
-
-        $driver = $this->getDriver();
-
-        $result = $driver->insert($code);
-
-        $this->loadEntity($driver);
-
-        return $result;
-    }
-
-    function remove(string $code): bool
-    {
-        $driver = $this->getDriver();
-
-        $result = $driver->hide($code);
-
-        $this->loadEntity($driver);
-
-        return $result;
-    }
-
-    function correct(string $code): bool
-    {
-        $driver = $this->getDriver();
-
-        $result = $driver->write($code);
-
-        $this->loadEntity($driver);
-
-        return $result;
-    }
-
-    function browse(string $code): bool
-    {
-        $driver = $this->getDriver();
-
-        $result = $driver->read($code);
-
-        $this->loadEntity($driver);
-
-        return $result;
-    }
-
-    function getData(): Named
-    {
-        $data = $this->entity->getDuplicate();
-
-        return $data;
-    }
-
-    /**
-     * @return EssenceDriver
-     */
-    private function getDriver(): EssenceDriver
-    {
-        $named = $this->entity;
-        $dataPath = $this->dataPath;
-        $driver = new EssenceDriver($named, $dataPath);
-
-        return $driver;
-    }
-
-    /**
-     * @param $driver
-     */
-    private function loadEntity(EssenceDriver $driver): void
-    {
-        $this->entity = $driver->getData();
-    }
 }

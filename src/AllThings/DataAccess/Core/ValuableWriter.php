@@ -8,12 +8,12 @@
 namespace AllThings\DataAccess\Core;
 
 
-use AllThings\DataObject\Named;
+use AllThings\DataObject\Nameable;
 
 interface ValuableWriter
 {
 
-    function addNamed (Named $entity): bool;
-    function hideNamed (Named $entity):bool;
-    function writeNamed (Named $target_entity, Named $suggestion_entity):bool;
+    function addNamed (Nameable $entity): bool;
+    function hideNamed (Nameable $entity):bool;
+    function writeNamed (Nameable $target_entity, Nameable $suggestion_entity):bool;
 }

@@ -2,7 +2,7 @@
 /**
  * storage-for-all-things
  * © Volkhin Nikolay M., 2018
- * Date: 13.05.2018 Time: 11:27
+ * Date: 13.05.2018 Time: 20:27
  */
 
 namespace AllThings\DataAccess\Implementation;
@@ -10,26 +10,31 @@ namespace AllThings\DataAccess\Implementation;
 
 use AllThings\DataAccess\Core\DataSource;
 use AllThings\DataAccess\Core\StorageLocation;
-use AllThings\DataObject\Named;
 use AllThings\DataObject\NamedEntity;
+use AllThings\Essence\EssenceEntity;
+use AllThings\Essence\IEssence;
 
-class RetrievableNamedHandler implements Valuable, Hideable, Retrievable
+class EssenceDriver implements Valuable, Hideable, Retrievable
 {
+
+    private $storageLocation = 'essence';
+    private $dataSource = 'essence';
 
     /**
      * @var \PDO
      */
     private $dataPath;
-
-    function __construct(Named $named, \PDO $dataPath)
-    {
-        $this->container = $named->getDuplicate();
-        $this->dataPath = $dataPath;
-    }
-
-    private $storageLocation = '';
     private $container = null;
 
+    function __construct(IEssence $entity, \PDO $dataPath)
+    {
+        $nameable = $entity->getNameableCopy();
+        $storable = $entity->getStorableCopy();
+        $essence = new EssenceEntity($nameable,$storable);
+
+        $this->container = $essence;
+        $this->dataPath = $dataPath;
+    }
 
     function insert(string $code): bool
     {
@@ -77,7 +82,7 @@ class RetrievableNamedHandler implements Valuable, Hideable, Retrievable
 
         if ($result) {
 
-            $this->container = $entity->getDuplicate();
+            $this->container = $entity->getNameableCopy();
         }
 
         return $result;
@@ -87,21 +92,23 @@ class RetrievableNamedHandler implements Valuable, Hideable, Retrievable
     private function getStorageLocation(): StorageLocation
     {
 
-        $repository = new StorageLocation($this->storageLocation,$this->dataPath);
+        $repository = new StorageLocation($this->storageLocation, $this->dataPath);
         return $repository;
     }
 
     private function getDataSource(): DataSource
     {
 
-        $repository = new DataSource($this->storageLocation,$this->dataPath);
+        $repository = new DataSource($this->dataSource, $this->dataPath);
         return $repository;
     }
 
-    function getData(): Named
+    function retrieveData():IEssence
     {
-        $data = $this->container->getDuplicate();
+        $nameable = $this->container->getNameableCopy();
+        $storable = $this->container->getStorableCopy();
+        $essence = new EssenceEntity($nameable,$storable);
 
-        return $data;
+        return $essence;
     }
 }

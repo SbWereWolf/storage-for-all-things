@@ -8,14 +8,14 @@
 namespace AllThings\DataObject;
 
 
-class NamedEntity implements Named
+class NamedEntity implements Nameable
 {
 
     private $code = '';
     private $title = '';
     private $remark = '';
 
-    function setCode(string $code): Named
+    function setCode(string $code): Nameable
     {
         $this->code = $code;
 
@@ -29,7 +29,7 @@ class NamedEntity implements Named
         return $code;
     }
 
-    function setTitle(string $title): Named
+    function setTitle(string $title): Nameable
     {
         $this->title = $title;
 
@@ -43,7 +43,7 @@ class NamedEntity implements Named
         return $title;
     }
 
-    function setRemark(string $remark): Named
+    function setRemark(string $remark): Nameable
     {
         $this->remark = $remark;
 
@@ -57,7 +57,7 @@ class NamedEntity implements Named
         return $remark;
     }
 
-    function getDuplicate(): Named
+    function getNameableCopy(): Nameable
     {
         $copy = new NamedEntity();
         $copy->setCode($this->code)->setTitle($this->title)->setRemark($this->remark);

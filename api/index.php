@@ -183,13 +183,12 @@ $app->get('/', function (Request $request, Response $response, array $arguments)
  */
 $app->post('/essence/{code}', function (Request $request, Response $response, array $arguments) {
 
-    $body = $request->getParsedBody();
-    $code = $arguments['code'];
-    $entityCode = (new \AllThings\Reception\ToNamed())->fromCreate($code,$body);
-
     $dataPath = (new DbConnection())->getForWrite();
     $essence = new NamedEntity();
-    $handler = new AllThings\Essence\EssenceHandler($essence, $dataPath);
+    $handler = new AllThings\Essence\EssenceEntityHandler($essence, $dataPath);
+
+    $entityCode = (new \AllThings\Reception\ForNamedEntity($request, $arguments))->fromPost();
+
     $isSuccess = $handler->create($entityCode);
 
     if($isSuccess){
@@ -225,12 +224,29 @@ $app->post('/essence/{code}', function (Request $request, Response $response, ar
  */
 $app->get('/essence/{code}', function (Request $request, Response $response, array $arguments) {
 
-    $response = $response->withJson(array(
-        'code' => $arguments['code'],
-        'title' => 'empty',
-        'remark' => 'empty',
-        'storage' => 'empty'
-    ));
+    $dataPath = (new DbConnection())->getForRead();
+    $essence = new NamedEntity();
+    $handler = new AllThings\Essence\EssenceEntityHandler($essence, $dataPath);
+
+    $entityCode = (new \AllThings\Reception\ForNamedEntity($request, $arguments))->fromGet();
+
+    $isSuccess = $handler->browse($entityCode);
+
+    $data = null;
+    if(!$isSuccess){
+        $response = $response->withStatus(500);
+    }
+
+    if($isSuccess){
+
+        /* @var \Slim\Http\Response $response */
+        $response = $response->withStatus(200);
+
+        $data = $handler->getData();
+        $json = (new \AllThings\Presentation\ForEssenceEntity($data))->toJson();
+        $response = $response->write($json);
+    }
+
 
     return $response;
 })->setName(Page::VIEW_ESSENCE);

@@ -8,13 +8,13 @@
 namespace AllThings\DataObject;
 
 
-interface Named
+interface Nameable
 {
-    function setCode (string $code):Named;
+    function setCode (string $code):Nameable;
     function getCode ():string;
-    function setTitle (string $title): Named;
+    function setTitle (string $title): Nameable;
     function getTitle ():string;
-    function setRemark (string $remark): Named;
+    function setRemark (string $remark): Nameable;
     function getRemark ():string;
-    function getDuplicate():Named;
+    function getNameableCopy():Nameable;
 }

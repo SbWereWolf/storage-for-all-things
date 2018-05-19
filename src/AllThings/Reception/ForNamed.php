@@ -8,10 +8,11 @@
 namespace AllThings\Reception;
 
 
-use AllThings\DataObject\Named;
+use Slim\Http\Request;
 
 interface ForNamed
 {
-    function fromCreate(string $code, ?array $body):\string;
+    function fromPost():\string;
+    function fromGet():\string;
 
 }

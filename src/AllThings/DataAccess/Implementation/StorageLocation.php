@@ -8,7 +8,7 @@
 namespace AllThings\DataAccess\Core;
 
 
-use AllThings\DataObject\Named;
+use AllThings\DataObject\Nameable;
 
 class StorageLocation implements ValuableWriter
 {
@@ -26,7 +26,7 @@ class StorageLocation implements ValuableWriter
         $this->storageLocation = $storageLocation;
     }
 
-    function addNamed(Named $entity): bool
+    function addNamed(Nameable $entity): bool
     {
         $suggestion_code = $entity->getCode();
 
@@ -50,7 +50,7 @@ class StorageLocation implements ValuableWriter
 
     }
 
-    function hideNamed(Named $entity): bool
+    function hideNamed(Nameable $entity): bool
     {
         $target_code = $entity->getCode();
 
@@ -73,7 +73,7 @@ class StorageLocation implements ValuableWriter
         return $result;
     }
 
-    function writeNamed(Named $target_entity, Named $suggestion_entity): bool
+    function writeNamed(Nameable $target_entity, Nameable $suggestion_entity): bool
     {
         $target_code = $target_entity->getCode();
         $suggestion_code = $suggestion_entity->getCode();
@@ -102,15 +102,5 @@ class StorageLocation implements ValuableWriter
         }
 
         return $result;
-    }
-
-    function addPrimitive(array $linkage): bool
-    {
-        // TODO: Implement addPrimitive() method.
-    }
-
-    function removePrimitive(array $linkage): bool
-    {
-        // TODO: Implement hidePrimitive() method.
     }
 }

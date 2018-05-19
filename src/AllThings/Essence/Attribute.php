@@ -8,7 +8,7 @@
 namespace AllThings\DataAccess\Implementation;
 
 
-class Attribute extends RetrievableNamedHandler
+class Attribute extends ValuableHandler
 {
 
     private $storageLocation = 'attribute';

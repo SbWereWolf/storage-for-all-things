@@ -2,14 +2,14 @@
 /**
  * storage-for-all-things
  * © Volkhin Nikolay M., 2018
- * Date: 13.05.2018 Time: 20:27
+ * Date: 13.05.2018 Time: 17:08
  */
 
 namespace AllThings\DataAccess\Implementation;
 
 
-class EssenceDriver extends RetrievableNamedHandler
+interface Retrievable
 {
+    function retrieveData();
 
-    private $storageLocation = 'essence';
 }
