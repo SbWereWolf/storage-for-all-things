@@ -5,7 +5,7 @@
  * Date: 13.05.2018 Time: 17:08
  */
 
-namespace AllThings\DataAccess\Implementation;
+namespace AllThings\DataAccess\Handler;
 
 
 interface Retrievable

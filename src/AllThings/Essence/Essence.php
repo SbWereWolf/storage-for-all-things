@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: СЕРГЕЙ
- * Date: 19.05.2018
- * Time: 13:11
- */
 
 namespace AllThings\Essence;
 
@@ -14,7 +8,7 @@ use AllThings\DataObject\NamedEntity;
 use AllThings\DataObject\Storable;
 use AllThings\DataObject\Storage;
 
-class EssenceEntity implements IEssence
+class Essence implements IEssence
 {
     public $nameable = null;
     public $storable = null;
@@ -25,21 +19,21 @@ class EssenceEntity implements IEssence
         $this->storable = $storable;
     }
 
-    static function GetDefaultExemplar(): IEssence
+    static function GetDefaultEssence(): IEssence
     {
 
         $nameable = new NamedEntity();
         $storable = new Storage();
 
-        $essence = new EssenceEntity($nameable, $storable);
+        $essence = new Essence($nameable, $storable);
 
         return $essence;
 
     }
 
-    function setCode(string $code): Nameable
+    function setCode(string $value): Nameable
     {
-        $this->nameable->setCode($code);
+        $this->nameable->setCode($value);
 
         return $this;
     }
@@ -51,9 +45,9 @@ class EssenceEntity implements IEssence
         return $code;
     }
 
-    function setTitle(string $title): Nameable
+    function setTitle(string $value): Nameable
     {
-        $this->nameable->setTitle($title);
+        $this->nameable->setTitle($value);
 
         return $this;
     }
@@ -65,9 +59,9 @@ class EssenceEntity implements IEssence
         return $title;
     }
 
-    function setRemark(string $remark): Nameable
+    function setRemark(string $value): Nameable
     {
-        $this->nameable->setRemark($remark);
+        $this->nameable->setRemark($value);
 
         return $this;
     }
@@ -86,9 +80,9 @@ class EssenceEntity implements IEssence
         return $storage;
     }
 
-    function setStoreAt(\string $storeAt): Storable
+    function setStoreAt(\string $value): Storable
     {
-        $this->storable->setStoreAt($storeAt);
+        $this->storable->setStoreAt($value);
 
         return $this;
     }
@@ -98,7 +92,7 @@ class EssenceEntity implements IEssence
         $nameable = $this->getNameableCopy();
         $storable = $this->getStorableCopy();
 
-        $essence = new EssenceEntity($nameable, $storable);
+        $essence = new Essence($nameable, $storable);
 
         return $essence;
     }

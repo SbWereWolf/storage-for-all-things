@@ -1,24 +1,21 @@
 <?php
 /**
  * storage-for-all-things
- * © Volkhin Nikolay M., 2018
- * Date: 13.05.2018 Time: 12:26
+ * Copyright © 2018 Volkhin Nikolay
+ * 23.05.18 0:44
  */
 
 namespace AllThings\DataAccess\Implementation;
 
 
-use AllThings\DataAccess\Core\EssenceWriter;
-use AllThings\Essence\IEssence;
+use AllThings\DataAccess\Core\AttributeWriter;
+use AllThings\Essence\IAttribute;
 
-class EssenceLocation implements EssenceWriter
+class AttributeLocation implements AttributeWriter
 {
 
     private $tableName = '';
-    /**
-     * @var \PDO
-     */
-    private $storageLocation;
+    private $storageLocation = null;
 
     function __construct(string $table, \PDO $storageLocation)
     {
@@ -27,7 +24,7 @@ class EssenceLocation implements EssenceWriter
         $this->storageLocation = $storageLocation;
     }
 
-    function add(IEssence $entity): bool
+    function add(IAttribute $entity): bool
     {
         $suggestion_code = $entity->getCode();
 
@@ -37,6 +34,19 @@ class EssenceLocation implements EssenceWriter
         $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
         $query->bindParam(':code', $suggestion_code);
+
+        $result = $this->executeQuery($query, $connection);
+
+        return $result;
+    }
+
+    /**
+     * @param $query
+     * @param $connection
+     * @return mixed
+     */
+    private function executeQuery(\PDOStatement $query, \PDO $connection)
+    {
         $result = $query->execute();
 
         $isSuccess = $result === true;
@@ -46,12 +56,10 @@ class EssenceLocation implements EssenceWriter
         if (!$isSuccess) {
             $connection->rollBack();
         }
-
         return $result;
-
     }
 
-    function hide(IEssence $entity): bool
+    function hide(IAttribute $entity): bool
     {
         $target_code = $entity->getCode();
 
@@ -61,49 +69,38 @@ class EssenceLocation implements EssenceWriter
         $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
         $query->bindParam(':code', $target_code);
-        $result = $query->execute();
 
-        $isSuccess = $result === true;
-        if ($isSuccess) {
-            $result = $connection->commit();
-        }
-        if (!$isSuccess) {
-            $connection->rollBack();
-        }
+        $result = $this->executeQuery($query, $connection);
 
         return $result;
     }
 
-    function write(IEssence $target_entity, IEssence $suggestion_entity): bool
+    function write(IAttribute $target_entity, IAttribute $suggestion_entity): bool
     {
         $target_code = $target_entity->getCode();
-        $suggestion_code = $suggestion_entity->getCode();
-        $suggestion_title = $suggestion_entity->getTitle();
-        $suggestion_remark = $suggestion_entity->getRemark();
-        $suggestion_storage = $suggestion_entity->getStoreAt();
+        $suggestionCode = $suggestion_entity->getCode();
+        $suggestionTitle = $suggestion_entity->getTitle();
+        $suggestionRemark = $suggestion_entity->getRemark();
+        $suggestionDataType = $suggestion_entity->getDataType();
+        $suggestionRangeType = $suggestion_entity->getRangeType();
 
         $sqlText = 'update '
             . $this->tableName
-            . ' set code=:suggestion_code,title=:suggestion_title,remark=:suggestion_remark,store_at=:suggestion_store_at '
+            . ' set code=:suggestion_code,title=:suggestion_title,remark=:suggestion_remark,'
+            . ' data_type=:suggestion_data_type,range_type=:suggestion_range_type '
             . ' where code=:target_code';
         $connection = $this->storageLocation;
 
         $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
-        $query->bindParam(':suggestion_code', $suggestion_code);
-        $query->bindParam(':suggestion_title', $suggestion_title);
-        $query->bindParam(':suggestion_remark', $suggestion_remark);
-        $query->bindParam(':suggestion_store_at', $suggestion_storage);
+        $query->bindParam(':suggestion_code', $suggestionCode);
+        $query->bindParam(':suggestion_title', $suggestionTitle);
+        $query->bindParam(':suggestion_remark', $suggestionRemark);
+        $query->bindParam(':suggestion_data_type', $suggestionDataType);
+        $query->bindParam(':suggestion_range_type', $suggestionRangeType);
         $query->bindParam(':target_code', $target_code);
-        $result = $query->execute();
 
-        $isSuccess = $result === true;
-        if ($isSuccess) {
-            $result = $connection->commit();
-        }
-        if (!$isSuccess) {
-            $connection->rollBack();
-        }
+        $result = $this->executeQuery($query, $connection);
 
         return $result;
     }

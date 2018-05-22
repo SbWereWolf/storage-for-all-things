@@ -10,15 +10,15 @@ namespace AllThings\DataObject;
 
 interface Nameable
 {
-    function setCode(string $code): Nameable;
+    function setCode(string $value): Nameable;
 
     function getCode(): string;
 
-    function setTitle(string $title): Nameable;
+    function setTitle(string $value): Nameable;
 
     function getTitle(): string;
 
-    function setRemark(string $remark): Nameable;
+    function setRemark(string $value): Nameable;
 
     function getRemark(): string;
 

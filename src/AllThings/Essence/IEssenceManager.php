@@ -8,10 +8,10 @@
 namespace AllThings\Essence;
 
 
-use AllThings\DataAccess\Implementation\DataHandler;
-use AllThings\DataAccess\Implementation\Retrievable;
+use AllThings\DataAccess\Handler\Retrievable;
+use AllThings\DataAccess\Implementation\DataManager;
 
-interface EssenceHandler extends DataHandler, Retrievable
+interface IEssenceManager extends DataManager, Retrievable
 {
 
     function retrieveData(): IEssence;

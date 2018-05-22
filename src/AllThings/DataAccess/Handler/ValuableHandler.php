@@ -5,14 +5,11 @@
  * Date: 13.05.2018 Time: 11:27
  */
 
-namespace AllThings\DataAccess\Implementation;
+namespace AllThings\DataAccess\Handler;
 
 
-use AllThings\DataAccess\Core\DataSource;
-use AllThings\DataAccess\Core\StorageLocation;
-use AllThings\DataObject\Duplicable;
+use AllThings\DataAccess\Implementation\StorageLocation;
 use AllThings\DataObject\Nameable;
-use AllThings\DataObject\NameableDuplicable;
 use AllThings\DataObject\NamedEntity;
 
 class ValuableHandler implements Valuable, Hideable, Retrievable

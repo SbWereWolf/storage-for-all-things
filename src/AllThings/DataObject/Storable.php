@@ -14,7 +14,7 @@ interface Storable
 
     function getStoreAt(): \string;
 
-    function setStoreAt(\string $storeAt): Storable;
+    function setStoreAt(\string $value): Storable;
 
     function getStorableCopy(): Storable;
 }

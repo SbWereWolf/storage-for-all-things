@@ -5,9 +5,10 @@
  * Date: 13.05.2018 Time: 15:51
  */
 
-namespace AllThings\DataAccess\Core;
+namespace AllThings\DataAccess\Implementation;
 
 
+use AllThings\DataAccess\Core\EssenceReader;
 use AllThings\Essence\IEssence;
 
 class EssenceSource implements EssenceReader

@@ -5,15 +5,15 @@
  * Date: 13.05.2018 Time: 20:27
  */
 
-namespace AllThings\DataAccess\Implementation;
+namespace AllThings\DataAccess\Handler;
 
 
-use AllThings\DataAccess\Core\EssenceLocation;
-use AllThings\DataAccess\Core\EssenceSource;
-use AllThings\Essence\EssenceEntity;
+use AllThings\DataAccess\Implementation\EssenceLocation;
+use AllThings\DataAccess\Implementation\EssenceSource;
+use AllThings\Essence\Essence;
 use AllThings\Essence\IEssence;
 
-class EssenceDriver implements Valuable, Hideable, Retrievable
+class EssenceRecordHandler implements Valuable, Hideable, Retrievable
 {
 
     private $storageLocation = 'essence';
@@ -49,7 +49,7 @@ class EssenceDriver implements Valuable, Hideable, Retrievable
      */
     private function setEssenceByCode(string $code): IEssence
     {
-        $essence = EssenceEntity::GetDefaultExemplar();
+        $essence = Essence::GetDefaultEssence();
         $essence->setCode($code);
 
         return $essence;
@@ -92,7 +92,7 @@ class EssenceDriver implements Valuable, Hideable, Retrievable
     {
         $essence = $this->setEssenceByCode($code);
 
-        $resultData = EssenceEntity::GetDefaultExemplar();
+        $resultData = Essence::GetDefaultEssence();
 
         $result = ($this->getEssenceLocation())->write($essence, $resultData);
 

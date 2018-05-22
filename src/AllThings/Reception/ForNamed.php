@@ -8,11 +8,10 @@
 namespace AllThings\Reception;
 
 
-use Slim\Http\Request;
-
 interface ForNamed
 {
-    function fromPost():\string;
-    function fromGet():\string;
+    function fromPost(): \string;
+
+    function fromGet(): \string;
 
 }

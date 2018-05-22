@@ -5,9 +5,10 @@
  * Date: 13.05.2018 Time: 12:26
  */
 
-namespace AllThings\DataAccess\Core;
+namespace AllThings\DataAccess\Implementation;
 
 
+use AllThings\DataAccess\Core\ValuableWriter;
 use AllThings\DataObject\Nameable;
 
 class StorageLocation implements ValuableWriter

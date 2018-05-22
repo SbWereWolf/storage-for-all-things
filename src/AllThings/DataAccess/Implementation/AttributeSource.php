@@ -1,17 +1,18 @@
 <?php
 /**
  * storage-for-all-things
- * © Volkhin Nikolay M., 2018
- * Date: 13.05.2018 Time: 15:51
+ * Copyright © 2018 Volkhin Nikolay
+ * 23.05.18 0:35
  */
 
-namespace AllThings\DataAccess\Handler;
+
+namespace AllThings\DataAccess\Implementation;
 
 
-use AllThings\DataAccess\Core\ValuableReader;
-use AllThings\DataObject\Nameable;
+use AllThings\DataAccess\Core\AttributeReader;
+use AllThings\Essence\IAttribute;
 
-class DataSource implements ValuableReader
+class AttributeSource implements AttributeReader
 {
 
     private $tableName = '';
@@ -27,18 +28,18 @@ class DataSource implements ValuableReader
         $this->dataSource = $dataSource;
     }
 
-    function read(Nameable $entity): bool
+    function read(IAttribute $entity): bool
     {
-        $target_code = $entity->getCode();
+        $targetCode = $entity->getCode();
 
-        $sqlText = 'select code,title,remark from '
+        $sqlText = 'select code,title,remark,data_type,range_type from '
             . $this->tableName
             . ' where code=:target_code';
         $connection = $this->dataSource;
 
         $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
-        $query->bindParam(':target_code', $target_code);
+        $query->bindParam(':target_code', $targetCode);
         $result = $query->execute();
 
         $isSuccess = $result === true;
@@ -67,10 +68,14 @@ class DataSource implements ValuableReader
             $code = $row['code'];
             $title = $row['title'];
             $remark = $row['remark'];
+            $dataType = $row['data_type'];
+            $rangeType = $row['range_type'];
 
             $entity->setCode($code);
             $entity->setTitle($title);
             $entity->setRemark($remark);
+            $entity->setDataType($dataType);
+            $entity->setRangeType($rangeType);
 
         }
 

@@ -15,7 +15,7 @@ use AllThings\DataObject\Storable;
 interface IEssence extends Nameable, Storable
 {
 
-    static function GetDefaultExemplar(): IEssence;
+    static function GetDefaultEssence(): IEssence;
 
     function GetEssenceCopy(): IEssence;
 }

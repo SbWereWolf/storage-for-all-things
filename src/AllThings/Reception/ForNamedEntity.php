@@ -16,8 +16,8 @@ class ForNamedEntity implements ForNamed
 
     public function __construct(Request $request, array $arguments)
     {
-        $this->request=$request;
-        $this->arguments=$arguments;
+        $this->request = $request;
+        $this->arguments = $arguments;
     }
 
     function fromPost(): \string

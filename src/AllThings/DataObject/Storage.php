@@ -21,9 +21,9 @@ class Storage implements Storable
         return $storeAt;
     }
 
-    function setStoreAt(string $storeAt): Storable
+    function setStoreAt(string $value): Storable
     {
-        $this->storeAt = $storeAt;
+        $this->storeAt = $value;
 
         return $this;
     }

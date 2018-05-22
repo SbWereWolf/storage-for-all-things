@@ -1,7 +1,8 @@
 <?php
 
 
-use AllThings\Essence\EssenceEntity;
+use AllThings\Essence\Attribute;
+use AllThings\Essence\Essence;
 use Environment\DbConnection;
 use AllThings\Development\Page;
 use Slim\Http\Request;
@@ -185,8 +186,8 @@ $app->post('/essence/{code}', function (Request $request, Response $response, ar
 
     $dataPath = (new DbConnection())->getForWrite();
 
-    $essence = EssenceEntity::GetDefaultExemplar();
-    $handler = new AllThings\Essence\EssenceEntityHandler($essence, $dataPath);
+    $essence = Essence::GetDefaultEssence();
+    $handler = new AllThings\Essence\EssenceManager($essence, $dataPath);
 
     $essenceCode = (new \AllThings\Reception\ForEssenceEntity($request, $arguments))->fromPost();
 
@@ -198,7 +199,6 @@ $app->post('/essence/{code}', function (Request $request, Response $response, ar
     if (!$isSuccess) {
         $response = $response->withStatus(500);
     }
-
 
     return $response;
 })->setName(Page::ADD_ESSENCE);
@@ -227,9 +227,9 @@ $app->get('/essence/{code}', function (Request $request, Response $response, arr
 
     $parameter = (new \AllThings\Reception\ForEssenceEntity($request, $arguments))->fromGet();
 
-    $subject = EssenceEntity::GetDefaultExemplar();
+    $subject = Essence::GetDefaultEssence();
     $dataPath = (new DbConnection())->getForRead();
-    $handler = new AllThings\Essence\EssenceEntityHandler($subject, $dataPath);
+    $handler = new AllThings\Essence\EssenceManager($subject, $dataPath);
 
     $isSuccess = $handler->browse($parameter);
 
@@ -280,7 +280,7 @@ $app->put('/essence/{code}', function (Request $request, Response $response, arr
 
     $subject = $command->getSubject();
     $dataPath = (new DbConnection())->getForWrite();
-    $handler = new AllThings\Essence\EssenceEntityHandler($subject, $dataPath);
+    $handler = new AllThings\Essence\EssenceManager($subject, $dataPath);
 
     $parameter = $command->getParameter();
     $isSuccess = $handler->correct($parameter);
@@ -369,7 +369,22 @@ $app->get('/essence-catalog/filter/{filter}', function (Request $request, Respon
  * )
  */
 $app->post('/attribute/{code}', function (Request $request, Response $response, array $arguments) {
-    $response = $response->withStatus(201);
+
+    $dataPath = (new DbConnection())->getForWrite();
+
+    $attribute = Attribute::GetDefaultAttribute();
+    $handler = new AllThings\Essence\AttributeManager($attribute, $dataPath);
+
+    $parameter = (new \AllThings\Reception\ForAttributeEntity($request, $arguments))->fromPost();
+
+    $isSuccess = $handler->create($parameter);
+
+    if ($isSuccess) {
+        $response = $response->withStatus(201);
+    }
+    if (!$isSuccess) {
+        $response = $response->withStatus(500);
+    }
 
     return $response;
 })->setName(Page::ADD_ATTRIBUTE);
@@ -396,13 +411,26 @@ $app->post('/attribute/{code}', function (Request $request, Response $response, 
  */
 $app->get('/attribute/{code}', function (Request $request, Response $response, array $arguments) {
 
-    $response = $response->withJson(array(
-        'code' => $arguments['code'],
-        'title' => 'empty',
-        'remark' => 'empty',
-        'data-type' => 'decimal',
-        'range-type' => 'discrete',
-    ));
+    $parameter = (new \AllThings\Reception\ForAttributeEntity($request, $arguments))->fromGet();
+
+    $subject = Attribute::GetDefaultAttribute();
+    $dataPath = (new DbConnection())->getForRead();
+    $handler = new AllThings\Essence\AttributeManager($subject, $dataPath);
+
+    $isSuccess = $handler->browse($parameter);
+
+    if (!$isSuccess) {
+        $response = $response->withStatus(500);
+    }
+    if ($isSuccess) {
+        $result = $handler->retrieveData();
+
+        $presentation = new \AllThings\Presentation\ForAttributeEntity($result);
+        $json = $presentation->toJson();
+
+        $response->write($json);
+        $response = $response->withStatus(200);
+    }
 
     return $response;
 })->setName(Page::VIEW_ATTRIBUTE);
@@ -433,7 +461,22 @@ $app->get('/attribute/{code}', function (Request $request, Response $response, a
  * )
  */
 $app->put('/attribute/{code}', function (Request $request, Response $response, array $arguments) {
-    $response = $response->withStatus(200);
+
+    $command = (new \AllThings\Reception\ForAttributeEntity($request, $arguments))->fromPut();
+
+    $subject = $command->getSubject();
+    $dataPath = (new DbConnection())->getForWrite();
+    $handler = new AllThings\Essence\AttributeManager($subject, $dataPath);
+
+    $parameter = $command->getParameter();
+    $isSuccess = $handler->correct($parameter);
+
+    if ($isSuccess) {
+        $response = $response->withStatus(200);
+    }
+    if (!$isSuccess) {
+        $response = $response->withStatus(500);
+    }
 
     return $response;
 })->setName(Page::STORE_ATTRIBUTE);

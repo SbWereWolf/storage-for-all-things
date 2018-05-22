@@ -22,9 +22,9 @@ class NamedEntity implements Nameable
         return $code;
     }
 
-    function setCode(string $code): Nameable
+    function setCode(string $value): Nameable
     {
-        $this->code = $code;
+        $this->code = $value;
 
         return $this;
     }
@@ -36,9 +36,9 @@ class NamedEntity implements Nameable
         return $title;
     }
 
-    function setTitle(string $title): Nameable
+    function setTitle(string $value): Nameable
     {
-        $this->title = $title;
+        $this->title = $value;
 
         return $this;
     }
@@ -50,9 +50,9 @@ class NamedEntity implements Nameable
         return $remark;
     }
 
-    function setRemark(string $remark): Nameable
+    function setRemark(string $value): Nameable
     {
-        $this->remark = $remark;
+        $this->remark = $value;
 
         return $this;
     }
