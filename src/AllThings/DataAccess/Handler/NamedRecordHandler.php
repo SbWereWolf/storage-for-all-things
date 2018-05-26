@@ -12,7 +12,7 @@ use AllThings\DataAccess\Implementation\StorageLocation;
 use AllThings\DataObject\Nameable;
 use AllThings\DataObject\NamedEntity;
 
-class ValuableHandler implements Valuable, Hideable, Retrievable
+class NamedRecordHandler implements Valuable, Hideable, Retrievable
 {
 
     /**

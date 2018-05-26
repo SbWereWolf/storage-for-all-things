@@ -9,7 +9,7 @@ namespace AllThings\Reception;
 
 use Slim\Http\Request;
 
-class ForNamedEntity implements ForNamed
+class ForNameableEntity implements ForNamed
 {
     private $request = null;
     private $arguments = null;

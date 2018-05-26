@@ -9,7 +9,7 @@
 namespace AllThings\Presentation;
 
 
-interface ForNamed
+interface ForNameable
 {
 
     function toJson(): \string;
