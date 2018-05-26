@@ -1,6 +1,9 @@
 <?php
 
 
+use AllThings\Essence\Attribute;
+use AllThings\Essence\Essence;
+use Environment\DbConnection;
 use AllThings\Development\Page;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -8,6 +11,10 @@ use Slim\Http\Response;
 define('APPLICATION_ROOT', realpath(__DIR__) . DIRECTORY_SEPARATOR . '..');
 
 require APPLICATION_ROOT . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR . 'autoload.php';
+
+define('CONFIGURATION_ROOT', APPLICATION_ROOT . DIRECTORY_SEPARATOR . 'configuration');
+define('DB_READ_CONFIGURATION', CONFIGURATION_ROOT . DIRECTORY_SEPARATOR . 'db_read.php');
+define('DB_WRITE_CONFIGURATION', CONFIGURATION_ROOT . DIRECTORY_SEPARATOR . 'db_write.php');
 
 
 // Create and configure Slim app
@@ -176,7 +183,24 @@ $app->get('/', function (Request $request, Response $response, array $arguments)
  * )
  */
 $app->post('/essence/{code}', function (Request $request, Response $response, array $arguments) {
-    return $response->withStatus(201);
+
+    $dataPath = (new DbConnection())->getForWrite();
+
+    $essence = Essence::GetDefaultEssence();
+    $handler = new AllThings\Essence\EssenceManager($essence, $dataPath);
+
+    $essenceCode = (new \AllThings\Reception\ForEssenceEntity($request, $arguments))->fromPost();
+
+    $isSuccess = $handler->create($essenceCode);
+
+    if ($isSuccess) {
+        $response = $response->withStatus(201);
+    }
+    if (!$isSuccess) {
+        $response = $response->withStatus(500);
+    }
+
+    return $response;
 })->setName(Page::ADD_ESSENCE);
 
 /**
@@ -201,12 +225,26 @@ $app->post('/essence/{code}', function (Request $request, Response $response, ar
  */
 $app->get('/essence/{code}', function (Request $request, Response $response, array $arguments) {
 
-    $response = $response->withJson(array(
-        'code' => $arguments['code'],
-        'title' => 'empty',
-        'remark' => 'empty',
-        'storage' => 'empty'
-    ));
+    $parameter = (new \AllThings\Reception\ForEssenceEntity($request, $arguments))->fromGet();
+
+    $subject = Essence::GetDefaultEssence();
+    $dataPath = (new DbConnection())->getForRead();
+    $handler = new AllThings\Essence\EssenceManager($subject, $dataPath);
+
+    $isSuccess = $handler->browse($parameter);
+
+    if (!$isSuccess) {
+        $response = $response->withStatus(500);
+    }
+    if ($isSuccess) {
+        $result = $handler->retrieveData();
+
+        $presentation = new \AllThings\Presentation\ForEssenceEntity($result);
+        $json = $presentation->toJson();
+
+        $response->write($json);
+        $response = $response->withStatus(200);
+    }
 
     return $response;
 })->setName(Page::VIEW_ESSENCE);
@@ -237,7 +275,24 @@ $app->get('/essence/{code}', function (Request $request, Response $response, arr
  * )
  */
 $app->put('/essence/{code}', function (Request $request, Response $response, array $arguments) {
-    return $response->withStatus(200);
+
+    $command = (new \AllThings\Reception\ForEssenceEntity($request, $arguments))->fromPut();
+
+    $subject = $command->getSubject();
+    $dataPath = (new DbConnection())->getForWrite();
+    $handler = new AllThings\Essence\EssenceManager($subject, $dataPath);
+
+    $parameter = $command->getParameter();
+    $isSuccess = $handler->correct($parameter);
+
+    if ($isSuccess) {
+        $response = $response->withStatus(200);
+    }
+    if (!$isSuccess) {
+        $response = $response->withStatus(500);
+    }
+
+    return $response;
 })->setName(Page::STORE_ESSENCE);
 
 /**
@@ -314,7 +369,22 @@ $app->get('/essence-catalog/filter/{filter}', function (Request $request, Respon
  * )
  */
 $app->post('/attribute/{code}', function (Request $request, Response $response, array $arguments) {
-    $response = $response->withStatus(201);
+
+    $dataPath = (new DbConnection())->getForWrite();
+
+    $attribute = Attribute::GetDefaultAttribute();
+    $handler = new AllThings\Essence\AttributeManager($attribute, $dataPath);
+
+    $parameter = (new \AllThings\Reception\ForAttributeEntity($request, $arguments))->fromPost();
+
+    $isSuccess = $handler->create($parameter);
+
+    if ($isSuccess) {
+        $response = $response->withStatus(201);
+    }
+    if (!$isSuccess) {
+        $response = $response->withStatus(500);
+    }
 
     return $response;
 })->setName(Page::ADD_ATTRIBUTE);
@@ -341,13 +411,26 @@ $app->post('/attribute/{code}', function (Request $request, Response $response, 
  */
 $app->get('/attribute/{code}', function (Request $request, Response $response, array $arguments) {
 
-    $response = $response->withJson(array(
-        'code' => $arguments['code'],
-        'title' => 'empty',
-        'remark' => 'empty',
-        'data-type' => 'decimal',
-        'range-type' => 'discrete',
-    ));
+    $parameter = (new \AllThings\Reception\ForAttributeEntity($request, $arguments))->fromGet();
+
+    $subject = Attribute::GetDefaultAttribute();
+    $dataPath = (new DbConnection())->getForRead();
+    $handler = new AllThings\Essence\AttributeManager($subject, $dataPath);
+
+    $isSuccess = $handler->browse($parameter);
+
+    if (!$isSuccess) {
+        $response = $response->withStatus(500);
+    }
+    if ($isSuccess) {
+        $result = $handler->retrieveData();
+
+        $presentation = new \AllThings\Presentation\ForAttributeEntity($result);
+        $json = $presentation->toJson();
+
+        $response->write($json);
+        $response = $response->withStatus(200);
+    }
 
     return $response;
 })->setName(Page::VIEW_ATTRIBUTE);
@@ -378,7 +461,22 @@ $app->get('/attribute/{code}', function (Request $request, Response $response, a
  * )
  */
 $app->put('/attribute/{code}', function (Request $request, Response $response, array $arguments) {
-    $response = $response->withStatus(200);
+
+    $command = (new \AllThings\Reception\ForAttributeEntity($request, $arguments))->fromPut();
+
+    $subject = $command->getSubject();
+    $dataPath = (new DbConnection())->getForWrite();
+    $handler = new AllThings\Essence\AttributeManager($subject, $dataPath);
+
+    $parameter = $command->getParameter();
+    $isSuccess = $handler->correct($parameter);
+
+    if ($isSuccess) {
+        $response = $response->withStatus(200);
+    }
+    if (!$isSuccess) {
+        $response = $response->withStatus(500);
+    }
 
     return $response;
 })->setName(Page::STORE_ATTRIBUTE);
@@ -527,9 +625,9 @@ $app->get('/essence-attribute/{essence-code}', function (Request $request, Respo
 
 /**
  * @SWG\Post(
- *    path="/thing/{essence-code}/{thing-code}",
- *     summary="Create a thing object of specified an essence object",
- *    description="ADD_ESSENCE_ATTRIBUTE_LINK",
+ *    path="/essence-thing/{essence-code}/{thing-code}",
+ *     summary="Create linkage of an essence object and an attribute object",
+ *    description="ADD_ESSENCE_THING_LINK",
  *    @SWG\Parameter(
  *        name="essence-code",
  *        in="path",
@@ -537,7 +635,7 @@ $app->get('/essence-attribute/{essence-code}', function (Request $request, Respo
  *        required=true,
  *    ),
  *    @SWG\Parameter(
- *        name="thing-code",
+ *        name="attribute-code",
  *        in="path",
  *        type="string",
  *        required=true,
@@ -548,8 +646,124 @@ $app->get('/essence-attribute/{essence-code}', function (Request $request, Respo
  *    ),
  * )
  */
-$app->post('/thing/{essence-code}/{thing-code}', function (Request $request, Response $response, array $arguments) {
+$app->post('/essence-thing/{essence-code}/{thing-code}', function (Request $request, Response $response, array $arguments) {
     $response = $response->withStatus(201);
+
+    return $response;
+})->setName(Page::ADD_ESSENCE_THING_LINK);
+
+/**
+ * @SWG\Delete(
+ *    path="/essence-thing/{essence-code}/{thing-code}",
+ *     summary="Remove linkage of an essence object and an attribute object",
+ *    description="REMOVE_ESSENCE_ATTRIBUTE_LINK",
+ *    @SWG\Parameter(
+ *        name="essence-code",
+ *        in="path",
+ *        type="string",
+ *        required=true,
+ *    ),
+ *    @SWG\Parameter(
+ *        name="attribute-code",
+ *        in="path",
+ *        type="string",
+ *        required=true,
+ *    ),
+ *    @SWG\Response(
+ *        response=200,
+ *        description="Null response"
+ *    ),
+ * )
+ */
+$app->delete('/essence-thing/{essence-code}/{thing-code}', function (Request $request, Response $response, array $arguments) {
+    $response = $response->withStatus(200);
+
+    return $response;
+})->setName(Page::REMOVE_ESSENCE_THING_LINK);
+
+/**
+ * @SWG\Get(
+ *    path="/essence-thing/{essence-code}",
+ *     summary="Browse collection of attribute objects linked with an essence object",
+ *    description="VIEW_ATTRIBUTE_OF_ESSENCE",
+ *     @SWG\Parameter(
+ *         name="essence-code",
+ *         in="path",
+ *         type="string",
+ *         description="code of essence for browse attributes",
+ *         required=true,
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Successful operation",
+ *         @SWG\Schema(
+ *             type="array",
+ *             @SWG\Items(ref="#/definitions/attribute-code")
+ *         ),
+ *     ),
+ * )
+ */
+$app->get('/essence-thing/{essence-code}', function (Request $request, Response $response, array $arguments) {
+
+    $parameter = (new \AllThings\Reception\ForAttributeEntity($request, $arguments))->fromGet();
+
+    $subject = Attribute::GetDefaultAttribute();
+    $dataPath = (new DbConnection())->getForRead();
+    $handler = new AllThings\Essence\AttributeManager($subject, $dataPath);
+
+    $isSuccess = $handler->browse($parameter);
+
+    if (!$isSuccess) {
+        $response = $response->withStatus(500);
+    }
+    if ($isSuccess) {
+        $result = $handler->retrieveData();
+
+        $presentation = new \AllThings\Presentation\ForAttributeEntity($result);
+        $json = $presentation->toJson();
+
+        $response->write($json);
+        $response = $response->withStatus(200);
+    }
+
+    return $response;
+})->setName(Page::VIEW_THINGS_OF_ESSENCE);
+
+
+/**
+ * @SWG\Post(
+ *    path="/thing/{code}",
+ *     summary="Create a thing object of specified an essence object",
+ *    description="ADD_THING",
+ *    @SWG\Parameter(
+ *        name="code",
+ *        in="path",
+ *        type="string",
+ *        required=true,
+ *    ),
+ *    @SWG\Response(
+ *        response=201,
+ *        description="Null response"
+ *    ),
+ * )
+ */
+$app->post('/thing/{code}', function (Request $request, Response $response, array $arguments) {
+
+    $dataPath = (new DbConnection())->getForWrite();
+
+    $nameable = new \AllThings\DataObject\NamedEntity();
+    $handler = new AllThings\Common\NamedEntityManager($nameable, $dataPath);
+
+    $parameter = (new \AllThings\Reception\ForAttributeEntity($request, $arguments))->fromPost();
+
+    $isSuccess = $handler->create($parameter);
+
+    if ($isSuccess) {
+        $response = $response->withStatus(201);
+    }
+    if (!$isSuccess) {
+        $response = $response->withStatus(500);
+    }
 
     return $response;
 })->setName(Page::ADD_THING);
@@ -578,11 +792,26 @@ $app->post('/thing/{essence-code}/{thing-code}', function (Request $request, Res
  */
 $app->get('/thing/{code}', function (Request $request, Response $response, array $arguments) {
 
-    $response = $response->withJson(array(
-        'code' => $arguments['code'],
-        'title' => 'empty',
-        'remark' => 'empty'
-    ));
+    $parameter = (new \AllThings\Reception\ForNameableEntity($request, $arguments))->fromGet();
+
+    $subject = new \AllThings\DataObject\NamedEntity();
+    $dataPath = (new DbConnection())->getForRead();
+    $handler = new \AllThings\Common\NamedEntityManager($subject, $dataPath);
+
+    $isSuccess = $handler->browse($parameter);
+
+    if (!$isSuccess) {
+        $response = $response->withStatus(500);
+    }
+    if ($isSuccess) {
+        $result = $handler->retrieveData();
+
+        $presentation = new \AllThings\Presentation\ForNameableEntity($result);
+        $json = $presentation->toJson();
+
+        $response->write($json);
+        $response = $response->withStatus(200);
+    }
 
     return $response;
 })->setName(Page::VIEW_THING);
@@ -613,7 +842,22 @@ $app->get('/thing/{code}', function (Request $request, Response $response, array
  * )
  */
 $app->put('/thing/{code}', function (Request $request, Response $response, array $arguments) {
-    $response = $response->withStatus(200);
+
+    $command = (new \AllThings\Reception\ForAttributeEntity($request, $arguments))->fromPut();
+
+    $subject = $command->getSubject();
+    $dataPath = (new DbConnection())->getForWrite();
+    $handler = new AllThings\Essence\AttributeManager($subject, $dataPath);
+
+    $parameter = $command->getParameter();
+    $isSuccess = $handler->correct($parameter);
+
+    if ($isSuccess) {
+        $response = $response->withStatus(200);
+    }
+    if (!$isSuccess) {
+        $response = $response->withStatus(500);
+    }
 
     return $response;
 })->setName(Page::STORE_THING);
@@ -642,15 +886,15 @@ $app->put('/thing/{code}', function (Request $request, Response $response, array
 $app->get('/essence-filer/{essence-code}', function (Request $request, Response $response, array $arguments) {
 
     $response = $response->withJson(array(
-        'size'=> array(
+        'size' => array(
             'range-type' => 'continuous',
             'data-type' => 'decimal',
-            'value' => array(5.55,7.8),
+            'value' => array(5.55, 7.8),
         ),
-        'color'=> array(
+        'color' => array(
             'range-type' => 'discrete',
             'data-type' => 'string',
-            'value' => array('red','orange','yellow','green','blue','purple'),
+            'value' => array('red', 'orange', 'yellow', 'green', 'blue', 'purple'),
         ),
     ));
 
@@ -774,5 +1018,11 @@ $app->get('/thing-attribute/essence-code/{essence-code}/filter/{filter}', functi
 })->setName(Page::FILTER_THING_BY_ATTRIBUTE);
 
 // Run app
-/** @noinspection PhpUnhandledExceptionInspection */
-$app->run();
+
+try {
+    $app->run();
+} catch (Exception $e) {
+    echo $e->getMessage();
+}
+
+
