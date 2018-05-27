@@ -11,7 +11,7 @@ namespace AllThings\DataAccess\Core;
 interface PrimitiveWriter
 {
 
-    function addPrimitive(array $linkage): bool;
+    function insert(array $linkage): bool;
 
-    function removePrimitive(array $linkage): bool;
+    function delete(array $linkage): bool;
 }

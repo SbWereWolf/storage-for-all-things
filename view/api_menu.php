@@ -1,7 +1,7 @@
 <?php
 /* @var $actionLinks array */
 
-use AllThings\Development\Page;
+use AllThings\Environment\Development\Page;
 
 ?>
 <html>
@@ -43,7 +43,8 @@ use AllThings\Development\Page;
     <dl>
         <dt>ESSENCE-ATTRIBUTE-LINK</dt>
         <dd><a href='<?= $actionLinks[Page::ADD_ESSENCE_ATTRIBUTE_LINK] ?>'>Добавить характеристику к сущности</a></dd>
-        <dd><a href='<?= $actionLinks[Page::REMOVE_ESSENCE_ATTRIBUTE_LINK] ?>'>Удалить характеристику у сущности</a></dd>
+        <dd><a href='<?= $actionLinks[Page::REMOVE_ESSENCE_ATTRIBUTE_LINK] ?>'>Удалить характеристику у сущности</a>
+        </dd>
         <dd><a href='<?= $actionLinks[Page::VIEW_ATTRIBUTE_OF_ESSENCE] ?>'>Показать все характеристики сущности</a></dd>
     </dl>
     <dl>
@@ -54,14 +55,16 @@ use AllThings\Development\Page;
     </dl>
     <dl>
         <dt>FILTER-ESSENCE</dt>
-        <dd><a href='<?= $actionLinks[Page::FILTER_OF_ESSENCE] ?>'>Показать возможные условия выборки по сущности</a></dd>
+        <dd><a href='<?= $actionLinks[Page::FILTER_OF_ESSENCE] ?>'>Показать возможные условия выборки по сущности</a>
+        </dd>
     </dl>
     <dl>
         <dt>ATTRIBUTE-OF-THING</dt>
         <dd><a href='<?= $actionLinks[Page::ADD_ATTRIBUTE_TO_THING] ?>'>Добавить характеристику к экземпляру</a></dd>
         <dd><a href='<?= $actionLinks[Page::STORE_ATTRIBUTE_OF_THING] ?>'>Записать значение характеристики у
                 экземпляра</a></dd>
-        <dd><a href='<?= $actionLinks[Page::FILTER_THING_BY_ATTRIBUTE] ?>'>Сделать выборку из экземпляров сущности</a></dd>
+        <dd><a href='<?= $actionLinks[Page::FILTER_THING_BY_ATTRIBUTE] ?>'>Сделать выборку из экземпляров сущности</a>
+        </dd>
     </dl>
     <dl>
         <dt>THINGS-OF-ATTRIBUTE</dt>

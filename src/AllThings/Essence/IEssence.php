@@ -1,10 +1,4 @@
 <?php
-/**
- * Created by PhpStorm.
- * User: СЕРГЕЙ
- * Date: 19.05.2018
- * Time: 13:48
- */
 
 namespace AllThings\Essence;
 

@@ -8,6 +8,7 @@
 namespace AllThings\DataAccess\Handler;
 
 
+use AllThings\DataAccess\Implementation\DataSource;
 use AllThings\DataAccess\Implementation\StorageLocation;
 use AllThings\DataObject\Nameable;
 use AllThings\DataObject\NamedEntity;
@@ -15,9 +16,6 @@ use AllThings\DataObject\NamedEntity;
 class NamedRecordHandler implements Valuable, Hideable, Retrievable
 {
 
-    /**
-     * @var \PDO
-     */
     private $dataPath;
     private $storageLocation = '';
     private $container = null;
@@ -28,12 +26,12 @@ class NamedRecordHandler implements Valuable, Hideable, Retrievable
         $this->dataPath = $dataPath;
     }
 
-    function insert(string $code): bool
+    function add(string $code): bool
     {
 
         $entity = (new NamedEntity())->setCode($code);
 
-        $result = ($this->getStorageLocation())->add($entity);
+        $result = ($this->getStorageLocation())->insert($entity);
 
         if ($result) {
             $this->container = $entity;
@@ -55,7 +53,7 @@ class NamedRecordHandler implements Valuable, Hideable, Retrievable
 
         $entity = (new NamedEntity())->setCode($code);
 
-        $result = ($this->getStorageLocation())->hide($entity);
+        $result = ($this->getStorageLocation())->setIsHidden($entity);
 
         return $result;
 
@@ -66,7 +64,7 @@ class NamedRecordHandler implements Valuable, Hideable, Retrievable
 
         $entity = (new NamedEntity())->setCode($code);
 
-        $result = ($this->getStorageLocation())->write($entity, $this->container);
+        $result = ($this->getStorageLocation())->update($entity, $this->container);
 
         return $result;
 
@@ -77,7 +75,7 @@ class NamedRecordHandler implements Valuable, Hideable, Retrievable
 
         $entity = (new NamedEntity())->setCode($code);
 
-        $result = ($this->getDataSource())->read($entity);
+        $result = ($this->getDataSource())->select($entity);
 
         if ($result) {
 

@@ -27,7 +27,7 @@ class StorageLocation implements ValuableWriter
         $this->storageLocation = $storageLocation;
     }
 
-    function add(Nameable $entity): bool
+    function insert(Nameable $entity): bool
     {
         $suggestion_code = $entity->getCode();
 
@@ -48,10 +48,9 @@ class StorageLocation implements ValuableWriter
         }
 
         return $result;
-
     }
 
-    function hide(Nameable $entity): bool
+    function setIsHidden(Nameable $entity): bool
     {
         $target_code = $entity->getCode();
 
@@ -74,7 +73,7 @@ class StorageLocation implements ValuableWriter
         return $result;
     }
 
-    function write(Nameable $target_entity, Nameable $suggestion_entity): bool
+    function update(Nameable $target_entity, Nameable $suggestion_entity): bool
     {
         $target_code = $target_entity->getCode();
         $suggestion_code = $suggestion_entity->getCode();

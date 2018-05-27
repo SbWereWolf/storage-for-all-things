@@ -13,5 +13,5 @@ use AllThings\Essence\IAttribute;
 interface AttributeReader
 {
 
-    function read(IAttribute $entity): bool;
+    function select(IAttribute $entity): bool;
 }

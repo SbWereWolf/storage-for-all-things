@@ -10,7 +10,7 @@ namespace AllThings\Presentation;
 
 use AllThings\DataObject\Nameable;
 
-class ForNameableEntity implements ForNameable
+class ForNameableEntity implements Jsonable
 {
     private $nameable = null;
 

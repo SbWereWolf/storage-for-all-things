@@ -1,12 +1,20 @@
 <?php
 
 
+use AllThings\Common\NamedEntityManager;
+use AllThings\DataObject\EssenceAttributeCommand;
+use AllThings\DataObject\EssenceThingCommand;
+use AllThings\DataObject\NamedEntity;
+use AllThings\Environment\Development\Page;
 use AllThings\Essence\Attribute;
 use AllThings\Essence\Essence;
+use AllThings\Essence\EssenceAttributeManager;
+use AllThings\Essence\EssenceThingManager;
 use Environment\DbConnection;
-use AllThings\Development\Page;
+use Slim\Container;
 use Slim\Http\Request;
 use Slim\Http\Response;
+use Slim\Views\PhpRenderer;
 
 define('APPLICATION_ROOT', realpath(__DIR__) . DIRECTORY_SEPARATOR . '..');
 
@@ -15,16 +23,17 @@ require APPLICATION_ROOT . DIRECTORY_SEPARATOR . 'vendor' . DIRECTORY_SEPARATOR 
 define('CONFIGURATION_ROOT', APPLICATION_ROOT . DIRECTORY_SEPARATOR . 'configuration');
 define('DB_READ_CONFIGURATION', CONFIGURATION_ROOT . DIRECTORY_SEPARATOR . 'db_read.php');
 define('DB_WRITE_CONFIGURATION', CONFIGURATION_ROOT . DIRECTORY_SEPARATOR . 'db_write.php');
+define('DB_DELETE_CONFIGURATION', CONFIGURATION_ROOT . DIRECTORY_SEPARATOR . 'db_delete.php');
 
 
 // Create and configure Slim app
 $configuration['displayErrorDetails'] = true;
 $configuration['addContentLengthHeader'] = false;
-$container = new \Slim\Container(['settings' => $configuration]);
+$container = new Container(['settings' => $configuration]);
 
 const ROUTER_COMPONENT = 'router';
 const VIEWER_COMPONENT = 'view';
-$container[VIEWER_COMPONENT] = new \Slim\Views\PhpRenderer(APPLICATION_ROOT . DIRECTORY_SEPARATOR . 'view');
+$container[VIEWER_COMPONENT] = new PhpRenderer(APPLICATION_ROOT . DIRECTORY_SEPARATOR . 'view');
 
 $app = new \Slim\App($container);
 
@@ -466,10 +475,10 @@ $app->put('/attribute/{code}', function (Request $request, Response $response, a
 
     $subject = $command->getSubject();
     $dataPath = (new DbConnection())->getForWrite();
-    $handler = new AllThings\Essence\AttributeManager($subject, $dataPath);
+    $manager = new AllThings\Essence\AttributeManager($subject, $dataPath);
 
     $parameter = $command->getParameter();
-    $isSuccess = $handler->correct($parameter);
+    $isSuccess = $manager->correct($parameter);
 
     if ($isSuccess) {
         $response = $response->withStatus(200);
@@ -558,7 +567,24 @@ $app->get('/attribute-catalog/filter/{filter}', function (Request $request, Resp
  * )
  */
 $app->post('/essence-attribute/{essence-code}/{attribute-code}', function (Request $request, Response $response, array $arguments) {
-    $response = $response->withStatus(201);
+
+    $command = new EssenceAttributeCommand($request, $arguments);
+
+    $essence = $command->getEssenceIdentifier();
+    $attribute = $command->getAttributeIdentifier();
+    $dataPath = (new DbConnection())->getForWrite();
+
+    $manager = new EssenceAttributeManager($essence,$attribute,$dataPath);
+
+    $result = $manager->setUp();
+
+    $isSuccess = $result === true;
+    if($isSuccess){
+        $response = $response->withStatus(201);
+    }
+    if(!$isSuccess){
+        $response = $response->withStatus(500);
+    }
 
     return $response;
 })->setName(Page::ADD_ESSENCE_ATTRIBUTE_LINK);
@@ -587,7 +613,24 @@ $app->post('/essence-attribute/{essence-code}/{attribute-code}', function (Reque
  * )
  */
 $app->delete('/essence-attribute/{essence-code}/{attribute-code}', function (Request $request, Response $response, array $arguments) {
-    $response = $response->withStatus(200);
+
+    $command = new EssenceAttributeCommand($request, $arguments);
+
+    $essence = $command->getEssenceIdentifier();
+    $attribute = $command->getAttributeIdentifier();
+    $dataPath = (new DbConnection())->getForDelete();
+
+    $manager = new EssenceAttributeManager($essence,$attribute,$dataPath);
+
+    $result = $manager->breakDown();
+
+    $isSuccess = $result === true;
+    if($isSuccess){
+        $response = $response->withStatus(204);
+    }
+    if(!$isSuccess){
+        $response = $response->withStatus(500);
+    }
 
     return $response;
 })->setName(Page::REMOVE_ESSENCE_ATTRIBUTE_LINK);
@@ -615,10 +658,30 @@ $app->delete('/essence-attribute/{essence-code}/{attribute-code}', function (Req
  * )
  */
 $app->get('/essence-attribute/{essence-code}', function (Request $request, Response $response, array $arguments) {
-    $response = $response->withJson(array
-    (
-        'some' => array('color', 'size', 'weight', 'price')
-    ));
+
+    $command = new EssenceAttributeCommand($request, $arguments);
+
+    $essence = $command->getEssenceIdentifier();
+    $attribute = $command->getAttributeIdentifier();
+    $dataPath = (new DbConnection())->getForDelete();
+
+    $manager = new EssenceAttributeManager($essence,$attribute,$dataPath);
+
+    $result = $manager->getAssociated();
+
+    $isSuccess = $result === true;
+
+    if (!$isSuccess) {
+        $response = $response->withStatus(500);
+    }
+    if ($isSuccess) {
+        $result = $manager->retrieveData();
+
+        $json = (new AllThings\Presentation\ForEssenceAttribute($result))->toJson();
+
+        $response->write($json);
+        $response = $response->withStatus(200);
+    }
 
     return $response;
 })->setName(Page::VIEW_ATTRIBUTE_OF_ESSENCE);
@@ -647,7 +710,24 @@ $app->get('/essence-attribute/{essence-code}', function (Request $request, Respo
  * )
  */
 $app->post('/essence-thing/{essence-code}/{thing-code}', function (Request $request, Response $response, array $arguments) {
-    $response = $response->withStatus(201);
+
+    $command = new EssenceThingCommand($request, $arguments);
+
+    $essenceIdentifier = $command->getEssenceIdentifier();
+    $thingIdentifier = $command->getThingIdentifier();
+    $dataPath = (new DbConnection())->getForWrite();
+
+    $manager = new EssenceThingManager($essenceIdentifier,$thingIdentifier,$dataPath);
+
+    $result = $manager->setUp();
+
+    $isSuccess = $result === true;
+    if($isSuccess){
+        $response = $response->withStatus(201);
+    }
+    if(!$isSuccess){
+        $response = $response->withStatus(500);
+    }
 
     return $response;
 })->setName(Page::ADD_ESSENCE_THING_LINK);
@@ -676,7 +756,24 @@ $app->post('/essence-thing/{essence-code}/{thing-code}', function (Request $requ
  * )
  */
 $app->delete('/essence-thing/{essence-code}/{thing-code}', function (Request $request, Response $response, array $arguments) {
-    $response = $response->withStatus(200);
+
+    $command = new EssenceThingCommand($request, $arguments);
+
+    $essenceIdentifier = $command->getEssenceIdentifier();
+    $thingIdentifier = $command->getThingIdentifier();
+    $dataPath = (new DbConnection())->getForDelete();
+
+    $manager = new EssenceThingManager($essenceIdentifier,$thingIdentifier,$dataPath);
+
+    $result = $manager->breakDown();
+
+    $isSuccess = $result === true;
+    if($isSuccess){
+        $response = $response->withStatus(204);
+    }
+    if(!$isSuccess){
+        $response = $response->withStatus(500);
+    }
 
     return $response;
 })->setName(Page::REMOVE_ESSENCE_THING_LINK);
@@ -705,22 +802,25 @@ $app->delete('/essence-thing/{essence-code}/{thing-code}', function (Request $re
  */
 $app->get('/essence-thing/{essence-code}', function (Request $request, Response $response, array $arguments) {
 
-    $parameter = (new \AllThings\Reception\ForAttributeEntity($request, $arguments))->fromGet();
+    $command = new EssenceThingCommand($request, $arguments);
 
-    $subject = Attribute::GetDefaultAttribute();
+    $essenceIdentifier = $command->getEssenceIdentifier();
+    $thingIdentifier = $command->getThingIdentifier();
     $dataPath = (new DbConnection())->getForRead();
-    $handler = new AllThings\Essence\AttributeManager($subject, $dataPath);
 
-    $isSuccess = $handler->browse($parameter);
+    $manager = new EssenceThingManager($essenceIdentifier,$thingIdentifier,$dataPath);
+
+    $result = $manager->getAssociated();
+
+    $isSuccess = $result === true;
 
     if (!$isSuccess) {
         $response = $response->withStatus(500);
     }
     if ($isSuccess) {
-        $result = $handler->retrieveData();
+        $result = $manager->retrieveData();
 
-        $presentation = new \AllThings\Presentation\ForAttributeEntity($result);
-        $json = $presentation->toJson();
+        $json = (new AllThings\Presentation\ForEssenceThing($result))->toJson();
 
         $response->write($json);
         $response = $response->withStatus(200);
@@ -751,7 +851,7 @@ $app->post('/thing/{code}', function (Request $request, Response $response, arra
 
     $dataPath = (new DbConnection())->getForWrite();
 
-    $nameable = new \AllThings\DataObject\NamedEntity();
+    $nameable = new NamedEntity();
     $handler = new AllThings\Common\NamedEntityManager($nameable, $dataPath);
 
     $parameter = (new \AllThings\Reception\ForAttributeEntity($request, $arguments))->fromPost();
@@ -794,9 +894,9 @@ $app->get('/thing/{code}', function (Request $request, Response $response, array
 
     $parameter = (new \AllThings\Reception\ForNameableEntity($request, $arguments))->fromGet();
 
-    $subject = new \AllThings\DataObject\NamedEntity();
+    $subject = new NamedEntity();
     $dataPath = (new DbConnection())->getForRead();
-    $handler = new \AllThings\Common\NamedEntityManager($subject, $dataPath);
+    $handler = new NamedEntityManager($subject, $dataPath);
 
     $isSuccess = $handler->browse($parameter);
 

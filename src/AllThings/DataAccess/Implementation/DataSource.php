@@ -5,7 +5,7 @@
  * Date: 13.05.2018 Time: 15:51
  */
 
-namespace AllThings\DataAccess\Handler;
+namespace AllThings\DataAccess\Implementation;
 
 
 use AllThings\DataAccess\Core\ValuableReader;
@@ -27,7 +27,7 @@ class DataSource implements ValuableReader
         $this->dataSource = $dataSource;
     }
 
-    function read(Nameable $entity): bool
+    function select(Nameable $entity): bool
     {
         $target_code = $entity->getCode();
 

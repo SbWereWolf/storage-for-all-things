@@ -6,7 +6,7 @@ namespace AllThings\Presentation;
 
 use AllThings\Essence\IEssence;
 
-class ForEssenceEntity implements ForEssence
+class ForEssenceEntity implements Jsonable
 {
     private $entity = null;
 

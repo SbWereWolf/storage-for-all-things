@@ -14,4 +14,6 @@ interface Connection
     function getForWrite(): \PDO;
 
     function getForRead(): \PDO;
+
+    function getForDelete(): \PDO;
 }

@@ -12,5 +12,5 @@ use AllThings\DataObject\Nameable;
 interface ValuableReader
 {
 
-    function read(Nameable $entity): bool;
+    function select(Nameable $entity): bool;
 }

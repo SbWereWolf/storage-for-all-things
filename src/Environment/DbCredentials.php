@@ -60,6 +60,14 @@ class DbCredentials implements IDbCredentials
 
         return $writerCredentials;
     }
+
+    public static function getDeleteCredentials(): array
+    {
+        $dbDeleteCredentials = new self(DB_DELETE_CONFIGURATION);
+        $deleteCredentials = $dbDeleteCredentials->getPdoAttributes();
+
+        return $deleteCredentials;
+    }
 }
 
 

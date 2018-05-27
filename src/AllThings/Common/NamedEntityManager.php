@@ -27,7 +27,7 @@ class NamedEntityManager implements INamedEntityManager
 
         $handler = $this->getHandler();
 
-        $result = $handler->insert($targetIdentity);
+        $result = $handler->add($targetIdentity);
 
         $this->setSubject($handler);
 

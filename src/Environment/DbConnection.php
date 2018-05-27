@@ -56,6 +56,15 @@ class DbConnection implements Connection
         return $connection;
     }
 
+    function getForDelete(): \PDO
+    {
+        $dbCredentials = DbCredentials::getDeleteCredentials();
+
+        $connection = $this->getDbConnection($dbCredentials);
+
+        return $connection;
+    }
+
     function getForRead(): \PDO
     {
         $dbCredentials = DbCredentials::getReaderCredentials();

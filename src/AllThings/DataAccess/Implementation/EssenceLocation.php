@@ -27,7 +27,7 @@ class EssenceLocation implements EssenceWriter
         $this->storageLocation = $storageLocation;
     }
 
-    function add(IEssence $entity): bool
+    function insert(IEssence $entity): bool
     {
         $suggestion_code = $entity->getCode();
 
@@ -51,7 +51,7 @@ class EssenceLocation implements EssenceWriter
 
     }
 
-    function hide(IEssence $entity): bool
+    function setIsHidden(IEssence $entity): bool
     {
         $target_code = $entity->getCode();
 
@@ -74,7 +74,7 @@ class EssenceLocation implements EssenceWriter
         return $result;
     }
 
-    function write(IEssence $target_entity, IEssence $suggestion_entity): bool
+    function update(IEssence $target_entity, IEssence $suggestion_entity): bool
     {
         $target_code = $target_entity->getCode();
         $suggestion_code = $suggestion_entity->getCode();

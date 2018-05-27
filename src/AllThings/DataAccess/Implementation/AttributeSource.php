@@ -28,7 +28,7 @@ class AttributeSource implements AttributeReader
         $this->dataSource = $dataSource;
     }
 
-    function read(IAttribute $entity): bool
+    function select(IAttribute $entity): bool
     {
         $targetCode = $entity->getCode();
 

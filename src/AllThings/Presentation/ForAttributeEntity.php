@@ -10,7 +10,7 @@ namespace AllThings\Presentation;
 
 use AllThings\Essence\IAttribute;
 
-class ForAttributeEntity implements ForAttribute
+class ForAttributeEntity implements Jsonable
 {
     private $attribute = null;
 

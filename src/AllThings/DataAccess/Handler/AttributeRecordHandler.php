@@ -28,11 +28,11 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
         $this->dataPath = $dataPath;
     }
 
-    function insert(string $code): bool
+    function add(string $code): bool
     {
         $essence = $this->setAttributeByCode($code);
 
-        $result = ($this->getAttributeLocation())->add($essence);
+        $result = ($this->getAttributeLocation())->insert($essence);
 
         $this->setAttribute($result, $essence);
 
@@ -77,7 +77,7 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
     {
         $essence = $this->setAttributeByCode($code);
 
-        $result = ($this->getAttributeLocation())->hide($essence);
+        $result = ($this->getAttributeLocation())->setIsHidden($essence);
 
         $this->setAttribute($result, $essence);
 
@@ -91,7 +91,7 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
 
         $resultData = Attribute::GetDefaultAttribute();
 
-        $result = ($this->getAttributeLocation())->write($essence, $resultData);
+        $result = ($this->getAttributeLocation())->update($essence, $resultData);
 
         $this->setAttribute($result, $resultData);
 
@@ -103,7 +103,7 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
     {
         $attribute = $this->setAttributeByCode($code);
 
-        $result = ($this->getAttributeSource())->read($attribute);
+        $result = ($this->getAttributeSource())->select($attribute);
 
         $this->setAttribute($result, $attribute);
 

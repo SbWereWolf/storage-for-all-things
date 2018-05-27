@@ -5,7 +5,7 @@
  * Date: 30.04.2018 Time: 1:27
  */
 
-namespace AllThings\Development;
+namespace AllThings\Environment\Development;
 
 use Slim\Http\Request;
 use Slim\Http\Response;

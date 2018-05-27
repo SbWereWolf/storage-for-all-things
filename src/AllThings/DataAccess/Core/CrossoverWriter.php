@@ -13,7 +13,7 @@ use AllThings\DataObject\Crossover;
 interface CrossoverWriter
 {
 
-    function addCrossover(Crossover $entity): bool;
+    function insert(Crossover $entity): bool;
 
-    function writeCrossover(Crossover $target_entity, Crossover $suggestion_entity): bool;
+    function update(Crossover $target_entity, Crossover $suggestion_entity): bool;
 }

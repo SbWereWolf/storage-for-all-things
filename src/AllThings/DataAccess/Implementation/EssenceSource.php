@@ -27,7 +27,7 @@ class EssenceSource implements EssenceReader
         $this->dataSource = $dataSource;
     }
 
-    function read(IEssence $entity): bool
+    function select(IEssence $entity): bool
     {
         $target_code = $entity->getCode();
 

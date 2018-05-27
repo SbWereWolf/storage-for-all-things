@@ -31,11 +31,11 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
         $this->dataPath = $dataPath;
     }
 
-    function insert(string $code): bool
+    function add(string $code): bool
     {
         $essence = $this->setEssenceByCode($code);
 
-        $result = ($this->getEssenceLocation())->add($essence);
+        $result = ($this->getEssenceLocation())->insert($essence);
 
         $this->setEssence($result, $essence);
 
@@ -57,9 +57,9 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
 
     private function getEssenceLocation(): EssenceLocation
     {
+        $storageLocation = new EssenceLocation($this->storageLocation, $this->dataPath);
 
-        $repository = new EssenceLocation($this->storageLocation, $this->dataPath);
-        return $repository;
+        return $storageLocation;
     }
 
     /**
@@ -80,7 +80,7 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
     {
         $essence = $this->setEssenceByCode($code);
 
-        $result = ($this->getEssenceLocation())->hide($essence);
+        $result = ($this->getEssenceLocation())->setIsHidden($essence);
 
         $this->setEssence($result, $essence);
 
@@ -94,7 +94,7 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
 
         $resultData = Essence::GetDefaultEssence();
 
-        $result = ($this->getEssenceLocation())->write($essence, $resultData);
+        $result = ($this->getEssenceLocation())->update($essence, $resultData);
 
         $this->setEssence($result, $resultData);
 
@@ -106,7 +106,7 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
     {
         $essence = $this->setEssenceByCode($code);
 
-        $result = ($this->getEssenceSource())->read($essence);
+        $result = ($this->getEssenceSource())->select($essence);
 
         $this->setEssence($result, $essence);
 

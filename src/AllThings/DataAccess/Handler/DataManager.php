@@ -6,7 +6,7 @@
  * Time: 16:21
  */
 
-namespace AllThings\DataAccess\Implementation;
+namespace AllThings\DataAccess\Handler;
 
 
 interface DataManager

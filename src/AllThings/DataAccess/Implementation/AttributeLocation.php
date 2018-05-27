@@ -24,7 +24,7 @@ class AttributeLocation implements AttributeWriter
         $this->storageLocation = $storageLocation;
     }
 
-    function add(IAttribute $entity): bool
+    function insert(IAttribute $entity): bool
     {
         $suggestion_code = $entity->getCode();
 
@@ -59,7 +59,7 @@ class AttributeLocation implements AttributeWriter
         return $result;
     }
 
-    function hide(IAttribute $entity): bool
+    function setIsHidden(IAttribute $entity): bool
     {
         $target_code = $entity->getCode();
 
@@ -75,7 +75,7 @@ class AttributeLocation implements AttributeWriter
         return $result;
     }
 
-    function write(IAttribute $target_entity, IAttribute $suggestion_entity): bool
+    function update(IAttribute $target_entity, IAttribute $suggestion_entity): bool
     {
         $target_code = $target_entity->getCode();
         $suggestionCode = $suggestion_entity->getCode();
