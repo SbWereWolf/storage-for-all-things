@@ -41,6 +41,7 @@ class Page
     const FILTER_OF_ESSENCE = 'get-filter-for-essences';
     /* attributes of thing */
     const ADD_ATTRIBUTE_TO_THING = 'post-thing-attribute';
+    const VIEW_CONTENT = 'get-thing-attribute';
     const STORE_ATTRIBUTE_OF_THING = 'put-thing-attribute';
     const FILTER_THING_BY_ATTRIBUTE = 'get-filtered-things';
     /*thins of essence */

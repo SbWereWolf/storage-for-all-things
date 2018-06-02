@@ -31,8 +31,8 @@ class EssenceThingManager implements LinkageManager, Retrievable
         $linkage[self::THING_IDENTIFIER] = $thing;
         $this->linkage = $linkage;
 
-        $this->essenceForeignKey = (new ForeignKey())->setTable('essence')->setColumn('id')->setIndex('code');
-        $this->thingForeignKey = (new ForeignKey())->setTable('thing')->setColumn('id')->setIndex('code');
+        $this->essenceForeignKey = new ForeignKey('essence', 'id', 'code');
+        $this->thingForeignKey = new ForeignKey('thing', 'id', 'code');
 
         $this->dataPath = $dataPath;
     }

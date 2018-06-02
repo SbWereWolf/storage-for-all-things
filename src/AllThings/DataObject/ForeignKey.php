@@ -16,18 +16,18 @@ class ForeignKey implements IForeignKey
     private $column = '';
     private $index = '';
 
+    public function __construct(\string $table, \string $column, \string $index)
+    {
+        $this->column = $column;
+        $this->index = $index;
+        $this->table = $table;
+    }
+
     function getTable(): \string
     {
         $result = $this->table;
 
         return $result;
-    }
-
-    function setTable(\string $value): IForeignKey
-    {
-        $this->table = $value;
-
-        return $this;
     }
 
     function getColumn(): \string
@@ -37,24 +37,10 @@ class ForeignKey implements IForeignKey
         return $result;
     }
 
-    function setColumn(\string $value): IForeignKey
-    {
-        $this->column = $value;
-
-        return $this;
-    }
-
     function getIndex(): \string
     {
         $result = $this->index;
 
         return $result;
-    }
-
-    function setIndex(\string $value): IForeignKey
-    {
-        $this->index = $value;
-
-        return $this;
     }
 }

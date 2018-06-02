@@ -1,27 +1,69 @@
 <?php
 /**
  * storage-for-all-things
- * © Volkhin Nikolay M., 2018
- * Date: 13.05.2018 Time: 23:19
+ * Copyright © 2018 Volkhin Nikolay
+ * 02.06.18 18:15
  */
+
 
 namespace AllThings\DataObject;
 
 
-interface Crossover
+class Crossover implements ICrossover
 {
-    function getPrimary(): string;
+    private $rightKey = null;
+    private $leftKey = null;
+    private $value = '';
 
-    function setPrimary(): Crossover;
+    function setRightValue(\string $value): ICrossover
+    {
+        $this->rightKey = $value;
 
-    function getSecondary(): string;
+        return $this;
+    }
 
-    function setSecondary(): Crossover;
+    function setLeftValue(\string $value): ICrossover
+    {
+        $this->leftKey = $value;
 
-    function getContent(): string;
+        return $this;
+    }
 
-    function setContent(): Crossover;
+    function getCrossoverCopy(): ICrossover
+    {
+        $copy = (new Crossover())
+            ->setContent($this->getContent())
+            ->setLeftValue($this->getLeftValue())
+            ->setRightValue($this->getRightValue());
 
-    function getDuplicate(): Crossover;
+        return $copy;
+    }
 
+    function setContent(\string $value): ICrossover
+    {
+        $this->value = $value;
+
+        return $this;
+    }
+
+    function getContent(): \string
+    {
+        $result = $this->value;
+
+        return $result;
+    }
+
+    function getLeftValue(): \string
+    {
+        $result = $this->leftKey;
+
+        return $result;
+    }
+
+    function getRightValue(): \string
+    {
+        $result = $this->rightKey;
+
+        return $result;
+    }
 }

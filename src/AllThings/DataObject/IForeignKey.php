@@ -11,15 +11,9 @@ namespace AllThings\DataObject;
 
 interface IForeignKey
 {
-    function setTable(\string $value): IForeignKey;
-
     function getTable(): \string;
 
-    function setColumn(\string $value): IForeignKey;
-
     function getColumn(): \string;
-
-    function setIndex(\string $value): IForeignKey;
 
     function getIndex(): \string;
 

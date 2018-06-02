@@ -31,8 +31,8 @@ class EssenceAttributeManager implements LinkageManager, Retrievable
         $linkage[self::ATTRIBUTE_IDENTIFIER] = $attribute;
         $this->linkage = $linkage;
 
-        $this->essenceForeignKey = (new ForeignKey())->setTable('essence')->setColumn('id')->setIndex('code');
-        $this->attributeForeignKey = (new ForeignKey())->setTable('attribute')->setColumn('id')->setIndex('code');
+        $this->essenceForeignKey = new ForeignKey('essence', 'id', 'code');
+        $this->attributeForeignKey = new ForeignKey('attribute', 'id', 'code');
 
         $this->dataPath = $dataPath;
     }

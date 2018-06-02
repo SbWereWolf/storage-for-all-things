@@ -15,11 +15,13 @@ class NamedEntityManager implements INamedEntityManager
 {
     private $subject = null;
     private $dataPath = null;
+    private $storageLocation = '';
 
-    public function __construct(Nameable $subject, \PDO $dataPath)
+    public function __construct(Nameable $subject, $storageLocation, \PDO $dataPath)
     {
         $this->subject = $subject;
         $this->dataPath = $dataPath;
+        $this->storageLocation = $storageLocation;
     }
 
     function create(string $targetIdentity): bool
@@ -41,7 +43,7 @@ class NamedEntityManager implements INamedEntityManager
     {
         $subject = $this->subject;
         $dataPath = $this->dataPath;
-        $handler = new NamedRecordHandler($subject, $dataPath);
+        $handler = new NamedRecordHandler($subject, $this->storageLocation, $dataPath);
 
         return $handler;
     }

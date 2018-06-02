@@ -61,6 +61,7 @@ use AllThings\Environment\Development\Page;
     <dl>
         <dt>ATTRIBUTE-OF-THING</dt>
         <dd><a href='<?= $actionLinks[Page::ADD_ATTRIBUTE_TO_THING] ?>'>Добавить характеристику к экземпляру</a></dd>
+        <dd><a href='<?= $actionLinks[Page::VIEW_CONTENT] ?>'>Получить от экземпляра значение атрибута</a></dd>
         <dd><a href='<?= $actionLinks[Page::STORE_ATTRIBUTE_OF_THING] ?>'>Записать значение характеристики у
                 экземпляра</a></dd>
         <dd><a href='<?= $actionLinks[Page::FILTER_THING_BY_ATTRIBUTE] ?>'>Сделать выборку из экземпляров сущности</a>

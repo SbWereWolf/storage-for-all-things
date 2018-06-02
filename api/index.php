@@ -852,7 +852,7 @@ $app->post('/thing/{code}', function (Request $request, Response $response, arra
     $dataPath = (new DbConnection())->getForWrite();
 
     $nameable = new NamedEntity();
-    $handler = new AllThings\Common\NamedEntityManager($nameable, $dataPath);
+    $handler = new NamedEntityManager($nameable, 'thing' , $dataPath);
 
     $parameter = (new \AllThings\Reception\ForAttributeEntity($request, $arguments))->fromPost();
 
@@ -896,7 +896,7 @@ $app->get('/thing/{code}', function (Request $request, Response $response, array
 
     $subject = new NamedEntity();
     $dataPath = (new DbConnection())->getForRead();
-    $handler = new NamedEntityManager($subject, $dataPath);
+    $handler = new NamedEntityManager($subject, 'thing', $dataPath);
 
     $isSuccess = $handler->browse($parameter);
 
@@ -1038,6 +1038,36 @@ $app->post('/thing-attribute/{thing-code}/{attribute-code}', function (Request $
 
     return $response;
 })->setName(Page::ADD_ATTRIBUTE_TO_THING);
+
+/**
+ * @SWG\Get(
+ *    path="/thing-attribute/{thing-code}/{attribute-code}",
+ *     summary="Browse a finds parameters of specified an essence object",
+ *    description="VIEW_CONTENT",
+ *     @SWG\Parameter(
+ *         name="essence-code",
+ *         in="path",
+ *         type="string",
+ *         required=true,
+ *     ),
+ *     @SWG\Response(
+ *         response=200,
+ *         description="Successful operation",
+ *         @SWG\Schema(
+ *             type="array",
+ *             @SWG\Items(ref="#/definitions/attribute-filer")
+ *         ),
+ *     ),
+ * )
+ */
+$app->get('/thing-attribute/{thing-code}/{attribute-code}', function (Request $request, Response $response, array $arguments) {
+
+    $response = $response->withJson(array(
+        'content' => 'content'
+    ));
+
+    return $response;
+})->setName(Page::VIEW_CONTENT);
 
 /**
  * @SWG\Put(

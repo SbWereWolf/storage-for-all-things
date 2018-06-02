@@ -22,8 +22,8 @@ class EssenceThingHandler implements Linkable, Retrievable
 
     public function __construct(\PDO $dataPath)
     {
-        $this->essenceForeignKey = (new ForeignKey())->setTable('essence')->setColumn('id')->setIndex('code');
-        $this->thingForeignKey = (new ForeignKey())->setTable('thing')->setColumn('id')->setIndex('code');
+        $this->essenceForeignKey = new ForeignKey('essence', 'id', 'code');
+        $this->thingForeignKey = new ForeignKey('thing', 'id', 'code');
 
         $this->dataPath = $dataPath;
     }
@@ -80,7 +80,7 @@ class EssenceThingHandler implements Linkable, Retrievable
         return $dataSource;
     }
 
-    function retrieveData()
+    function retrieveData(): array
     {
         $result = $this->dataSet;
 

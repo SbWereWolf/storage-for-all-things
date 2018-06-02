@@ -16,14 +16,15 @@ use AllThings\DataObject\NamedEntity;
 class NamedRecordHandler implements Valuable, Hideable, Retrievable
 {
 
-    private $dataPath;
-    private $storageLocation = '';
+    private $dataPath = null;
+    private $table = '';
     private $container = null;
 
-    function __construct(Nameable $named, \PDO $dataPath)
+    function __construct(Nameable $named, string $tableName, \PDO $dataPath)
     {
         $this->container = $named->getNameableCopy();
         $this->dataPath = $dataPath;
+        $this->table = $tableName;
     }
 
     function add(string $code): bool
@@ -44,7 +45,7 @@ class NamedRecordHandler implements Valuable, Hideable, Retrievable
     private function getStorageLocation(): StorageLocation
     {
 
-        $repository = new StorageLocation($this->storageLocation, $this->dataPath);
+        $repository = new StorageLocation($this->table, $this->dataPath);
         return $repository;
     }
 
@@ -89,7 +90,7 @@ class NamedRecordHandler implements Valuable, Hideable, Retrievable
     private function getDataSource(): DataSource
     {
 
-        $repository = new DataSource($this->storageLocation, $this->dataPath);
+        $repository = new DataSource($this->table, $this->dataPath);
         return $repository;
     }
 

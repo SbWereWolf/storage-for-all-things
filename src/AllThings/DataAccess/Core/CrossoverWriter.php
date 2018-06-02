@@ -8,12 +8,12 @@
 namespace AllThings\DataAccess\Core;
 
 
-use AllThings\DataObject\Crossover;
+use AllThings\DataObject\ICrossover;
 
 interface CrossoverWriter
 {
 
-    function insert(Crossover $entity): bool;
+    function insert(ICrossover $entity): bool;
 
-    function update(Crossover $target_entity, Crossover $suggestion_entity): bool;
+    function update(ICrossover $targetEntity, ICrossover $suggestionEntity): bool;
 }
