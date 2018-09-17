@@ -22,34 +22,22 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
     private $dataPath = null;
     private $attribute = null;
 
-    function __construct(IAttribute $essence, \PDO $dataPath)
+    function __construct(IAttribute $attribute, \PDO $dataPath)
     {
-        $this->attribute = $essence;
+        $this->attribute = $attribute;
         $this->dataPath = $dataPath;
     }
 
-    function add(string $code): bool
+    function add(): bool
     {
-        $essence = $this->setAttributeByCode($code);
+        $attribute = $this->attribute->GetAttributeCopy();
 
-        $result = ($this->getAttributeLocation())->insert($essence);
+        $result = ($this->getAttributeLocation())->insert($attribute);
 
-        $this->setAttribute($result, $essence);
+        $this->setAttribute($result, $attribute);
 
         return $result;
 
-    }
-
-    /**
-     * @param string $code
-     * @return IAttribute
-     */
-    private function setAttributeByCode(string $code): IAttribute
-    {
-        $attribute = Attribute::GetDefaultAttribute();
-        $attribute->setCode($code);
-
-        return $attribute;
     }
 
     private function getAttributeLocation(): AttributeLocation
@@ -73,13 +61,13 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
         }
     }
 
-    function hide(string $code): bool
+    function hide(): bool
     {
-        $essence = $this->setAttributeByCode($code);
+        $attribute = $this->attribute->GetAttributeCopy();
 
-        $result = ($this->getAttributeLocation())->setIsHidden($essence);
+        $result = ($this->getAttributeLocation())->setIsHidden($attribute);
 
-        $this->setAttribute($result, $essence);
+        $this->setAttribute($result, $attribute);
 
         return $result;
 
@@ -87,25 +75,37 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
 
     function write(string $code): bool
     {
-        $essence = $this->setAttributeByCode($code);
+        $target = $this->setAttributeByCode($code);
 
-        $resultData = Attribute::GetDefaultAttribute();
+        $attribute = $this->attribute->GetAttributeCopy();
 
-        $result = ($this->getAttributeLocation())->update($essence, $resultData);
+        $result = ($this->getAttributeLocation())->update($target, $attribute);
 
-        $this->setAttribute($result, $resultData);
+        $this->setAttribute($result, $attribute);
 
         return $result;
 
     }
 
+    /**
+     * @param string $code
+     * @return IAttribute
+     */
+    private function setAttributeByCode(string $code): IAttribute
+    {
+        $attribute = Attribute::GetDefaultAttribute();
+        $attribute->setCode($code);
+
+        return $attribute;
+    }
+
     function read(string $code): bool
     {
-        $attribute = $this->setAttributeByCode($code);
+        $target = $this->setAttributeByCode($code);
 
-        $result = ($this->getAttributeSource())->select($attribute);
+        $result = ($this->getAttributeSource())->select($target);
 
-        $this->setAttribute($result, $attribute);
+        $this->setAttribute($result, $target);
 
         return $result;
 

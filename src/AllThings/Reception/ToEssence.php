@@ -10,7 +10,7 @@ namespace AllThings\Reception;
 
 use AllThings\DataObject\IEssenceUpdateCommand;
 
-interface ForEssence
+interface ToEssence
 {
     function fromPost(): \string;
 

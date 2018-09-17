@@ -8,8 +8,8 @@
 namespace AllThings\Essence;
 
 
-use AllThings\DataAccess\Handler\DataManager;
 use AllThings\DataAccess\Handler\Retrievable;
+use AllThings\DataAccess\Manager\DataManager;
 
 interface IEssenceManager extends DataManager, Retrievable
 {

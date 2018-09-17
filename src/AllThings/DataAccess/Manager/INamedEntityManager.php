@@ -2,13 +2,12 @@
 /**
  * storage-for-all-things
  * Copyright © 2018 Volkhin Nikolay
- * 26.05.18 12:26
+ * 18.09.18 0:51
  */
 
-namespace AllThings\Common;
+namespace AllThings\DataAccess\Manager;
 
 
-use AllThings\DataAccess\Handler\DataManager;
 use AllThings\DataAccess\Handler\Retrievable;
 use AllThings\DataObject\Nameable;
 

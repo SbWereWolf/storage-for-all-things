@@ -12,7 +12,7 @@ use AllThings\DataObject\ICrossover;
 
 interface ICrossoverHandler
 {
-    function crossover(): \bool;
+    function crossing(): \bool;
 
     function setCrossover(ICrossover $crossover): \bool;
 

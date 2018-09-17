@@ -10,6 +10,6 @@ namespace AllThings\DataAccess\Handler;
 
 interface Hideable
 {
-    function hide(string $code): bool;
+    function hide(): bool;
 
 }

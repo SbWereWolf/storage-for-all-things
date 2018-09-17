@@ -29,4 +29,6 @@ interface IDbCredentials
     public static function getReaderCredentials(): array;
 
     public static function getWriterCredentials(): array;
+
+    public static function getDeleteCredentials(): array;
 }

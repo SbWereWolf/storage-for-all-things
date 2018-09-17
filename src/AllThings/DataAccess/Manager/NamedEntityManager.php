@@ -2,10 +2,10 @@
 /**
  * storage-for-all-things
  * Copyright © 2018 Volkhin Nikolay
- * 26.05.18 12:21
+ * 18.09.18 0:51
  */
 
-namespace AllThings\Common;
+namespace AllThings\DataAccess\Manager;
 
 
 use AllThings\DataAccess\Handler\NamedRecordHandler;
@@ -24,12 +24,11 @@ class NamedEntityManager implements INamedEntityManager
         $this->storageLocation = $storageLocation;
     }
 
-    function create(string $targetIdentity): bool
+    function create(): bool
     {
-
         $handler = $this->getHandler();
 
-        $result = $handler->add($targetIdentity);
+        $result = $handler->add();
 
         $this->setSubject($handler);
 
@@ -56,11 +55,11 @@ class NamedEntityManager implements INamedEntityManager
         $this->subject = $handler->retrieveData();
     }
 
-    function remove(string $targetIdentity): bool
+    function remove(): bool
     {
         $handler = $this->getHandler();
 
-        $result = $handler->hide($targetIdentity);
+        $result = $handler->hide();
 
         $this->setSubject($handler);
 

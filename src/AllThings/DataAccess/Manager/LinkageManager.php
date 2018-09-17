@@ -5,7 +5,7 @@
  * 27.05.18 3:27
  */
 
-namespace AllThings\DataAccess\Handler;
+namespace AllThings\DataAccess\Manager;
 
 
 interface LinkageManager

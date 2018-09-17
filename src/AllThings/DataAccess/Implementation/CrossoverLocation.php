@@ -31,9 +31,8 @@ class CrossoverLocation implements CrossoverWriter
 
     function insert(ICrossover $entity): bool
     {
-        $suggestionAttribute = $entity->getRightValue();
-        $suggestionThing = $entity->getLeftValue();
-        $suggestionContent = $entity->getContent();
+        $suggestionRightValue = $entity->getRightValue();
+        $suggestionLeftValue = $entity->getLeftValue();
 
         $leftKeyTable = $this->leftKey->getTable();
         $leftKeyColumn = $this->leftKey->getColumn();
@@ -53,15 +52,13 @@ values((
 select $leftKeyColumn from $leftKeyTable where $leftKeyIndex = :left_value
 ),(
 select $rightKeyColumn from $rightKeyTable where $rightKeyIndex = :right_value
-),
-:content)";
+))";
         $connection = $this->dataPath;
 
         $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
-        $query->bindParam(':content', $suggestionContent);
-        $query->bindParam(':left_value', $suggestionThing);
-        $query->bindParam(':right_value', $suggestionAttribute);
+        $query->bindParam(':left_value', $suggestionLeftValue);
+        $query->bindParam(':right_value', $suggestionRightValue);
         $result = $query->execute();
 
         $isSuccess = $result === true;

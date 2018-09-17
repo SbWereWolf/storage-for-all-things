@@ -22,12 +22,12 @@ class EssenceManager implements IEssenceManager
         $this->dataPath = $dataPath;
     }
 
-    function create(string $targetIdentity): bool
+    function create(): bool
     {
 
         $handler = $this->getHandler();
 
-        $result = $handler->add($targetIdentity);
+        $result = $handler->add();
 
         $this->setSubject($handler);
 
@@ -54,11 +54,11 @@ class EssenceManager implements IEssenceManager
         $this->subject = $handler->retrieveData();
     }
 
-    function remove(string $targetIdentity): bool
+    function remove(): bool
     {
         $handler = $this->getHandler();
 
-        $result = $handler->hide($targetIdentity);
+        $result = $handler->hide();
 
         $this->setSubject($handler);
 

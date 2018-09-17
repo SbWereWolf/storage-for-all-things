@@ -33,7 +33,7 @@ class CrossoverHandler implements ICrossoverHandler, Retrievable
         $this->rightKey = $rightKey;
     }
 
-    function crossover(): \bool
+    function crossing(): \bool
     {
         $writer = $this->getCrossoverWriter();
 

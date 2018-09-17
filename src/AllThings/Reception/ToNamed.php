@@ -8,7 +8,7 @@
 namespace AllThings\Reception;
 
 
-interface ForNamed
+interface ToNamed
 {
     function fromPost(): \string;
 

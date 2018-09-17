@@ -10,7 +10,7 @@ namespace AllThings\Reception;
 
 use AllThings\DataObject\IAttributeUpdateCommand;
 
-interface ForAttribute
+interface ToAttribute
 {
     function fromPost(): \string;
 

@@ -8,7 +8,7 @@
 namespace AllThings\DataObject;
 
 
-class CrossoverTable
+class CrossoverTable implements ICrossoverTable
 {
     private $tableName = '';
     private $leftColumn = '';

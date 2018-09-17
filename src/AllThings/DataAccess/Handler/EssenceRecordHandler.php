@@ -18,10 +18,6 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
 
     private $storageLocation = 'essence';
     private $dataSource = 'essence';
-
-    /**
-     * @var \PDO
-     */
     private $dataPath;
     private $essence = null;
 
@@ -31,9 +27,9 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
         $this->dataPath = $dataPath;
     }
 
-    function add(string $code): bool
+    function add(): bool
     {
-        $essence = $this->setEssenceByCode($code);
+        $essence = $this->essence->GetEssenceCopy();
 
         $result = ($this->getEssenceLocation())->insert($essence);
 
@@ -41,18 +37,6 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
 
         return $result;
 
-    }
-
-    /**
-     * @param string $code
-     * @return IEssence
-     */
-    private function setEssenceByCode(string $code): IEssence
-    {
-        $essence = Essence::GetDefaultEssence();
-        $essence->setCode($code);
-
-        return $essence;
     }
 
     private function getEssenceLocation(): EssenceLocation
@@ -76,9 +60,9 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
         }
     }
 
-    function hide(string $code): bool
+    function hide(): bool
     {
-        $essence = $this->setEssenceByCode($code);
+        $essence = $this->essence->GetEssenceCopy();
 
         $result = ($this->getEssenceLocation())->setIsHidden($essence);
 
@@ -90,25 +74,37 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
 
     function write(string $code): bool
     {
-        $essence = $this->setEssenceByCode($code);
+        $target = $this->setEssenceByCode($code);
 
-        $resultData = Essence::GetDefaultEssence();
+        $essence = $this->essence->GetEssenceCopy();
 
-        $result = ($this->getEssenceLocation())->update($essence, $resultData);
+        $result = ($this->getEssenceLocation())->update($target, $essence);
 
-        $this->setEssence($result, $resultData);
+        $this->setEssence($result, $essence);
 
         return $result;
 
     }
 
+    /**
+     * @param string $code
+     * @return IEssence
+     */
+    private function setEssenceByCode(string $code): IEssence
+    {
+        $essence = Essence::GetDefaultEssence();
+        $essence->setCode($code);
+
+        return $essence;
+    }
+
     function read(string $code): bool
     {
-        $essence = $this->setEssenceByCode($code);
+        $target = $this->setEssenceByCode($code);
 
-        $result = ($this->getEssenceSource())->select($essence);
+        $result = ($this->getEssenceSource())->select($target);
 
-        $this->setEssence($result, $essence);
+        $this->setEssence($result, $target);
 
         return $result;
 

@@ -12,7 +12,7 @@ use AllThings\DataObject\IEssenceUpdateCommand;
 use AllThings\Essence\Essence;
 use Slim\Http\Request;
 
-class ForEssenceEntity implements ForEssence
+class ToEssenceEntity implements ToEssence
 {
     private $request = null;
     private $arguments = null;
@@ -39,7 +39,9 @@ class ForEssenceEntity implements ForEssence
 
     function fromPut(): IEssenceUpdateCommand
     {
-        $code = $this->arguments['code'];
+        $parameterCode = $this->arguments['code'];
+        $parameter = Essence::GetDefaultEssence();
+        $parameter->setCode($parameterCode);
 
         $request = $this->request;
 
@@ -67,9 +69,6 @@ class ForEssenceEntity implements ForEssence
             $storeAt = $body['store_at'];
             $essence->setStoreAt($storeAt);
         }
-
-        $parameter = Essence::GetDefaultEssence();
-        $parameter->setCode($code);
 
         $command = new EssenceUpdateCommand($parameter, $essence);
 

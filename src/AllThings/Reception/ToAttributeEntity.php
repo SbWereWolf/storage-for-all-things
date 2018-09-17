@@ -13,7 +13,7 @@ use AllThings\DataObject\IAttributeUpdateCommand;
 use AllThings\Essence\Attribute;
 use Slim\Http\Request;
 
-class ForAttributeEntity implements ForAttribute
+class ToAttributeEntity implements ToAttribute
 {
     private $request = null;
     private $arguments = null;
@@ -40,7 +40,10 @@ class ForAttributeEntity implements ForAttribute
 
     function fromPut(): IAttributeUpdateCommand
     {
-        $code = $this->arguments['code'];
+        $parameterCode = $this->arguments['code'];
+        $parameter = Attribute::GetDefaultAttribute();
+        $parameter->setCode($parameterCode);
+
         $request = $this->request;
         $body = $request->getParsedBody();
 
@@ -71,9 +74,6 @@ class ForAttributeEntity implements ForAttribute
             $rangeType = $body['range_type'];
             $attribute->setRangeType($rangeType);
         }
-
-        $parameter = Attribute::GetDefaultAttribute();
-        $parameter->setCode($code);
 
         $command = new AttributeUpdateCommand($parameter, $attribute);
 

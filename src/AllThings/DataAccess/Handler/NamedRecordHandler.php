@@ -27,10 +27,9 @@ class NamedRecordHandler implements Valuable, Hideable, Retrievable
         $this->table = $tableName;
     }
 
-    function add(string $code): bool
+    function add(): bool
     {
-
-        $entity = (new NamedEntity())->setCode($code);
+        $entity = $this->container->getNameableCopy();
 
         $result = ($this->getStorageLocation())->insert($entity);
 
@@ -49,10 +48,10 @@ class NamedRecordHandler implements Valuable, Hideable, Retrievable
         return $repository;
     }
 
-    function hide(string $code): bool
+    function hide(): bool
     {
 
-        $entity = (new NamedEntity())->setCode($code);
+        $entity = $this->container->getNameableCopy();
 
         $result = ($this->getStorageLocation())->setIsHidden($entity);
 

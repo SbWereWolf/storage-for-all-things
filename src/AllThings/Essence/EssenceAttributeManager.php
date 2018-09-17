@@ -10,8 +10,8 @@ namespace AllThings\Essence;
 
 
 use AllThings\DataAccess\Handler\EssenceAttributeHandler;
-use AllThings\DataAccess\Handler\LinkageManager;
 use AllThings\DataAccess\Handler\Retrievable;
+use AllThings\DataAccess\Manager\LinkageManager;
 use AllThings\DataObject\ForeignKey;
 
 class EssenceAttributeManager implements LinkageManager, Retrievable

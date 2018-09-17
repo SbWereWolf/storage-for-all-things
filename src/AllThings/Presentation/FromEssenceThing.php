@@ -2,13 +2,14 @@
 /**
  * storage-for-all-things
  * Copyright © 2018 Volkhin Nikolay
- * 27.05.18 16:28
+ * 27.05.18 22:00
  */
+
 
 namespace AllThings\Presentation;
 
 
-class ForEssenceAttribute implements Jsonable
+class FromEssenceThing implements Jsonable
 {
     private $dataSet = [];
 

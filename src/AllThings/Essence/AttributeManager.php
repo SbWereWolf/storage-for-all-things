@@ -22,14 +22,14 @@ class AttributeManager implements IAttributeManager
         $this->dataPath = $dataPath;
     }
 
-    function create(string $targetIdentity): bool
+    function create(): bool
     {
 
         $handler = $this->getHandler();
 
-        $result = $handler->add($targetIdentity);
+        $result = $handler->add();
 
-        $this->setSubject($handler);
+        $this->setSubject($result, $handler);
 
         return $result;
     }
@@ -47,20 +47,24 @@ class AttributeManager implements IAttributeManager
     }
 
     /**
-     * @param $handler
+     * @param bool $isSuccess
+     * @param AttributeRecordHandler $handler
      */
-    private function setSubject(AttributeRecordHandler $handler): void
+    private function setSubject(\bool $isSuccess, AttributeRecordHandler $handler): void
     {
-        $this->subject = $handler->retrieveData();
+        if ($isSuccess) {
+            $this->subject = $handler->retrieveData();
+        }
+
     }
 
-    function remove(string $targetIdentity): bool
+    function remove(): bool
     {
         $handler = $this->getHandler();
 
-        $result = $handler->hide($targetIdentity);
+        $result = $handler->hide();
 
-        $this->setSubject($handler);
+        $this->setSubject($result, $handler);
 
         return $result;
     }
@@ -71,7 +75,7 @@ class AttributeManager implements IAttributeManager
 
         $result = $handler->write($targetIdentity);
 
-        $this->setSubject($handler);
+        $this->setSubject($result, $handler);
 
         return $result;
     }
@@ -82,17 +86,14 @@ class AttributeManager implements IAttributeManager
 
         $result = $handler->read($targetIdentity);
 
-        $this->setSubject($handler);
+        $this->setSubject($result, $handler);
 
         return $result;
     }
 
     function retrieveData(): IAttribute
     {
-        $nameable = $this->subject->getNameableCopy();
-        $searchable = $this->subject->getSearchableCopy();
-
-        $data = new Attribute($nameable, $searchable);
+        $data = $this->subject->GetAttributeCopy();
 
         return $data;
     }
