@@ -11,5 +11,6 @@ namespace AllThings\DataAccess\Handler;
 interface Retrievable
 {
     function retrieveData();
+    function has():bool;
 
 }

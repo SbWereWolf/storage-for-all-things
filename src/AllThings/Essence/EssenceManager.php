@@ -9,6 +9,7 @@ namespace AllThings\Essence;
 
 
 use AllThings\DataAccess\Handler\EssenceRecordHandler;
+use PDO;
 
 class EssenceManager implements IEssenceManager
 {
@@ -16,7 +17,7 @@ class EssenceManager implements IEssenceManager
     private $dataPath = null;
 
 
-    public function __construct(IEssence $subject, \PDO $dataPath)
+    public function __construct(IEssence $subject, PDO $dataPath)
     {
         $this->subject = $subject;
         $this->dataPath = $dataPath;
@@ -49,9 +50,11 @@ class EssenceManager implements IEssenceManager
     /**
      * @param $handler
      */
-    private function setSubject(EssenceRecordHandler $handler): void
+    private function setSubject(EssenceRecordHandler $handler)
     {
-        $this->subject = $handler->retrieveData();
+        $this->subject = $handler->has()
+            ? $handler->retrieveData()
+            : null;
     }
 
     function remove(): bool
@@ -95,5 +98,10 @@ class EssenceManager implements IEssenceManager
         $data = new Essence($nameable, $storable);
 
         return $data;
+    }
+
+    function has(): bool
+    {
+        return !is_null($this->subject);
     }
 }
