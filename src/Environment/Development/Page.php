@@ -5,7 +5,7 @@
  * Date: 30.04.2018 Time: 1:27
  */
 
-namespace AllThings\Environment\Development;
+namespace Environment\Development;
 
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -93,6 +93,7 @@ class Page
         $actionLinks[self::STORE_THING] = $this->router->pathFor(self::STORE_THING, ['code' => 'code']);
         $actionLinks[self::FILTER_OF_ESSENCE] = $this->router->pathFor(self::FILTER_OF_ESSENCE, ['essence-code' => 'essence-code']);
         $actionLinks[self::ADD_ATTRIBUTE_TO_THING] = $this->router->pathFor(self::ADD_ATTRIBUTE_TO_THING, ['thing-code' => 'thing-code', 'attribute-code' => 'attribute-code']);
+        $actionLinks[self::VIEW_CONTENT] = $this->router->pathFor(self::VIEW_CONTENT, ['thing-code' => 'thing-code', 'attribute-code' => 'attribute-code']);
         $actionLinks[self::STORE_ATTRIBUTE_OF_THING] = $this->router->pathFor(self::STORE_ATTRIBUTE_OF_THING, ['thing-code' => 'thing-code', 'attribute-code' => 'attribute-code']);
         $actionLinks[self::FILTER_THING_BY_ATTRIBUTE] = $this->router->pathFor(self::FILTER_THING_BY_ATTRIBUTE, ['essence-code' => 'essence-code', 'filter' => '']);
         $actionLinks[self::ADD_ESSENCE_THING_LINK] = $this->router->pathFor(self::ADD_ESSENCE_THING_LINK, ['essence-code' => 'essence', 'thing-code' => 'thing']);

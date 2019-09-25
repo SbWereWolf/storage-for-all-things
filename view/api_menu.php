@@ -1,7 +1,7 @@
 <?php
 /* @var $actionLinks array */
 
-use AllThings\Environment\Development\Page;
+use Environment\Development\Page;
 
 ?>
 <html>
