@@ -15,13 +15,13 @@ class AttributeUpdateCommand implements IAttributeUpdateCommand
     private $parameter;
     private $subject;
 
-    public function __construct(\string $parameter, IAttribute $subject)
+    public function __construct(string $parameter, IAttribute $subject)
     {
         $this->parameter = $parameter;
         $this->subject = $subject;
     }
 
-    function getParameter(): \string
+    function getParameter(): string
     {
         $parameter = $this->parameter;
 

@@ -12,6 +12,7 @@ use AllThings\DataAccess\Implementation\EssenceLocation;
 use AllThings\DataAccess\Implementation\EssenceSource;
 use AllThings\Essence\Essence;
 use AllThings\Essence\IEssence;
+use PDO;
 
 class EssenceRecordHandler implements Valuable, Hideable, Retrievable
 {
@@ -21,7 +22,7 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
     private $dataPath;
     private $essence = null;
 
-    function __construct(IEssence $essence, \PDO $dataPath)
+    function __construct(IEssence $essence, PDO $dataPath)
     {
         $this->essence = $essence;
         $this->dataPath = $dataPath;
@@ -122,5 +123,10 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
         $essence = $this->essence->GetEssenceCopy();
 
         return $essence;
+    }
+
+    public function has(): bool
+    {
+        return !is_null($this->essence);
     }
 }

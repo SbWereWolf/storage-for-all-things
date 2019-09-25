@@ -10,8 +10,8 @@ namespace AllThings\Reception;
 
 interface ToNamed
 {
-    function fromPost(): \string;
+    function fromPost(): string;
 
-    function fromGet(): \string;
+    function fromGet(): string;
 
 }

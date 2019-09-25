@@ -10,17 +10,18 @@ namespace AllThings\DataAccess\Implementation;
 
 use AllThings\DataAccess\Core\EssenceReader;
 use AllThings\Essence\IEssence;
+use PDO;
 
 class EssenceSource implements EssenceReader
 {
 
     private $tableName = '';
     /**
-     * @var \PDO
+     * @var PDO
      */
     private $dataSource;
 
-    function __construct(string $table, \PDO $dataSource)
+    function __construct(string $table, PDO $dataSource)
     {
 
         $this->tableName = $table;

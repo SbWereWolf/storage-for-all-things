@@ -11,17 +11,17 @@ namespace AllThings\DataObject;
 
 interface ICrossover
 {
-    function getRightValue(): \string;
+    function getRightValue(): string;
 
-    function getLeftValue(): \string;
+    function getLeftValue(): string;
 
-    function getContent(): \string;
+    function getContent(): string;
 
-    function setRightValue(\string $value): ICrossover;
+    function setRightValue(string $value): ICrossover;
 
-    function setLeftValue(\string $value): ICrossover;
+    function setLeftValue(string $value): ICrossover;
 
-    function setContent(\string $value): ICrossover;
+    function setContent(string $value): ICrossover;
 
     function getCrossoverCopy(): ICrossover;
 }

@@ -13,9 +13,9 @@ use AllThings\DataObject\ICrossover;
 
 interface CrossoverManager
 {
-    function attach(): \bool;
+    function attach(): bool;
 
-    function store(ICrossover $crossover): \bool;
+    function store(ICrossover $crossover): bool;
 
-    function take(ICrossover $crossover): \bool;
+    function take(ICrossover $crossover): bool;
 }

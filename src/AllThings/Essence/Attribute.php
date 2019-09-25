@@ -93,28 +93,28 @@ class Attribute implements IAttribute
         return $nameable;
     }
 
-    function getDataType(): \string
+    function getDataType(): string
     {
         $dataType = $this->searchable->getDataType();
 
         return $dataType;
     }
 
-    function setDataType(\string $value): Searchable
+    function setDataType(string $value): Searchable
     {
         $this->searchable->setDataType($value);
 
         return $this;
     }
 
-    function getRangeType(): \string
+    function getRangeType(): string
     {
         $rangeType = $this->searchable->getRangeType();
 
         return $rangeType;
     }
 
-    function setRangeType(\string $value): Searchable
+    function setRangeType(string $value): Searchable
     {
         $this->searchable->setRangeType($value);
 

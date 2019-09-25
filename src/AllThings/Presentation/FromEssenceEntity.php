@@ -15,7 +15,7 @@ class FromEssenceEntity implements Jsonable
         $this->entity = $entity;
     }
 
-    public function toJson(): \string
+    public function toJson(): string
     {
         $entity = $this->entity;
 

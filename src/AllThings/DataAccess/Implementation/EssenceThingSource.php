@@ -11,6 +11,7 @@ namespace AllThings\DataAccess\Implementation;
 use AllThings\DataAccess\Core\ColumnReader;
 use AllThings\DataAccess\Handler\Retrievable;
 use AllThings\DataObject\IForeignKey;
+use PDO;
 
 class EssenceThingSource implements ColumnReader, Retrievable
 {
@@ -21,7 +22,7 @@ class EssenceThingSource implements ColumnReader, Retrievable
     private $dataSource;
     private $dataSet = [];
 
-    public function __construct(IForeignKey $essenceKey, IForeignKey $thingKey, \PDO $dataSource)
+    public function __construct(IForeignKey $essenceKey, IForeignKey $thingKey, PDO $dataSource)
     {
         $this->essenceKey = $essenceKey;
         $this->thingKey = $thingKey;

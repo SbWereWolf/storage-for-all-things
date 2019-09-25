@@ -13,6 +13,7 @@ use AllThings\DataAccess\Handler\EssenceAttributeHandler;
 use AllThings\DataAccess\Handler\Retrievable;
 use AllThings\DataAccess\Manager\LinkageManager;
 use AllThings\DataObject\ForeignKey;
+use PDO;
 
 class EssenceAttributeManager implements LinkageManager, Retrievable
 {
@@ -25,7 +26,7 @@ class EssenceAttributeManager implements LinkageManager, Retrievable
     private $dataPath = null;
     private $dataSet = [];
 
-    public function __construct(\string $essence, \string $attribute, \PDO $dataPath)
+    public function __construct(string $essence, string $attribute, PDO $dataPath)
     {
         $linkage[self::ESSENCE_IDENTIFIER] = $essence;
         $linkage[self::ATTRIBUTE_IDENTIFIER] = $attribute;

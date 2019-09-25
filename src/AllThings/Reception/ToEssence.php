@@ -12,9 +12,9 @@ use AllThings\DataObject\IEssenceUpdateCommand;
 
 interface ToEssence
 {
-    function fromPost(): \string;
+    function fromPost(): string;
 
-    function fromGet(): \string;
+    function fromGet(): string;
 
     function fromPut(): IEssenceUpdateCommand;
 

@@ -12,6 +12,7 @@ use AllThings\DataAccess\Implementation\DataSource;
 use AllThings\DataAccess\Implementation\StorageLocation;
 use AllThings\DataObject\Nameable;
 use AllThings\DataObject\NamedEntity;
+use PDO;
 
 class NamedRecordHandler implements Valuable, Hideable, Retrievable
 {
@@ -20,7 +21,7 @@ class NamedRecordHandler implements Valuable, Hideable, Retrievable
     private $table = '';
     private $container = null;
 
-    function __construct(Nameable $named, string $tableName, \PDO $dataPath)
+    function __construct(Nameable $named, string $tableName, PDO $dataPath)
     {
         $this->container = $named->getNameableCopy();
         $this->dataPath = $dataPath;

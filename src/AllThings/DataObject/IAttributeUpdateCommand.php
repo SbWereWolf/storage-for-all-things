@@ -12,7 +12,7 @@ use AllThings\Essence\IAttribute;
 
 interface IAttributeUpdateCommand
 {
-    function getParameter(): \string;
+    function getParameter(): string;
 
     function getSubject(): IAttribute;
 

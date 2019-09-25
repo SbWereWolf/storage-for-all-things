@@ -23,14 +23,14 @@ class ToEssenceEntity implements ToEssence
         $this->arguments = $arguments;
     }
 
-    function fromPost(): \string
+    function fromPost(): string
     {
         $code = $this->arguments['code'];
 
         return $code;
     }
 
-    function fromGet(): \string
+    function fromGet(): string
     {
         $code = $this->arguments['code'];
 

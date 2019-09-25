@@ -15,6 +15,7 @@ use AllThings\DataAccess\Handler\Retrievable;
 use AllThings\DataObject\CrossoverTable;
 use AllThings\DataObject\ForeignKey;
 use AllThings\DataObject\ICrossover;
+use PDO;
 
 class ContentManager implements CrossoverManager, Retrievable
 {
@@ -24,7 +25,7 @@ class ContentManager implements CrossoverManager, Retrievable
     private $attributeKey = null;
     private $contentTable = null;
 
-    public function __construct(ICrossover $container, \PDO $dataPath)
+    public function __construct(ICrossover $container, PDO $dataPath)
     {
         $this->container = $container->getCrossoverCopy();
         $this->dataPath = $dataPath;
@@ -35,7 +36,7 @@ class ContentManager implements CrossoverManager, Retrievable
     }
 
 
-    function attach(): \bool
+    function attach(): bool
     {
         $handler = $this->getHandler();
 
@@ -51,7 +52,7 @@ class ContentManager implements CrossoverManager, Retrievable
         return $handler;
     }
 
-    function store(ICrossover $crossover): \bool
+    function store(ICrossover $crossover): bool
     {
         $handler = $this->getHandler();
 
@@ -63,10 +64,10 @@ class ContentManager implements CrossoverManager, Retrievable
     }
 
     /**
-     * @param bool $result
+     * @param bool             $result
      * @param CrossoverHandler $handler
      */
-    private function loadContainer(\bool $result, CrossoverHandler $handler): void
+    private function loadContainer(bool $result, CrossoverHandler $handler): void
     {
         $isSuccess = $result === true;
         if ($isSuccess) {
@@ -74,7 +75,7 @@ class ContentManager implements CrossoverManager, Retrievable
         }
     }
 
-    function take(ICrossover $crossover): \bool
+    function take(ICrossover $crossover): bool
     {
         $handler = $this->getHandler();
 

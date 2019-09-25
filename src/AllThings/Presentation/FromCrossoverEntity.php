@@ -19,7 +19,7 @@ class FromCrossoverEntity implements Jsonable
         $this->crossover = $crossover;
     }
 
-    public function toJson(): \string
+    public function toJson(): string
     {
         $entity = $this->crossover;
 

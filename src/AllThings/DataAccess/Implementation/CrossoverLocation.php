@@ -12,6 +12,7 @@ use AllThings\DataAccess\Core\CrossoverWriter;
 use AllThings\DataObject\ICrossover;
 use AllThings\DataObject\ICrossoverTable;
 use AllThings\DataObject\IForeignKey;
+use PDO;
 
 class CrossoverLocation implements CrossoverWriter
 {
@@ -21,7 +22,7 @@ class CrossoverLocation implements CrossoverWriter
     private $rightKey = null;
     private $leftKey = null;
 
-    function __construct(IForeignKey $leftKey, IForeignKey $rightKey, ICrossoverTable $tableStructure, \PDO $dataPath)
+    function __construct(IForeignKey $leftKey, IForeignKey $rightKey, ICrossoverTable $tableStructure, PDO $dataPath)
     {
         $this->tableStructure = $tableStructure;
         $this->dataPath = $dataPath;

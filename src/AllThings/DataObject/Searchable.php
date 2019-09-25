@@ -20,13 +20,13 @@ interface Searchable
     const CONTINUOUS = 'continuous';
     const DISCRETE = 'discrete';
 
-    function getDataType(): \string;
+    function getDataType(): string;
 
-    function setDataType(\string $value): Searchable;
+    function setDataType(string $value): Searchable;
 
-    function getRangeType(): \string;
+    function getRangeType(): string;
 
-    function setRangeType(\string $value): Searchable;
+    function setRangeType(string $value): Searchable;
 
     function getSearchableCopy(): Searchable;
 }

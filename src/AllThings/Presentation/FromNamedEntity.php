@@ -19,7 +19,7 @@ class ForNameableEntity implements Jsonable
         $this->nameable = $nameable;
     }
 
-    public function toJson(): \string
+    public function toJson(): string
     {
         $entity = $this->nameable;
 

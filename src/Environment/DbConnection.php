@@ -8,6 +8,8 @@
 namespace Environment;
 
 
+use PDO;
+
 class DbConnection implements Connection
 {
 
@@ -15,7 +17,7 @@ class DbConnection implements Connection
     private $dbLogin = '';
     private $dbPassword = '';
 
-    function getForWrite(): \PDO
+    function getForWrite(): PDO
     {
         $dbCredentials = DbCredentials::getWriterCredentials();
 
@@ -24,7 +26,7 @@ class DbConnection implements Connection
         return $connection;
     }
 
-    private function getDbConnection($dbCredentials): \PDO
+    private function getDbConnection($dbCredentials): PDO
     {
         $this->setProperties($dbCredentials);
         $connection = $this->getPdoConnection();
@@ -46,17 +48,17 @@ class DbConnection implements Connection
     }
 
     /**
-     * @return \PDO
+     * @return PDO
      */
-    private function getPdoConnection(): \PDO
+    private function getPdoConnection(): PDO
     {
-        $connection = new \PDO ($this->dataSource,
+        $connection = new PDO ($this->dataSource,
             $this->dbLogin,
             $this->dbPassword);
         return $connection;
     }
 
-    function getForDelete(): \PDO
+    function getForDelete(): PDO
     {
         $dbCredentials = DbCredentials::getDeleteCredentials();
 
@@ -65,7 +67,7 @@ class DbConnection implements Connection
         return $connection;
     }
 
-    function getForRead(): \PDO
+    function getForRead(): PDO
     {
         $dbCredentials = DbCredentials::getReaderCredentials();
 

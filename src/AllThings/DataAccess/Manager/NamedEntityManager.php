@@ -10,6 +10,7 @@ namespace AllThings\DataAccess\Manager;
 
 use AllThings\DataAccess\Handler\NamedRecordHandler;
 use AllThings\DataObject\Nameable;
+use PDO;
 
 class NamedEntityManager implements INamedEntityManager
 {
@@ -17,7 +18,7 @@ class NamedEntityManager implements INamedEntityManager
     private $dataPath = null;
     private $storageLocation = '';
 
-    public function __construct(Nameable $subject, $storageLocation, \PDO $dataPath)
+    public function __construct(Nameable $subject, $storageLocation, PDO $dataPath)
     {
         $this->subject = $subject;
         $this->dataPath = $dataPath;

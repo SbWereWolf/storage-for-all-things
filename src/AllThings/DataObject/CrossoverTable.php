@@ -14,7 +14,7 @@ class CrossoverTable implements ICrossoverTable
     private $leftColumn = '';
     private $rightColumn = '';
 
-    public function __construct(\string $tableName, \string $leftColumn, \string $rightColumn)
+    public function __construct(string $tableName, string $leftColumn, string $rightColumn)
     {
         $this->tableName = $tableName;
         $this->leftColumn = $leftColumn;
@@ -22,21 +22,21 @@ class CrossoverTable implements ICrossoverTable
     }
 
 
-    function getTableName(): \string
+    function getTableName(): string
     {
         $result = $this->tableName;
 
         return $result;
     }
 
-    function getLeftColumn(): \string
+    function getLeftColumn(): string
     {
         $result = $this->leftColumn;
 
         return $result;
     }
 
-    function getRightColumn(): \string
+    function getRightColumn(): string
     {
         $result = $this->rightColumn;
 

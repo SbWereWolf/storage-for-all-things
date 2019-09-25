@@ -12,6 +12,7 @@ use AllThings\DataAccess\Core\CrossoverReader;
 use AllThings\DataObject\ICrossover;
 use AllThings\DataObject\ICrossoverTable;
 use AllThings\DataObject\IForeignKey;
+use PDO;
 
 class CrossoverSource implements CrossoverReader
 {
@@ -22,7 +23,7 @@ class CrossoverSource implements CrossoverReader
     private $leftKey = null;
 
 
-    function __construct(IForeignKey $leftKey, IForeignKey $rightKey, ICrossoverTable $tableStructure, \PDO $dataPath)
+    function __construct(IForeignKey $leftKey, IForeignKey $rightKey, ICrossoverTable $tableStructure, PDO $dataPath)
     {
         $this->tableStructure = $tableStructure;
         $this->dataPath = $dataPath;

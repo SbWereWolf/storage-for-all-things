@@ -10,17 +10,18 @@ namespace AllThings\DataAccess\Implementation;
 
 use AllThings\DataAccess\Core\ValuableWriter;
 use AllThings\DataObject\Nameable;
+use PDO;
 
 class StorageLocation implements ValuableWriter
 {
 
     private $tableName = '';
     /**
-     * @var \PDO
+     * @var PDO
      */
     private $storageLocation;
 
-    function __construct(string $table, \PDO $storageLocation)
+    function __construct(string $table, PDO $storageLocation)
     {
 
         $this->tableName = $table;

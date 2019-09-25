@@ -11,6 +11,7 @@ namespace AllThings\DataAccess\Handler;
 use AllThings\DataAccess\Implementation\EssenceAttributeLocation;
 use AllThings\DataAccess\Implementation\EssenceAttributeSource;
 use AllThings\DataObject\ForeignKey;
+use PDO;
 
 class EssenceAttributeHandler implements Linkable, Retrievable
 {
@@ -20,7 +21,7 @@ class EssenceAttributeHandler implements Linkable, Retrievable
     private $dataPath = null;
     private $dataSet = [];
 
-    public function __construct(\PDO $dataPath)
+    public function __construct(PDO $dataPath)
     {
         $this->essenceForeignKey = new ForeignKey('essence', 'id', 'code');
         $this->attributeForeignKey = new ForeignKey('attribute', 'id', 'code');

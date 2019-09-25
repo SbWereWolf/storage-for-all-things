@@ -10,17 +10,18 @@ namespace AllThings\DataAccess\Implementation;
 
 use AllThings\DataAccess\Core\EssenceWriter;
 use AllThings\Essence\IEssence;
+use PDO;
 
 class EssenceLocation implements EssenceWriter
 {
 
     private $tableName = '';
     /**
-     * @var \PDO
+     * @var PDO
      */
     private $storageLocation;
 
-    function __construct(string $table, \PDO $storageLocation)
+    function __construct(string $table, PDO $storageLocation)
     {
 
         $this->tableName = $table;
@@ -34,18 +35,10 @@ class EssenceLocation implements EssenceWriter
         $sqlText = 'insert into ' . $this->tableName . ' (code)values(:code)';
         $connection = $this->storageLocation;
 
-        $connection->beginTransaction();
+
         $query = $connection->prepare($sqlText);
         $query->bindParam(':code', $suggestion_code);
         $result = $query->execute();
-
-        $isSuccess = $result === true;
-        if ($isSuccess) {
-            $result = $connection->commit();
-        }
-        if (!$isSuccess) {
-            $connection->rollBack();
-        }
 
         return $result;
 

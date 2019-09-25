@@ -19,7 +19,7 @@ class FromAttributeEntity implements Jsonable
         $this->attribute = $attribute;
     }
 
-    public function toJson(): \string
+    public function toJson(): string
     {
         $entity = $this->attribute;
 

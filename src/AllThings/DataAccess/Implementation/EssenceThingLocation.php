@@ -10,6 +10,7 @@ namespace AllThings\DataAccess\Implementation;
 
 use AllThings\DataAccess\Core\PrimitiveWriter;
 use AllThings\DataObject\IForeignKey;
+use PDO;
 
 class EssenceThingLocation implements PrimitiveWriter
 {
@@ -20,7 +21,7 @@ class EssenceThingLocation implements PrimitiveWriter
     private $thingKey = '';
     private $storageLocation;
 
-    public function __construct(IForeignKey $essenceKey, IForeignKey $thingKey, \PDO $storageLocation)
+    public function __construct(IForeignKey $essenceKey, IForeignKey $thingKey, PDO $storageLocation)
     {
         $this->essenceKey = $essenceKey;
         $this->thingKey = $thingKey;

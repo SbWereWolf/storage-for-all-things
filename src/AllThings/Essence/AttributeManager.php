@@ -9,6 +9,7 @@ namespace AllThings\Essence;
 
 
 use AllThings\DataAccess\Handler\AttributeRecordHandler;
+use PDO;
 
 class AttributeManager implements IAttributeManager
 {
@@ -16,7 +17,7 @@ class AttributeManager implements IAttributeManager
     private $dataPath = null;
 
 
-    public function __construct(IAttribute $subject, \PDO $dataPath)
+    public function __construct(IAttribute $subject, PDO $dataPath)
     {
         $this->subject = $subject;
         $this->dataPath = $dataPath;
@@ -47,10 +48,10 @@ class AttributeManager implements IAttributeManager
     }
 
     /**
-     * @param bool $isSuccess
+     * @param bool                   $isSuccess
      * @param AttributeRecordHandler $handler
      */
-    private function setSubject(\bool $isSuccess, AttributeRecordHandler $handler): void
+    private function setSubject(bool $isSuccess, AttributeRecordHandler $handler): void
     {
         if ($isSuccess) {
             $this->subject = $handler->retrieveData();

@@ -16,28 +16,28 @@ class ForeignKey implements IForeignKey
     private $column = '';
     private $index = '';
 
-    public function __construct(\string $table, \string $column, \string $index)
+    public function __construct(string $table, string $column, string $index)
     {
         $this->column = $column;
         $this->index = $index;
         $this->table = $table;
     }
 
-    function getTable(): \string
+    function getTable(): string
     {
         $result = $this->table;
 
         return $result;
     }
 
-    function getColumn(): \string
+    function getColumn(): string
     {
         $result = $this->column;
 
         return $result;
     }
 
-    function getIndex(): \string
+    function getIndex(): string
     {
         $result = $this->index;
 

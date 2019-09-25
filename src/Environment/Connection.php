@@ -8,12 +8,14 @@
 namespace Environment;
 
 
+use PDO;
+
 interface Connection
 {
 
-    function getForWrite(): \PDO;
+    function getForWrite(): PDO;
 
-    function getForRead(): \PDO;
+    function getForRead(): PDO;
 
-    function getForDelete(): \PDO;
+    function getForDelete(): PDO;
 }

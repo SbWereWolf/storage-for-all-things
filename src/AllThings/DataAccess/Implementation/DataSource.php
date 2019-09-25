@@ -10,17 +10,18 @@ namespace AllThings\DataAccess\Implementation;
 
 use AllThings\DataAccess\Core\ValuableReader;
 use AllThings\DataObject\Nameable;
+use PDO;
 
 class DataSource implements ValuableReader
 {
 
     private $tableName = '';
     /**
-     * @var \PDO
+     * @var PDO
      */
     private $dataSource;
 
-    function __construct(string $table, \PDO $dataSource)
+    function __construct(string $table, PDO $dataSource)
     {
 
         $this->tableName = $table;

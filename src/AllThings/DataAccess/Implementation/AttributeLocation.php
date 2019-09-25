@@ -10,6 +10,8 @@ namespace AllThings\DataAccess\Implementation;
 
 use AllThings\DataAccess\Core\AttributeWriter;
 use AllThings\Essence\IAttribute;
+use PDO;
+use PDOStatement;
 
 class AttributeLocation implements AttributeWriter
 {
@@ -17,7 +19,7 @@ class AttributeLocation implements AttributeWriter
     private $tableName = '';
     private $storageLocation = null;
 
-    function __construct(string $table, \PDO $storageLocation)
+    function __construct(string $table, PDO $storageLocation)
     {
 
         $this->tableName = $table;
@@ -45,7 +47,7 @@ class AttributeLocation implements AttributeWriter
      * @param $connection
      * @return mixed
      */
-    private function executeQuery(\PDOStatement $query, \PDO $connection)
+    private function executeQuery(PDOStatement $query, PDO $connection)
     {
         $result = $query->execute();
 

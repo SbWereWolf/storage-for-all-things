@@ -15,6 +15,7 @@ use AllThings\DataAccess\Implementation\CrossoverSource;
 use AllThings\DataObject\ICrossover;
 use AllThings\DataObject\ICrossoverTable;
 use AllThings\DataObject\IForeignKey;
+use PDO;
 
 class CrossoverHandler implements ICrossoverHandler, Retrievable
 {
@@ -24,7 +25,7 @@ class CrossoverHandler implements ICrossoverHandler, Retrievable
     private $leftKey = null;
     private $rightKey = null;
 
-    public function __construct(ICrossover $container, IForeignKey $leftKey, IForeignKey $rightKey, ICrossoverTable $tableStructure, \PDO $dataPath)
+    public function __construct(ICrossover $container, IForeignKey $leftKey, IForeignKey $rightKey, ICrossoverTable $tableStructure, PDO $dataPath)
     {
         $this->container = $container->getCrossoverCopy();
         $this->dataPath = $dataPath;
@@ -33,7 +34,7 @@ class CrossoverHandler implements ICrossoverHandler, Retrievable
         $this->rightKey = $rightKey;
     }
 
-    function crossing(): \bool
+    function crossing(): bool
     {
         $writer = $this->getCrossoverWriter();
 
@@ -49,7 +50,7 @@ class CrossoverHandler implements ICrossoverHandler, Retrievable
         return $location;
     }
 
-    function setCrossover(ICrossover $crossover): \bool
+    function setCrossover(ICrossover $crossover): bool
     {
         $writer = $this->getCrossoverWriter();
 
@@ -58,7 +59,7 @@ class CrossoverHandler implements ICrossoverHandler, Retrievable
         return $result;
     }
 
-    function getCrossover(ICrossover $crossover): \bool
+    function getCrossover(ICrossover $crossover): bool
     {
         $reader = $this->getCrossoverReader();
 

@@ -11,17 +11,18 @@ namespace AllThings\DataAccess\Implementation;
 
 use AllThings\DataAccess\Core\AttributeReader;
 use AllThings\Essence\IAttribute;
+use PDO;
 
 class AttributeSource implements AttributeReader
 {
 
     private $tableName = '';
     /**
-     * @var \PDO
+     * @var PDO
      */
     private $dataSource;
 
-    function __construct(string $table, \PDO $dataSource)
+    function __construct(string $table, PDO $dataSource)
     {
 
         $this->tableName = $table;

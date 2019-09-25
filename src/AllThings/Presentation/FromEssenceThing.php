@@ -18,7 +18,7 @@ class FromEssenceThing implements Jsonable
         $this->dataSet = $dataSet;
     }
 
-    function toJson(): \string
+    function toJson(): string
     {
         $json = json_encode($this->dataSet);
 

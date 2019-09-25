@@ -15,13 +15,13 @@ class EssenceUpdateCommand implements IEssenceUpdateCommand
     private $parameter;
     private $subject;
 
-    public function __construct(\string $parameter, IEssence $subject)
+    public function __construct(string $parameter, IEssence $subject)
     {
         $this->parameter = $parameter;
         $this->subject = $subject;
     }
 
-    function getParameter(): \string
+    function getParameter(): string
     {
         $parameter = $this->parameter;
 

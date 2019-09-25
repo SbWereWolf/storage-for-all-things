@@ -73,14 +73,14 @@ class Essence implements IEssence
         return $remark;
     }
 
-    function getStoreAt(): \string
+    function getStoreAt(): string
     {
         $storage = $this->storable->getStoreAt();
 
         return $storage;
     }
 
-    function setStoreAt(\string $value): Storable
+    function setStoreAt(string $value): Storable
     {
         $this->storable->setStoreAt($value);
 

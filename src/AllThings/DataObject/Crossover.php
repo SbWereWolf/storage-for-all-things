@@ -15,14 +15,14 @@ class Crossover implements ICrossover
     private $leftKey = null;
     private $value = '';
 
-    function setRightValue(\string $value): ICrossover
+    function setRightValue(string $value): ICrossover
     {
         $this->rightKey = $value;
 
         return $this;
     }
 
-    function setLeftValue(\string $value): ICrossover
+    function setLeftValue(string $value): ICrossover
     {
         $this->leftKey = $value;
 
@@ -39,28 +39,28 @@ class Crossover implements ICrossover
         return $copy;
     }
 
-    function setContent(\string $value): ICrossover
+    function setContent(string $value): ICrossover
     {
         $this->value = $value;
 
         return $this;
     }
 
-    function getContent(): \string
+    function getContent(): string
     {
         $result = $this->value;
 
         return $result;
     }
 
-    function getLeftValue(): \string
+    function getLeftValue(): string
     {
         $result = $this->leftKey;
 
         return $result;
     }
 
-    function getRightValue(): \string
+    function getRightValue(): string
     {
         $result = $this->rightKey;
 

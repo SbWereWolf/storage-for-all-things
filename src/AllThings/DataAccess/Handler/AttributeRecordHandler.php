@@ -12,6 +12,7 @@ use AllThings\DataAccess\Implementation\AttributeLocation;
 use AllThings\DataAccess\Implementation\AttributeSource;
 use AllThings\Essence\Attribute;
 use AllThings\Essence\IAttribute;
+use PDO;
 
 class AttributeRecordHandler implements Valuable, Hideable, Retrievable
 {
@@ -22,7 +23,7 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
     private $dataPath = null;
     private $attribute = null;
 
-    function __construct(IAttribute $attribute, \PDO $dataPath)
+    function __construct(IAttribute $attribute, PDO $dataPath)
     {
         $this->attribute = $attribute;
         $this->dataPath = $dataPath;

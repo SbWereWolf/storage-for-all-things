@@ -12,5 +12,5 @@ namespace AllThings\Presentation;
 interface Jsonable
 {
 
-    function toJson(): \string;
+    function toJson(): string;
 }

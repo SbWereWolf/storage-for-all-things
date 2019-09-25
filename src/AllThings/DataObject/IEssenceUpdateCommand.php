@@ -12,7 +12,7 @@ use AllThings\Essence\IEssence;
 
 interface IEssenceUpdateCommand
 {
-    function getParameter(): \string;
+    function getParameter(): string;
 
     function getSubject(): IEssence;
 

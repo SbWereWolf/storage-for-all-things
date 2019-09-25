@@ -12,9 +12,9 @@ use AllThings\DataObject\IAttributeUpdateCommand;
 
 interface ToAttribute
 {
-    function fromPost(): \string;
+    function fromPost(): string;
 
-    function fromGet(): \string;
+    function fromGet(): string;
 
     function fromPut(): IAttributeUpdateCommand;
 
