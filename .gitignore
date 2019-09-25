@@ -1,7 +1,8 @@
 .htaccess
 .idea/
-configuration/
-composer.lock
+configuration/*.php
+configuration/*.sql
+-configuration/*.example
 
 vendor/*
 api/swagger.json
