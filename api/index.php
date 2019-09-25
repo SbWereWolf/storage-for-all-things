@@ -1,16 +1,26 @@
 <?php
 
 
-use AllThings\Common\NamedEntityManager;
+use AllThings\Content\ContentManager;
+use AllThings\DataAccess\Manager\NamedEntityManager;
 use AllThings\DataObject\EssenceAttributeCommand;
 use AllThings\DataObject\EssenceThingCommand;
 use AllThings\DataObject\NamedEntity;
-use AllThings\Environment\Development\Page;
+use AllThings\Presentation\ForNameableEntity;
+use AllThings\Presentation\FromAttributeEntity;
+use AllThings\Presentation\FromCrossoverEntity;
+use AllThings\Presentation\FromEssenceEntity;
+use AllThings\Reception\ToAttributeEntity;
+use AllThings\Reception\ToCrossoverEntity;
+use AllThings\Reception\ToEssenceEntity;
+use AllThings\Reception\ToNameableEntity;
+use Environment\Development\Page;
 use AllThings\Essence\Attribute;
 use AllThings\Essence\Essence;
 use AllThings\Essence\EssenceAttributeManager;
 use AllThings\Essence\EssenceThingManager;
 use Environment\DbConnection;
+use Slim\App;
 use Slim\Container;
 use Slim\Http\Request;
 use Slim\Http\Response;
@@ -35,7 +45,7 @@ const ROUTER_COMPONENT = 'router';
 const VIEWER_COMPONENT = 'view';
 $container[VIEWER_COMPONENT] = new PhpRenderer(APPLICATION_ROOT . DIRECTORY_SEPARATOR . 'view');
 
-$app = new \Slim\App($container);
+$app = new App($container);
 
 // Define app routes
 
@@ -212,7 +222,7 @@ $app->post('/essence/{code}', function (Request $request, Response $response, ar
 
     $dataPath = (new DbConnection())->getForWrite();
 
-    $essenceCode = (new \AllThings\Reception\ToEssenceEntity($request, $arguments))->fromPost();
+    $essenceCode = (new ToEssenceEntity($request, $arguments))->fromPost();
     $essence = Essence::GetDefaultEssence();
     $essence->setCode($essenceCode);
 
@@ -251,7 +261,7 @@ $app->post('/essence/{code}', function (Request $request, Response $response, ar
  */
 $app->get('/essence/{code}', function (Request $request, Response $response, array $arguments) {
 
-    $parameter = (new \AllThings\Reception\ToEssenceEntity($request, $arguments))->fromGet();
+    $parameter = (new ToEssenceEntity($request, $arguments))->fromGet();
 
     $subject = Essence::GetDefaultEssence();
     $dataPath = (new DbConnection())->getForRead();
@@ -265,7 +275,7 @@ $app->get('/essence/{code}', function (Request $request, Response $response, arr
     if ($isSuccess) {
         $result = $handler->retrieveData();
 
-        $presentation = new \AllThings\Presentation\FromEssenceEntity($result);
+        $presentation = new FromEssenceEntity($result);
         $json = $presentation->toJson();
 
         $response->write($json);
@@ -302,7 +312,7 @@ $app->get('/essence/{code}', function (Request $request, Response $response, arr
  */
 $app->put('/essence/{code}', function (Request $request, Response $response, array $arguments) {
 
-    $command = (new \AllThings\Reception\ToEssenceEntity($request, $arguments))->fromPut();
+    $command = (new ToEssenceEntity($request, $arguments))->fromPut();
 
     $subject = $command->getSubject();
     $dataPath = (new DbConnection())->getForWrite();
@@ -398,7 +408,7 @@ $app->post('/attribute/{code}', function (Request $request, Response $response, 
 
     $dataPath = (new DbConnection())->getForWrite();
 
-    $attributeCode = (new \AllThings\Reception\ToAttributeEntity($request, $arguments))->fromPost();
+    $attributeCode = (new ToAttributeEntity($request, $arguments))->fromPost();
     $attribute = (Attribute::GetDefaultAttribute());
     $attribute->setCode($attributeCode);
 
@@ -437,7 +447,7 @@ $app->post('/attribute/{code}', function (Request $request, Response $response, 
  */
 $app->get('/attribute/{code}', function (Request $request, Response $response, array $arguments) {
 
-    $parameter = (new \AllThings\Reception\ToAttributeEntity($request, $arguments))->fromGet();
+    $parameter = (new ToAttributeEntity($request, $arguments))->fromGet();
 
     $subject = Attribute::GetDefaultAttribute();
     $dataPath = (new DbConnection())->getForRead();
@@ -451,7 +461,7 @@ $app->get('/attribute/{code}', function (Request $request, Response $response, a
     if ($isSuccess) {
         $result = $handler->retrieveData();
 
-        $presentation = new \AllThings\Presentation\FromAttributeEntity($result);
+        $presentation = new FromAttributeEntity($result);
         $json = $presentation->toJson();
 
         $response->write($json);
@@ -488,7 +498,7 @@ $app->get('/attribute/{code}', function (Request $request, Response $response, a
  */
 $app->put('/attribute/{code}', function (Request $request, Response $response, array $arguments) {
 
-    $command = (new \AllThings\Reception\ToAttributeEntity($request, $arguments))->fromPut();
+    $command = (new ToAttributeEntity($request, $arguments))->fromPut();
 
     $subject = $command->getSubject();
     $dataPath = (new DbConnection())->getForWrite();
@@ -868,7 +878,7 @@ $app->post('/thing/{code}', function (Request $request, Response $response, arra
 
     $dataPath = (new DbConnection())->getForWrite();
 
-    $thingCode = (new \AllThings\Reception\ToAttributeEntity($request, $arguments))->fromPost();
+    $thingCode = (new ToAttributeEntity($request, $arguments))->fromPost();
     $nameable = (new NamedEntity())->setCode($thingCode);
     $handler = new NamedEntityManager($nameable, 'thing' , $dataPath);
 
@@ -908,7 +918,7 @@ $app->post('/thing/{code}', function (Request $request, Response $response, arra
  */
 $app->get('/thing/{code}', function (Request $request, Response $response, array $arguments) {
 
-    $parameter = (new \AllThings\Reception\ToNameableEntity($request, $arguments))->fromGet();
+    $parameter = (new ToNameableEntity($request, $arguments))->fromGet();
 
     $subject = new NamedEntity();
     $dataPath = (new DbConnection())->getForRead();
@@ -922,7 +932,7 @@ $app->get('/thing/{code}', function (Request $request, Response $response, array
     if ($isSuccess) {
         $result = $handler->retrieveData();
 
-        $presentation = new \AllThings\Presentation\ForNameableEntity($result);
+        $presentation = new ForNameableEntity($result);
         $json = $presentation->toJson();
 
         $response->write($json);
@@ -959,7 +969,7 @@ $app->get('/thing/{code}', function (Request $request, Response $response, array
  */
 $app->put('/thing/{code}', function (Request $request, Response $response, array $arguments) {
 
-    $command = (new \AllThings\Reception\ToAttributeEntity($request, $arguments))->fromPut();
+    $command = (new ToAttributeEntity($request, $arguments))->fromPut();
 
     $subject = $command->getSubject();
     $dataPath = (new DbConnection())->getForWrite();
@@ -1042,9 +1052,9 @@ $app->get('/essence-filer/{essence-code}', function (Request $request, Response 
  */
 $app->post('/thing-attribute/{thing-code}/{attribute-code}', function (Request $request, Response $response, array $arguments) {
 
-    $content = (new \AllThings\Reception\ToCrossoverEntity($request, $arguments))->fromPost();
+    $content = (new ToCrossoverEntity($request, $arguments))->fromPost();
     $dataPath = (new DbConnection())->getForWrite();
-    $handler = new \AllThings\Content\ContentManager($content, $dataPath);
+    $handler = new ContentManager($content, $dataPath);
 
     $isSuccess = $handler->attach();
     if ($isSuccess) {
@@ -1088,9 +1098,9 @@ $app->post('/thing-attribute/{thing-code}/{attribute-code}', function (Request $
  */
 $app->get('/thing-attribute/{thing-code}/{attribute-code}', function (Request $request, Response $response, array $arguments) {
 
-    $content = (new \AllThings\Reception\ToCrossoverEntity($request, $arguments))->fromGet();
+    $content = (new ToCrossoverEntity($request, $arguments))->fromGet();
     $dataPath = (new DbConnection())->getForRead();
-    $handler = new \AllThings\Content\ContentManager($content, $dataPath);
+    $handler = new ContentManager($content, $dataPath);
 
     $isSuccess = $handler->take($content);
 
@@ -1100,7 +1110,7 @@ $app->get('/thing-attribute/{thing-code}/{attribute-code}', function (Request $r
     if ($isSuccess) {
         $result = $handler->retrieveData();
 
-        $presentation = new \AllThings\Presentation\FromCrossoverEntity($result);
+        $presentation = new FromCrossoverEntity($result);
         $json = $presentation->toJson();
 
         $response->write($json);
@@ -1144,11 +1154,11 @@ $app->get('/thing-attribute/{thing-code}/{attribute-code}', function (Request $r
  */
 $app->put('/thing-attribute/{thing-code}/{attribute-code}', function (Request $request, Response $response, array $arguments) {
 
-    $command = (new \AllThings\Reception\ToCrossoverEntity($request, $arguments))->fromPut();
+    $command = (new ToCrossoverEntity($request, $arguments))->fromPut();
 
     $dataPath = (new DbConnection())->getForWrite();
     $subject = $command->getSubject();
-    $handler = new \AllThings\Content\ContentManager($subject, $dataPath);
+    $handler = new ContentManager($subject, $dataPath);
 
     $parameter = $command->getParameter();
     $isSuccess = $handler->store($parameter);
