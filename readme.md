@@ -60,7 +60,7 @@ PUT '/attribute/place-of-production'
   "range-type": "discrete"
 }
 ```
-## S001A1S05 охарактеризовать сущность (назначить типу хараектеристики для предметов этого типа)
+## S001A1S05 охарактеризовать сущность (назначить характеристики для предметов этого типа)
 ```
 POST '/essence-attribute/cake/price'
 POST '/essence-attribute/cake/production-date'
@@ -73,7 +73,7 @@ POST '/thing/cake/bun-with-jam'
 POST '/thing/cake/bun-with-raisins'
 POST '/thing/cake/cinnamon-bun'
 ```
-## S001A2S02 задать свойства предметов (дать имена пирожкам)
+## S001A2S02 задать значения свойствам предметов (дать имена пирожкам)
 ```
 PUT '/thing/bun-with-jam'
 {
