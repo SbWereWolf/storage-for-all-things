@@ -14,6 +14,6 @@ interface Valuable
 
     function write(string $code): bool;
 
-    function read(string $code): bool;
+    function read(): bool;
 
 }

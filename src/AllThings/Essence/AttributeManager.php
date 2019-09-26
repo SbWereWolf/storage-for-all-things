@@ -81,11 +81,11 @@ class AttributeManager implements IAttributeManager
         return $result;
     }
 
-    function browse(string $targetIdentity): bool
+    function browse(): bool
     {
         $handler = $this->getHandler();
 
-        $result = $handler->read($targetIdentity);
+        $result = $handler->read();
 
         $this->setSubject($result, $handler);
 

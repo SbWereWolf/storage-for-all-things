@@ -12,6 +12,7 @@ use PHPUnit\Framework\TestCase;
 class BusinessProcess extends TestCase
 {
 
+    const SKIP = false;
     /**
      * @return PDO
      */
@@ -30,7 +31,10 @@ class BusinessProcess extends TestCase
 
         $linkToData = (new DbConnection())->getForRead();
 
-        $isSuccess = $linkToData->beginTransaction();
+        $isSuccess = static::SKIP;
+        if (!static::SKIP) {
+            $isSuccess = $linkToData->beginTransaction();
+        }
         $this->assertTrue($isSuccess,'Transaction must be opened');
 
         return $linkToData;
@@ -45,10 +49,99 @@ class BusinessProcess extends TestCase
 
         $essence = Essence::GetDefaultEssence();
         $essence->setCode('cake');
-        $handler = new AllThings\Essence\EssenceManager($essence, $linkToData);
+        $handler = new AllThings\Essence\EssenceManager($essence,
+            $linkToData);
 
         $isSuccess = $handler->create();
-        $this->assertTrue($isSuccess,'Essence must be created');
+        $this->assertTrue($isSuccess,
+            'Essence must be created with success');
+
+        $result = [];
+        $result['essence'] = 'cake';
+        $result['PDO'] = $linkToData;
+
+        return $result;
+    }
+
+    /**
+     * @depends testEssenceCreate
+     *
+     * @param array $context
+     */
+    public function testEssenceEdit(array $context)
+    {
+        $value = Essence::GetDefaultEssence();
+        $value->setCode('cake2');
+        $value->setTitle('The Cakes');
+        $value->setRemark('Cakes  of all kinds');
+        $value->setStoreAt('view');
+
+        $linkToData = $context['PDO'];
+        $handler = new AllThings\Essence\EssenceManager($value,
+            $linkToData);
+
+        $code = $context['essence'];
+        $isSuccess = $handler->correct($code);
+
+        $this->assertTrue($isSuccess,
+            'Essence must be updated with success');
+
+        $context['essence'] = 'cake2';
+
+        return $context;
+    }
+
+    /**
+     * @depends testEssenceEdit
+     *
+     * @param array $context
+     */
+    public function testEssenceShow(array $context)
+    {
+        $value = Essence::GetDefaultEssence();
+        $code = $context['essence'];
+        $value->setCode($code);
+
+        $linkToData = $context['PDO'];
+        $handler = new AllThings\Essence\EssenceManager($value,
+            $linkToData);
+
+        $isSuccess = $handler->browse();
+
+        $this->assertTrue($isSuccess,
+            'Essence must be readed with success');
+
+        $content = $handler->retrieveData();
+
+        $this->assertEquals($content->getCode(), $code,
+            'Code must has value ' . $code);
+        $this->assertEquals($content->getTitle(), 'The Cakes',
+            'Title must has value ' . 'The Cakes');
+        $this->assertEquals($content->getRemark(), 'Cakes  of all kinds',
+            'Remark must has value ' . 'Cakes  of all kinds');
+        $this->assertEquals($content->getStoreAt(), 'view',
+            'StoreAt must has value ' . 'view');
+    }
+
+    /**
+     * @depends testEssenceEdit
+     *
+     * @param array $context
+     */
+    public function testEssenceDelete(array $context)
+    {
+        $target = Essence::GetDefaultEssence();
+        $code = $context['essence'];
+        $target->setCode($code);
+
+        $linkToData = $context['PDO'];
+        $handler = new AllThings\Essence\EssenceManager($target,
+            $linkToData);
+
+        $isSuccess = $handler->remove();
+
+        $this->assertTrue($isSuccess,
+            'Essence must be deleted with success');
     }
 
     /**
@@ -58,9 +151,12 @@ class BusinessProcess extends TestCase
      */
     public function testFinally(PDO $linkToData)
     {
-
-        $isSuccess = $linkToData->rollBack();
-        $this->assertTrue($isSuccess,'Transaction must be rolled back');
+        $isSuccess = static::SKIP;
+        if (!static::SKIP) {
+            $isSuccess = $linkToData->rollBack();
+        }
+        $this->assertTrue($isSuccess,
+            'Transaction must be rolled back');
     }
 
 }

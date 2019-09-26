@@ -51,23 +51,15 @@ class EssenceLocation implements EssenceWriter
         $sqlText = 'update ' . $this->tableName . ' set is_hidden = 1 where code = :code';
         $connection = $this->storageLocation;
 
-        $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
         $query->bindParam(':code', $target_code);
         $result = $query->execute();
 
-        $isSuccess = $result === true;
-        if ($isSuccess) {
-            $result = $connection->commit();
-        }
-        if (!$isSuccess) {
-            $connection->rollBack();
-        }
-
         return $result;
     }
 
-    function update(IEssence $target_entity, IEssence $suggestion_entity): bool
+    function update(IEssence $target_entity,
+                    IEssence $suggestion_entity): bool
     {
         $target_code = $target_entity->getCode();
         $suggestion_code = $suggestion_entity->getCode();
@@ -77,26 +69,27 @@ class EssenceLocation implements EssenceWriter
 
         $sqlText = 'update '
             . $this->tableName
-            . ' set code=:suggestion_code,title=:suggestion_title,remark=:suggestion_remark,store_at=:suggestion_store_at '
-            . ' where code=:target_code';
+            . '
+set 
+    code=:suggestion_code,
+    title=:suggestion_title,
+    remark=:suggestion_remark,
+    store_at=:suggestion_store_at 
+where 
+    code=:target_code';
         $connection = $this->storageLocation;
 
-        $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
-        $query->bindParam(':suggestion_code', $suggestion_code);
-        $query->bindParam(':suggestion_title', $suggestion_title);
-        $query->bindParam(':suggestion_remark', $suggestion_remark);
-        $query->bindParam(':suggestion_store_at', $suggestion_storage);
+        $query->bindParam(':suggestion_code',
+            $suggestion_code);
+        $query->bindParam(':suggestion_title',
+            $suggestion_title);
+        $query->bindParam(':suggestion_remark',
+            $suggestion_remark);
+        $query->bindParam(':suggestion_store_at',
+            $suggestion_storage);
         $query->bindParam(':target_code', $target_code);
         $result = $query->execute();
-
-        $isSuccess = $result === true;
-        if ($isSuccess) {
-            $result = $connection->commit();
-        }
-        if (!$isSuccess) {
-            $connection->rollBack();
-        }
 
         return $result;
     }

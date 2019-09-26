@@ -24,5 +24,5 @@ interface DataManager
 
     function correct(string $targetIdentity): bool;
 
-    function browse(string $targetIdentity): bool;
+    function browse(): bool;
 }

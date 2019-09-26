@@ -37,18 +37,9 @@ class EssenceSource implements EssenceReader
             . ' where code=:target_code';
         $connection = $this->dataSource;
 
-        $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
         $query->bindParam(':target_code', $target_code);
         $result = $query->execute();
-
-        $isSuccess = $result === true;
-        if ($isSuccess) {
-            $result = $connection->commit();
-        }
-        if (!$isSuccess) {
-            $connection->rollBack();
-        }
 
         $data = null;
         $isSuccess = $result === true;

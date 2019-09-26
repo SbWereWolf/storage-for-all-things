@@ -100,7 +100,7 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
         return $attribute;
     }
 
-    function read(string $code): bool
+    function read(): bool
     {
         $target = $this->setAttributeByCode($code);
 

@@ -264,10 +264,11 @@ $app->get('/essence/{code}', function (Request $request, Response $response, arr
     $parameter = (new ToEssenceEntity($request, $arguments))->fromGet();
 
     $subject = Essence::GetDefaultEssence();
+    $subject->setCode($parameter);
     $dataPath = (new DbConnection())->getForRead();
     $handler = new AllThings\Essence\EssenceManager($subject, $dataPath);
 
-    $isSuccess = $handler->browse($parameter);
+    $isSuccess = $handler->browse();
 
     if (!$isSuccess) {
         $response = $response->withStatus(500);
@@ -453,7 +454,7 @@ $app->get('/attribute/{code}', function (Request $request, Response $response, a
     $dataPath = (new DbConnection())->getForRead();
     $handler = new AllThings\Essence\AttributeManager($subject, $dataPath);
 
-    $isSuccess = $handler->browse($parameter);
+    $isSuccess = $handler->browse();
 
     if (!$isSuccess) {
         $response = $response->withStatus(500);
@@ -924,7 +925,7 @@ $app->get('/thing/{code}', function (Request $request, Response $response, array
     $dataPath = (new DbConnection())->getForRead();
     $handler = new NamedEntityManager($subject, 'thing', $dataPath);
 
-    $isSuccess = $handler->browse($parameter);
+    $isSuccess = $handler->browse();
 
     if (!$isSuccess) {
         $response = $response->withStatus(500);

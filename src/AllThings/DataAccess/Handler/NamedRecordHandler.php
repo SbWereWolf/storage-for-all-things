@@ -71,7 +71,7 @@ class NamedRecordHandler implements Valuable, Hideable, Retrievable
 
     }
 
-    function read(string $code): bool
+    function read(): bool
     {
 
         $entity = (new NamedEntity())->setCode($code);

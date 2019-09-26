@@ -99,13 +99,13 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
         return $essence;
     }
 
-    function read(string $code): bool
+    function read(): bool
     {
-        $target = $this->setEssenceByCode($code);
+        $essence = $this->essence->GetEssenceCopy();
 
-        $result = ($this->getEssenceSource())->select($target);
+        $result = ($this->getEssenceSource())->select($essence);
 
-        $this->setEssence($result, $target);
+        $this->setEssence($result, $essence);
 
         return $result;
 

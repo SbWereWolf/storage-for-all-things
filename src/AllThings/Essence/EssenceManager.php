@@ -79,11 +79,11 @@ class EssenceManager implements IEssenceManager
         return $result;
     }
 
-    function browse(string $targetIdentity): bool
+    function browse(): bool
     {
         $handler = $this->getHandler();
 
-        $result = $handler->read($targetIdentity);
+        $result = $handler->read();
 
         $this->setSubject($handler);
 
