@@ -8,10 +8,14 @@
 namespace Environment\Reception;
 
 
+use AllThings\DataObject\NameableUpdateCommand;
+
 interface ToNamed
 {
     function fromPost(): string;
 
     function fromGet(): string;
+
+    function fromPut(): NameableUpdateCommand;
 
 }

@@ -7,6 +7,9 @@
 
 namespace Environment\Reception;
 
+use AllThings\DataObject\NameableUpdateCommand;
+use AllThings\DataObject\NamedEntity;
+use AllThings\DataObject\NamedEntityUpdateCommand;
 use Slim\Http\Request;
 
 class ToNameableEntity implements ToNamed
@@ -32,5 +35,38 @@ class ToNameableEntity implements ToNamed
         $code = $this->arguments['code'];
 
         return $code;
+    }
+
+    function fromPut(): NameableUpdateCommand
+    {
+        $parameterCode = $this->arguments['code'];
+        $parameter = Essence::GetDefaultEssence();
+        $parameter->setCode($parameterCode);
+
+        $request = $this->request;
+
+        $body = $request->getParsedBody();
+
+        $named = new NamedEntity();
+
+        $isCodeExists = array_key_exists('code', $body);
+        if ($isCodeExists) {
+            $code = $body['code'];
+            $named->setCode($code);
+        }
+        $isTitleExists = array_key_exists('title', $body);
+        if ($isTitleExists) {
+            $title = $body['title'];
+            $named->setTitle($title);
+        }
+        $isRemarkExists = array_key_exists('remark', $body);
+        if ($isRemarkExists) {
+            $remark = $body['remark'];
+            $named->setRemark($remark);
+        }
+
+        $command = new NamedEntityUpdateCommand($parameter, $named);
+
+        return $command;
     }
 }

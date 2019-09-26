@@ -39,12 +39,7 @@ class ToEssenceEntity implements ToEssence
 
     function fromPut(): IEssenceUpdateCommand
     {
-        $parameterCode = $this->arguments['code'];
-        $parameter = Essence::GetDefaultEssence();
-        $parameter->setCode($parameterCode);
-
         $request = $this->request;
-
         $body = $request->getParsedBody();
 
         $essence = Essence::GetDefaultEssence();
@@ -70,6 +65,7 @@ class ToEssenceEntity implements ToEssence
             $essence->setStoreAt($storeAt);
         }
 
+        $parameter = $this->arguments['code'];
         $command = new EssenceUpdateCommand($parameter, $essence);
 
         return $command;

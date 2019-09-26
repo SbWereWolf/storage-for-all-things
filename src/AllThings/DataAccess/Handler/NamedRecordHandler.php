@@ -100,4 +100,9 @@ class NamedRecordHandler implements Valuable, Hideable, Retrievable
 
         return $data;
     }
+
+    function has(): bool
+    {
+        return !is_null($this->container);
+    }
 }

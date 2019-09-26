@@ -9,9 +9,9 @@
 namespace AllThings\Content;
 
 
-use AllThings\DataAccess\Manager\CrossoverManager;
 use AllThings\DataAccess\Handler\CrossoverHandler;
 use AllThings\DataAccess\Handler\Retrievable;
+use AllThings\DataAccess\Manager\CrossoverManager;
 use AllThings\DataObject\CrossoverTable;
 use AllThings\DataObject\ForeignKey;
 use AllThings\DataObject\ICrossover;
@@ -91,5 +91,10 @@ class ContentManager implements CrossoverManager, Retrievable
         $data = $this->container->getCrossoverCopy();
 
         return $data;
+    }
+
+    function has(): bool
+    {
+        return !is_null($this->container);
     }
 }

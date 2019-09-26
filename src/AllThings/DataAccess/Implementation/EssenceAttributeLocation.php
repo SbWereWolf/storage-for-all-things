@@ -43,7 +43,6 @@ class EssenceAttributeLocation implements PrimitiveWriter
             . "(select $attributeColumn from $attributeTable where $attributeIndex=:attribute_code))";
         $connection = $this->storageLocation;
 
-        $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
 
         $essenceIdentifier = $linkage[self::ESSENCE_IDENTIFIER];
@@ -53,14 +52,6 @@ class EssenceAttributeLocation implements PrimitiveWriter
         $query->bindParam(':attribute_code', $attributeIdentifier);
 
         $result = $query->execute();
-
-        $isSuccess = $result === true;
-        if ($isSuccess) {
-            $result = $connection->commit();
-        }
-        if (!$isSuccess) {
-            $connection->rollBack();
-        }
 
         return $result;
     }
@@ -75,8 +66,8 @@ class EssenceAttributeLocation implements PrimitiveWriter
         $attributeColumn = $this->attributeKey->getColumn();
         $attributeIndex = $this->attributeKey->getIndex();
 
-        $sqlText = "delete from essence_attribute where " .
-            " essence_id=(select $essenceColumn from $essenceTable where $essenceIndex=:essence_code)"
+        $sqlText = "delete from essence_attribute where "
+            . " essence_id=(select $essenceColumn from $essenceTable where $essenceIndex=:essence_code)"
             . " AND attribute_id=(select $attributeColumn from $attributeTable where $attributeIndex=:attribute_code)";
         $connection = $this->storageLocation;
 

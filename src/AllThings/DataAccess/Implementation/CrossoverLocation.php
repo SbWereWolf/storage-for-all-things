@@ -48,27 +48,17 @@ class CrossoverLocation implements CrossoverWriter
         $rightColumn = $this->tableStructure->getRightColumn();
 
         $sqlText = "
-insert into $tableName ($leftColumn,$rightColumn,content)
+insert into $tableName ($leftColumn,$rightColumn)
 values((
 select $leftKeyColumn from $leftKeyTable where $leftKeyIndex = :left_value
 ),(
 select $rightKeyColumn from $rightKeyTable where $rightKeyIndex = :right_value
 ))";
         $connection = $this->dataPath;
-
-        $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
         $query->bindParam(':left_value', $suggestionLeftValue);
         $query->bindParam(':right_value', $suggestionRightValue);
         $result = $query->execute();
-
-        $isSuccess = $result === true;
-        if ($isSuccess) {
-            $result = $connection->commit();
-        }
-        if (!$isSuccess) {
-            $connection->rollBack();
-        }
 
         return $result;
     }
@@ -105,8 +95,6 @@ WHERE
 AND $rightColumn = (select $rightKeyColumn from $rightKeyTable where $rightKeyIndex = :target_right)
 ";
         $connection = $this->dataPath;
-
-        $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
         $query->bindParam(':content', $suggestionContent);
         $query->bindParam(':suggestion_left', $suggestionLeftValue);
@@ -114,14 +102,6 @@ AND $rightColumn = (select $rightKeyColumn from $rightKeyTable where $rightKeyIn
         $query->bindParam(':target_left', $targetLeftValue);
         $query->bindParam(':target_right', $targetRightValue);
         $result = $query->execute();
-
-        $isSuccess = $result === true;
-        if ($isSuccess) {
-            $result = $connection->commit();
-        }
-        if (!$isSuccess) {
-            $connection->rollBack();
-        }
 
         return $result;
     }

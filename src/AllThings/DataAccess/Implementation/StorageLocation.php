@@ -35,18 +35,9 @@ class StorageLocation implements ValuableWriter
         $sqlText = 'insert into ' . $this->tableName . ' (code)values(:code)';
         $connection = $this->storageLocation;
 
-        $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
         $query->bindParam(':code', $suggestion_code);
         $result = $query->execute();
-
-        $isSuccess = $result === true;
-        if ($isSuccess) {
-            $result = $connection->commit();
-        }
-        if (!$isSuccess) {
-            $connection->rollBack();
-        }
 
         return $result;
     }
@@ -85,22 +76,12 @@ class StorageLocation implements ValuableWriter
             . $this->tableName
             . ' set code = :suggestion_code,title = :suggestion_title,remark=:suggestion_remark where code=:target_code';
         $connection = $this->storageLocation;
-
-        $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
         $query->bindParam(':suggestion_code', $suggestion_code);
         $query->bindParam(':suggestion_title', $suggestion_title);
         $query->bindParam(':suggestion_remark', $suggestion_remark);
         $query->bindParam(':target_code', $target_code);
         $result = $query->execute();
-
-        $isSuccess = $result === true;
-        if ($isSuccess) {
-            $result = $connection->commit();
-        }
-        if (!$isSuccess) {
-            $connection->rollBack();
-        }
 
         return $result;
     }

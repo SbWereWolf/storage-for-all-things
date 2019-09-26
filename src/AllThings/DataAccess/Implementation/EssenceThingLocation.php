@@ -42,8 +42,6 @@ class EssenceThingLocation implements PrimitiveWriter
             "values((select $essenceColumn from $essenceTable where $essenceIndex=:essence_code),"
             . "(select $thingColumn from $thingTable where $thingIndex=:thing_code))";
         $connection = $this->storageLocation;
-
-        $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
 
         $essenceIdentifier = $linkage[self::ESSENCE_IDENTIFIER];
@@ -53,14 +51,6 @@ class EssenceThingLocation implements PrimitiveWriter
         $query->bindParam(':thing_code', $thingIdentifier);
 
         $result = $query->execute();
-
-        $isSuccess = $result === true;
-        if ($isSuccess) {
-            $result = $connection->commit();
-        }
-        if (!$isSuccess) {
-            $connection->rollBack();
-        }
 
         return $result;
     }
@@ -79,8 +69,6 @@ class EssenceThingLocation implements PrimitiveWriter
             " essence_id=(select $essenceColumn from $essenceTable where $essenceIndex=:essence_code)"
             . " AND thing_id=(select $thingColumn from $thingTable where $thingIndex=:thing_code)";
         $connection = $this->storageLocation;
-
-        $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
 
         $essenceIdentifier = $linkage[self::ESSENCE_IDENTIFIER];
@@ -90,14 +78,6 @@ class EssenceThingLocation implements PrimitiveWriter
         $query->bindParam(':thing_code', $thingIdentifier);
 
         $result = $query->execute();
-
-        $isSuccess = $result === true;
-        if ($isSuccess) {
-            $result = $connection->commit();
-        }
-        if (!$isSuccess) {
-            $connection->rollBack();
-        }
 
         return $result;
     }

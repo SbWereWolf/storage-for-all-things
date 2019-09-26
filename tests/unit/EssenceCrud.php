@@ -2,28 +2,26 @@
 /**
  * storage-for-all-things
  * Copyright © 2019 Volkhin Nikolay
- * 25.09.2019, 23:06
+ * 26.09.2019, 18:07
  */
 
 use AllThings\Essence\Essence;
 use Environment\DbConnection;
 use PHPUnit\Framework\TestCase;
 
-class BusinessProcess extends TestCase
+class EssenceCrud extends TestCase
 {
 
     const SKIP = false;
+
     /**
-     * @return PDO
+     * @return array
      */
     public function testInit()
     {
         define('APPLICATION_ROOT', realpath(__DIR__)
+            . DIRECTORY_SEPARATOR . '..'
             . DIRECTORY_SEPARATOR . '..');
-
-        /*require APPLICATION_ROOT . DIRECTORY_SEPARATOR . 'vendor'
-            . DIRECTORY_SEPARATOR . 'autoload.php';*/
-
         define('CONFIGURATION_ROOT', APPLICATION_ROOT
             . DIRECTORY_SEPARATOR . 'configuration');
         define('DB_READ_CONFIGURATION', CONFIGURATION_ROOT
@@ -35,9 +33,12 @@ class BusinessProcess extends TestCase
         if (!static::SKIP) {
             $isSuccess = $linkToData->beginTransaction();
         }
-        $this->assertTrue($isSuccess,'Transaction must be opened');
+        $this->assertTrue($isSuccess, 'Transaction must be opened');
 
-        return $linkToData;
+        $context = [];
+        $context['PDO'] = $linkToData;
+
+        return $context;
     }
 
     /**
@@ -45,10 +46,12 @@ class BusinessProcess extends TestCase
      *
      * @param PDO $linkToData
      */
-    public function testEssenceCreate(PDO $linkToData){
-
+    public function testEssenceCreate(array $context)
+    {
         $essence = Essence::GetDefaultEssence();
         $essence->setCode('cake');
+
+        $linkToData = $context['PDO'];
         $handler = new AllThings\Essence\EssenceManager($essence,
             $linkToData);
 
@@ -56,11 +59,9 @@ class BusinessProcess extends TestCase
         $this->assertTrue($isSuccess,
             'Essence must be created with success');
 
-        $result = [];
-        $result['essence'] = 'cake';
-        $result['PDO'] = $linkToData;
+        $context['essence'] = 'cake';
 
-        return $result;
+        return $context;
     }
 
     /**
@@ -107,12 +108,10 @@ class BusinessProcess extends TestCase
             $linkToData);
 
         $isSuccess = $handler->browse();
-
         $this->assertTrue($isSuccess,
             'Essence must be readed with success');
 
         $content = $handler->retrieveData();
-
         $this->assertEquals($content->getCode(), $code,
             'Code must has value ' . $code);
         $this->assertEquals($content->getTitle(), 'The Cakes',
@@ -147,12 +146,13 @@ class BusinessProcess extends TestCase
     /**
      * @depends testInit
      *
-     * @param PDO $linkToData
+     * @param array $context
      */
-    public function testFinally(PDO $linkToData)
+    public function testFinally(array $context)
     {
         $isSuccess = static::SKIP;
         if (!static::SKIP) {
+            $linkToData = $context['PDO'];
             $isSuccess = $linkToData->rollBack();
         }
         $this->assertTrue($isSuccess,

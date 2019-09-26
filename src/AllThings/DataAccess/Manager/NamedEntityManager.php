@@ -95,4 +95,9 @@ class NamedEntityManager implements INamedEntityManager
 
         return $nameable;
     }
+
+    function has(): bool
+    {
+        return !is_null($this->subject);
+    }
 }

@@ -89,4 +89,9 @@ class EssenceAttributeManager implements LinkageManager, Retrievable
 
         return $result;
     }
+
+    function has(): bool
+    {
+        return !is_null($this->dataSet);
+    }
 }

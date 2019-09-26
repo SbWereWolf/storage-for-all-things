@@ -126,4 +126,9 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
 
         return $essence;
     }
+
+    function has(): bool
+    {
+        return !is_null($this->attribute);
+    }
 }

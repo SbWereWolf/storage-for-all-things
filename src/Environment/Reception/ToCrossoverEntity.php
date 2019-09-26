@@ -52,8 +52,6 @@ class ToCrossoverEntity implements ToCrossover
 
     function fromPut(): IContentUpdateCommand
     {
-        $targetContent = $this->fromArguments();
-
         $request = $this->request;
 
         $body = $request->getParsedBody();
@@ -76,6 +74,7 @@ class ToCrossoverEntity implements ToCrossover
             $contentEntity->setContent($content);
         }
 
+        $targetContent = $this->fromArguments();
         $command = new ContentUpdateCommand($targetContent, $contentEntity);
 
         return $command;

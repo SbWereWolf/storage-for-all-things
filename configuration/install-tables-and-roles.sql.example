@@ -1,0 +1,199 @@
+DROP TABLE IF EXISTS essence_thing;
+DROP TABLE IF EXISTS content;
+DROP TABLE IF EXISTS thing;
+DROP TABLE IF EXISTS essence_attribute;
+DROP TABLE IF EXISTS attribute;
+DROP TABLE IF EXISTS essence;
+
+create table essence
+(
+    id serial
+        constraint essence_pk
+            primary key,
+    code text not null,
+    title text,
+    remark text,
+    is_hidden int not null DEFAULT 0,
+    store_at text
+);
+
+create unique index essence_code_uindex
+    on essence (code);
+
+create index essence_is_hidden_id_index
+    on essence (is_hidden, id);
+
+create table attribute
+(
+    id serial
+        constraint attribute_pk
+            primary key,
+    code text not null,
+    title text,
+    remark text,
+    is_hidden int not null default 0,
+    data_type text,
+    range_type text
+);
+
+create unique index attribute_code_uindex
+    on attribute (code);
+
+create index attribute_is_hidden_id_index
+    on attribute (is_hidden, id);
+
+create table essence_attribute
+(
+    id serial
+        constraint essence_attribute_pk
+            primary key,
+    essence_id int not null
+        constraint essence_attribute_essence_id_fk
+            references essence,
+    attribute_id int not null
+        constraint essence_attribute_attribute_id_fk
+            references attribute
+);
+
+create index essence_attribute_attribute_id_index
+    on essence_attribute (attribute_id);
+
+create unique index essence_attribute_essence_id_attribute_id_uindex
+    on essence_attribute (essence_id, attribute_id);
+
+create table thing
+(
+    id serial
+        constraint thing_pk
+            primary key,
+    code text not null,
+    title text,
+    remark text,
+    is_hidden int default 0 not null
+);
+
+create unique index thing_code_uindex
+    on thing (code);
+
+create index thing_is_hidden_id_index
+    on thing (is_hidden, id);
+
+create table content
+(
+    id serial
+        constraint content_pk
+            primary key,
+    thing_id int not null
+        constraint content_thing_id_fk
+            references thing,
+    attribute_id int not null
+        constraint content_attribute_id_fk
+            references attribute,
+    content text
+);
+
+create index content_attribyte_id_index
+    on content (attribute_id);
+
+create unique index content_thing_id_attribyte_id_uindex
+    on content (thing_id, attribute_id);
+
+create table essence_thing
+(
+    id serial
+        constraint essence_thing_pk
+            primary key,
+    essence_id int not null
+        constraint essence_thing_essence_id_fk
+            references essence,
+    thing_id int not null
+        constraint essence_thing_thing_id_fk
+            references thing
+);
+
+create unique index essence_thing_essence_id_thing_id_uindex
+    on essence_thing (essence_id, thing_id);
+
+create index essence_thing_thing_id_index
+    on essence_thing (thing_id);
+
+
+REVOKE USAGE ON SCHEMA public FROM reader;
+REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM reader;
+REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM reader;
+REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public FROM reader;
+DROP USER IF EXISTS reader;
+
+REVOKE USAGE ON SCHEMA public FROM writer;
+REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM writer;
+REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM writer;
+REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public FROM writer;
+DROP USER IF EXISTS writer;
+
+REVOKE USAGE ON SCHEMA public FROM deleter;
+REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM deleter;
+REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM deleter;
+REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public FROM deleter;
+DROP USER IF EXISTS deleter;
+
+REVOKE USAGE ON SCHEMA public FROM tester;
+REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM tester;
+REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM tester;
+REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public FROM tester;
+DROP USER IF EXISTS tester;
+
+CREATE USER reader WITH
+    LOGIN
+    PASSWORD 'data_reader_password_to_read_db'
+    NOSUPERUSER
+    NOCREATEDB
+    NOCREATEROLE
+    NOINHERIT
+    NOREPLICATION;
+
+GRANT USAGE ON SCHEMA public TO reader;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO reader;
+
+CREATE USER writer WITH
+    LOGIN
+    PASSWORD 'data_writer_password_to_write_db'
+    NOSUPERUSER
+    NOCREATEDB
+    NOCREATEROLE
+    NOINHERIT
+    NOREPLICATION;
+
+GRANT USAGE ON SCHEMA public TO writer;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO writer;
+GRANT INSERT ON ALL TABLES IN SCHEMA public TO writer;
+GRANT UPDATE ON ALL TABLES IN SCHEMA public TO writer;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO writer;
+
+CREATE USER deleter WITH
+    LOGIN
+    PASSWORD 'data_deleter_password_to_delete_db'
+    NOSUPERUSER
+    NOCREATEDB
+    NOCREATEROLE
+    NOINHERIT
+    NOREPLICATION;
+
+GRANT USAGE ON SCHEMA public TO deleter;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO deleter;
+GRANT DELETE ON ALL TABLES IN SCHEMA public TO deleter;
+
+CREATE USER tester WITH
+    LOGIN
+    PASSWORD 'data_tester_password_to_test_db'
+    NOSUPERUSER
+    NOCREATEDB
+    NOCREATEROLE
+    NOINHERIT
+    NOREPLICATION;
+
+GRANT USAGE ON SCHEMA public TO tester;
+GRANT SELECT ON ALL TABLES IN SCHEMA public TO tester;
+GRANT INSERT ON ALL TABLES IN SCHEMA public TO tester;
+GRANT UPDATE ON ALL TABLES IN SCHEMA public TO tester;
+GRANT DELETE ON ALL TABLES IN SCHEMA public TO tester;
+GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO tester;

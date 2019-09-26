@@ -11,7 +11,6 @@ namespace AllThings\DataAccess\Implementation;
 use AllThings\DataAccess\Core\AttributeWriter;
 use AllThings\Essence\IAttribute;
 use PDO;
-use PDOStatement;
 
 class AttributeLocation implements AttributeWriter
 {
@@ -33,31 +32,11 @@ class AttributeLocation implements AttributeWriter
         $sqlText = 'insert into ' . $this->tableName . ' (code)values(:code)';
         $connection = $this->storageLocation;
 
-        $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
         $query->bindParam(':code', $suggestion_code);
 
-        $result = $this->executeQuery($query, $connection);
-
-        return $result;
-    }
-
-    /**
-     * @param $query
-     * @param $connection
-     * @return mixed
-     */
-    private function executeQuery(PDOStatement $query, PDO $connection)
-    {
         $result = $query->execute();
 
-        $isSuccess = $result === true;
-        if ($isSuccess) {
-            $result = $connection->commit();
-        }
-        if (!$isSuccess) {
-            $connection->rollBack();
-        }
         return $result;
     }
 
@@ -68,11 +47,10 @@ class AttributeLocation implements AttributeWriter
         $sqlText = 'update ' . $this->tableName . ' set is_hidden = 1 where code = :code';
         $connection = $this->storageLocation;
 
-        $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
         $query->bindParam(':code', $target_code);
 
-        $result = $this->executeQuery($query, $connection);
+        $result = $query->execute();
 
         return $result;
     }
@@ -93,7 +71,6 @@ class AttributeLocation implements AttributeWriter
             . ' where code=:target_code';
         $connection = $this->storageLocation;
 
-        $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
         $query->bindParam(':suggestion_code', $suggestionCode);
         $query->bindParam(':suggestion_title', $suggestionTitle);
@@ -102,7 +79,7 @@ class AttributeLocation implements AttributeWriter
         $query->bindParam(':suggestion_range_type', $suggestionRangeType);
         $query->bindParam(':target_code', $target_code);
 
-        $result = $this->executeQuery($query, $connection);
+        $result = $query->execute();
 
         return $result;
     }

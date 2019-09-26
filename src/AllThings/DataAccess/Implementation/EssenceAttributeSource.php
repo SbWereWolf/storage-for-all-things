@@ -46,22 +46,12 @@ join $attributeTable A on EA.attribute_id = A.$attributeColumn
 where E.$essenceIndex=:essence_code";
 
         $connection = $this->dataSource;
-
-        $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
 
         $essenceIdentity = $linkage[self::ESSENCE_IDENTIFIER];
         $query->bindParam(':essence_code', $essenceIdentity);
 
         $result = $query->execute();
-
-        $isSuccess = $result === true;
-        if ($isSuccess) {
-            $result = $connection->commit();
-        }
-        if (!$isSuccess) {
-            $connection->rollBack();
-        }
 
         $data = null;
         $isSuccess = $result === true;
@@ -90,5 +80,10 @@ where E.$essenceIndex=:essence_code";
         $result = $this->dataSet;
 
         return $result;
+    }
+
+    function has(): bool
+    {
+        return !is_null($this->dataSet);
     }
 }

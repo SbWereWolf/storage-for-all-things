@@ -40,10 +40,6 @@ class ToAttributeEntity implements ToAttribute
 
     function fromPut(): IAttributeUpdateCommand
     {
-        $parameterCode = $this->arguments['code'];
-        $parameter = Attribute::GetDefaultAttribute();
-        $parameter->setCode($parameterCode);
-
         $request = $this->request;
         $body = $request->getParsedBody();
 
@@ -75,6 +71,7 @@ class ToAttributeEntity implements ToAttribute
             $attribute->setRangeType($rangeType);
         }
 
+        $parameter = $this->arguments['code'];
         $command = new AttributeUpdateCommand($parameter, $attribute);
 
         return $command;

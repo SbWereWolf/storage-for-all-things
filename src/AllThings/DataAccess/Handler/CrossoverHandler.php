@@ -86,4 +86,9 @@ class CrossoverHandler implements ICrossoverHandler, Retrievable
 
         return $data;
     }
+
+    function has(): bool
+    {
+        return !is_null($this->container);
+    }
 }

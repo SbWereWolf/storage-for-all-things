@@ -6,20 +6,22 @@ use AllThings\DataAccess\Manager\NamedEntityManager;
 use AllThings\DataObject\EssenceAttributeCommand;
 use AllThings\DataObject\EssenceThingCommand;
 use AllThings\DataObject\NamedEntity;
-use Environment\Presentation\ForNameableEntity;
-use Environment\Presentation\FromAttributeEntity;
-use Environment\Presentation\FromCrossoverEntity;
-use Environment\Presentation\FromEssenceEntity;
-use Environment\Reception\ToAttributeEntity;
-use Environment\Reception\ToCrossoverEntity;
-use Environment\Reception\ToEssenceEntity;
-use Environment\Reception\ToNameableEntity;
-use Environment\Development\Page;
 use AllThings\Essence\Attribute;
 use AllThings\Essence\Essence;
 use AllThings\Essence\EssenceAttributeManager;
 use AllThings\Essence\EssenceThingManager;
 use Environment\DbConnection;
+use Environment\Development\Page;
+use Environment\Presentation\ForNameableEntity;
+use Environment\Presentation\FromAttributeEntity;
+use Environment\Presentation\FromCrossoverEntity;
+use Environment\Presentation\FromEssenceAttribute;
+use Environment\Presentation\FromEssenceEntity;
+use Environment\Presentation\FromEssenceThing;
+use Environment\Reception\ToAttributeEntity;
+use Environment\Reception\ToCrossoverEntity;
+use Environment\Reception\ToEssenceEntity;
+use Environment\Reception\ToNameableEntity;
 use Slim\App;
 use Slim\Container;
 use Slim\Http\Request;
@@ -705,7 +707,7 @@ $app->get('/essence-attribute/{essence-code}', function (Request $request, Respo
     if ($isSuccess) {
         $result = $manager->retrieveData();
 
-        $json = (new AllThings\Presentation\FromEssenceAttribute($result))->toJson();
+        $json = (new FromEssenceAttribute($result))->toJson();
 
         $response->write($json);
         $response = $response->withStatus(200);
@@ -848,7 +850,7 @@ $app->get('/essence-thing/{essence-code}', function (Request $request, Response 
     if ($isSuccess) {
         $result = $manager->retrieveData();
 
-        $json = (new AllThings\Presentation\FromEssenceThing($result))->toJson();
+        $json = (new FromEssenceThing($result))->toJson();
 
         $response->write($json);
         $response = $response->withStatus(200);
@@ -958,7 +960,7 @@ $app->get('/thing/{code}', function (Request $request, Response $response, array
  *     @SWG\Parameter(
  *         name="thing",
  *         in="body",
- *         description="properties of attribute for update",
+ *         description="properties of thing for update",
  *         required=true,
  *         @SWG\Schema(ref="#/definitions/thing"),
  *     ),
@@ -970,11 +972,11 @@ $app->get('/thing/{code}', function (Request $request, Response $response, array
  */
 $app->put('/thing/{code}', function (Request $request, Response $response, array $arguments) {
 
-    $command = (new ToAttributeEntity($request, $arguments))->fromPut();
+    $command = (new ToNameableEntity($request, $arguments))->fromPut();
 
     $subject = $command->getSubject();
     $dataPath = (new DbConnection())->getForWrite();
-    $handler = new AllThings\Essence\AttributeManager($subject, $dataPath);
+    $handler = new NamedEntityManager($subject, 'thing', $dataPath);
 
     $parameter = $command->getParameter();
     $isSuccess = $handler->correct($parameter);
