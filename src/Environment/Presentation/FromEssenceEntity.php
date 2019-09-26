@@ -1,7 +1,7 @@
 <?php
 
 
-namespace AllThings\Presentation;
+namespace Environment\Presentation;
 
 
 use AllThings\Essence\IEssence;

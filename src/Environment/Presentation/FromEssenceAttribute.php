@@ -5,7 +5,7 @@
  * 27.05.18 16:28
  */
 
-namespace AllThings\Presentation;
+namespace Environment\Presentation;
 
 
 class FromEssenceAttribute implements Jsonable

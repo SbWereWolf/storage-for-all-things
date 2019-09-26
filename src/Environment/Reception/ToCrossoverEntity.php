@@ -5,7 +5,7 @@
  * 03.06.18 15:15
  */
 
-namespace AllThings\Reception;
+namespace Environment\Reception;
 
 
 use AllThings\DataObject\ContentUpdateCommand;

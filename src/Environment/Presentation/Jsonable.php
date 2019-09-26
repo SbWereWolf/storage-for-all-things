@@ -6,7 +6,7 @@
  */
 
 
-namespace AllThings\Presentation;
+namespace Environment\Presentation;
 
 
 interface Jsonable

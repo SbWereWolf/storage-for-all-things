@@ -6,7 +6,7 @@
  */
 
 
-namespace AllThings\Reception;
+namespace Environment\Reception;
 
 use AllThings\DataObject\AttributeUpdateCommand;
 use AllThings\DataObject\IAttributeUpdateCommand;

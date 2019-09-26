@@ -5,7 +5,7 @@
  * 26.05.18 12:39
  */
 
-namespace AllThings\Presentation;
+namespace Environment\Presentation;
 
 
 use AllThings\DataObject\Nameable;

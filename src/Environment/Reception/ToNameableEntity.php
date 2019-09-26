@@ -5,7 +5,7 @@
  * Date: 18.05.2018 Time: 0:06
  */
 
-namespace AllThings\Reception;
+namespace Environment\Reception;
 
 use Slim\Http\Request;
 

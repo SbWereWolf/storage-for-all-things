@@ -6,7 +6,7 @@
  */
 
 
-namespace AllThings\Presentation;
+namespace Environment\Presentation;
 
 
 class FromEssenceThing implements Jsonable

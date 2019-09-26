@@ -5,7 +5,7 @@
  * 23.05.18 1:23
  */
 
-namespace AllThings\Presentation;
+namespace Environment\Presentation;
 
 
 use AllThings\Essence\IAttribute;

@@ -5,7 +5,7 @@
  * 23.05.18 1:21
  */
 
-namespace AllThings\Reception;
+namespace Environment\Reception;
 
 
 use AllThings\DataObject\IAttributeUpdateCommand;
