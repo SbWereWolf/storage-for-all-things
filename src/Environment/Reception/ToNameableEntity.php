@@ -40,7 +40,7 @@ class ToNameableEntity implements ToNamed
     function fromPut(): NameableUpdateCommand
     {
         $parameterCode = $this->arguments['code'];
-        $parameter = Essence::GetDefaultEssence();
+        $parameter = new NamedEntity();
         $parameter->setCode($parameterCode);
 
         $request = $this->request;

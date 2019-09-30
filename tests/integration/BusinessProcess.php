@@ -14,6 +14,7 @@ use AllThings\Essence\Attribute;
 use AllThings\Essence\Essence;
 use AllThings\Essence\EssenceAttributeManager;
 use AllThings\Essence\EssenceThingManager;
+use AllThings\PrimitiveObtainment\Installer;
 use Environment\DbConnection;
 use PHPUnit\Framework\TestCase;
 
@@ -57,6 +58,7 @@ class BusinessProcess extends TestCase
      */
     public function testEssenceCreate(array $context)
     {
+        /* ## S001A1S01 создать сущность для предметов типа "пирожок" */
         $essence = Essence::GetDefaultEssence();
         $essence->setCode('cake');
 
@@ -82,6 +84,7 @@ class BusinessProcess extends TestCase
      */
     public function testSetupEssence(array $context)
     {
+        /* ## S001A1S02 задать свойства сущности */
         $code = $context['essence'];
         $value = Essence::GetDefaultEssence();
         $value->setCode($code);
@@ -110,6 +113,7 @@ class BusinessProcess extends TestCase
      */
     public function testAttributesCreate(array $context)
     {
+        /* ## S001A1S03 создать характеристику */
         $code = 'price';
         $context[$code] = $code;
         $this->createAttribute($context, $code);
@@ -150,6 +154,7 @@ class BusinessProcess extends TestCase
      */
     public function testSetupAttributes(array $context)
     {
+        /* ## S001A1S04 задать свойства характеристики */
         $linkToData = $context['PDO'];
 
         $code = $context['price'];
@@ -201,6 +206,8 @@ class BusinessProcess extends TestCase
      */
     public function testDefineEssence(array $context)
     {
+        /* ## S001A1S05 охарактеризовать сущность (назначить
+         характеристики для предметов этого типа) */
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
@@ -233,11 +240,31 @@ class BusinessProcess extends TestCase
      * @depends testDefineEssence
      *
      * @param array $context
+     */
+    public function testCreateView(array $context)
+    {
+        /* S001A4S02 создать представление */
+        $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+
+        $handler = new Installer($essence, $linkToData);
+        $result = $handler->setup();
+
+        $this->assertTrue($result);
+
+    }
+
+    /**
+     * @depends testDefineEssence
+     *
+     * @param array $context
      *
      * @return array
      */
     public function testThingsCreate(array $context)
     {
+        /* ## S001A2S01 создать предметы типа "пирожок"
+        (создать пирожки) */
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
         $attributes = $this->getEssenceAttributes($essence, $linkToData);
@@ -339,6 +366,8 @@ class BusinessProcess extends TestCase
      */
     public function testSetupThing(array $context)
     {
+        /* ## S001A2S02 задать значения свойствам предметов
+        (дать имена пирожкам) */
         $linkToData = $context['PDO'];
 
         $titles = [];
@@ -377,6 +406,7 @@ class BusinessProcess extends TestCase
      */
     public function testDefineThings(array $context)
     {
+        /* ## S001A2S03 задать значения для характеристики предмета */
         $linkToData = $context['PDO'];
 
         $thing = $context['bun-with-jam'];
