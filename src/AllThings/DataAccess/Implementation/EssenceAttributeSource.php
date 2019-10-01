@@ -43,7 +43,8 @@ class EssenceAttributeSource implements ColumnReader, Retrievable
 select A.$attributeIndex as code from essence_attribute EA 
 join $essenceTable E on EA.essence_id = E.$essenceColumn 
 join $attributeTable A on EA.attribute_id = A.$attributeColumn
-where E.$essenceIndex=:essence_code";
+where E.$essenceIndex=:essence_code
+order by 1";
 
         $connection = $this->dataSource;
         $query = $connection->prepare($sqlText);

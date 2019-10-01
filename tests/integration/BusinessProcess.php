@@ -7,14 +7,17 @@
 
 use AllThings\Content\ContentManager;
 use AllThings\DataAccess\Manager\NamedEntityManager;
+use AllThings\DataObject\ContinuousFilter;
 use AllThings\DataObject\Crossover;
+use AllThings\DataObject\DiscreteFilter;
 use AllThings\DataObject\ICrossover;
 use AllThings\DataObject\NamedEntity;
 use AllThings\Essence\Attribute;
 use AllThings\Essence\Essence;
 use AllThings\Essence\EssenceAttributeManager;
 use AllThings\Essence\EssenceThingManager;
-use AllThings\PrimitiveObtainment\Installer;
+use AllThings\PrimitiveObtainment\Source;
+use AllThings\SearchEngine\Seeker;
 use Environment\DbConnection;
 use PHPUnit\Framework\TestCase;
 
@@ -247,10 +250,11 @@ class BusinessProcess extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $handler = new Installer($essence, $linkToData);
+        $handler = new Source($essence, $linkToData);
         $result = $handler->setup();
 
-        $this->assertTrue($result);
+        $this->assertTrue($result, "View for `$essence` must be"
+            . ' created with success');
 
     }
 
@@ -462,7 +466,6 @@ class BusinessProcess extends TestCase
 
         return $context;
     }
-
     /**
      * @param string     $thing
      * @param string     $attribute
@@ -478,6 +481,132 @@ class BusinessProcess extends TestCase
         $this->assertTrue($isSuccess,
             "Attribute `$attribute` of thing `$thing`"
             . ' must be defined with success');
+    }
+
+    /**
+     * @depends testDefineThings
+     *
+     * @param array $context
+     */
+    public function testShowAll(array $context)
+    {
+        /* ## S001A4S04 получить данные из представления
+        (без фильтрации) */
+        $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+
+        $source = new Source($essence, $linkToData);
+        $seeker = new Seeker($source);
+        $data = $seeker->data();
+
+        $isEnough = count($data) === 3;
+        $this->assertTrue($isEnough, "Essence `$essence` must have three things");
+
+        $thingTested = 0;
+        foreach ($data as $thing) {
+            $isEnough = count($thing) === 4;
+            $this->assertTrue($isEnough, "Each thing of essence `$essence`"
+                . ' must have four attributes');
+
+            $code = $thing['code'];
+            switch ($code) {
+                case $context['bun-with-jam']:
+                    $isProper = true;
+                    $isProper = $isProper
+                        && $thing[$context['price']] === '15.50';
+                    $isProper = $isProper
+                        && $thing[$context['production-date']] === '20180429T1356';
+                    $isProper = $isProper
+                        && $thing[$context['place-of-production']] === 'Екатеринбург';
+                    $this->assertTrue($isProper, "Thing `$code`"
+                        . ' must have same content as defined');
+                    $thingTested++;
+                    break;
+                case $context['bun-with-raisins']:
+                    $isProper = true;
+                    $isProper = $isProper
+                        && $thing[$context['price']] === '9.50';
+                    $isProper = $isProper
+                        && $thing[$context['production-date']] === '20180427';
+                    $isProper = $isProper
+                        && $thing[$context['place-of-production']] === 'Екатеринбург';
+                    $this->assertTrue($isProper, "Thing `$code`"
+                        . ' must have same content as defined');
+                    $thingTested++;
+                    break;
+                case $context['cinnamon-bun']:
+                    $isProper = true;
+                    $isProper = $isProper
+                        && $thing[$context['price']] === '4.50';
+                    $isProper = $isProper
+                        && $thing[$context['production-date']] === '20180429';
+                    $isProper = $isProper
+                        && $thing[$context['place-of-production']] === 'Челябинск';
+                    $this->assertTrue($isProper, "Thing `$code`"
+                        . ' must have same content as defined');
+                    $thingTested++;
+                    break;
+            }
+        }
+        $this->assertTrue($thingTested === 3,
+            "Each thing of essence `$essence`"
+            . ' must be tested for matching with defined');
+    }
+
+    /**
+     * @depends testDefineThings
+     *
+     * @param array $context
+     */
+    public function testGetFilters(array $context)
+    {
+        /* ## S002A4S03 определить возможные условия для поиска
+        (параметры фильтрации) */
+        $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+
+        $source = new Source($essence, $linkToData);
+        $seeker = new Seeker($source);
+        $data = $seeker->filters();
+
+        $this->assertTrue(count($data) === 2,
+            "Filters of essence `$essence` must have two types");
+        $this->assertTrue(array_key_exists('continuous', $data),
+            "Filters of essence `$essence` must have type continuous");
+        $this->assertTrue(array_key_exists('discrete', $data),
+            "Filters of essence `$essence` must have type discrete");
+
+        $filtersValue = 'a:2:{s:10:"continuous";a:4:{s:9:"max@price";s:4:"9.50";s:9:"min@price";s:5:"15.50";s:19:"max@production-date";s:13:"20180429T1356";s:19:"min@production-date";s:8:"20180427";}s:8:"discrete";a:1:{s:19:"place-of-production";a:2:{i:0;s:24:"Екатеринбург";i:1;s:18:"Челябинск";}}}';
+        $this->assertTrue(serialize($data) === $filtersValue,
+            "Filters of essence `$essence` must have proper value");
+    }
+
+    /**
+     * @depends testDefineThings
+     *
+     * @param array $context
+     */
+    public function testSearch(array $context)
+    {
+        /* ## ## S002A4S04 сделать выборку экземпляров по заданным
+        условиям поиска (поиск в представлении) */
+        $essence = $context['essence'];
+        $linkToData = $context['PDO'];
+        $source = new Source($essence, $linkToData);
+        $seeker = new Seeker($source);
+
+        $continuous = new ContinuousFilter(
+            $context['price'], '15.50', '4.50');
+        $data = $seeker->data([$continuous]);
+        $this->assertTrue(!empty($data));
+
+        $discrete = new DiscreteFilter(
+            $context['place-of-production'], ['Челябинск']);
+        $data = $seeker->data([$discrete]);
+        $this->assertTrue(!empty($data));
+
+        $data = $seeker->data([$discrete, $continuous]);
+        $this->assertTrue(!empty($data));
     }
 
     /**

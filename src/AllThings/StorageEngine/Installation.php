@@ -10,6 +10,7 @@ namespace AllThings\StorageEngine;
 
 interface Installation
 {
-
     public function setup(): bool;
+
+    public function name(): string;
 }
