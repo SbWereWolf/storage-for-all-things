@@ -2,7 +2,7 @@
 Документ описывает API AllThings.
 # Оглавление
 - [Пример использования API](/readme.md)
-- [Бизнесл логика в общих словах](/inner-workings.md)
+- [Бизнес логика в общих словах](/inner-workings.md)
 - [Описание API](/api-specification.md)
 # Соглашения
 
