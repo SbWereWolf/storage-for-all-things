@@ -2,7 +2,7 @@
 /**
  * storage-for-all-things
  * Copyright © 2019 Volkhin Nikolay
- * 01.10.2019, 21:15
+ * 10.11.19 3:46
  */
 
 namespace AllThings\SearchEngine;
@@ -11,8 +11,8 @@ namespace AllThings\SearchEngine;
 use AllThings\DataObject\ContinuousFilter;
 use AllThings\DataObject\DiscreteFilter;
 use AllThings\Essence\EssenceAttributeManager;
-use AllThings\LanguageFeatures\ArrayParser;
 use AllThings\PrimitiveObtainment\Source;
+use LanguageSpecific\ArrayHandler;
 use PDO;
 
 class Seeker implements Searching
@@ -141,7 +141,6 @@ FROM
     ON C.thing_id = ET.thing_id
 WHERE
         A.code = '$attribute'
-    AND E.id= ET.essence_id
 ";
                     $continuous["max@$attribute"] =
                         "($column) AS \"max@$attribute\"";
@@ -156,7 +155,6 @@ FROM
     ON C.thing_id = ET.thing_id
 WHERE
         A.code = '$attribute'
-    AND E.id= ET.essence_id
 ";
                     $continuous["min@$attribute"] =
                         "($column) AS \"min@$attribute\"";
@@ -225,8 +223,12 @@ WHERE
         $isSuccess = !empty($data['discrete']);
         if ($isSuccess) {
             foreach ($data['discrete'] as $key => $values) {
-                $parser = new ArrayParser($values);
-                $data['discrete'][$key] = $parser->reduceNesting();
+                $parser = new ArrayHandler($values);
+                $simplified = $parser->simplify();
+                $data['discrete'][$key] = [];
+                foreach ($simplified->next() as $value) {
+                    $data['discrete'][$key][] = $value->asIs();
+                }
             }
         }
 

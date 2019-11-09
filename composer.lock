@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "8058c6e07190acbb78b9dba8feb28ecb",
+    "content-hash": "3353bcfafc62dbfbba3c0564c85bb7c7",
     "packages": [
         {
             "name": "container-interop/container-interop",
@@ -231,6 +231,46 @@
                 "response"
             ],
             "time": "2016-08-06T14:39:51+00:00"
+        },
+        {
+            "name": "sbwerewolf/language-specific",
+            "version": "7.0.0",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/SbWereWolf/language-specific.git",
+                "reference": "3cdd5f582e63278aa1be90c5b05226ea1e3591c0"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/SbWereWolf/language-specific/zipball/3cdd5f582e63278aa1be90c5b05226ea1e3591c0",
+                "reference": "3cdd5f582e63278aa1be90c5b05226ea1e3591c0",
+                "shasum": ""
+            },
+            "require": {
+                "php": "~7.0"
+            },
+            "require-dev": {
+                "friendsofphp/php-cs-fixer": "^2.16",
+                "phpunit/phpunit": "^6"
+            },
+            "type": "library",
+            "autoload": {
+                "psr-4": {
+                    "": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "authors": [
+                {
+                    "name": "Nikolay Volkhin",
+                    "email": "ulfnew@gmail.com"
+                }
+            ],
+            "description": "Library for using PHP specific features",
+            "time": "2019-11-09T21:34:10+00:00"
         },
         {
             "name": "slim/php-view",

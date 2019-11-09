@@ -7,3 +7,4 @@ configuration/*.sql
 vendor/*
 api/swagger.json
 api/dist/
+build/**

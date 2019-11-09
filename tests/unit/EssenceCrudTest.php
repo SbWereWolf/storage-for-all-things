@@ -2,14 +2,14 @@
 /**
  * storage-for-all-things
  * Copyright © 2019 Volkhin Nikolay
- * 26.09.2019, 18:07
+ * 10.11.19 3:46
  */
 
 use AllThings\Essence\Essence;
 use Environment\DbConnection;
 use PHPUnit\Framework\TestCase;
 
-class EssenceCrud extends TestCase
+class EssenceCrudTest extends TestCase
 {
 
     const SKIP = false;

@@ -2,7 +2,7 @@
 /**
  * storage-for-all-things
  * Copyright © 2019 Volkhin Nikolay
- * 26.09.2019, 18:08
+ * 10.11.19 3:46
  */
 
 use AllThings\Content\ContentManager;
@@ -21,7 +21,7 @@ use AllThings\SearchEngine\Seeker;
 use Environment\DbConnection;
 use PHPUnit\Framework\TestCase;
 
-class BusinessProcess extends TestCase
+class BusinessProcessTest extends TestCase
 {
     const SKIP = false;
 
