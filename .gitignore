@@ -8,3 +8,4 @@ vendor/*
 api/swagger.json
 api/dist/
 build/**
+.phpunit.result.cache
