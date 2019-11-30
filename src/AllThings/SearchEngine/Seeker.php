@@ -2,7 +2,7 @@
 /**
  * storage-for-all-things
  * Copyright © 2019 Volkhin Nikolay
- * 10.11.19 3:46
+ * 01.12.19 0:42
  */
 
 namespace AllThings\SearchEngine;
@@ -11,28 +11,27 @@ namespace AllThings\SearchEngine;
 use AllThings\DataObject\ContinuousFilter;
 use AllThings\DataObject\DiscreteFilter;
 use AllThings\Essence\EssenceAttributeManager;
-use AllThings\PrimitiveObtainment\Source;
-use LanguageSpecific\ArrayHandler;
+use AllThings\StorageEngine\Installation;
 use PDO;
 
 class Seeker implements Searching
 {
     /**
-     * @var Source
+     * @var Installation
      */
     private $source;
 
-    public function __construct(Source $source)
+    public function __construct(Installation $source)
     {
         $this->setSource($source);
     }
 
     /**
-     * @param Source $source
+     * @param Installation $source
      *
      * @return self
      */
-    private function setSource(Source $source): self
+    private function setSource(Installation $source): self
     {
         $this->source = $source;
         return $this;
@@ -84,9 +83,9 @@ class Seeker implements Searching
     }
 
     /**
-     * @return Source
+     * @return Installation
      */
-    private function getSource(): Source
+    private function getSource(): Installation
     {
         return $this->source;
     }
@@ -211,6 +210,8 @@ WHERE
         foreach ($discrete as $attribute => $getValues) {
             $cursor = $linkToData->query($getValues, PDO::FETCH_ASSOC);
             $isSuccess = $cursor !== false;
+
+            $values = null;
             if ($isSuccess) {
                 $values = $cursor->fetchAll();
                 $isSuccess = count($values) !== 0;
@@ -223,11 +224,10 @@ WHERE
         $isSuccess = !empty($data['discrete']);
         if ($isSuccess) {
             foreach ($data['discrete'] as $key => $values) {
-                $parser = new ArrayHandler($values);
-                $simplified = $parser->simplify();
+                $simplified = array_column($values, 'content');
                 $data['discrete'][$key] = [];
-                foreach ($simplified->next() as $value) {
-                    $data['discrete'][$key][] = $value->asIs();
+                foreach ($simplified as $value) {
+                    $data['discrete'][$key][] = $value;
                 }
             }
         }

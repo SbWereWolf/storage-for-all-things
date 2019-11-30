@@ -2,7 +2,7 @@
 /**
  * storage-for-all-things
  * Copyright © 2019 Volkhin Nikolay
- * 10.11.19 3:46
+ * 01.12.19 0:42
  */
 
 namespace AllThings\StorageEngine;
@@ -21,4 +21,14 @@ interface Installation
      * @return string
      */
     public function name(): string;
+
+    /**
+     * @return string
+     */
+    public function getEssence(): string;
+
+    /**
+     * @return \PDO
+     */
+    public function getLinkToData(): \PDO;
 }
