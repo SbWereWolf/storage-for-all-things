@@ -1,8 +1,8 @@
 <?php
 /**
  * storage-for-all-things
- * Copyright © 2019 Volkhin Nikolay
- * 01.12.19 0:42
+ * Copyright © 2020 Volkhin Nikolay
+ * 18.04.2020, 20:20
  */
 
 use AllThings\Content\ContentManager;
@@ -19,6 +19,7 @@ use AllThings\Essence\EssenceThingManager;
 use AllThings\PrimitiveObtainment;
 use AllThings\RapidObtainment;
 use AllThings\SearchEngine\Seeker;
+use AllThings\StorageEngine\Installation;
 use Environment\DbConnection;
 use PHPUnit\Framework\TestCase;
 
@@ -134,7 +135,7 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
-     * @param array  $context
+     * @param array $context
      * @param string $code
      */
     private function createAttribute(array $context, string $code): void
@@ -148,7 +149,7 @@ class BusinessProcessTest extends TestCase
 
         $isSuccess = $handler->create();
         $this->assertTrue($isSuccess,
-            'Attribute' . $code . ' must be created with success');
+            "Attribute $code must be created with success");
     }
 
     /**
@@ -172,7 +173,7 @@ class BusinessProcessTest extends TestCase
 
         $isSuccess = $handler->correct($code);
         $this->assertTrue($isSuccess,
-            'Attribute `' . $code . '`must be updated with success');
+            "Attribute `$code` must be updated with success");
 
         $code = $context['production-date'];
         $value = Attribute::GetDefaultAttribute();
@@ -185,7 +186,7 @@ class BusinessProcessTest extends TestCase
 
         $isSuccess = $handler->correct($code);
         $this->assertTrue($isSuccess,
-            'Attribute `' . $code . '`must be updated with success');
+            "Attribute `$code` must be updated with success");
 
         $code = $context['place-of-production'];
         $value = Attribute::GetDefaultAttribute();
@@ -198,7 +199,7 @@ class BusinessProcessTest extends TestCase
 
         $isSuccess = $handler->correct($code);
         $this->assertTrue($isSuccess,
-            'Attribute `' . $code . '`must be updated with success');
+            "Attribute `$code` must be updated with success");
     }
 
     /**
@@ -229,7 +230,8 @@ class BusinessProcessTest extends TestCase
      * @param $attribute
      * @param $linkToData
      */
-    private function LinkEssenceToAttribute($essence, $attribute, $linkToData): void
+    private function LinkEssenceToAttribute(
+        $essence, $attribute, $linkToData): void
     {
         $manager = new EssenceAttributeManager($essence, $attribute,
             $linkToData);
@@ -251,7 +253,8 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $handler = new PrimitiveObtainment\Source($essence, $linkToData);
+        $handler = new PrimitiveObtainment\Source(
+            $essence, $linkToData);
         $this->checkSourceSetup($handler, $essence);
 
     }
@@ -269,7 +272,8 @@ class BusinessProcessTest extends TestCase
         (создать пирожки) */
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
-        $attributes = $this->getEssenceAttributes($essence, $linkToData);
+        $attributes = $this->getEssenceAttributes(
+            $essence, $linkToData);
 
         $codes = ['bun-with-jam', 'bun-with-raisins', 'cinnamon-bun'];
         foreach ($codes as $thing) {
@@ -324,7 +328,7 @@ class BusinessProcessTest extends TestCase
 
         $isSuccess = $handler->create();
         $this->assertTrue($isSuccess,
-            'Thing `' . $code . '`must be created with success');
+            "Thing ` $code ` must be created with success");
     }
 
     /**
@@ -340,8 +344,8 @@ class BusinessProcessTest extends TestCase
 
         $isSuccess = $handler->attach();
         $this->assertTrue($isSuccess,
-            "Atribute `$attribute` must be defined for thing `$thing`"
-            . 'with success');
+            "Atribute `$attribute` must be defined"
+            . " for thing `$thing` with success");
     }
 
     /**
@@ -358,8 +362,8 @@ class BusinessProcessTest extends TestCase
             $linkToData);
         $isSuccess = $manager->setUp();
         $this->assertTrue($isSuccess,
-            "Thing `$code` must be linked to essence `$essence`"
-            . 'with success');
+            "Thing `$code` must be linked"
+            . " to essence `$essence` with success");
         return $isSuccess;
     }
 
@@ -466,11 +470,12 @@ class BusinessProcessTest extends TestCase
 
         return $context;
     }
+
     /**
-     * @param string     $thing
-     * @param string     $attribute
+     * @param string $thing
+     * @param string $attribute
      * @param ICrossover $value
-     * @param PDO        $linkToData
+     * @param PDO $linkToData
      */
     private function defineContent(
         string $thing, string $attribute,
@@ -495,7 +500,8 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $source = new PrimitiveObtainment\Source($essence, $linkToData);
+        $source = new PrimitiveObtainment\Source(
+            $essence, $linkToData);
         $seeker = new Seeker($source);
         $this->checkShowAll($context, $seeker, $essence);
     }
@@ -512,7 +518,8 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $source = new PrimitiveObtainment\Source($essence, $linkToData);
+        $source = new PrimitiveObtainment\Source(
+            $essence, $linkToData);
         $seeker = new Seeker($source);
         $this->checkFilters($seeker, $essence);
     }
@@ -528,7 +535,8 @@ class BusinessProcessTest extends TestCase
         условиям поиска (поиск в представлении) */
         $essence = $context['essence'];
         $linkToData = $context['PDO'];
-        $source = new PrimitiveObtainment\Source($essence, $linkToData);
+        $source = new PrimitiveObtainment\Source(
+            $essence, $linkToData);
         $seeker = new Seeker($source);
 
         $this->checkSearch($context, $seeker);
@@ -693,7 +701,7 @@ class BusinessProcessTest extends TestCase
      * @param $handler
      * @param $essence
      */
-    private function checkSourceSetup(\AllThings\StorageEngine\Installation $handler,
+    private function checkSourceSetup(Installation $handler,
                                       string $essence): void
     {
         $result = $handler->setup();
@@ -712,11 +720,14 @@ class BusinessProcessTest extends TestCase
         $data = $seeker->filters();
 
         $this->assertTrue(count($data) === 2,
-            "Filters of essence `$essence` must have two types");
+            "Filters of essence `$essence`"
+            . ' must have two types');
         $this->assertTrue(array_key_exists('continuous', $data),
-            "Filters of essence `$essence` must have type continuous");
+            "Filters of essence `$essence`"
+            . ' must have type continuous');
         $this->assertTrue(array_key_exists('discrete', $data),
-            "Filters of essence `$essence` must have type discrete");
+            "Filters of essence `$essence`"
+            . ' must have type discrete');
 
         $filtersValue = 'a:2:{s:10:"continuous";a:4:{s:9:"max@price";s:4:"9.50";s:9:"min@price";s:5:"15.50";s:19:"max@production-date";s:13:"20180429T1356";s:19:"min@production-date";s:8:"20180427";}s:8:"discrete";a:1:{s:19:"place-of-production";a:2:{i:0;s:24:"Екатеринбург";i:1;s:18:"Челябинск";}}}';
         $this->assertTrue(serialize($data) === $filtersValue,
