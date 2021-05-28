@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 29.05.2021, 3:04
+ * 29.05.2021, 4:53
  */
 
 use AllThings\Content\ContentManager;
@@ -12,13 +12,13 @@ use AllThings\DataObject\Crossover;
 use AllThings\DataObject\DiscreteFilter;
 use AllThings\DataObject\ICrossover;
 use AllThings\DataObject\NamedEntity;
+use AllThings\DirectReading;
 use AllThings\Essence\Attribute;
 use AllThings\Essence\Essence;
 use AllThings\Essence\EssenceAttributeManager;
 use AllThings\Essence\EssenceThingManager;
-use AllThings\PrimitiveObtainment;
 use AllThings\RapidObtainment;
-use AllThings\RapidStorage;
+use AllThings\RapidRecording;
 use AllThings\SearchEngine\Seeker;
 use AllThings\StorageEngine\Installation;
 use Environment\DbConnection;
@@ -247,23 +247,6 @@ class BusinessProcessTest extends TestCase
      * @depends testDefineEssence
      *
      * @param array $context
-     */
-    public function testCreateView(array $context)
-    {
-        /* S001A4S02 создать представление */
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
-
-        $handler = new PrimitiveObtainment\Source(
-            $essence, $linkToData);
-        $this->checkSourceSetup($handler, $essence);
-
-    }
-
-    /**
-     * @depends testDefineEssence
-     *
-     * @param array $context
      *
      * @return array
      */
@@ -479,14 +462,35 @@ class BusinessProcessTest extends TestCase
      * @param PDO $linkToData
      */
     private function defineContent(
-        string $thing, string $attribute,
-        ICrossover $value, PDO $linkToData): void
-    {
+        string $thing,
+        string $attribute,
+        ICrossover $value,
+        PDO $linkToData
+    ): void {
         $handler = new ContentManager($value, $linkToData);
         $isSuccess = $handler->store($value);
-        $this->assertTrue($isSuccess,
+        $this->assertTrue(
+            $isSuccess,
             "Attribute `$attribute` of thing `$thing`"
-            . ' must be defined with success');
+            . ' must be defined with success'
+        );
+    }
+
+    /**
+     * @depends testDefineEssence
+     *
+     * @param array $context
+     */
+    public function testCreateView(array $context)
+    {
+        /* S001A4S02 создать представление */
+        $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+
+        $handler = new DirectReading\Source(
+            $essence, $linkToData
+        );
+        $this->checkSourceSetup($handler, $essence);
     }
 
     /**
@@ -494,15 +498,16 @@ class BusinessProcessTest extends TestCase
      *
      * @param array $context
      */
-    public function testShowAll(array $context)
+    public function testShowAllFromView(array $context)
     {
         /* ## S001A4S04 получить данные из представления
         (без фильтрации) */
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $source = new PrimitiveObtainment\Source(
-            $essence, $linkToData);
+        $source = new DirectReading\Source(
+            $essence, $linkToData
+        );
         $seeker = new Seeker($source);
         $this->checkShowAll($context, $seeker, $essence);
     }
@@ -512,15 +517,16 @@ class BusinessProcessTest extends TestCase
      *
      * @param array $context
      */
-    public function testGetFilters(array $context)
+    public function testGetFiltersForView(array $context)
     {
         /* ## S002A4S03 определить возможные условия для поиска
         (параметры фильтрации) */
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $source = new PrimitiveObtainment\Source(
-            $essence, $linkToData);
+        $source = new DirectReading\Source(
+            $essence, $linkToData
+        );
         $seeker = new Seeker($source);
         $this->checkFilters($seeker, $essence);
     }
@@ -530,14 +536,15 @@ class BusinessProcessTest extends TestCase
      *
      * @param array $context
      */
-    public function testSearch(array $context)
+    public function testSearchWithinView(array $context)
     {
         /* ## ## S002A4S04 сделать выборку экземпляров по заданным
         условиям поиска (поиск в представлении) */
         $essence = $context['essence'];
         $linkToData = $context['PDO'];
-        $source = new PrimitiveObtainment\Source(
-            $essence, $linkToData);
+        $source = new DirectReading\Source(
+            $essence, $linkToData
+        );
         $seeker = new Seeker($source);
 
         $this->checkSearch($context, $seeker);
@@ -564,7 +571,7 @@ class BusinessProcessTest extends TestCase
      *
      * @param array $context
      */
-    public function testShowAllOfMathView(array $context)
+    public function testShowAllFromMathView(array $context)
     {
         /* ## S001A4S04 получить данные из представления
         (без фильтрации) */
@@ -581,7 +588,7 @@ class BusinessProcessTest extends TestCase
      *
      * @param array $context
      */
-    public function testGetFiltersOfMathView(array $context)
+    public function testGetFiltersForMathView(array $context)
     {
         /* ## S002A4S03 определить возможные условия для поиска
         (параметры фильтрации) */
@@ -598,7 +605,7 @@ class BusinessProcessTest extends TestCase
      *
      * @param array $context
      */
-    public function testSearchIntoMathView(array $context)
+    public function testSearchWithinMathView(array $context)
     {
         /* ## ## S002A4S04 сделать выборку экземпляров по заданным
         условиям поиска (поиск в представлении) */
@@ -621,10 +628,61 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $handler = new RapidStorage\Source(
+        $handler = new RapidRecording\Source(
             $essence, $linkToData
         );
         $this->checkSourceSetup($handler, $essence);
+    }
+
+    /**
+     * @depends testDefineThings
+     *
+     * @param array $context
+     */
+    public function testShowAllFromTable(array $context)
+    {
+        /* ## S001A4S04 получить данные из представления
+        (без фильтрации) */
+        $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+
+        $source = new RapidRecording\Source($essence, $linkToData);
+        $seeker = new Seeker($source);
+        $this->checkShowAll($context, $seeker, $essence);
+    }
+
+    /**
+     * @depends testDefineThings
+     *
+     * @param array $context
+     */
+    public function testGetFiltersForTable(array $context)
+    {
+        /* ## S002A4S03 определить возможные условия для поиска
+        (параметры фильтрации) */
+        $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+
+        $source = new RapidRecording\Source($essence, $linkToData);
+        $seeker = new Seeker($source);
+        $this->checkFilters($seeker, $essence);
+    }
+
+    /**
+     * @depends testDefineThings
+     *
+     * @param array $context
+     */
+    public function testSearchWithinTable(array $context)
+    {
+        /* ## ## S002A4S04 сделать выборку экземпляров по заданным
+        условиям поиска (поиск в представлении) */
+        $essence = $context['essence'];
+        $linkToData = $context['PDO'];
+        $source = new RapidRecording\Source($essence, $linkToData);
+        $seeker = new Seeker($source);
+
+        $this->checkSearch($context, $seeker);
     }
 
     /**

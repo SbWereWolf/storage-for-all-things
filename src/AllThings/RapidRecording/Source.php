@@ -2,13 +2,12 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 29.05.2021, 3:04
+ * 29.05.2021, 4:53
  */
 
-namespace AllThings\RapidStorage;
+namespace AllThings\RapidRecording;
 
 
-use AllThings\DataObject\Searchable;
 use AllThings\Essence\Attribute;
 use AllThings\Essence\AttributeManager;
 use AllThings\Essence\EssenceAttributeManager;
@@ -83,23 +82,29 @@ class Source implements Installation
             }
         }
         $columns = [];
+        $columnNames = [];
         foreach ($attributes as $attribute) {
             /* @var IAttribute $attribute */
 
             $datatype = 'VARCHAR(255)';
-            switch ($attribute->getDataType()) {
-                case Searchable::DECIMAL:
-                    $datatype = 'NUMERIC(8,8)';
-                    break;
-                case Searchable::TIMESTAMP:
-                    $datatype = 'TIMESTAMP';
-                    break;
-            }
+            /*
+                        switch ($attribute->getDataType()) {
+                            case Searchable::DECIMAL:
+                                $datatype = 'NUMERIC(8,8)';
+                                break;
+                            case Searchable::TIMESTAMP:
+                                $datatype = 'TIMESTAMP';
+                                break;
+                        }
+            */
 
-            $columns[] = "\"{$attribute->getCode()}\" $datatype";
+            $code = $attribute->getCode();
+            $columns[] = "\"{$code}\" $datatype";
+            $columnNames[] = "\"{$code}\"";
         }
 
         $columnsPhase = implode(',', $columns);
+        $names = implode(',', $columnNames);
         $tablePrimaryKey = "{$essence}_pk";
 
         $ddl = "
@@ -107,11 +112,27 @@ CREATE TABLE {$this->name()}
 (
     thing_id integer REFERENCES thing (id), 
     constraint $tablePrimaryKey primary key (thing_id),
+    code VARCHAR(255) NOT NULL,
     $columnsPhase
 )
 ";
         $affected = $linkToData->exec($ddl);
         $result = $affected !== false;
+
+        if ($result) {
+            $view = new \AllThings\DirectReading\Source(
+                $this->getEssence(),
+                $this->getLinkToData()
+            );
+            /** @noinspection SqlInsertValues */
+            $ddl = "
+INSERT INTO {$this->name()}(thing_id,code,$names)
+SELECT id,code,$names
+FROM {$view->name()}
+";
+            $affected = $linkToData->exec($ddl);
+            $result = $affected !== false;
+        }
 
         return $result;
     }

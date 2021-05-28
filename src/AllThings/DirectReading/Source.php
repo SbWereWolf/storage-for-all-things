@@ -2,10 +2,10 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 29.05.2021, 3:04
+ * 29.05.2021, 4:53
  */
 
-namespace AllThings\PrimitiveObtainment;
+namespace AllThings\DirectReading;
 
 
 use AllThings\Essence\EssenceAttributeManager;
