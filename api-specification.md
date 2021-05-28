@@ -6,8 +6,9 @@
 - [Описание API](/api-specification.md)
 # Соглашения
 
-The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”, “SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and
-“OPTIONAL” in this document are to be interpreted as described in
+The key words “MUST”, “MUST NOT”, “REQUIRED”, “SHALL”, “SHALL NOT”,
+“SHOULD”, “SHOULD NOT”, “RECOMMENDED”, “MAY”, and“OPTIONAL” in this
+document are to be interpreted as described in
 [RFC 2119](http://tools.ietf.org/html/rfc2119]).
 
 
@@ -94,9 +95,11 @@ attribute-code
 ```
 ## essence-attribute - характеристики сущностей (набор атрибутов свойственных типу предметов)
 
-POST '/essence-attribute/{essence-code}/{attribute-code}' link essence with attribute
+POST '/essence-attribute/{essence-code}/{attribute-code}' link essence
+with attribute
 
-DELETE '/essence-attribute/{essence-code}/{attribute-code}' unlink essence and attribute
+DELETE '/essence-attribute/{essence-code}/{attribute-code}' unlink
+essence and attribute
 
 GET '/essence-attribute/{essence-code}' get all attributes of essence
 ```
@@ -125,9 +128,11 @@ remark => value
 ```
 ## essence-thing - предметы сущностей (набор предметов одного типа)
 
-POST '/essence-thing/{essence-code}/{thing-code}' link essence with thing
+POST '/essence-thing/{essence-code}/{thing-code}' link essence with
+thing
 
-DELETE '/essence-thing/{essence-code}/{thing-code}' unlink essence and thing
+DELETE '/essence-thing/{essence-code}/{thing-code}' unlink essence and
+thing
 
 GET '/essence-thing/{essence-code}' get all thing of essence
 ```
@@ -161,7 +166,8 @@ body MUST have value for content of the attribute of the thing :
 content => value 
 ```
 
-GET '/thing-attribute/essence-code/{essence-code}/filter/{filter}' search
+GET '/thing-attribute/essence-code/{essence-code}/filter/{filter}'
+search
 ```
 call parameters is :
 essence-code => strict equality
