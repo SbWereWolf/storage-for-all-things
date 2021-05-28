@@ -1,8 +1,8 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * Copyright © 2020 Volkhin Nikolay
- * 18.04.2020, 20:20
+ * Copyright © 2021 Volkhin Nikolay
+ * 29.05.2021, 3:04
  */
 
 use AllThings\Content\ContentManager;
@@ -18,6 +18,7 @@ use AllThings\Essence\EssenceAttributeManager;
 use AllThings\Essence\EssenceThingManager;
 use AllThings\PrimitiveObtainment;
 use AllThings\RapidObtainment;
+use AllThings\RapidStorage;
 use AllThings\SearchEngine\Seeker;
 use AllThings\StorageEngine\Installation;
 use Environment\DbConnection;
@@ -610,6 +611,23 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * @depends testDefineEssence
+     *
+     * @param array $context
+     */
+    public function testCreateTable(array $context)
+    {
+        /* S001A4S02 создать представление */
+        $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+
+        $handler = new RapidStorage\Source(
+            $essence, $linkToData
+        );
+        $this->checkSourceSetup($handler, $essence);
+    }
+
+    /**
      * @depends testInit
      *
      * @param array $context
@@ -641,10 +659,6 @@ class BusinessProcessTest extends TestCase
 
         $thingTested = 0;
         foreach ($data as $thing) {
-            $isEnough = count($thing) === 4;
-            $this->assertTrue($isEnough,
-                "Each thing of essence `$essence`"
-                . ' must have four attributes');
 
             $code = $thing['code'];
             switch ($code) {

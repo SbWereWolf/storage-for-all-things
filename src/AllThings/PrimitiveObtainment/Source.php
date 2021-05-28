@@ -1,8 +1,8 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * Copyright © 2019 Volkhin Nikolay
- * 01.10.2019, 0:41
+ * Copyright © 2021 Volkhin Nikolay
+ * 29.05.2021, 3:04
  */
 
 namespace AllThings\PrimitiveObtainment;
@@ -63,6 +63,7 @@ WHERE
         $selectPhase = implode(",", $columns);
         $contentRequest = "
 SELECT
+    T.id AS id,
     T.code AS code,
     $selectPhase
 FROM
