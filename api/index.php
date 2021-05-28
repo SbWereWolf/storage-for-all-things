@@ -1,5 +1,9 @@
 <?php
-
+/*
+ * storage-for-all-things
+ * Copyright © 2021 Volkhin Nikolay
+ * 29.05.2021, 3:01
+ */
 
 use AllThings\Content\ContentManager;
 use AllThings\DataAccess\Manager\NamedEntityManager;
@@ -453,6 +457,7 @@ $app->get('/attribute/{code}', function (Request $request, Response $response, a
     $parameter = (new ToAttributeEntity($request, $arguments))->fromGet();
 
     $subject = Attribute::GetDefaultAttribute();
+    $subject->setCode($parameter);
     $dataPath = (new DbConnection())->getForRead();
     $handler = new AllThings\Essence\AttributeManager($subject, $dataPath);
 
