@@ -67,15 +67,15 @@
 
 движок поиска
 
-## A4 primitive obtainment
+## A4 direct reading
 
-примитивный поиск (view)
+прямое чтение (view)
 
 ## A5 rapid obtainment
 
-быстрый поиска (materialized view)
+быстрое получение (materialized view)
 
-## A6 rapid storage
+## A6 rapid recording
 
 быстрая запись (table)
 

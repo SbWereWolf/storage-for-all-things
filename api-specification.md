@@ -160,6 +160,7 @@ PUT '/thing-attribute/{thing-code}/{attribute-code}' change
 body MUST have value for content of the attribute of the thing :
 content => value 
 ```
+
 GET '/thing-attribute/essence-code/{essence-code}/filter/{filter}' search
 ```
 call parameters is :
