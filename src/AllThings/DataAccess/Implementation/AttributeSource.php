@@ -1,8 +1,8 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * Copyright © 2018 Volkhin Nikolay
- * 23.05.18 0:35
+ * Copyright © 2021 Volkhin Nikolay
+ * 29.05.2021, 2:55
  */
 
 
@@ -38,18 +38,9 @@ class AttributeSource implements AttributeReader
             . ' where code=:target_code';
         $connection = $this->dataSource;
 
-        $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
         $query->bindParam(':target_code', $targetCode);
         $result = $query->execute();
-
-        $isSuccess = $result === true;
-        if ($isSuccess) {
-            $result = $connection->commit();
-        }
-        if (!$isSuccess) {
-            $connection->rollBack();
-        }
 
         $data = null;
         $isSuccess = $result === true;

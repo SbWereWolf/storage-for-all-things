@@ -1,4 +1,10 @@
 <?php
+/*
+ * storage-for-all-things
+ * Copyright © 2021 Volkhin Nikolay
+ * 29.05.2021, 2:55
+ */
+
 /**
  * storage-for-all-things
  * © Volkhin Nikolay M., 2018
@@ -102,11 +108,9 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
 
     function read(): bool
     {
-        $target = $this->setAttributeByCode($code);
+        $result = ($this->getAttributeSource())->select($this->attribute);
 
-        $result = ($this->getAttributeSource())->select($target);
-
-        $this->setAttribute($result, $target);
+        $this->setAttribute($result, $this->attribute);
 
         return $result;
 
