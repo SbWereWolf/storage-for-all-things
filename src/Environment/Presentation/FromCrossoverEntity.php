@@ -14,7 +14,7 @@ class FromCrossoverEntity implements Jsonable
 {
     private $crossover = null;
 
-    function __construct(ICrossover $crossover)
+    public function __construct(ICrossover $crossover)
     {
         $this->crossover = $crossover;
     }

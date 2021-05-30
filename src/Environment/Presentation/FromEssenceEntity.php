@@ -10,7 +10,7 @@ class FromEssenceEntity implements Jsonable
 {
     private $entity = null;
 
-    function __construct(IEssence $entity)
+    public function __construct(IEssence $entity)
     {
         $this->entity = $entity;
     }

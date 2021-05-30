@@ -25,7 +25,7 @@ class NamedEntityManager implements INamedEntityManager
         $this->storageLocation = $storageLocation;
     }
 
-    function create(): bool
+    public function create(): bool
     {
         $handler = $this->getHandler();
 
@@ -56,7 +56,7 @@ class NamedEntityManager implements INamedEntityManager
         $this->subject = $handler->retrieveData();
     }
 
-    function remove(): bool
+    public function remove(): bool
     {
         $handler = $this->getHandler();
 
@@ -67,7 +67,7 @@ class NamedEntityManager implements INamedEntityManager
         return $result;
     }
 
-    function correct(string $targetIdentity): bool
+    public function correct(string $targetIdentity): bool
     {
         $handler = $this->getHandler();
 
@@ -78,7 +78,7 @@ class NamedEntityManager implements INamedEntityManager
         return $result;
     }
 
-    function browse(): bool
+    public function browse(): bool
     {
         $handler = $this->getHandler();
 
@@ -89,14 +89,14 @@ class NamedEntityManager implements INamedEntityManager
         return $result;
     }
 
-    function retrieveData(): Nameable
+    public function retrieveData(): Nameable
     {
         $nameable = $this->subject->getNameableCopy();
 
         return $nameable;
     }
 
-    function has(): bool
+    public function has(): bool
     {
         return !is_null($this->subject);
     }

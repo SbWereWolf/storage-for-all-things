@@ -8,6 +8,8 @@
 namespace AllThings\StorageEngine;
 
 
+use PDO;
+
 interface Installation
 {
     /**
@@ -28,7 +30,7 @@ interface Installation
     public function getEssence(): string;
 
     /**
-     * @return \PDO
+     * @return PDO
      */
-    public function getLinkToData(): \PDO;
+    public function getLinkToData(): PDO;
 }

@@ -36,7 +36,7 @@ class ContentManager implements CrossoverManager, Retrievable
     }
 
 
-    function attach(): bool
+    public function attach(): bool
     {
         $handler = $this->getHandler();
 
@@ -52,7 +52,7 @@ class ContentManager implements CrossoverManager, Retrievable
         return $handler;
     }
 
-    function store(ICrossover $crossover): bool
+    public function store(ICrossover $crossover): bool
     {
         $handler = $this->getHandler();
 
@@ -64,7 +64,7 @@ class ContentManager implements CrossoverManager, Retrievable
     }
 
     /**
-     * @param bool             $result
+     * @param bool $result
      * @param CrossoverHandler $handler
      */
     private function loadContainer(bool $result, CrossoverHandler $handler): void
@@ -75,7 +75,7 @@ class ContentManager implements CrossoverManager, Retrievable
         }
     }
 
-    function take(ICrossover $crossover): bool
+    public function take(ICrossover $crossover): bool
     {
         $handler = $this->getHandler();
 
@@ -86,14 +86,14 @@ class ContentManager implements CrossoverManager, Retrievable
         return $result;
     }
 
-    function retrieveData(): ICrossover
+    public function retrieveData(): ICrossover
     {
         $data = $this->container->getCrossoverCopy();
 
         return $data;
     }
 
-    function has(): bool
+    public function has(): bool
     {
         return !is_null($this->container);
     }

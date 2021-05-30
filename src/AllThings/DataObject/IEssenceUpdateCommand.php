@@ -12,8 +12,8 @@ use AllThings\Essence\IEssence;
 
 interface IEssenceUpdateCommand
 {
-    function getParameter(): string;
+    public function getParameter(): string;
 
-    function getSubject(): IEssence;
+    public function getSubject(): IEssence;
 
 }

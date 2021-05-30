@@ -21,14 +21,13 @@ class EssenceSource implements EssenceReader
      */
     private $dataSource;
 
-    function __construct(string $table, PDO $dataSource)
+    public function __construct(string $table, PDO $dataSource)
     {
-
         $this->tableName = $table;
         $this->dataSource = $dataSource;
     }
 
-    function select(IEssence $entity): bool
+    public function select(IEssence $entity): bool
     {
         $target_code = $entity->getCode();
 
@@ -44,7 +43,6 @@ class EssenceSource implements EssenceReader
         $data = null;
         $isSuccess = $result === true;
         if ($isSuccess) {
-
             $data = $query->fetchAll();
         }
 
@@ -53,7 +51,6 @@ class EssenceSource implements EssenceReader
             $result = false;
         }
         if ($isSuccess) {
-
             $row = $data[0];
 
             $code = $row['code'];
@@ -65,7 +62,6 @@ class EssenceSource implements EssenceReader
             $entity->setTitle($title);
             $entity->setRemark($remark);
             $entity->setStoreAt($storeAt);
-
         }
 
         return $result;

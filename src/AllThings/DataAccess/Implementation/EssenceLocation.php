@@ -21,14 +21,13 @@ class EssenceLocation implements EssenceWriter
      */
     private $storageLocation;
 
-    function __construct(string $table, PDO $storageLocation)
+    public function __construct(string $table, PDO $storageLocation)
     {
-
         $this->tableName = $table;
         $this->storageLocation = $storageLocation;
     }
 
-    function insert(IEssence $entity): bool
+    public function insert(IEssence $entity): bool
     {
         $suggestion_code = $entity->getCode();
 
@@ -41,10 +40,9 @@ class EssenceLocation implements EssenceWriter
         $result = $query->execute();
 
         return $result;
-
     }
 
-    function setIsHidden(IEssence $entity): bool
+    public function setIsHidden(IEssence $entity): bool
     {
         $target_code = $entity->getCode();
 

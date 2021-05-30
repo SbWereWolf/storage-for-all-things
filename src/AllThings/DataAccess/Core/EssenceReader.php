@@ -13,5 +13,5 @@ use AllThings\Essence\IEssence;
 interface EssenceReader
 {
 
-    function select(IEssence $entity): bool;
+    public function select(IEssence $entity): bool;
 }

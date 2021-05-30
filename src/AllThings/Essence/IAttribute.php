@@ -14,7 +14,7 @@ use AllThings\DataObject\Searchable;
 interface IAttribute extends Nameable, Searchable
 {
 
-    static function GetDefaultAttribute(): IAttribute;
+    public static function GetDefaultAttribute(): IAttribute;
 
-    function GetAttributeCopy(): IAttribute;
+    public function GetAttributeCopy(): IAttribute;
 }

@@ -29,7 +29,7 @@ class EssenceAttributeHandler implements Linkable, Retrievable
         $this->dataPath = $dataPath;
     }
 
-    function add(array $linkage): bool
+    public function add(array $linkage): bool
     {
         $storageLocation = $this->getStorageLocation();
 
@@ -48,7 +48,7 @@ class EssenceAttributeHandler implements Linkable, Retrievable
         return $storageLocation;
     }
 
-    function remove(array $linkage): bool
+    public function remove(array $linkage): bool
     {
         $storageLocation = $this->getStorageLocation();
 
@@ -57,7 +57,7 @@ class EssenceAttributeHandler implements Linkable, Retrievable
         return $result;
     }
 
-    function getRelated(array $linkage): bool
+    public function getRelated(array $linkage): bool
     {
         $dataSource = $this->getDataSource();
 
@@ -81,14 +81,14 @@ class EssenceAttributeHandler implements Linkable, Retrievable
         return $dataSource;
     }
 
-    function retrieveData(): array
+    public function retrieveData(): array
     {
         $result = $this->dataSet;
 
         return $result;
     }
 
-    function has(): bool
+    public function has(): bool
     {
         return !is_null($this->dataSet);
     }

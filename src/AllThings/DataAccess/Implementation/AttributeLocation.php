@@ -18,14 +18,13 @@ class AttributeLocation implements AttributeWriter
     private $tableName = '';
     private $storageLocation = null;
 
-    function __construct(string $table, PDO $storageLocation)
+    public function __construct(string $table, PDO $storageLocation)
     {
-
         $this->tableName = $table;
         $this->storageLocation = $storageLocation;
     }
 
-    function insert(IAttribute $entity): bool
+    public function insert(IAttribute $entity): bool
     {
         $suggestion_code = $entity->getCode();
 
@@ -40,7 +39,7 @@ class AttributeLocation implements AttributeWriter
         return $result;
     }
 
-    function setIsHidden(IAttribute $entity): bool
+    public function setIsHidden(IAttribute $entity): bool
     {
         $target_code = $entity->getCode();
 
@@ -55,7 +54,7 @@ class AttributeLocation implements AttributeWriter
         return $result;
     }
 
-    function update(IAttribute $target_entity, IAttribute $suggestion_entity): bool
+    public function update(IAttribute $target_entity, IAttribute $suggestion_entity): bool
     {
         $target_code = $target_entity->getCode();
         $suggestionCode = $suggestion_entity->getCode();

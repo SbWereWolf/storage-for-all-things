@@ -15,49 +15,49 @@ class NamedEntity implements Nameable
     private $title = '';
     private $remark = '';
 
-    function getCode(): string
+    public function getCode(): string
     {
         $code = $this->code;
 
         return $code;
     }
 
-    function setCode(string $value): Nameable
+    public function setCode(string $value): Nameable
     {
         $this->code = $value;
 
         return $this;
     }
 
-    function getTitle(): string
+    public function getTitle(): string
     {
         $title = $this->title;
 
         return $title;
     }
 
-    function setTitle(string $value): Nameable
+    public function setTitle(string $value): Nameable
     {
         $this->title = $value;
 
         return $this;
     }
 
-    function getRemark(): string
+    public function getRemark(): string
     {
         $remark = $this->remark;
 
         return $remark;
     }
 
-    function setRemark(string $value): Nameable
+    public function setRemark(string $value): Nameable
     {
         $this->remark = $value;
 
         return $this;
     }
 
-    function getNameableCopy(): Nameable
+    public function getNameableCopy(): Nameable
     {
         $copy = new NamedEntity();
         $copy->setCode($this->code)->setTitle($this->title)->setRemark($this->remark);

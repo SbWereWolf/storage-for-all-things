@@ -15,8 +15,8 @@ use PDO;
 
 class EssenceAttributeSource implements ColumnReader, Retrievable
 {
-    const ESSENCE_IDENTIFIER = 'essence';
-    const ATTRIBUTE_IDENTIFIER = 'attribute';
+    public const ESSENCE_IDENTIFIER = 'essence';
+    public const ATTRIBUTE_IDENTIFIER = 'attribute';
     private $essenceKey = null;
     private $attributeKey = null;
     private $dataSource;
@@ -29,7 +29,7 @@ class EssenceAttributeSource implements ColumnReader, Retrievable
         $this->dataSource = $dataSource;
     }
 
-    function select(array $linkage): bool
+    public function select(array $linkage): bool
     {
         $essenceTable = $this->essenceKey->getTable();
         $essenceColumn = $this->essenceKey->getColumn();
@@ -57,7 +57,6 @@ order by 1";
         $data = null;
         $isSuccess = $result === true;
         if ($isSuccess) {
-
             $data = $query->fetchAll();
         }
 
@@ -66,24 +65,22 @@ order by 1";
             $result = false;
         }
         if ($isSuccess) {
-
             foreach ($data as $row) {
                 $this->dataSet[] = $row['code'];
             }
-
         }
 
         return $result;
     }
 
-    function retrieveData(): array
+    public function retrieveData(): array
     {
         $result = $this->dataSet;
 
         return $result;
     }
 
-    function has(): bool
+    public function has(): bool
     {
         return !is_null($this->dataSet);
     }

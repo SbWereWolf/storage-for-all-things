@@ -14,21 +14,21 @@ class Storage implements Storable
 
     private $storeAt = '';
 
-    function getStoreAt(): string
+    public function getStoreAt(): string
     {
         $storeAt = $this->storeAt;
 
         return $storeAt;
     }
 
-    function setStoreAt(string $value): Storable
+    public function setStoreAt(string $value): Storable
     {
         $this->storeAt = $value;
 
         return $this;
     }
 
-    function getStorableCopy(): Storable
+    public function getStorableCopy(): Storable
     {
         $copy = new Storage();
         $copy->setStoreAt($this->storeAt);

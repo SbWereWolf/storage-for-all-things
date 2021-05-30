@@ -19,14 +19,14 @@ class ContentUpdateCommand implements IContentUpdateCommand
         $this->subject = $subject;
     }
 
-    function getParameter(): ICrossover
+    public function getParameter(): ICrossover
     {
         $parameter = $this->parameter;
 
         return $parameter;
     }
 
-    function getSubject(): ICrossover
+    public function getSubject(): ICrossover
     {
         $result = $this->subject->getCrossoverCopy();
 

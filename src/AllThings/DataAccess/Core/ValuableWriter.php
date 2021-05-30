@@ -13,9 +13,9 @@ use AllThings\DataObject\Nameable;
 interface ValuableWriter
 {
 
-    function insert(Nameable $entity): bool;
+    public function insert(Nameable $entity): bool;
 
-    function setIsHidden(Nameable $entity): bool;
+    public function setIsHidden(Nameable $entity): bool;
 
-    function update(Nameable $target_entity, Nameable $suggestion_entity): bool;
+    public function update(Nameable $target_entity, Nameable $suggestion_entity): bool;
 }

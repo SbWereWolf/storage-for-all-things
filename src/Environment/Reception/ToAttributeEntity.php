@@ -24,21 +24,21 @@ class ToAttributeEntity implements ToAttribute
         $this->arguments = $arguments;
     }
 
-    function fromPost(): string
+    public function fromPost(): string
     {
         $code = $this->arguments['code'];
 
         return $code;
     }
 
-    function fromGet(): string
+    public function fromGet(): string
     {
         $code = $this->arguments['code'];
 
         return $code;
     }
 
-    function fromPut(): IAttributeUpdateCommand
+    public function fromPut(): IAttributeUpdateCommand
     {
         $request = $this->request;
         $body = $request->getParsedBody();

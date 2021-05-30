@@ -15,8 +15,8 @@ use PDO;
 class EssenceAttributeLocation implements PrimitiveWriter
 {
 
-    const ESSENCE_IDENTIFIER = 'essence';
-    const ATTRIBUTE_IDENTIFIER = 'attribute';
+    public const ESSENCE_IDENTIFIER = 'essence';
+    public const ATTRIBUTE_IDENTIFIER = 'attribute';
     private $essenceKey = '';
     private $attributeKey = '';
     private $storageLocation;
@@ -28,7 +28,7 @@ class EssenceAttributeLocation implements PrimitiveWriter
         $this->storageLocation = $storageLocation;
     }
 
-    function insert(array $linkage): bool
+    public function insert(array $linkage): bool
     {
         $essenceTable = $this->essenceKey->getTable();
         $essenceColumn = $this->essenceKey->getColumn();
@@ -56,7 +56,7 @@ class EssenceAttributeLocation implements PrimitiveWriter
         return $result;
     }
 
-    function delete(array $linkage): bool
+    public function delete(array $linkage): bool
     {
         $essenceTable = $this->essenceKey->getTable();
         $essenceColumn = $this->essenceKey->getColumn();

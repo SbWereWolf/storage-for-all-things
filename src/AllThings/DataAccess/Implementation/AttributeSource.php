@@ -22,14 +22,13 @@ class AttributeSource implements AttributeReader
      */
     private $dataSource;
 
-    function __construct(string $table, PDO $dataSource)
+    public function __construct(string $table, PDO $dataSource)
     {
-
         $this->tableName = $table;
         $this->dataSource = $dataSource;
     }
 
-    function select(IAttribute $entity): bool
+    public function select(IAttribute $entity): bool
     {
         $targetCode = $entity->getCode();
 
@@ -45,7 +44,6 @@ class AttributeSource implements AttributeReader
         $data = null;
         $isSuccess = $result === true;
         if ($isSuccess) {
-
             $data = $query->fetchAll();
         }
 
@@ -54,7 +52,6 @@ class AttributeSource implements AttributeReader
             $result = false;
         }
         if ($isSuccess) {
-
             $row = $data[0];
 
             $code = $row['code'];
@@ -68,7 +65,6 @@ class AttributeSource implements AttributeReader
             $entity->setRemark($remark);
             $entity->setDataType($dataType);
             $entity->setRangeType($rangeType);
-
         }
 
         return $result;

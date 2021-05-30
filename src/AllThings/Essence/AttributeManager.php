@@ -23,9 +23,8 @@ class AttributeManager implements IAttributeManager
         $this->dataPath = $dataPath;
     }
 
-    function create(): bool
+    public function create(): bool
     {
-
         $handler = $this->getHandler();
 
         $result = $handler->add();
@@ -48,7 +47,7 @@ class AttributeManager implements IAttributeManager
     }
 
     /**
-     * @param bool                   $isSuccess
+     * @param bool $isSuccess
      * @param AttributeRecordHandler $handler
      */
     private function setSubject(bool $isSuccess, AttributeRecordHandler $handler): void
@@ -56,10 +55,9 @@ class AttributeManager implements IAttributeManager
         if ($isSuccess) {
             $this->subject = $handler->retrieveData();
         }
-
     }
 
-    function remove(): bool
+    public function remove(): bool
     {
         $handler = $this->getHandler();
 
@@ -70,7 +68,7 @@ class AttributeManager implements IAttributeManager
         return $result;
     }
 
-    function correct(string $targetIdentity): bool
+    public function correct(string $targetIdentity): bool
     {
         $handler = $this->getHandler();
 
@@ -81,7 +79,7 @@ class AttributeManager implements IAttributeManager
         return $result;
     }
 
-    function browse(): bool
+    public function browse(): bool
     {
         $handler = $this->getHandler();
 
@@ -92,14 +90,14 @@ class AttributeManager implements IAttributeManager
         return $result;
     }
 
-    function retrieveData(): IAttribute
+    public function retrieveData(): IAttribute
     {
         $data = $this->subject->GetAttributeCopy();
 
         return $data;
     }
 
-    function has(): bool
+    public function has(): bool
     {
         return !is_null($this->subject);
     }

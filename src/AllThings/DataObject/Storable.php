@@ -12,9 +12,9 @@ namespace AllThings\DataObject;
 interface Storable
 {
 
-    function getStoreAt(): string;
+    public function getStoreAt(): string;
 
-    function setStoreAt(string $value): Storable;
+    public function setStoreAt(string $value): Storable;
 
-    function getStorableCopy(): Storable;
+    public function getStorableCopy(): Storable;
 }

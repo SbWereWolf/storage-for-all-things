@@ -11,8 +11,8 @@ namespace AllThings\DataObject;
 
 interface IEssenceAttributeCommand
 {
-    function getEssenceIdentifier();
+    public function getEssenceIdentifier();
 
-    function getAttributeIdentifier();
+    public function getAttributeIdentifier();
 
 }

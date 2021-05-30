@@ -23,21 +23,21 @@ class ForeignKey implements IForeignKey
         $this->table = $table;
     }
 
-    function getTable(): string
+    public function getTable(): string
     {
         $result = $this->table;
 
         return $result;
     }
 
-    function getColumn(): string
+    public function getColumn(): string
     {
         $result = $this->column;
 
         return $result;
     }
 
-    function getIndex(): string
+    public function getIndex(): string
     {
         $result = $this->index;
 

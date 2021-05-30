@@ -30,7 +30,7 @@ class CrossoverLocation implements CrossoverWriter
         $this->leftKey = $leftKey;
     }
 
-    function insert(ICrossover $entity): bool
+    public function insert(ICrossover $entity): bool
     {
         $suggestionRightValue = $entity->getRightValue();
         $suggestionLeftValue = $entity->getLeftValue();
@@ -63,7 +63,7 @@ select $rightKeyColumn from $rightKeyTable where $rightKeyIndex = :right_value
         return $result;
     }
 
-    function update(ICrossover $targetEntity, ICrossover $suggestionEntity): bool
+    public function update(ICrossover $targetEntity, ICrossover $suggestionEntity): bool
     {
         $targetRightValue = $targetEntity->getRightValue();
         $targetLeftValue = $targetEntity->getLeftValue();

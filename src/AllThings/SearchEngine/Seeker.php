@@ -199,7 +199,6 @@ WHERE
         if ($isSuccess && isset($cursor)) {
             $range = $cursor->fetchAll();
             $isSuccess = count($range) !== 0;
-
         }
 
         $data = [];

@@ -14,7 +14,7 @@ use PDO;
 
 class Source implements Installation
 {
-    const STRUCTURE_PREFIX = 'auto_mv_';
+    public const STRUCTURE_PREFIX = 'auto_mv_';
 
     private $essence = '';
     /**
@@ -66,7 +66,6 @@ class Source implements Installation
 
         $columns = [];
         foreach ($attributes as $attribute) {
-
             $column = "
 SELECT
     C.content
@@ -79,7 +78,6 @@ WHERE
     AND C.thing_id = ET.thing_id
 ";
             $columns[$attribute] = "($column) AS \"$attribute\"";
-
         }
 
         $selectPhase = implode(",", $columns);

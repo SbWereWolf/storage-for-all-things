@@ -21,14 +21,13 @@ class DataSource implements ValuableReader
      */
     private $dataSource;
 
-    function __construct(string $table, PDO $dataSource)
+    public function __construct(string $table, PDO $dataSource)
     {
-
         $this->tableName = $table;
         $this->dataSource = $dataSource;
     }
 
-    function select(Nameable $entity): bool
+    public function select(Nameable $entity): bool
     {
         $target_code = $entity->getCode();
 
@@ -53,7 +52,6 @@ class DataSource implements ValuableReader
         $data = null;
         $isSuccess = $result === true;
         if ($isSuccess) {
-
             $data = $query->fetchAll();
         }
 
@@ -62,7 +60,6 @@ class DataSource implements ValuableReader
             $result = false;
         }
         if ($isSuccess) {
-
             $row = $data[0];
 
             $code = $row['code'];
@@ -72,7 +69,6 @@ class DataSource implements ValuableReader
             $entity->setCode($code);
             $entity->setTitle($title);
             $entity->setRemark($remark);
-
         }
 
         return $result;

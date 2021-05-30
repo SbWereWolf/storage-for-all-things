@@ -12,8 +12,8 @@ use AllThings\Essence\IAttribute;
 
 interface IAttributeUpdateCommand
 {
-    function getParameter(): string;
+    public function getParameter(): string;
 
-    function getSubject(): IAttribute;
+    public function getSubject(): IAttribute;
 
 }

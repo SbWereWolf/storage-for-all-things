@@ -13,9 +13,9 @@ use AllThings\Essence\IAttribute;
 interface AttributeWriter
 {
 
-    function insert(IAttribute $entity): bool;
+    public function insert(IAttribute $entity): bool;
 
-    function setIsHidden(IAttribute $entity): bool;
+    public function setIsHidden(IAttribute $entity): bool;
 
-    function update(IAttribute $target_entity, IAttribute $suggestion_entity): bool;
+    public function update(IAttribute $target_entity, IAttribute $suggestion_entity): bool;
 }

@@ -18,11 +18,11 @@ namespace AllThings\DataAccess\Manager;
 interface DataManager
 {
 
-    function create(): bool;
+    public function create(): bool;
 
-    function remove(): bool;
+    public function remove(): bool;
 
-    function correct(string $targetIdentity): bool;
+    public function correct(string $targetIdentity): bool;
 
-    function browse(): bool;
+    public function browse(): bool;
 }

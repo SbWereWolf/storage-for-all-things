@@ -21,35 +21,35 @@ class SearchTerm implements Searchable
         $this->rangeType = self::UNDEFINED;
     }
 
-    function getDataType(): string
+    public function getDataType(): string
     {
         $result = $this->dataType;
 
         return $result;
     }
 
-    function setDataType(string $value): Searchable
+    public function setDataType(string $value): Searchable
     {
         $this->dataType = $value;
 
         return $this;
     }
 
-    function getRangeType(): string
+    public function getRangeType(): string
     {
         $result = $this->rangeType;
 
         return $result;
     }
 
-    function setRangeType(string $value): Searchable
+    public function setRangeType(string $value): Searchable
     {
         $this->rangeType = $value;
 
         return $this;
     }
 
-    function getSearchableCopy(): Searchable
+    public function getSearchableCopy(): Searchable
     {
         $copy = (new SearchTerm())->setDataType($this->dataType)->setRangeType($this->rangeType);
 

@@ -13,9 +13,9 @@ use AllThings\Essence\IEssence;
 interface EssenceWriter
 {
 
-    function insert(IEssence $entity): bool;
+    public function insert(IEssence $entity): bool;
 
-    function setIsHidden(IEssence $entity): bool;
+    public function setIsHidden(IEssence $entity): bool;
 
-    function update(IEssence $target_entity, IEssence $suggestion_entity): bool;
+    public function update(IEssence $target_entity, IEssence $suggestion_entity): bool;
 }

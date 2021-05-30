@@ -21,14 +21,14 @@ class NamedRecordHandler implements Valuable, Hideable, Retrievable
     private $table = '';
     private $container = null;
 
-    function __construct(Nameable $named, string $tableName, PDO $dataPath)
+    public function __construct(Nameable $named, string $tableName, PDO $dataPath)
     {
         $this->container = $named->getNameableCopy();
         $this->dataPath = $dataPath;
         $this->table = $tableName;
     }
 
-    function add(): bool
+    public function add(): bool
     {
         $entity = $this->container->getNameableCopy();
 
@@ -39,69 +39,59 @@ class NamedRecordHandler implements Valuable, Hideable, Retrievable
         }
 
         return $result;
-
     }
 
     private function getStorageLocation(): StorageLocation
     {
-
         $repository = new StorageLocation($this->table, $this->dataPath);
         return $repository;
     }
 
-    function hide(): bool
+    public function hide(): bool
     {
-
         $entity = $this->container->getNameableCopy();
 
         $result = ($this->getStorageLocation())->setIsHidden($entity);
 
         return $result;
-
     }
 
-    function write(string $code): bool
+    public function write(string $code): bool
     {
-
         $entity = (new NamedEntity())->setCode($code);
 
         $result = ($this->getStorageLocation())->update($entity, $this->container);
 
         return $result;
-
     }
 
-    function read(): bool
+    public function read(): bool
     {
-
         $entity = (new NamedEntity())->setCode($code);
 
         $result = ($this->getDataSource())->select($entity);
 
         if ($result) {
-
             $this->container = $entity->getNameableCopy();
         }
 
         return $result;
-
     }
 
     private function getDataSource(): DataSource
     {
-
         $repository = new DataSource($this->table, $this->dataPath);
         return $repository;
     }
 
-    function retrieveData(): Nameable
+    public function retrieveData(): Nameable
     {
         $data = $this->container->getNameableCopy();
 
         return $data;
     }
 
-    function has(): bool
+    public function has(): bool
     {
         return !is_null($this->container);
     }

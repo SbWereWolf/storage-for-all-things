@@ -14,6 +14,6 @@ use AllThings\DataAccess\Manager\DataManager;
 interface IEssenceManager extends DataManager, Retrievable
 {
 
-    function retrieveData(): IEssence;
+    public function retrieveData(): IEssence;
 
 }

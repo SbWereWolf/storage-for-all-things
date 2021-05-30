@@ -13,9 +13,9 @@ use PDO;
 interface Connection
 {
 
-    function getForWrite(): PDO;
+    public function getForWrite(): PDO;
 
-    function getForRead(): PDO;
+    public function getForRead(): PDO;
 
-    function getForDelete(): PDO;
+    public function getForDelete(): PDO;
 }

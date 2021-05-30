@@ -17,7 +17,7 @@ class DbConnection implements Connection
     private $dbLogin = '';
     private $dbPassword = '';
 
-    function getForWrite(): PDO
+    public function getForWrite(): PDO
     {
         $dbCredentials = DbCredentials::getWriterCredentials();
 
@@ -58,7 +58,7 @@ class DbConnection implements Connection
         return $connection;
     }
 
-    function getForDelete(): PDO
+    public function getForDelete(): PDO
     {
         $dbCredentials = DbCredentials::getDeleteCredentials();
 
@@ -67,7 +67,7 @@ class DbConnection implements Connection
         return $connection;
     }
 
-    function getForRead(): PDO
+    public function getForRead(): PDO
     {
         $dbCredentials = DbCredentials::getReaderCredentials();
 

@@ -11,5 +11,5 @@ namespace AllThings\DataAccess\Core;
 interface ColumnReader
 {
 
-    function select(array $linkage): bool;
+    public function select(array $linkage): bool;
 }

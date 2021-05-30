@@ -20,11 +20,11 @@ interface Retrievable
      * Получит данные
      * @return mixed
      */
-    function retrieveData();
+    public function retrieveData();
 
     /** Данные имеются ?
      * @return bool
      */
-    function has():bool;
+    public function has(): bool;
 
 }

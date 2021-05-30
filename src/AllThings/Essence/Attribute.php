@@ -24,7 +24,7 @@ class Attribute implements IAttribute
         $this->searchable = $searchable;
     }
 
-    static function GetDefaultAttribute(): IAttribute
+    public static function GetDefaultAttribute(): IAttribute
     {
         $nameable = new NamedEntity();
         $searchable = new SearchTerm();
@@ -34,7 +34,7 @@ class Attribute implements IAttribute
         return $attribute;
     }
 
-    function GetAttributeCopy(): IAttribute
+    public function GetAttributeCopy(): IAttribute
     {
         $nameable = $this->nameable->getNameableCopy();
         $searchable = $this->searchable->getSearchableCopy();
@@ -44,84 +44,84 @@ class Attribute implements IAttribute
         return $attribute;
     }
 
-    function setCode(string $value): Nameable
+    public function setCode(string $value): Nameable
     {
         $this->nameable->setCode($value);
 
         return $this;
     }
 
-    function getCode(): string
+    public function getCode(): string
     {
         $code = $this->nameable->getCode();
 
         return $code;
     }
 
-    function setTitle(string $value): Nameable
+    public function setTitle(string $value): Nameable
     {
         $this->nameable->setTitle($value);
 
         return $this;
     }
 
-    function getTitle(): string
+    public function getTitle(): string
     {
         $title = $this->nameable->getTitle();
 
         return $title;
     }
 
-    function setRemark(string $value): Nameable
+    public function setRemark(string $value): Nameable
     {
         $this->nameable->setRemark($value);
 
         return $this;
     }
 
-    function getRemark(): string
+    public function getRemark(): string
     {
         $remark = $this->nameable->getRemark();
 
         return $remark;
     }
 
-    function getNameableCopy(): Nameable
+    public function getNameableCopy(): Nameable
     {
         $nameable = $this->nameable->getNameableCopy();
 
         return $nameable;
     }
 
-    function getDataType(): string
+    public function getDataType(): string
     {
         $dataType = $this->searchable->getDataType();
 
         return $dataType;
     }
 
-    function setDataType(string $value): Searchable
+    public function setDataType(string $value): Searchable
     {
         $this->searchable->setDataType($value);
 
         return $this;
     }
 
-    function getRangeType(): string
+    public function getRangeType(): string
     {
         $rangeType = $this->searchable->getRangeType();
 
         return $rangeType;
     }
 
-    function setRangeType(string $value): Searchable
+    public function setRangeType(string $value): Searchable
     {
         $this->searchable->setRangeType($value);
 
         return $this;
     }
 
-    function getSearchableCopy(): Searchable
+    public function getSearchableCopy(): Searchable
     {
         $searchable = $this->searchable->getSearchableCopy();
 

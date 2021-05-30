@@ -10,6 +10,6 @@ namespace AllThings\DataAccess\Handler;
 
 interface Hideable
 {
-    function hide(): bool;
+    public function hide(): bool;
 
 }

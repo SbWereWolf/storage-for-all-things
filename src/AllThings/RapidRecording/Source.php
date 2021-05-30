@@ -17,7 +17,7 @@ use PDO;
 
 class Source implements Installation
 {
-    const STRUCTURE_PREFIX = 'auto_t_';
+    public const STRUCTURE_PREFIX = 'auto_t_';
 
     private $essence = '';
     /**

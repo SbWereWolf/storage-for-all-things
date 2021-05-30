@@ -10,10 +10,10 @@ namespace AllThings\DataObject;
 
 interface ICrossoverTable
 {
-    function getTableName(): string;
+    public function getTableName(): string;
 
-    function getLeftColumn(): string;
+    public function getLeftColumn(): string;
 
-    function getRightColumn(): string;
+    public function getRightColumn(): string;
 
 }

@@ -30,14 +30,14 @@ class EssenceThingCommand implements IEssenceThingCommand
         }
     }
 
-    function getEssenceIdentifier()
+    public function getEssenceIdentifier()
     {
         $essenceIdentifier = $this->essenceIdentifier;
 
         return $essenceIdentifier;
     }
 
-    function getThingIdentifier()
+    public function getThingIdentifier()
     {
         $thingIdentifier = $this->thingIdentifier;
 

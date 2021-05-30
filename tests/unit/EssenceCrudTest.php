@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 class EssenceCrudTest extends TestCase
 {
 
-    const SKIP = false;
+    public const SKIP = false;
 
     /**
      * @return array

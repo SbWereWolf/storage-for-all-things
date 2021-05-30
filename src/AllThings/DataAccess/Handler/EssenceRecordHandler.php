@@ -22,13 +22,13 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
     private $dataPath;
     private $essence = null;
 
-    function __construct(IEssence $essence, PDO $dataPath)
+    public function __construct(IEssence $essence, PDO $dataPath)
     {
         $this->essence = $essence;
         $this->dataPath = $dataPath;
     }
 
-    function add(): bool
+    public function add(): bool
     {
         $essence = $this->essence->GetEssenceCopy();
 
@@ -37,7 +37,6 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
         $this->setEssence($result, $essence);
 
         return $result;
-
     }
 
     private function getEssenceLocation(): EssenceLocation
@@ -61,7 +60,7 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
         }
     }
 
-    function hide(): bool
+    public function hide(): bool
     {
         $essence = $this->essence->GetEssenceCopy();
 
@@ -70,10 +69,9 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
         $this->setEssence($result, $essence);
 
         return $result;
-
     }
 
-    function write(string $code): bool
+    public function write(string $code): bool
     {
         $target = $this->setEssenceByCode($code);
 
@@ -84,7 +82,6 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
         $this->setEssence($result, $essence);
 
         return $result;
-
     }
 
     /**
@@ -99,7 +96,7 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
         return $essence;
     }
 
-    function read(): bool
+    public function read(): bool
     {
         $essence = $this->essence->GetEssenceCopy();
 
@@ -108,17 +105,15 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
         $this->setEssence($result, $essence);
 
         return $result;
-
     }
 
     private function getEssenceSource(): EssenceSource
     {
-
         $repository = new EssenceSource($this->dataSource, $this->dataPath);
         return $repository;
     }
 
-    function retrieveData(): IEssence
+    public function retrieveData(): IEssence
     {
         $essence = $this->essence->GetEssenceCopy();
 

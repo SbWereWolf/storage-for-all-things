@@ -25,7 +25,7 @@ class ToCrossoverEntity implements ToCrossover
         $this->arguments = $arguments;
     }
 
-    function fromPost(): ICrossover
+    public function fromPost(): ICrossover
     {
         $targetContent = $this->fromArguments();
 
@@ -43,14 +43,14 @@ class ToCrossoverEntity implements ToCrossover
         return $targetContent;
     }
 
-    function fromGet(): ICrossover
+    public function fromGet(): ICrossover
     {
         $targetContent = $this->fromArguments();
 
         return $targetContent;
     }
 
-    function fromPut(): IContentUpdateCommand
+    public function fromPut(): IContentUpdateCommand
     {
         $request = $this->request;
 

@@ -13,81 +13,79 @@ class Essence implements IEssence
     public $nameable = null;
     public $storable = null;
 
-    function __construct(Nameable $nameable, Storable $storable)
+    public function __construct(Nameable $nameable, Storable $storable)
     {
         $this->nameable = $nameable;
         $this->storable = $storable;
     }
 
-    static function GetDefaultEssence(): IEssence
+    public static function GetDefaultEssence(): IEssence
     {
-
         $nameable = new NamedEntity();
         $storable = new Storage();
 
         $essence = new Essence($nameable, $storable);
 
         return $essence;
-
     }
 
-    function setCode(string $value): Nameable
+    public function setCode(string $value): Nameable
     {
         $this->nameable->setCode($value);
 
         return $this;
     }
 
-    function getCode(): string
+    public function getCode(): string
     {
         $code = $this->nameable->getCode();
 
         return $code;
     }
 
-    function setTitle(string $value): Nameable
+    public function setTitle(string $value): Nameable
     {
         $this->nameable->setTitle($value);
 
         return $this;
     }
 
-    function getTitle(): string
+    public function getTitle(): string
     {
         $title = $this->nameable->getTitle();
 
         return $title;
     }
 
-    function setRemark(string $value): Nameable
+    public function setRemark(string $value): Nameable
     {
         $this->nameable->setRemark($value);
 
         return $this;
     }
 
-    function getRemark(): string
+    public function getRemark(): string
     {
         $remark = $this->nameable->getRemark();
 
         return $remark;
     }
 
-    function getStoreAt(): string
+    public function getStoreAt(): string
     {
         $storage = $this->storable->getStoreAt();
 
         return $storage;
     }
 
-    function setStoreAt(string $value): Storable
+    public function setStoreAt(string $value): Storable
     {
         $this->storable->setStoreAt($value);
 
         return $this;
     }
 
-    function GetEssenceCopy(): IEssence
+    public function GetEssenceCopy(): IEssence
     {
         $nameable = $this->getNameableCopy();
         $storable = $this->getStorableCopy();
@@ -97,14 +95,14 @@ class Essence implements IEssence
         return $essence;
     }
 
-    function getNameableCopy(): Nameable
+    public function getNameableCopy(): Nameable
     {
         $nameableDuplicate = $this->nameable->getNameableCopy();
 
         return $nameableDuplicate;
     }
 
-    function getStorableCopy(): Storable
+    public function getStorableCopy(): Storable
     {
         $storableDuplicate = $this->storable->getStorableCopy();
 

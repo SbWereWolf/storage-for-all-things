@@ -10,5 +10,5 @@ namespace AllThings\DataAccess\Core;
 
 interface WholeDataReader
 {
-    function readAll();
+    public function readAll();
 }

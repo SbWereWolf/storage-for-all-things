@@ -11,5 +11,5 @@ namespace AllThings\DataAccess\Core;
 interface ValuableFilter
 {
 
-    function filterAll(array $filter);
+    public function filterAll(array $filter);
 }

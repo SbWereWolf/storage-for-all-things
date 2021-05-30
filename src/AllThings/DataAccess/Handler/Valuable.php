@@ -10,10 +10,10 @@ namespace AllThings\DataAccess\Handler;
 
 interface Valuable
 {
-    function add(): bool;
+    public function add(): bool;
 
-    function write(string $code): bool;
+    public function write(string $code): bool;
 
-    function read(): bool;
+    public function read(): bool;
 
 }

@@ -12,7 +12,7 @@ use PHPUnit\Framework\TestCase;
 class AttributeCrudTest extends TestCase
 {
 
-    const SKIP = false;
+    public const SKIP = false;
 
     /**
      * @return array

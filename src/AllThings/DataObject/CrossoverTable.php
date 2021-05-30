@@ -22,21 +22,21 @@ class CrossoverTable implements ICrossoverTable
     }
 
 
-    function getTableName(): string
+    public function getTableName(): string
     {
         $result = $this->tableName;
 
         return $result;
     }
 
-    function getLeftColumn(): string
+    public function getLeftColumn(): string
     {
         $result = $this->leftColumn;
 
         return $result;
     }
 
-    function getRightColumn(): string
+    public function getRightColumn(): string
     {
         $result = $this->rightColumn;
 

@@ -34,7 +34,7 @@ class CrossoverHandler implements ICrossoverHandler, Retrievable
         $this->rightKey = $rightKey;
     }
 
-    function crossing(): bool
+    public function crossing(): bool
     {
         $writer = $this->getCrossoverWriter();
 
@@ -50,7 +50,7 @@ class CrossoverHandler implements ICrossoverHandler, Retrievable
         return $location;
     }
 
-    function setCrossover(ICrossover $crossover): bool
+    public function setCrossover(ICrossover $crossover): bool
     {
         $writer = $this->getCrossoverWriter();
 
@@ -59,7 +59,7 @@ class CrossoverHandler implements ICrossoverHandler, Retrievable
         return $result;
     }
 
-    function getCrossover(ICrossover $crossover): bool
+    public function getCrossover(ICrossover $crossover): bool
     {
         $reader = $this->getCrossoverReader();
 
@@ -80,14 +80,14 @@ class CrossoverHandler implements ICrossoverHandler, Retrievable
         return $source;
     }
 
-    function retrieveData(): ICrossover
+    public function retrieveData(): ICrossover
     {
         $data = $this->container->getCrossoverCopy();
 
         return $data;
     }
 
-    function has(): bool
+    public function has(): bool
     {
         return !is_null($this->container);
     }

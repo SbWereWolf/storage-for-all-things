@@ -13,10 +13,10 @@ use AllThings\DataObject\ICrossover;
 
 interface ToCrossover
 {
-    function fromPost(): ICrossover;
+    public function fromPost(): ICrossover;
 
-    function fromGet(): ICrossover;
+    public function fromGet(): ICrossover;
 
-    function fromPut(): IContentUpdateCommand;
+    public function fromPut(): IContentUpdateCommand;
 
 }

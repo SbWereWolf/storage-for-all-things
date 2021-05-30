@@ -14,6 +14,6 @@ use AllThings\DataAccess\Manager\DataManager;
 interface IAttributeManager extends DataManager, Retrievable
 {
 
-    function retrieveData(): IAttribute;
+    public function retrieveData(): IAttribute;
 
 }

@@ -21,14 +21,13 @@ class StorageLocation implements ValuableWriter
      */
     private $storageLocation;
 
-    function __construct(string $table, PDO $storageLocation)
+    public function __construct(string $table, PDO $storageLocation)
     {
-
         $this->tableName = $table;
         $this->storageLocation = $storageLocation;
     }
 
-    function insert(Nameable $entity): bool
+    public function insert(Nameable $entity): bool
     {
         $suggestion_code = $entity->getCode();
 
@@ -42,7 +41,7 @@ class StorageLocation implements ValuableWriter
         return $result;
     }
 
-    function setIsHidden(Nameable $entity): bool
+    public function setIsHidden(Nameable $entity): bool
     {
         $target_code = $entity->getCode();
 
@@ -65,7 +64,7 @@ class StorageLocation implements ValuableWriter
         return $result;
     }
 
-    function update(Nameable $target_entity, Nameable $suggestion_entity): bool
+    public function update(Nameable $target_entity, Nameable $suggestion_entity): bool
     {
         $target_code = $target_entity->getCode();
         $suggestion_code = $suggestion_entity->getCode();

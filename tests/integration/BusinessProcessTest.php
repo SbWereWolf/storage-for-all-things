@@ -26,7 +26,7 @@ use PHPUnit\Framework\TestCase;
 
 class BusinessProcessTest extends TestCase
 {
-    const SKIP = false;
+    public const SKIP = false;
 
     /**
      * @return array

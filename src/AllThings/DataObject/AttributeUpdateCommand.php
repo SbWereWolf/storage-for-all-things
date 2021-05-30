@@ -21,14 +21,14 @@ class AttributeUpdateCommand implements IAttributeUpdateCommand
         $this->subject = $subject;
     }
 
-    function getParameter(): string
+    public function getParameter(): string
     {
         $parameter = $this->parameter;
 
         return $parameter;
     }
 
-    function getSubject(): IAttribute
+    public function getSubject(): IAttribute
     {
         $result = $this->subject->GetAttributeCopy();
 

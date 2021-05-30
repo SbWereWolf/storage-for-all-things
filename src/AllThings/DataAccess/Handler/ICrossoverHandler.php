@@ -12,9 +12,9 @@ use AllThings\DataObject\ICrossover;
 
 interface ICrossoverHandler
 {
-    function crossing(): bool;
+    public function crossing(): bool;
 
-    function setCrossover(ICrossover $crossover): bool;
+    public function setCrossover(ICrossover $crossover): bool;
 
-    function getCrossover(ICrossover $crossover): bool;
+    public function getCrossover(ICrossover $crossover): bool;
 }

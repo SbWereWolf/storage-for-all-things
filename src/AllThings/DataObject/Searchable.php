@@ -11,22 +11,22 @@ namespace AllThings\DataObject;
 
 interface Searchable
 {
-    const UNDEFINED = 'undefined';
+    public const UNDEFINED = 'undefined';
 
-    const SYMBOLS = 'symbols';
-    const DECIMAL = 'decimal';
-    const TIMESTAMP = 'timestamp';
+    public const SYMBOLS = 'symbols';
+    public const DECIMAL = 'decimal';
+    public const TIMESTAMP = 'timestamp';
 
-    const CONTINUOUS = 'continuous';
-    const DISCRETE = 'discrete';
+    public const CONTINUOUS = 'continuous';
+    public const DISCRETE = 'discrete';
 
-    function getDataType(): string;
+    public function getDataType(): string;
 
-    function setDataType(string $value): Searchable;
+    public function setDataType(string $value): Searchable;
 
-    function getRangeType(): string;
+    public function getRangeType(): string;
 
-    function setRangeType(string $value): Searchable;
+    public function setRangeType(string $value): Searchable;
 
-    function getSearchableCopy(): Searchable;
+    public function getSearchableCopy(): Searchable;
 }

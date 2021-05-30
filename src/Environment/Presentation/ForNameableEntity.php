@@ -14,7 +14,7 @@ class ForNameableEntity implements Jsonable
 {
     private $nameable = null;
 
-    function __construct(Nameable $nameable)
+    public function __construct(Nameable $nameable)
     {
         $this->nameable = $nameable;
     }

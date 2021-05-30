@@ -13,5 +13,5 @@ use AllThings\DataObject\ICrossover;
 
 interface CrossoverReader
 {
-    function select(ICrossover $entity): bool;
+    public function select(ICrossover $entity): bool;
 }

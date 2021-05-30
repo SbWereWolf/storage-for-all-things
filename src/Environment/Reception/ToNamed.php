@@ -12,10 +12,10 @@ use AllThings\DataObject\NameableUpdateCommand;
 
 interface ToNamed
 {
-    function fromPost(): string;
+    public function fromPost(): string;
 
-    function fromGet(): string;
+    public function fromGet(): string;
 
-    function fromPut(): NameableUpdateCommand;
+    public function fromPut(): NameableUpdateCommand;
 
 }

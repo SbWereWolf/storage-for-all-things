@@ -19,14 +19,14 @@ class NamedEntityUpdateCommand implements NameableUpdateCommand
         $this->subject = $subject;
     }
 
-    function getParameter(): string
+    public function getParameter(): string
     {
         $parameter = $this->parameter;
 
         return $parameter;
     }
 
-    function getSubject(): Nameable
+    public function getSubject(): Nameable
     {
         $result = $this->subject->getNameableCopy();
 

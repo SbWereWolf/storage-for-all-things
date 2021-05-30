@@ -31,7 +31,7 @@ class CrossoverSource implements CrossoverReader
         $this->leftKey = $leftKey;
     }
 
-    function select(ICrossover $entity): bool
+    public function select(ICrossover $entity): bool
     {
         $targetLeftValue = $entity->getLeftValue();
         $targetRightValue = $entity->getRightValue();
@@ -74,7 +74,6 @@ AND $rightColumn = (select $rightKeyColumn from $rightKeyTable where $rightKeyIn
         $data = null;
         $isSuccess = $result === true;
         if ($isSuccess) {
-
             $data = $query->fetchAll();
         }
 
@@ -83,13 +82,11 @@ AND $rightColumn = (select $rightKeyColumn from $rightKeyTable where $rightKeyIn
             $result = false;
         }
         if ($isSuccess) {
-
             $row = $data[0];
 
             $content = $row['content'];
 
             $entity->setContent($content);
-
         }
 
         return $result;

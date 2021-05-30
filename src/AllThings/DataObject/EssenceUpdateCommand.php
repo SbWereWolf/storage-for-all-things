@@ -21,14 +21,14 @@ class EssenceUpdateCommand implements IEssenceUpdateCommand
         $this->subject = $subject;
     }
 
-    function getParameter(): string
+    public function getParameter(): string
     {
         $parameter = $this->parameter;
 
         return $parameter;
     }
 
-    function getSubject(): IEssence
+    public function getSubject(): IEssence
     {
         $result = $this->subject->GetEssenceCopy();
 

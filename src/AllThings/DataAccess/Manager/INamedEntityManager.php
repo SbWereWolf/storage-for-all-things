@@ -14,6 +14,6 @@ use AllThings\DataObject\Nameable;
 interface INamedEntityManager extends DataManager, Retrievable
 {
 
-    function retrieveData(): Nameable;
+    public function retrieveData(): Nameable;
 
 }

@@ -30,14 +30,14 @@ class EssenceAttributeCommand implements IEssenceAttributeCommand
         }
     }
 
-    function getEssenceIdentifier()
+    public function getEssenceIdentifier()
     {
         $essenceIdentifier = $this->essenceIdentifier;
 
         return $essenceIdentifier;
     }
 
-    function getAttributeIdentifier()
+    public function getAttributeIdentifier()
     {
         $attributeIdentifier = $this->attributeIdentifier;
 

@@ -14,40 +14,40 @@ use Slim\Views\PhpRenderer;
 
 class Page
 {
-    const DEFAULT = 'default';
+    public const DEFAULT = 'default';
     /* Essence */
-    const ADD_ESSENCE = 'post-essence';
-    const VIEW_ESSENCE = 'get-essence';
-    const STORE_ESSENCE = 'put-essence';
+    public const ADD_ESSENCE = 'post-essence';
+    public const VIEW_ESSENCE = 'get-essence';
+    public const STORE_ESSENCE = 'put-essence';
     /* Essence catalog */
-    const VIEW_ESSENCE_CATALOG = 'get-whole-essences';
-    const FILTER_ESSENCE_CATALOG = 'get-filtered-essences';
+    public const VIEW_ESSENCE_CATALOG = 'get-whole-essences';
+    public const FILTER_ESSENCE_CATALOG = 'get-filtered-essences';
     /* attribute */
-    const ADD_ATTRIBUTE = 'post-attribute';
-    const VIEW_ATTRIBUTE = 'get-attribute';
-    const STORE_ATTRIBUTE = 'put-attribute';
+    public const ADD_ATTRIBUTE = 'post-attribute';
+    public const VIEW_ATTRIBUTE = 'get-attribute';
+    public const STORE_ATTRIBUTE = 'put-attribute';
     /* attribute catalog */
-    const VIEW_ATTRIBUTE_CATALOG = 'get-whole-attributes';
-    const FILTER_ATTRIBUTE_CATALOG = 'get-filtered-attributes';
+    public const VIEW_ATTRIBUTE_CATALOG = 'get-whole-attributes';
+    public const FILTER_ATTRIBUTE_CATALOG = 'get-filtered-attributes';
     /* attributes of Essence */
-    const ADD_ESSENCE_ATTRIBUTE_LINK = 'post-essence-attribute';
-    const REMOVE_ESSENCE_ATTRIBUTE_LINK = 'delete-essence-attribute';
-    const VIEW_ATTRIBUTE_OF_ESSENCE = 'get-whole-essence-attributes';
+    public const ADD_ESSENCE_ATTRIBUTE_LINK = 'post-essence-attribute';
+    public const REMOVE_ESSENCE_ATTRIBUTE_LINK = 'delete-essence-attribute';
+    public const VIEW_ATTRIBUTE_OF_ESSENCE = 'get-whole-essence-attributes';
     /* Thing */
-    const ADD_THING = 'post-thing';
-    const VIEW_THING = 'get-thing';
-    const STORE_THING = 'put-thing';
+    public const ADD_THING = 'post-thing';
+    public const VIEW_THING = 'get-thing';
+    public const STORE_THING = 'put-thing';
     /* Essence filter */
-    const FILTER_OF_ESSENCE = 'get-filter-for-essences';
+    public const FILTER_OF_ESSENCE = 'get-filter-for-essences';
     /* attributes of thing */
-    const ADD_ATTRIBUTE_TO_THING = 'post-thing-attribute';
-    const VIEW_CONTENT = 'get-thing-attribute';
-    const STORE_ATTRIBUTE_OF_THING = 'put-thing-attribute';
-    const FILTER_THING_BY_ATTRIBUTE = 'get-filtered-things';
+    public const ADD_ATTRIBUTE_TO_THING = 'post-thing-attribute';
+    public const VIEW_CONTENT = 'get-thing-attribute';
+    public const STORE_ATTRIBUTE_OF_THING = 'put-thing-attribute';
+    public const FILTER_THING_BY_ATTRIBUTE = 'get-filtered-things';
     /*thins of essence */
-    const ADD_ESSENCE_THING_LINK = 'post-essence-thing';
-    const REMOVE_ESSENCE_THING_LINK = 'delete-essence-thing';
-    const VIEW_THINGS_OF_ESSENCE = 'get-essence-thing';
+    public const ADD_ESSENCE_THING_LINK = 'post-essence-thing';
+    public const REMOVE_ESSENCE_THING_LINK = 'delete-essence-thing';
+    public const VIEW_THINGS_OF_ESSENCE = 'get-essence-thing';
 
     private $viewer;
     private $router;

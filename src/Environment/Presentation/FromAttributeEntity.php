@@ -14,7 +14,7 @@ class FromAttributeEntity implements Jsonable
 {
     private $attribute = null;
 
-    function __construct(IAttribute $attribute)
+    public function __construct(IAttribute $attribute)
     {
         $this->attribute = $attribute;
     }

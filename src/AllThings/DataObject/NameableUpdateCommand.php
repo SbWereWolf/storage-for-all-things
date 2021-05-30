@@ -10,8 +10,8 @@ namespace AllThings\DataObject;
 
 interface NameableUpdateCommand
 {
-    function getParameter(): string;
+    public function getParameter(): string;
 
-    function getSubject(): Nameable;
+    public function getSubject(): Nameable;
 
 }

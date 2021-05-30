@@ -11,9 +11,9 @@ namespace AllThings\DataAccess\Manager;
 interface LinkageManager
 {
 
-    function setUp(): bool;
+    public function setUp(): bool;
 
-    function breakDown(): bool;
+    public function breakDown(): bool;
 
-    function getAssociated(): bool;
+    public function getAssociated(): bool;
 }

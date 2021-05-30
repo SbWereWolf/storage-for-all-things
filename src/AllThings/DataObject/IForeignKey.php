@@ -11,10 +11,10 @@ namespace AllThings\DataObject;
 
 interface IForeignKey
 {
-    function getTable(): string;
+    public function getTable(): string;
 
-    function getColumn(): string;
+    public function getColumn(): string;
 
-    function getIndex(): string;
+    public function getIndex(): string;
 
 }

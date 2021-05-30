@@ -12,5 +12,5 @@ namespace Environment\Presentation;
 interface Jsonable
 {
 
-    function toJson(): string;
+    public function toJson(): string;
 }

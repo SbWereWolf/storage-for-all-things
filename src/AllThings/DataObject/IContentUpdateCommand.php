@@ -10,7 +10,7 @@ namespace AllThings\DataObject;
 
 interface IContentUpdateCommand
 {
-    function getParameter(): ICrossover;
+    public function getParameter(): ICrossover;
 
-    function getSubject(): ICrossover;
+    public function getSubject(): ICrossover;
 }

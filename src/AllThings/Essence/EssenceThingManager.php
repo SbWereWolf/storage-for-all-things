@@ -17,8 +17,8 @@ use PDO;
 
 class EssenceThingManager implements LinkageManager, Retrievable
 {
-    const ESSENCE_IDENTIFIER = 'essence';
-    const THING_IDENTIFIER = 'thing';
+    public const ESSENCE_IDENTIFIER = 'essence';
+    public const THING_IDENTIFIER = 'thing';
 
     private $linkage = [];
     private $essenceForeignKey = null;
@@ -38,7 +38,7 @@ class EssenceThingManager implements LinkageManager, Retrievable
         $this->dataPath = $dataPath;
     }
 
-    function setUp(): bool
+    public function setUp(): bool
     {
         $handler = $this->getHandler();
         $linkage = $this->linkage;
@@ -58,7 +58,7 @@ class EssenceThingManager implements LinkageManager, Retrievable
         return $handler;
     }
 
-    function breakDown(): bool
+    public function breakDown(): bool
     {
         $handler = $this->getHandler();
         $linkage = $this->linkage;
@@ -68,7 +68,7 @@ class EssenceThingManager implements LinkageManager, Retrievable
         return $result;
     }
 
-    function getAssociated(): bool
+    public function getAssociated(): bool
     {
         $handler = $this->getHandler();
         $linkage = $this->linkage;
@@ -83,14 +83,14 @@ class EssenceThingManager implements LinkageManager, Retrievable
         return $result;
     }
 
-    function retrieveData()
+    public function retrieveData()
     {
         $result = $this->dataSet;
 
         return $result;
     }
 
-    function has(): bool
+    public function has(): bool
     {
         return !is_null($this->dataSet);
     }

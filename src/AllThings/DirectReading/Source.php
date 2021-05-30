@@ -14,7 +14,7 @@ use PDO;
 
 class Source implements Installation
 {
-    const STRUCTURE_PREFIX = 'auto_v_';
+    public const STRUCTURE_PREFIX = 'auto_v_';
 
     private $essence = '';
     /**
@@ -25,6 +25,28 @@ class Source implements Installation
     public function __construct(string $essence, PDO $linkToData)
     {
         $this->setEssence($essence)->setLinkToData($linkToData);
+    }
+
+    /**
+     * @param PDO $linkToData
+     *
+     * @return Source
+     */
+    private function setLinkToData(PDO $linkToData): Source
+    {
+        $this->linkToData = $linkToData;
+        return $this;
+    }
+
+    /**
+     * @param string $essence
+     *
+     * @return Source
+     */
+    private function setEssence(string $essence): Source
+    {
+        $this->essence = $essence;
+        return $this;
     }
 
     public function setup(): bool
@@ -44,7 +66,6 @@ class Source implements Installation
 
         $columns = [];
         foreach ($attributes as $attribute) {
-
             $column = "
 SELECT
     C.content
@@ -57,7 +78,6 @@ WHERE
     AND C.thing_id = ET.thing_id
 ";
             $columns[$attribute] = "($column) AS \"$attribute\"";
-
         }
 
         $selectPhase = implode(",", $columns);
@@ -86,24 +106,6 @@ $contentRequest
         return $result;
     }
 
-    public function name(): string
-    {
-        $name = self::STRUCTURE_PREFIX . $this->getEssence();
-
-        return $name;
-    }
-
-    /**
-     * @param string $essence
-     *
-     * @return Source
-     */
-    private function setEssence(string $essence): Source
-    {
-        $this->essence = $essence;
-        return $this;
-    }
-
     /**
      * @return string
      */
@@ -113,22 +115,18 @@ $contentRequest
     }
 
     /**
-     * @param PDO $linkToData
-     *
-     * @return Source
-     */
-    private function setLinkToData(PDO $linkToData): Source
-    {
-        $this->linkToData = $linkToData;
-        return $this;
-    }
-
-    /**
      * @return PDO
      */
     public function getLinkToData(): PDO
     {
         return $this->linkToData;
+    }
+
+    public function name(): string
+    {
+        $name = self::STRUCTURE_PREFIX . $this->getEssence();
+
+        return $name;
     }
 
 }

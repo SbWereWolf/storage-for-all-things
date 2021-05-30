@@ -29,13 +29,13 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
     private $dataPath = null;
     private $attribute = null;
 
-    function __construct(IAttribute $attribute, PDO $dataPath)
+    public function __construct(IAttribute $attribute, PDO $dataPath)
     {
         $this->attribute = $attribute;
         $this->dataPath = $dataPath;
     }
 
-    function add(): bool
+    public function add(): bool
     {
         $attribute = $this->attribute->GetAttributeCopy();
 
@@ -44,12 +44,10 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
         $this->setAttribute($result, $attribute);
 
         return $result;
-
     }
 
     private function getAttributeLocation(): AttributeLocation
     {
-
         $repository = new AttributeLocation($this->storageLocation, $this->dataPath);
         return $repository;
     }
@@ -68,7 +66,7 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
         }
     }
 
-    function hide(): bool
+    public function hide(): bool
     {
         $attribute = $this->attribute->GetAttributeCopy();
 
@@ -77,10 +75,9 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
         $this->setAttribute($result, $attribute);
 
         return $result;
-
     }
 
-    function write(string $code): bool
+    public function write(string $code): bool
     {
         $target = $this->setAttributeByCode($code);
 
@@ -91,7 +88,6 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
         $this->setAttribute($result, $attribute);
 
         return $result;
-
     }
 
     /**
@@ -106,32 +102,30 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
         return $attribute;
     }
 
-    function read(): bool
+    public function read(): bool
     {
         $result = ($this->getAttributeSource())->select($this->attribute);
 
         $this->setAttribute($result, $this->attribute);
 
         return $result;
-
     }
 
     private function getAttributeSource(): AttributeSource
     {
-
         $repository = new AttributeSource($this->dataSource, $this->dataPath);
 
         return $repository;
     }
 
-    function retrieveData(): IAttribute
+    public function retrieveData(): IAttribute
     {
         $essence = $this->attribute->GetAttributeCopy();
 
         return $essence;
     }
 
-    function has(): bool
+    public function has(): bool
     {
         return !is_null($this->attribute);
     }

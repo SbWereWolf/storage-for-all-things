@@ -12,10 +12,10 @@ use AllThings\DataObject\IAttributeUpdateCommand;
 
 interface ToAttribute
 {
-    function fromPost(): string;
+    public function fromPost(): string;
 
-    function fromGet(): string;
+    public function fromGet(): string;
 
-    function fromPut(): IAttributeUpdateCommand;
+    public function fromPut(): IAttributeUpdateCommand;
 
 }

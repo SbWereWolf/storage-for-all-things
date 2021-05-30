@@ -10,10 +10,10 @@ namespace AllThings\DataAccess\Handler;
 
 interface Linkable
 {
-    function add(array $linkage): bool;
+    public function add(array $linkage): bool;
 
-    function remove(array $linkage): bool;
+    public function remove(array $linkage): bool;
 
-    function getRelated(array $linkage): bool;
+    public function getRelated(array $linkage): bool;
 
 }

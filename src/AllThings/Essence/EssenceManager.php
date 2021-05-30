@@ -23,9 +23,8 @@ class EssenceManager implements IEssenceManager
         $this->dataPath = $dataPath;
     }
 
-    function create(): bool
+    public function create(): bool
     {
-
         $handler = $this->getHandler();
 
         $result = $handler->add();
@@ -57,7 +56,7 @@ class EssenceManager implements IEssenceManager
             : null;
     }
 
-    function remove(): bool
+    public function remove(): bool
     {
         $handler = $this->getHandler();
 
@@ -68,7 +67,7 @@ class EssenceManager implements IEssenceManager
         return $result;
     }
 
-    function correct(string $targetIdentity): bool
+    public function correct(string $targetIdentity): bool
     {
         $handler = $this->getHandler();
 
@@ -79,7 +78,7 @@ class EssenceManager implements IEssenceManager
         return $result;
     }
 
-    function browse(): bool
+    public function browse(): bool
     {
         $handler = $this->getHandler();
 
@@ -90,7 +89,7 @@ class EssenceManager implements IEssenceManager
         return $result;
     }
 
-    function retrieveData(): IEssence
+    public function retrieveData(): IEssence
     {
         $nameable = $this->subject->getNameableCopy();
         $storable = $this->subject->getStorableCopy();
@@ -100,7 +99,7 @@ class EssenceManager implements IEssenceManager
         return $data;
     }
 
-    function has(): bool
+    public function has(): bool
     {
         return !is_null($this->subject);
     }
