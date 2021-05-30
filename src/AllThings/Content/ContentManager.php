@@ -47,7 +47,13 @@ class ContentManager implements CrossoverManager, Retrievable
 
     private function getHandler(): CrossoverHandler
     {
-        $handler = new CrossoverHandler($this->container, $this->thingKey, $this->attributeKey, $this->contentTable, $this->dataPath);
+        $handler = new CrossoverHandler(
+            $this->container,
+            $this->thingKey,
+            $this->attributeKey,
+            $this->contentTable,
+            $this->dataPath
+        );
 
         return $handler;
     }

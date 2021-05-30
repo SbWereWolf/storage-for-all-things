@@ -19,13 +19,22 @@ class EssenceCrudTest extends TestCase
      */
     public function testInit()
     {
-        define('APPLICATION_ROOT', realpath(__DIR__)
+        define(
+            'APPLICATION_ROOT',
+            realpath(__DIR__)
             . DIRECTORY_SEPARATOR . '..'
-            . DIRECTORY_SEPARATOR . '..');
-        define('CONFIGURATION_ROOT', APPLICATION_ROOT
-            . DIRECTORY_SEPARATOR . 'configuration');
-        define('DB_READ_CONFIGURATION', CONFIGURATION_ROOT
-            . DIRECTORY_SEPARATOR . 'db_test.php');
+            . DIRECTORY_SEPARATOR . '..'
+        );
+        define(
+            'CONFIGURATION_ROOT',
+            APPLICATION_ROOT
+            . DIRECTORY_SEPARATOR . 'configuration'
+        );
+        define(
+            'DB_READ_CONFIGURATION',
+            CONFIGURATION_ROOT
+            . DIRECTORY_SEPARATOR . 'db_test.php'
+        );
 
         $linkToData = (new DbConnection())->getForRead();
 
@@ -52,12 +61,16 @@ class EssenceCrudTest extends TestCase
         $essence->setCode('cake');
 
         $linkToData = $context['PDO'];
-        $handler = new AllThings\Essence\EssenceManager($essence,
-            $linkToData);
+        $handler = new AllThings\Essence\EssenceManager(
+            $essence,
+            $linkToData
+        );
 
         $isSuccess = $handler->create();
-        $this->assertTrue($isSuccess,
-            'Essence must be created with success');
+        $this->assertTrue(
+            $isSuccess,
+            'Essence must be created with success'
+        );
 
         $context['essence'] = 'cake';
 
@@ -78,14 +91,18 @@ class EssenceCrudTest extends TestCase
         $value->setStoreAt('view');
 
         $linkToData = $context['PDO'];
-        $handler = new AllThings\Essence\EssenceManager($value,
-            $linkToData);
+        $handler = new AllThings\Essence\EssenceManager(
+            $value,
+            $linkToData
+        );
 
         $code = $context['essence'];
         $isSuccess = $handler->correct($code);
 
-        $this->assertTrue($isSuccess,
-            'Essence must be updated with success');
+        $this->assertTrue(
+            $isSuccess,
+            'Essence must be updated with success'
+        );
 
         $context['essence'] = 'cake2';
 
@@ -104,22 +121,38 @@ class EssenceCrudTest extends TestCase
         $value->setCode($code);
 
         $linkToData = $context['PDO'];
-        $handler = new AllThings\Essence\EssenceManager($value,
-            $linkToData);
+        $handler = new AllThings\Essence\EssenceManager(
+            $value,
+            $linkToData
+        );
 
         $isSuccess = $handler->browse();
-        $this->assertTrue($isSuccess,
-            'Essence must be readed with success');
+        $this->assertTrue(
+            $isSuccess,
+            'Essence must be readed with success'
+        );
 
         $content = $handler->retrieveData();
-        $this->assertEquals($content->getCode(), $code,
-            'Code must has value ' . $code);
-        $this->assertEquals($content->getTitle(), 'The Cakes',
-            'Title must has value ' . 'The Cakes');
-        $this->assertEquals($content->getRemark(), 'Cakes  of all kinds',
-            'Remark must has value ' . 'Cakes  of all kinds');
-        $this->assertEquals($content->getStoreAt(), 'view',
-            'StoreAt must has value ' . 'view');
+        $this->assertEquals(
+            $content->getCode(),
+            $code,
+            'Code must has value ' . $code
+        );
+        $this->assertEquals(
+            $content->getTitle(),
+            'The Cakes',
+            'Title must has value ' . 'The Cakes'
+        );
+        $this->assertEquals(
+            $content->getRemark(),
+            'Cakes  of all kinds',
+            'Remark must has value ' . 'Cakes  of all kinds'
+        );
+        $this->assertEquals(
+            $content->getStoreAt(),
+            'view',
+            'StoreAt must has value ' . 'view'
+        );
     }
 
     /**
@@ -134,13 +167,17 @@ class EssenceCrudTest extends TestCase
         $target->setCode($code);
 
         $linkToData = $context['PDO'];
-        $handler = new AllThings\Essence\EssenceManager($target,
-            $linkToData);
+        $handler = new AllThings\Essence\EssenceManager(
+            $target,
+            $linkToData
+        );
 
         $isSuccess = $handler->remove();
 
-        $this->assertTrue($isSuccess,
-            'Essence must be deleted with success');
+        $this->assertTrue(
+            $isSuccess,
+            'Essence must be deleted with success'
+        );
     }
 
     /**
@@ -155,8 +192,10 @@ class EssenceCrudTest extends TestCase
             $linkToData = $context['PDO'];
             $isSuccess = $linkToData->rollBack();
         }
-        $this->assertTrue($isSuccess,
-            'Transaction must be rolled back');
+        $this->assertTrue(
+            $isSuccess,
+            'Transaction must be rolled back'
+        );
     }
 
 }

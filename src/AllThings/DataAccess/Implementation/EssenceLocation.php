@@ -56,9 +56,10 @@ class EssenceLocation implements EssenceWriter
         return $result;
     }
 
-    function update(IEssence $target_entity,
-                    IEssence $suggestion_entity): bool
-    {
+    public function update(
+        IEssence $target_entity,
+        IEssence $suggestion_entity
+    ): bool {
         $target_code = $target_entity->getCode();
         $suggestion_code = $suggestion_entity->getCode();
         $suggestion_title = $suggestion_entity->getTitle();
@@ -78,14 +79,22 @@ where
         $connection = $this->storageLocation;
 
         $query = $connection->prepare($sqlText);
-        $query->bindParam(':suggestion_code',
-            $suggestion_code);
-        $query->bindParam(':suggestion_title',
-            $suggestion_title);
-        $query->bindParam(':suggestion_remark',
-            $suggestion_remark);
-        $query->bindParam(':suggestion_store_at',
-            $suggestion_storage);
+        $query->bindParam(
+            ':suggestion_code',
+            $suggestion_code
+        );
+        $query->bindParam(
+            ':suggestion_title',
+            $suggestion_title
+        );
+        $query->bindParam(
+            ':suggestion_remark',
+            $suggestion_remark
+        );
+        $query->bindParam(
+            ':suggestion_store_at',
+            $suggestion_storage
+        );
         $query->bindParam(':target_code', $target_code);
         $result = $query->execute();
 

@@ -23,8 +23,12 @@ class CrossoverSource implements CrossoverReader
     private $leftKey = null;
 
 
-    function __construct(IForeignKey $leftKey, IForeignKey $rightKey, ICrossoverTable $tableStructure, PDO $dataPath)
-    {
+    public function __construct(
+        IForeignKey $leftKey,
+        IForeignKey $rightKey,
+        ICrossoverTable $tableStructure,
+        PDO $dataPath
+    ) {
         $this->tableStructure = $tableStructure;
         $this->dataPath = $dataPath;
         $this->rightKey = $rightKey;

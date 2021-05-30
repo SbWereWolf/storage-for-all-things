@@ -33,13 +33,22 @@ class BusinessProcessTest extends TestCase
      */
     public function testInit()
     {
-        define('APPLICATION_ROOT', realpath(__DIR__)
+        define(
+            'APPLICATION_ROOT',
+            realpath(__DIR__)
             . DIRECTORY_SEPARATOR . '..'
-            . DIRECTORY_SEPARATOR . '..');
-        define('CONFIGURATION_ROOT', APPLICATION_ROOT
-            . DIRECTORY_SEPARATOR . 'configuration');
-        define('DB_READ_CONFIGURATION', CONFIGURATION_ROOT
-            . DIRECTORY_SEPARATOR . 'db_test.php');
+            . DIRECTORY_SEPARATOR . '..'
+        );
+        define(
+            'CONFIGURATION_ROOT',
+            APPLICATION_ROOT
+            . DIRECTORY_SEPARATOR . 'configuration'
+        );
+        define(
+            'DB_READ_CONFIGURATION',
+            CONFIGURATION_ROOT
+            . DIRECTORY_SEPARATOR . 'db_test.php'
+        );
 
         $linkToData = (new DbConnection())->getForRead();
 
@@ -69,12 +78,16 @@ class BusinessProcessTest extends TestCase
         $essence->setCode('cake');
 
         $linkToData = $context['PDO'];
-        $handler = new AllThings\Essence\EssenceManager($essence,
-            $linkToData);
+        $handler = new AllThings\Essence\EssenceManager(
+            $essence,
+            $linkToData
+        );
 
         $isSuccess = $handler->create();
-        $this->assertTrue($isSuccess,
-            'Essence must be created with success');
+        $this->assertTrue(
+            $isSuccess,
+            'Essence must be created with success'
+        );
 
         $context['essence'] = 'cake';
 
@@ -99,13 +112,17 @@ class BusinessProcessTest extends TestCase
         $value->setStoreAt('view');
 
         $linkToData = $context['PDO'];
-        $handler = new AllThings\Essence\EssenceManager($value,
-            $linkToData);
+        $handler = new AllThings\Essence\EssenceManager(
+            $value,
+            $linkToData
+        );
 
 
         $isSuccess = $handler->correct($code);
-        $this->assertTrue($isSuccess,
-            'Essence must be updated with success');
+        $this->assertTrue(
+            $isSuccess,
+            'Essence must be updated with success'
+        );
 
         return $context;
     }
@@ -145,12 +162,16 @@ class BusinessProcessTest extends TestCase
         $attribute->setCode($code);
 
         $linkToData = $context['PDO'];
-        $handler = new AllThings\Essence\AttributeManager($attribute,
-            $linkToData);
+        $handler = new AllThings\Essence\AttributeManager(
+            $attribute,
+            $linkToData
+        );
 
         $isSuccess = $handler->create();
-        $this->assertTrue($isSuccess,
-            "Attribute $code must be created with success");
+        $this->assertTrue(
+            $isSuccess,
+            "Attribute $code must be created with success"
+        );
     }
 
     /**
@@ -169,12 +190,16 @@ class BusinessProcessTest extends TestCase
         $value->setTitle('цена, руб.');
         $value->setDataType('decimal');
         $value->setRangeType('continuous');
-        $handler = new AllThings\Essence\AttributeManager($value,
-            $linkToData);
+        $handler = new AllThings\Essence\AttributeManager(
+            $value,
+            $linkToData
+        );
 
         $isSuccess = $handler->correct($code);
-        $this->assertTrue($isSuccess,
-            "Attribute `$code` must be updated with success");
+        $this->assertTrue(
+            $isSuccess,
+            "Attribute `$code` must be updated with success"
+        );
 
         $code = $context['production-date'];
         $value = Attribute::GetDefaultAttribute();
@@ -182,12 +207,16 @@ class BusinessProcessTest extends TestCase
         $value->setTitle('дата выработки');
         $value->setDataType('timestamp');
         $value->setRangeType('continuous');
-        $handler = new AllThings\Essence\AttributeManager($value,
-            $linkToData);
+        $handler = new AllThings\Essence\AttributeManager(
+            $value,
+            $linkToData
+        );
 
         $isSuccess = $handler->correct($code);
-        $this->assertTrue($isSuccess,
-            "Attribute `$code` must be updated with success");
+        $this->assertTrue(
+            $isSuccess,
+            "Attribute `$code` must be updated with success"
+        );
 
         $code = $context['place-of-production'];
         $value = Attribute::GetDefaultAttribute();
@@ -195,12 +224,16 @@ class BusinessProcessTest extends TestCase
         $value->setTitle('Место производства');
         $value->setDataType('symbol');
         $value->setRangeType('discrete');
-        $handler = new AllThings\Essence\AttributeManager($value,
-            $linkToData);
+        $handler = new AllThings\Essence\AttributeManager(
+            $value,
+            $linkToData
+        );
 
         $isSuccess = $handler->correct($code);
-        $this->assertTrue($isSuccess,
-            "Attribute `$code` must be updated with success");
+        $this->assertTrue(
+            $isSuccess,
+            "Attribute `$code` must be updated with success"
+        );
     }
 
     /**
@@ -219,8 +252,11 @@ class BusinessProcessTest extends TestCase
 
         $attributes = ['price', 'production-date', 'place-of-production'];
         foreach ($attributes as $attribute) {
-            $this->LinkEssenceToAttribute($essence, $attribute,
-                $linkToData);
+            $this->LinkEssenceToAttribute(
+                $essence,
+                $attribute,
+                $linkToData
+            );
         }
 
         return $context;
@@ -232,15 +268,21 @@ class BusinessProcessTest extends TestCase
      * @param $linkToData
      */
     private function LinkEssenceToAttribute(
-        $essence, $attribute, $linkToData): void
-    {
-        $manager = new EssenceAttributeManager($essence, $attribute,
-            $linkToData);
+        $essence,
+        $attribute,
+        $linkToData
+    ): void {
+        $manager = new EssenceAttributeManager(
+            $essence, $attribute,
+            $linkToData
+        );
 
         $isSuccess = $manager->setUp();
-        $this->assertTrue($isSuccess,
+        $this->assertTrue(
+            $isSuccess,
             "Attribute `$attribute` must be linked to"
-            . " essence `$essence` with success");
+            . " essence `$essence` with success"
+        );
     }
 
     /**
@@ -257,7 +299,9 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
         $attributes = $this->getEssenceAttributes(
-            $essence, $linkToData);
+            $essence,
+            $linkToData
+        );
 
         $codes = ['bun-with-jam', 'bun-with-raisins', 'cinnamon-bun'];
         foreach ($codes as $thing) {
@@ -280,18 +324,23 @@ class BusinessProcessTest extends TestCase
      *
      * @return array
      */
-    private function getEssenceAttributes(string $essence,
-                                          PDO $linkToData): array
-    {
+    private function getEssenceAttributes(
+        string $essence,
+        PDO $linkToData
+    ): array {
         $manager = new EssenceAttributeManager($essence, '', $linkToData);
         $isSuccess = $manager->getAssociated();
-        $this->assertTrue($isSuccess,
+        $this->assertTrue(
+            $isSuccess,
             "Attributes of essence `$essence`"
-            . " must be fetched with success");
+            . " must be fetched with success"
+        );
         if ($isSuccess) {
             $isSuccess = $manager->has();
-            $this->assertTrue($isSuccess,
-                "Essence `$essence` must be linked to some attributes");
+            $this->assertTrue(
+                $isSuccess,
+                "Essence `$essence` must be linked to some attributes"
+            );
         }
         $attributes = [];
         if ($isSuccess) {
@@ -311,8 +360,10 @@ class BusinessProcessTest extends TestCase
         $handler = new NamedEntityManager($nameable, 'thing', $linkToData);
 
         $isSuccess = $handler->create();
-        $this->assertTrue($isSuccess,
-            "Thing ` $code ` must be created with success");
+        $this->assertTrue(
+            $isSuccess,
+            "Thing ` $code ` must be created with success"
+        );
     }
 
     /**
@@ -327,9 +378,11 @@ class BusinessProcessTest extends TestCase
         $handler = new ContentManager($content, $linkToData);
 
         $isSuccess = $handler->attach();
-        $this->assertTrue($isSuccess,
+        $this->assertTrue(
+            $isSuccess,
             "Atribute `$attribute` must be defined"
-            . " for thing `$thing` with success");
+            . " for thing `$thing` with success"
+        );
     }
 
     /**
@@ -339,15 +392,21 @@ class BusinessProcessTest extends TestCase
      *
      * @return bool
      */
-    private function linkThingToEssence($essence, string $code,
-                                        $linkToData): bool
-    {
-        $manager = new EssenceThingManager($essence, $code,
-            $linkToData);
+    private function linkThingToEssence(
+        $essence,
+        string $code,
+        $linkToData
+    ): bool {
+        $manager = new EssenceThingManager(
+            $essence, $code,
+            $linkToData
+        );
         $isSuccess = $manager->setUp();
-        $this->assertTrue($isSuccess,
+        $this->assertTrue(
+            $isSuccess,
             "Thing `$code` must be linked"
-            . " to essence `$essence` with success");
+            . " to essence `$essence` with success"
+        );
         return $isSuccess;
     }
 
@@ -385,8 +444,10 @@ class BusinessProcessTest extends TestCase
         $handler = new NamedEntityManager($subject, 'thing', $linkToData);
 
         $isSuccess = $handler->correct($code);
-        $this->assertTrue($isSuccess,
-            "Thing `$code` title must be updated with success");
+        $this->assertTrue(
+            $isSuccess,
+            "Thing `$code` title must be updated with success"
+        );
     }
 
     /**
@@ -494,6 +555,23 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * @param $handler
+     * @param $essence
+     */
+    private function checkSourceSetup(
+        Installation $handler,
+        string $essence
+    ): void {
+        $result = $handler->setup();
+
+        $this->assertTrue(
+            $result,
+            "DB source for"
+            . " `$essence` must be created with success"
+        );
+    }
+
+    /**
      * @depends testDefineThings
      *
      * @param array $context
@@ -510,6 +588,88 @@ class BusinessProcessTest extends TestCase
         );
         $seeker = new Seeker($source);
         $this->checkShowAll($context, $seeker, $essence);
+    }
+
+    /**
+     * @param array $context
+     * @param $seeker
+     * @param $essence
+     */
+    private function checkShowAll(
+        array $context,
+        Seeker $seeker,
+        string $essence
+    ): void {
+        $data = $seeker->data();
+
+        $isEnough = count($data) === 3;
+        $this->assertTrue(
+            $isEnough,
+            "Essence `$essence` must have three things"
+        );
+
+        $thingTested = 0;
+        foreach ($data as $thing) {
+            $code = $thing['code'];
+            switch ($code) {
+                case $context['bun-with-jam']:
+                    $isProper = true;
+                    $isProper = $isProper
+                        && $thing[$context['price']] === '15.50';
+                    $isProper = $isProper
+                        && $thing[$context['production-date']]
+                        === '20180429T1356';
+                    $isProper = $isProper
+                        && $thing[$context['place-of-production']]
+                        === 'Екатеринбург';
+                    $this->assertTrue(
+                        $isProper,
+                        "Thing `$code`"
+                        . ' must have same content as defined'
+                    );
+                    $thingTested++;
+                    break;
+                case $context['bun-with-raisins']:
+                    $isProper = true;
+                    $isProper = $isProper
+                        && $thing[$context['price']] === '9.50';
+                    $isProper = $isProper
+                        && $thing[$context['production-date']]
+                        === '20180427';
+                    $isProper = $isProper
+                        && $thing[$context['place-of-production']]
+                        === 'Екатеринбург';
+                    $this->assertTrue(
+                        $isProper,
+                        "Thing `$code`"
+                        . ' must have same content as defined'
+                    );
+                    $thingTested++;
+                    break;
+                case $context['cinnamon-bun']:
+                    $isProper = true;
+                    $isProper = $isProper
+                        && $thing[$context['price']] === '4.50';
+                    $isProper = $isProper
+                        && $thing[$context['production-date']]
+                        === '20180429';
+                    $isProper = $isProper
+                        && $thing[$context['place-of-production']]
+                        === 'Челябинск';
+                    $this->assertTrue(
+                        $isProper,
+                        "Thing `$code`"
+                        . ' must have same content as defined'
+                    );
+                    $thingTested++;
+                    break;
+            }
+        }
+        $this->assertTrue(
+            $thingTested === 3,
+            "Each thing of essence `$essence`"
+            . ' must be tested for matching with defined'
+        );
     }
 
     /**
@@ -532,6 +692,39 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * @param $seeker
+     * @param $essence
+     */
+    private function checkFilters(
+        Seeker $seeker,
+        string $essence
+    ): void {
+        $data = $seeker->filters();
+
+        $this->assertTrue(
+            count($data) === 2,
+            "Filters of essence `$essence`"
+            . ' must have two types'
+        );
+        $this->assertTrue(
+            array_key_exists('continuous', $data),
+            "Filters of essence `$essence`"
+            . ' must have type continuous'
+        );
+        $this->assertTrue(
+            array_key_exists('discrete', $data),
+            "Filters of essence `$essence`"
+            . ' must have type discrete'
+        );
+
+        $filtersValue = 'a:2:{s:10:"continuous";a:4:{s:9:"max@price";s:4:"9.50";s:9:"min@price";s:5:"15.50";s:19:"max@production-date";s:13:"20180429T1356";s:19:"min@production-date";s:8:"20180427";}s:8:"discrete";a:1:{s:19:"place-of-production";a:2:{i:0;s:24:"Екатеринбург";i:1;s:18:"Челябинск";}}}';
+        $this->assertTrue(
+            serialize($data) === $filtersValue,
+            "Filters of essence `$essence` must have proper value"
+        );
+    }
+
+    /**
      * @depends testDefineThings
      *
      * @param array $context
@@ -551,6 +744,28 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * @param array $context
+     * @param $seeker
+     */
+    private function checkSearch(array $context, Seeker $seeker): void
+    {
+        $continuous = new ContinuousFilter(
+            $context['price'], '15.50', '4.50'
+        );
+        $data = $seeker->data([$continuous]);
+        $this->assertTrue(!empty($data));
+
+        $discrete = new DiscreteFilter(
+            $context['place-of-production'], ['Челябинск']
+        );
+        $data = $seeker->data([$discrete]);
+        $this->assertTrue(!empty($data));
+
+        $data = $seeker->data([$discrete, $continuous]);
+        $this->assertTrue(!empty($data));
+    }
+
+    /**
      * @depends testDefineEssence
      *
      * @param array $context
@@ -563,7 +778,6 @@ class BusinessProcessTest extends TestCase
 
         $handler = new RapidObtainment\Source($essence, $linkToData);
         $this->checkSourceSetup($handler, $essence);
-
     }
 
     /**
@@ -697,132 +911,9 @@ class BusinessProcessTest extends TestCase
             $linkToData = $context['PDO'];
             $isSuccess = $linkToData->rollBack();
         }
-        $this->assertTrue($isSuccess,
-            'Transaction must be rolled back');
-    }
-
-    /**
-     * @param array $context
-     * @param $seeker
-     * @param $essence
-     */
-    private function checkShowAll(array $context, Seeker $seeker,
-                                  string $essence): void
-    {
-        $data = $seeker->data();
-
-        $isEnough = count($data) === 3;
-        $this->assertTrue($isEnough,
-            "Essence `$essence` must have three things");
-
-        $thingTested = 0;
-        foreach ($data as $thing) {
-
-            $code = $thing['code'];
-            switch ($code) {
-                case $context['bun-with-jam']:
-                    $isProper = true;
-                    $isProper = $isProper
-                        && $thing[$context['price']] === '15.50';
-                    $isProper = $isProper
-                        && $thing[$context['production-date']]
-                        === '20180429T1356';
-                    $isProper = $isProper
-                        && $thing[$context['place-of-production']]
-                        === 'Екатеринбург';
-                    $this->assertTrue($isProper, "Thing `$code`"
-                        . ' must have same content as defined');
-                    $thingTested++;
-                    break;
-                case $context['bun-with-raisins']:
-                    $isProper = true;
-                    $isProper = $isProper
-                        && $thing[$context['price']] === '9.50';
-                    $isProper = $isProper
-                        && $thing[$context['production-date']]
-                        === '20180427';
-                    $isProper = $isProper
-                        && $thing[$context['place-of-production']]
-                        === 'Екатеринбург';
-                    $this->assertTrue($isProper, "Thing `$code`"
-                        . ' must have same content as defined');
-                    $thingTested++;
-                    break;
-                case $context['cinnamon-bun']:
-                    $isProper = true;
-                    $isProper = $isProper
-                        && $thing[$context['price']] === '4.50';
-                    $isProper = $isProper
-                        && $thing[$context['production-date']]
-                        === '20180429';
-                    $isProper = $isProper
-                        && $thing[$context['place-of-production']]
-                        === 'Челябинск';
-                    $this->assertTrue($isProper, "Thing `$code`"
-                        . ' must have same content as defined');
-                    $thingTested++;
-                    break;
-            }
-        }
-        $this->assertTrue($thingTested === 3,
-            "Each thing of essence `$essence`"
-            . ' must be tested for matching with defined');
-    }
-
-    /**
-     * @param $handler
-     * @param $essence
-     */
-    private function checkSourceSetup(Installation $handler,
-                                      string $essence): void
-    {
-        $result = $handler->setup();
-
-        $this->assertTrue($result, "DB source for"
-            . " `$essence` must be created with success");
-    }
-
-    /**
-     * @param $seeker
-     * @param $essence
-     */
-    private function checkFilters(Seeker $seeker,
-                                  string $essence): void
-    {
-        $data = $seeker->filters();
-
-        $this->assertTrue(count($data) === 2,
-            "Filters of essence `$essence`"
-            . ' must have two types');
-        $this->assertTrue(array_key_exists('continuous', $data),
-            "Filters of essence `$essence`"
-            . ' must have type continuous');
-        $this->assertTrue(array_key_exists('discrete', $data),
-            "Filters of essence `$essence`"
-            . ' must have type discrete');
-
-        $filtersValue = 'a:2:{s:10:"continuous";a:4:{s:9:"max@price";s:4:"9.50";s:9:"min@price";s:5:"15.50";s:19:"max@production-date";s:13:"20180429T1356";s:19:"min@production-date";s:8:"20180427";}s:8:"discrete";a:1:{s:19:"place-of-production";a:2:{i:0;s:24:"Екатеринбург";i:1;s:18:"Челябинск";}}}';
-        $this->assertTrue(serialize($data) === $filtersValue,
-            "Filters of essence `$essence` must have proper value");
-    }
-
-    /**
-     * @param array $context
-     * @param $seeker
-     */
-    private function checkSearch(array $context, Seeker $seeker): void
-    {
-        $continuous = new ContinuousFilter(
-            $context['price'], '15.50', '4.50');
-        $data = $seeker->data([$continuous]);
-        $this->assertTrue(!empty($data));
-
-        $discrete = new DiscreteFilter(
-            $context['place-of-production'], ['Челябинск']);
-        $data = $seeker->data([$discrete]);
-        $this->assertTrue(!empty($data));
-
-        $data = $seeker->data([$discrete, $continuous]);
-        $this->assertTrue(!empty($data));
+        $this->assertTrue(
+            $isSuccess,
+            'Transaction must be rolled back'
+        );
     }
 }

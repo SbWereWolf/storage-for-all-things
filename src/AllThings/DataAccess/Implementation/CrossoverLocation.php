@@ -22,8 +22,12 @@ class CrossoverLocation implements CrossoverWriter
     private $rightKey = null;
     private $leftKey = null;
 
-    function __construct(IForeignKey $leftKey, IForeignKey $rightKey, ICrossoverTable $tableStructure, PDO $dataPath)
-    {
+    public function __construct(
+        IForeignKey $leftKey,
+        IForeignKey $rightKey,
+        ICrossoverTable $tableStructure,
+        PDO $dataPath
+    ) {
         $this->tableStructure = $tableStructure;
         $this->dataPath = $dataPath;
         $this->rightKey = $rightKey;

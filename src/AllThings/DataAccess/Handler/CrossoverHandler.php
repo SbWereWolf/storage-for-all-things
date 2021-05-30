@@ -25,8 +25,13 @@ class CrossoverHandler implements ICrossoverHandler, Retrievable
     private $leftKey = null;
     private $rightKey = null;
 
-    public function __construct(ICrossover $container, IForeignKey $leftKey, IForeignKey $rightKey, ICrossoverTable $tableStructure, PDO $dataPath)
-    {
+    public function __construct(
+        ICrossover $container,
+        IForeignKey $leftKey,
+        IForeignKey $rightKey,
+        ICrossoverTable $tableStructure,
+        PDO $dataPath
+    ) {
         $this->container = $container->getCrossoverCopy();
         $this->dataPath = $dataPath;
         $this->tableStructure = $tableStructure;

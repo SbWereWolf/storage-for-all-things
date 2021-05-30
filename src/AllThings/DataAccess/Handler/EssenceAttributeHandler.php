@@ -43,7 +43,11 @@ class EssenceAttributeHandler implements Linkable, Retrievable
      */
     private function getStorageLocation(): EssenceAttributeLocation
     {
-        $storageLocation = new EssenceAttributeLocation($this->essenceForeignKey, $this->attributeForeignKey, $this->dataPath);
+        $storageLocation = new EssenceAttributeLocation(
+            $this->essenceForeignKey,
+            $this->attributeForeignKey,
+            $this->dataPath
+        );
 
         return $storageLocation;
     }

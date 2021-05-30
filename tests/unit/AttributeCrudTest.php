@@ -19,13 +19,22 @@ class AttributeCrudTest extends TestCase
      */
     public function testInit()
     {
-        define('APPLICATION_ROOT', realpath(__DIR__)
+        define(
+            'APPLICATION_ROOT',
+            realpath(__DIR__)
             . DIRECTORY_SEPARATOR . '..'
-            . DIRECTORY_SEPARATOR . '..');
-        define('CONFIGURATION_ROOT', APPLICATION_ROOT
-            . DIRECTORY_SEPARATOR . 'configuration');
-        define('DB_READ_CONFIGURATION', CONFIGURATION_ROOT
-            . DIRECTORY_SEPARATOR . 'db_test.php');
+            . DIRECTORY_SEPARATOR . '..'
+        );
+        define(
+            'CONFIGURATION_ROOT',
+            APPLICATION_ROOT
+            . DIRECTORY_SEPARATOR . 'configuration'
+        );
+        define(
+            'DB_READ_CONFIGURATION',
+            CONFIGURATION_ROOT
+            . DIRECTORY_SEPARATOR . 'db_test.php'
+        );
 
         $linkToData = (new DbConnection())->getForRead();
 
@@ -55,12 +64,16 @@ class AttributeCrudTest extends TestCase
         $attribute->setCode($code);
 
         $linkToData = $context['PDO'];
-        $handler = new AllThings\Essence\AttributeManager($attribute,
-            $linkToData);
+        $handler = new AllThings\Essence\AttributeManager(
+            $attribute,
+            $linkToData
+        );
 
         $isSuccess = $handler->create();
-        $this->assertTrue($isSuccess,
-            'Attribute must be created with success');
+        $this->assertTrue(
+            $isSuccess,
+            'Attribute must be created with success'
+        );
 
         return $context;
     }
@@ -80,13 +93,17 @@ class AttributeCrudTest extends TestCase
         $value->setRangeType('continuous');
 
         $linkToData = $context['PDO'];
-        $handler = new AllThings\Essence\AttributeManager($value,
-            $linkToData);
+        $handler = new AllThings\Essence\AttributeManager(
+            $value,
+            $linkToData
+        );
 
         $code = $context['attribute'];
         $isSuccess = $handler->correct($code);
-        $this->assertTrue($isSuccess,
-            'Attribute must be updated with success');
+        $this->assertTrue(
+            $isSuccess,
+            'Attribute must be updated with success'
+        );
 
         $context['attribute'] = 'price-rub';
 
@@ -105,13 +122,17 @@ class AttributeCrudTest extends TestCase
         $target->setCode($code);
 
         $linkToData = $context['PDO'];
-        $handler = new AllThings\Essence\attributeManager($target,
-            $linkToData);
+        $handler = new AllThings\Essence\attributeManager(
+            $target,
+            $linkToData
+        );
 
         $isSuccess = $handler->remove();
 
-        $this->assertTrue($isSuccess,
-            'attribute must be deleted with success');
+        $this->assertTrue(
+            $isSuccess,
+            'attribute must be deleted with success'
+        );
     }
 
     /**
@@ -126,8 +147,10 @@ class AttributeCrudTest extends TestCase
             $linkToData = $context['PDO'];
             $isSuccess = $linkToData->rollBack();
         }
-        $this->assertTrue($isSuccess,
-            'Transaction must be rolled back');
+        $this->assertTrue(
+            $isSuccess,
+            'Transaction must be rolled back'
+        );
     }
 
 }

@@ -52,9 +52,11 @@ class DbConnection implements Connection
      */
     private function getPdoConnection(): PDO
     {
-        $connection = new PDO ($this->dataSource,
+        $connection = new PDO (
+            $this->dataSource,
             $this->dbLogin,
-            $this->dbPassword);
+            $this->dbPassword
+        );
         return $connection;
     }
 
