@@ -128,4 +128,15 @@ $contentRequest
         return $name;
     }
 
+    public function refresh(): bool
+    {
+        $ddl = "
+REFRESH MATERIALIZED VIEW {$this->name()}
+";
+        $linkToData = $this->getLinkToData();
+        $affected = $linkToData->exec($ddl);
+        $result = $affected !== false;
+
+        return $result;
+    }
 }

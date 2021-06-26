@@ -129,4 +129,8 @@ $contentRequest
         return $name;
     }
 
+    public function refresh(): bool
+    {
+        return true;
+    }
 }

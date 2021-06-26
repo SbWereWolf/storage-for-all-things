@@ -160,4 +160,83 @@ FROM {$view->name()}
         return $name;
     }
 
+    public function refresh(): bool
+    {
+        $essence = $this->getEssence();
+        $linkToData = $this->getLinkToData();
+
+        $essenceManager = new EssenceAttributeManager($essence, '', $linkToData);
+        $isSuccess = $essenceManager->getAssociated();
+        if ($isSuccess) {
+            $isSuccess = $essenceManager->has();
+        }
+        $attributeCodes = [];
+        if ($isSuccess) {
+            $attributeCodes = $essenceManager->retrieveData();
+        }
+
+        $attributes = [];
+        foreach ($attributeCodes as $code) {
+            $subject = Attribute::GetDefaultAttribute();
+            $subject->setCode($code);
+            $attributeManager = new AttributeManager($subject, $linkToData);
+
+            $isSuccess = $attributeManager->browse();
+            if ($isSuccess) {
+                $isSuccess = $attributeManager->has();
+            }
+            if ($isSuccess) {
+                $attributes[] = $attributeManager->retrieveData();
+            }
+        }
+        $columnNames = [];
+        foreach ($attributes as $attribute) {
+            /* @var IAttribute $attribute */
+            $code = $attribute->getCode();
+            $columnNames[] = "\"{$code}\"";
+        }
+
+        $view = new \AllThings\DirectReading\Source(
+            $this->getEssence(),
+            $this->getLinkToData()
+        );
+
+        $prefix = 'v.';
+        $viewNames = $prefix . implode(",$prefix", $columnNames);
+        $tableNames = implode(',', $columnNames);
+
+        /* Удаляем из таблицы записи, которых нет в представлении */
+        /** @noinspection SqlInsertValues */
+        $ddl = "
+DELETE FROM {$this->name()}
+WHERE thing_id in (
+    SELECT t.thing_id
+    FROM {$view->name()} as v
+    RIGHT JOIN {$this->name()} t
+    on {$prefix}id = t.thing_id
+    WHERE {$prefix}id IS NULL 
+    ORDER BY t.thing_id
+)
+";
+        $affected = $linkToData->exec($ddl);
+        $result = $affected !== false;
+
+        /* Добавляем в таблицу недостающие записи из представления */
+        if ($result) {
+            /** @noinspection SqlInsertValues */
+            $ddl = "
+INSERT INTO {$this->name()}(thing_id,code,$tableNames)
+SELECT {$prefix}id,{$prefix}code,$viewNames
+FROM {$view->name()} as v
+LEFT JOIN {$this->name()} t
+on v.id = t.thing_id
+WHERE t.thing_id IS NULL
+";
+            $affected = $linkToData->exec($ddl);
+            $result = $affected !== false;
+        }
+
+
+        return $result;
+    }
 }

@@ -33,4 +33,10 @@ interface Installation
      * @return PDO
      */
     public function getLinkToData(): PDO;
+
+    /**
+     * Освежить данные в источнике
+     * @return bool
+     */
+    public function refresh(): bool;
 }

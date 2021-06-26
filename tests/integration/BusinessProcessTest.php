@@ -380,7 +380,7 @@ class BusinessProcessTest extends TestCase
         $isSuccess = $handler->attach();
         $this->assertTrue(
             $isSuccess,
-            "Atribute `$attribute` must be defined"
+            "Attribute `$attribute` must be defined"
             . " for thing `$thing` with success"
         );
     }
@@ -464,54 +464,66 @@ class BusinessProcessTest extends TestCase
 
         $thing = $context['bun-with-jam'];
 
-        $attribute = $context['price'];
-        $value = (new Crossover())->setContent('15.50')
-            ->setLeftValue($thing)->setRightValue($attribute);
-        $this->defineContent($thing, $attribute, $value, $linkToData);
-
-        $attribute = $context['production-date'];
-        $value = (new Crossover())->setContent('20180429T1356')
-            ->setLeftValue($thing)->setRightValue($attribute);
-        $this->defineContent($thing, $attribute, $value, $linkToData);
-
-        $attribute = $context['place-of-production'];
-        $value = (new Crossover())->setContent('Екатеринбург')
-            ->setLeftValue($thing)->setRightValue($attribute);
-        $this->defineContent($thing, $attribute, $value, $linkToData);
+        $this->defineThingAttributeValue(
+            $thing,
+            $context['price'],
+            '15.50',
+            $linkToData
+        );
+        $this->defineThingAttributeValue(
+            $thing,
+            $context['production-date'],
+            '20180429T1356',
+            $linkToData
+        );
+        $this->defineThingAttributeValue(
+            $thing,
+            $context['place-of-production'],
+            'Екатеринбург',
+            $linkToData
+        );
 
         $thing = $context['bun-with-raisins'];
 
-        $attribute = $context['price'];
-        $value = (new Crossover())->setContent('9.50')
-            ->setLeftValue($thing)->setRightValue($attribute);
-        $this->defineContent($thing, $attribute, $value, $linkToData);
-
-        $attribute = $context['production-date'];
-        $value = (new Crossover())->setContent('20180427')
-            ->setLeftValue($thing)->setRightValue($attribute);
-        $this->defineContent($thing, $attribute, $value, $linkToData);
-
-        $attribute = $context['place-of-production'];
-        $value = (new Crossover())->setContent('Екатеринбург')
-            ->setLeftValue($thing)->setRightValue($attribute);
-        $this->defineContent($thing, $attribute, $value, $linkToData);
+        $this->defineThingAttributeValue(
+            $thing,
+            $context['price'],
+            '9.50',
+            $linkToData
+        );
+        $this->defineThingAttributeValue(
+            $thing,
+            $context['production-date'],
+            '20180427',
+            $linkToData
+        );
+        $this->defineThingAttributeValue(
+            $thing,
+            $context['place-of-production'],
+            'Екатеринбург',
+            $linkToData
+        );
 
         $thing = $context['cinnamon-bun'];
 
-        $attribute = $context['price'];
-        $value = (new Crossover())->setContent('4.50')
-            ->setLeftValue($thing)->setRightValue($attribute);
-        $this->defineContent($thing, $attribute, $value, $linkToData);
-
-        $attribute = $context['production-date'];
-        $value = (new Crossover())->setContent('20180429')
-            ->setLeftValue($thing)->setRightValue($attribute);
-        $this->defineContent($thing, $attribute, $value, $linkToData);
-
-        $attribute = $context['place-of-production'];
-        $value = (new Crossover())->setContent('Челябинск')
-            ->setLeftValue($thing)->setRightValue($attribute);
-        $this->defineContent($thing, $attribute, $value, $linkToData);
+        $this->defineThingAttributeValue(
+            $thing,
+            'price',
+            '4.50',
+            $linkToData
+        );
+        $this->defineThingAttributeValue(
+            $thing,
+            $context['production-date'],
+            '20180429',
+            $linkToData
+        );
+        $this->defineThingAttributeValue(
+            $thing,
+            $context['place-of-production'],
+            'Челябинск',
+            $linkToData
+        );
 
         return $context;
     }
@@ -594,18 +606,25 @@ class BusinessProcessTest extends TestCase
      * @param array $context
      * @param $seeker
      * @param $essence
+     * @param bool $extended
      */
     private function checkShowAll(
         array $context,
         Seeker $seeker,
-        string $essence
+        string $essence,
+        bool $extended = false
     ): void {
         $data = $seeker->data();
 
-        $isEnough = count($data) === 3;
+        $properNumbers = 3;
+        if ($extended) {
+            $properNumbers = 4;
+        }
+        $isEnough = (count($data) === $properNumbers && !$extended)
+            || (count($data) === $properNumbers && $extended);
         $this->assertTrue(
             $isEnough,
-            "Essence `$essence` must have three things"
+            "Essence `$essence` must have ($properNumbers) things"
         );
 
         $thingTested = 0;
@@ -663,10 +682,30 @@ class BusinessProcessTest extends TestCase
                     );
                     $thingTested++;
                     break;
+                case $context['new-thing']:
+                    $isProper = true;
+                    $isProper = $isProper
+                        && $thing[$context['price']] === '11.11';
+                    $isProper = $isProper
+                        && $thing[$context['production-date']]
+                        === '20210531T0306';
+                    $isProper = $isProper
+                        && $thing[$context['place-of-production']]
+                        === 'Екатеринбург';
+                    $this->assertTrue(
+                        $isProper,
+                        "Thing `$code`"
+                        . ' must have same content as defined'
+                    );
+                    $thingTested++;
+                    break;
             }
         }
+
+        $isEnough = ($thingTested === $properNumbers && !$extended)
+            || ($thingTested === $properNumbers && $extended);
         $this->assertTrue(
-            $thingTested === 3,
+            $isEnough,
             "Each thing of essence `$essence`"
             . ' must be tested for matching with defined'
         );
@@ -900,6 +939,126 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * @depends testThingsCreate
+     *
+     * @param array $context
+     */
+    public function testAddNewThing(array $context)
+    {
+        /* получаем атрибуты сущности */
+        $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+        $attributes = $this->getEssenceAttributes(
+            $essence,
+            $linkToData
+        );
+        /* добавляем модель, задаём для неё атрибуты */
+        $codes = ['new-thing'];
+        foreach ($codes as $thing) {
+            $context[$thing] = $thing;
+            $this->createThing($thing, $linkToData);
+
+            foreach ($attributes as $attribute) {
+                $this->defineThing($thing, $attribute, $linkToData);
+            }
+
+            $this->linkThingToEssence($essence, $thing, $linkToData);
+        }
+        /* даём модели название */
+        $titles = [];
+        $titles['new-thing'] = 'новая модель';
+        foreach ($titles as $code => $title) {
+            $this->updateTitle($code, $title, $linkToData);
+        }
+        /* задаём характеристики модели */
+        $this->defineThingAttributeValue(
+            $context['new-thing'],
+            $context['price'],
+            '11.11',
+            $linkToData
+        );
+        $this->defineThingAttributeValue(
+            $context['new-thing'],
+            $context['production-date'],
+            '20210531T0306',
+            $linkToData
+        );
+        $this->defineThingAttributeValue(
+            $context['new-thing'],
+            $context['place-of-production'],
+            'Екатеринбург',
+            $linkToData
+        );
+
+        return $context;
+    }
+
+    /**
+     * @depends testAddNewThing
+     *
+     * @param array $context
+     */
+    public function testAddNewThingToView(array $context)
+    {
+        $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+
+        $source = new DirectReading\Source(
+            $essence, $linkToData
+        );
+        $isSuccess = $source->refresh();
+        $this->assertTrue(
+            $isSuccess,
+            'View MUST BE refreshed with success'
+        );
+
+        $seeker = new Seeker($source);
+        $this->checkShowAll($context, $seeker, $essence, true);
+    }
+
+    /**
+     * @depends testAddNewThing
+     *
+     * @param array $context
+     */
+    public function testAddNewThingToMathView(array $context)
+    {
+        $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+
+        $source = new RapidObtainment\Source($essence, $linkToData);
+        $isSuccess = $source->refresh();
+        $this->assertTrue(
+            $isSuccess,
+            'MathView MUST BE refreshed with success'
+        );
+
+        $seeker = new Seeker($source);
+        $this->checkShowAll($context, $seeker, $essence, true);
+    }
+
+    /**
+     * @depends testAddNewThing
+     *
+     * @param array $context
+     */
+    public function testAddNewThingToTable(array $context)
+    {
+        $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+
+        $source = new RapidRecording\Source($essence, $linkToData);
+        $isSuccess = $source->refresh();
+        $this->assertTrue(
+            $isSuccess,
+            'Table MUST BE refreshed with success'
+        );
+
+        $seeker = new Seeker($source);
+        $this->checkShowAll($context, $seeker, $essence, true);
+    }
+
+    /**
      * @depends testInit
      *
      * @param array $context
@@ -915,5 +1074,22 @@ class BusinessProcessTest extends TestCase
             $isSuccess,
             'Transaction must be rolled back'
         );
+    }
+
+    /**
+     * @param $thing
+     * @param $attribute
+     * @param string $content
+     * @param $linkToData
+     */
+    private function defineThingAttributeValue(
+        $thing,
+        $attribute,
+        string $content,
+        $linkToData
+    ) {
+        $value = (new Crossover())->setContent($content)
+            ->setLeftValue($thing)->setRightValue($attribute);
+        $this->defineContent($thing, $attribute, $value, $linkToData);
     }
 }
