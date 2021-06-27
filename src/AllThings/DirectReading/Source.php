@@ -109,14 +109,6 @@ WHERE
     }
 
     /**
-     * @return string
-     */
-    public function getEssence(): string
-    {
-        return $this->essence;
-    }
-
-    /**
      * @return PDO
      */
     public function getLinkToData(): PDO
@@ -129,6 +121,14 @@ WHERE
         $name = self::STRUCTURE_PREFIX . $this->getEssence();
 
         return $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEssence(): string
+    {
+        return $this->essence;
     }
 
     public function refresh(): bool
