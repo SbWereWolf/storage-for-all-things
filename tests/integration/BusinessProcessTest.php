@@ -1059,6 +1059,157 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * @param $thing
+     * @param $attribute
+     * @param string $content
+     * @param $linkToData
+     */
+    private function defineThingAttributeValue(
+        $thing,
+        $attribute,
+        string $content,
+        $linkToData
+    ) {
+        $value = (new Crossover())->setContent($content)
+            ->setLeftValue($thing)->setRightValue($attribute);
+        $this->defineContent($thing, $attribute, $value, $linkToData);
+    }
+
+    /**
+     * @depends testAddNewThing
+     *
+     * @param array $context
+     *
+     * @return array
+     */
+    public function testAddNewAttribute(array $context)
+    {
+        $linkToData = $context['PDO'];
+
+        /* Добавляем новую характеристику package и задаём параметры
+        этой характеристики */
+        $code = 'package';
+        $context[$code] = $code;
+        $this->createAttribute($context, $code);
+        $value = Attribute::GetDefaultAttribute();
+        $value->setCode($code);
+        $value->setTitle('Упаковка');
+        $value->setDataType('symbol');
+        $value->setRangeType('discrete');
+        $handler = new AllThings\Essence\AttributeManager(
+            $value,
+            $linkToData
+        );
+        $isSuccess = $handler->correct($code);
+
+        /* Добавим сущности cake новую характеристику package */
+        $essence = $context['essence'];
+        $this->LinkEssenceToAttribute(
+            $essence,
+            $code,
+            $linkToData
+        );
+
+        /* Добавим существующим моделям новую характеристику */
+        $thingList = [
+            'bun-with-jam',
+            'bun-with-raisins',
+            'cinnamon-bun',
+        ];
+        foreach ($thingList as $thing) {
+            $context[$thing] = $thing;
+            $this->defineThing($thing, $code, $linkToData);
+        }
+
+        /* Зададим значения новой характеристики для всех моделей */
+        $this->defineThingAttributeValue(
+            $context['bun-with-jam'],
+            $context['package'],
+            'без упаковки',
+            $linkToData
+        );
+        $this->defineThingAttributeValue(
+            $context['bun-with-raisins'],
+            $context['package'],
+            'без упаковки',
+            $linkToData
+        );
+        $this->defineThingAttributeValue(
+            $context['cinnamon-bun'],
+            $context['package'],
+            'пакет',
+            $linkToData
+        );
+
+        return $context;
+    }
+
+    /**
+     * @depends testAddNewAttribute
+     *
+     * @param array $context
+     */
+    public function testAddNewAttributeToView(array $context)
+    {
+        $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+
+        $source = new DirectReading\Source(
+            $essence, $linkToData
+        );
+        $isSuccess = $source->setup();
+        $this->assertTrue(
+            $isSuccess,
+            'View MUST BE recreated with success'
+        );
+
+        $seeker = new Seeker($source);
+        $this->checkShowAll($context, $seeker, $essence, true);
+    }
+
+    /**
+     * @depends testAddNewAttribute
+     *
+     * @param array $context
+     */
+    public function testAddNewAttributeToMathView(array $context)
+    {
+        $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+
+        $source = new RapidObtainment\Source($essence, $linkToData);
+        $isSuccess = $source->setup();
+        $this->assertTrue(
+            $isSuccess,
+            'MathView MUST BE recreated with success'
+        );
+
+        $seeker = new Seeker($source);
+        $this->checkShowAll($context, $seeker, $essence, true);
+    }
+
+    /**
+     * @depends testAddNewAttribute
+     *
+     * @param array $context
+     */
+    public function testAddNewAttributeToTable(array $context)
+    {
+        $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+
+        $source = new RapidRecording\Source($essence, $linkToData);
+        $isSuccess = $source->setup();
+        $this->assertTrue(
+            $isSuccess,
+            'Table MUST BE recreated with success'
+        );
+
+        $seeker = new Seeker($source);
+        $this->checkShowAll($context, $seeker, $essence, true);
+    }
+
+    /**
      * @depends testInit
      *
      * @param array $context
@@ -1074,22 +1225,5 @@ class BusinessProcessTest extends TestCase
             $isSuccess,
             'Transaction must be rolled back'
         );
-    }
-
-    /**
-     * @param $thing
-     * @param $attribute
-     * @param string $content
-     * @param $linkToData
-     */
-    private function defineThingAttributeValue(
-        $thing,
-        $attribute,
-        string $content,
-        $linkToData
-    ) {
-        $value = (new Crossover())->setContent($content)
-            ->setLeftValue($thing)->setRightValue($attribute);
-        $this->defineContent($thing, $attribute, $value, $linkToData);
     }
 }

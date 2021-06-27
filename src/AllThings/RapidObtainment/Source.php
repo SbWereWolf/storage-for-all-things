@@ -51,11 +51,18 @@ class Source implements Installation
 
     public function setup(): bool
     {
-        $essence = $this->getEssence();
         $linkToData = $this->getLinkToData();
 
-        $manager = new EssenceAttributeManager($essence, '', $linkToData);
-        $isSuccess = $manager->getAssociated();
+        $name = $this->name();
+        $ddl = "DROP MATERIALIZED VIEW IF EXISTS $name";
+        $affected = $linkToData->exec($ddl);
+        $isSuccess = $affected !== false;
+
+        if ($isSuccess) {
+            $essence = $this->getEssence();
+            $manager = new EssenceAttributeManager($essence, '', $linkToData);
+            $isSuccess = $manager->getAssociated();
+        }
         if ($isSuccess) {
             $isSuccess = $manager->has();
         }
@@ -94,13 +101,12 @@ FROM
 WHERE 
     E.code = '$essence'
 ";
-        $name = $this->name();
-        $ddl = "
-CREATE MATERIALIZED VIEW $name AS
-$contentRequest
-";
-        $affected = $linkToData->exec($ddl);
-        $result = $affected !== false;
+
+        if ($isSuccess) {
+            $ddl = "CREATE MATERIALIZED VIEW $name AS $contentRequest";
+            $affected = $linkToData->exec($ddl);
+            $result = $affected !== false;
+        }
 
         return $result;
     }

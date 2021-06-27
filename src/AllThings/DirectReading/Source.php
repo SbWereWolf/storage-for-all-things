@@ -51,11 +51,17 @@ class Source implements Installation
 
     public function setup(): bool
     {
-        $essence = $this->getEssence();
         $linkToData = $this->getLinkToData();
 
-        $manager = new EssenceAttributeManager($essence, '', $linkToData);
-        $isSuccess = $manager->getAssociated();
+        $ddl = "DROP VIEW IF EXISTS {$this->name()}";
+        $affected = $linkToData->exec($ddl);
+        $isSuccess = $affected !== false;
+
+        $essence = $this->getEssence();
+        if ($isSuccess) {
+            $manager = new EssenceAttributeManager($essence, '', $linkToData);
+            $isSuccess = $manager->getAssociated();
+        }
         if ($isSuccess) {
             $isSuccess = $manager->has();
         }
@@ -95,11 +101,7 @@ FROM
 WHERE 
     E.code = '$essence'
 ";
-        $name = $this->name();
-        $ddl = "
-CREATE OR REPLACE VIEW $name AS
-$contentRequest
-";
+        $ddl = "CREATE VIEW {$this->name()} AS $contentRequest";
         $affected = $linkToData->exec($ddl);
         $result = $affected !== false;
 

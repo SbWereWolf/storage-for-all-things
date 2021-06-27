@@ -54,11 +54,23 @@ class Source implements Installation
 
     public function setup(): bool
     {
-        $essence = $this->getEssence();
         $linkToData = $this->getLinkToData();
 
-        $essenceManager = new EssenceAttributeManager($essence, '', $linkToData);
-        $isSuccess = $essenceManager->getAssociated();
+        $ddl = "DROP TABLE IF EXISTS {$this->name()}";
+        $affected = $linkToData->exec($ddl);
+        $result = $affected !== false;
+
+        $essence = $this->getEssence();
+        $isSuccess = false;
+        if ($result) {
+            $essenceManager = new EssenceAttributeManager(
+                $essence,
+                '',
+                $linkToData
+            );
+            $isSuccess = $essenceManager->getAssociated();
+        }
+
         if ($isSuccess) {
             $isSuccess = $essenceManager->has();
         }
