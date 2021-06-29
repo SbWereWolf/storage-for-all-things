@@ -2,8 +2,10 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 29.05.2021, 4:53
+ * 29.06.2021, 17:59
  */
+
+namespace Integration;
 
 use AllThings\Content\ContentManager;
 use AllThings\DataAccess\Manager\NamedEntityManager;
@@ -14,14 +16,17 @@ use AllThings\DataObject\ICrossover;
 use AllThings\DataObject\NamedEntity;
 use AllThings\DirectReading;
 use AllThings\Essence\Attribute;
+use AllThings\Essence\AttributeManager;
 use AllThings\Essence\Essence;
 use AllThings\Essence\EssenceAttributeManager;
+use AllThings\Essence\EssenceManager;
 use AllThings\Essence\EssenceThingManager;
 use AllThings\RapidObtainment;
 use AllThings\RapidRecording;
 use AllThings\SearchEngine\Seeker;
 use AllThings\StorageEngine\Installation;
 use Environment\DbConnection;
+use PDO;
 use PHPUnit\Framework\TestCase;
 
 class BusinessProcessTest extends TestCase
@@ -29,6 +34,7 @@ class BusinessProcessTest extends TestCase
     public const SKIP = false;
 
     /**
+     * Настраиваем тестовое окружение (соединение с БД)
      * @return array
      */
     public function testInit()
@@ -65,6 +71,7 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Создаём сущность - пирожки
      * @depends testInit
      *
      * @param array $context
@@ -78,7 +85,7 @@ class BusinessProcessTest extends TestCase
         $essence->setCode('cake');
 
         $linkToData = $context['PDO'];
-        $handler = new AllThings\Essence\EssenceManager(
+        $handler = new EssenceManager(
             $essence,
             $linkToData
         );
@@ -95,6 +102,7 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Задаём название и описание сущности
      * @depends testEssenceCreate
      *
      * @param array $context
@@ -112,7 +120,7 @@ class BusinessProcessTest extends TestCase
         $value->setStoreAt('view');
 
         $linkToData = $context['PDO'];
-        $handler = new AllThings\Essence\EssenceManager(
+        $handler = new EssenceManager(
             $value,
             $linkToData
         );
@@ -128,6 +136,7 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Создаём характеристики
      * @depends testEssenceCreate
      *
      * @param array $context
@@ -137,17 +146,10 @@ class BusinessProcessTest extends TestCase
     public function testAttributesCreate(array $context)
     {
         /* ## S001A1S03 создать характеристику */
-        $code = 'price';
-        $context[$code] = $code;
-        $this->createAttribute($context, $code);
-
-        $code = 'production-date';
-        $context[$code] = $code;
-        $this->createAttribute($context, $code);
-
-        $code = 'place-of-production';
-        $context[$code] = $code;
-        $this->createAttribute($context, $code);
+        $codes = ['price', 'production-date', 'place-of-production',];
+        foreach ($codes as $code) {
+            $context = $this->addAttributeToContext($code, $context);
+        }
 
         return $context;
     }
@@ -162,7 +164,7 @@ class BusinessProcessTest extends TestCase
         $attribute->setCode($code);
 
         $linkToData = $context['PDO'];
-        $handler = new AllThings\Essence\AttributeManager(
+        $handler = new AttributeManager(
             $attribute,
             $linkToData
         );
@@ -175,6 +177,7 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Задаём свойства атрибутов
      * @depends testAttributesCreate
      *
      * @param array $context
@@ -184,59 +187,45 @@ class BusinessProcessTest extends TestCase
         /* ## S001A1S04 задать свойства характеристики */
         $linkToData = $context['PDO'];
 
-        $code = $context['price'];
-        $value = Attribute::GetDefaultAttribute();
-        $value->setCode($code);
-        $value->setTitle('цена, руб.');
-        $value->setDataType('decimal');
-        $value->setRangeType('continuous');
-        $handler = new AllThings\Essence\AttributeManager(
-            $value,
-            $linkToData
-        );
+        $codes = [
+            $context['price'] => [
+                'Title' => 'цена, руб.',
+                'DataType' => 'decimal',
+                'RangeType' => 'continuous',
+            ],
+            $context['production-date'] => [
+                'Title' => 'дата выработки',
+                'DataType' => 'timestamp',
+                'RangeType' => 'continuous',
+            ],
+            $context['place-of-production'] => [
+                'Title' => 'Место производства',
+                'DataType' => 'symbol',
+                'RangeType' => 'discrete',
+            ],
+        ];
 
-        $isSuccess = $handler->correct($code);
-        $this->assertTrue(
-            $isSuccess,
-            "Attribute `$code` must be updated with success"
-        );
+        foreach ($codes as $code => $settings) {
+            $value = Attribute::GetDefaultAttribute();
+            $value->setCode($code)
+                ->setTitle($settings['Title'])
+                ->setDataType($settings['DataType'])
+                ->setRangeType($settings['RangeType']);
+            $handler = new AttributeManager(
+                $value,
+                $linkToData
+            );
 
-        $code = $context['production-date'];
-        $value = Attribute::GetDefaultAttribute();
-        $value->setCode($code);
-        $value->setTitle('дата выработки');
-        $value->setDataType('timestamp');
-        $value->setRangeType('continuous');
-        $handler = new AllThings\Essence\AttributeManager(
-            $value,
-            $linkToData
-        );
-
-        $isSuccess = $handler->correct($code);
-        $this->assertTrue(
-            $isSuccess,
-            "Attribute `$code` must be updated with success"
-        );
-
-        $code = $context['place-of-production'];
-        $value = Attribute::GetDefaultAttribute();
-        $value->setCode($code);
-        $value->setTitle('Место производства');
-        $value->setDataType('symbol');
-        $value->setRangeType('discrete');
-        $handler = new AllThings\Essence\AttributeManager(
-            $value,
-            $linkToData
-        );
-
-        $isSuccess = $handler->correct($code);
-        $this->assertTrue(
-            $isSuccess,
-            "Attribute `$code` must be updated with success"
-        );
+            $isSuccess = $handler->correct($code);
+            $this->assertTrue(
+                $isSuccess,
+                "Attribute `$code` must be updated with success"
+            );
+        }
     }
 
     /**
+     * Задаём характеристики для сущности
      * @depends testAttributesCreate
      *
      * @param array $context
@@ -285,7 +274,7 @@ class BusinessProcessTest extends TestCase
         );
     }
 
-    /**
+    /** Создаём модели на основе сущности
      * @depends testDefineEssence
      *
      * @param array $context
@@ -411,6 +400,7 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Задаём свойства моделям
      * @depends testThingsCreate
      *
      * @param array $context
@@ -451,6 +441,7 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Задаём значения характеристикам моделей
      * @depends testThingsCreate
      *
      * @param array $context
@@ -462,68 +453,36 @@ class BusinessProcessTest extends TestCase
         /* ## S001A2S03 задать значения для характеристики предмета */
         $linkToData = $context['PDO'];
 
-        $thing = $context['bun-with-jam'];
+        $codes = [
+            /* модель */
+            $context['bun-with-jam'] => [
+                /* характеристика и её значение */
+                $context['price'] => '15.50',
+                $context['production-date'] => '20180429T1356',
+                $context['place-of-production'] => 'Екатеринбург',
+            ],
+            $context['bun-with-raisins'] => [
+                $context['price'] => '9.50',
+                $context['production-date'] => '20180427',
+                $context['place-of-production'] => 'Екатеринбург',
+            ],
+            $context['cinnamon-bun'] => [
+                $context['price'] => '4.50',
+                $context['production-date'] => '20180429',
+                $context['place-of-production'] => 'Челябинск',
+            ],
+        ];
 
-        $this->defineThingAttributeValue(
-            $thing,
-            $context['price'],
-            '15.50',
-            $linkToData
-        );
-        $this->defineThingAttributeValue(
-            $thing,
-            $context['production-date'],
-            '20180429T1356',
-            $linkToData
-        );
-        $this->defineThingAttributeValue(
-            $thing,
-            $context['place-of-production'],
-            'Екатеринбург',
-            $linkToData
-        );
-
-        $thing = $context['bun-with-raisins'];
-
-        $this->defineThingAttributeValue(
-            $thing,
-            $context['price'],
-            '9.50',
-            $linkToData
-        );
-        $this->defineThingAttributeValue(
-            $thing,
-            $context['production-date'],
-            '20180427',
-            $linkToData
-        );
-        $this->defineThingAttributeValue(
-            $thing,
-            $context['place-of-production'],
-            'Екатеринбург',
-            $linkToData
-        );
-
-        $thing = $context['cinnamon-bun'];
-
-        $this->defineThingAttributeValue(
-            $thing,
-            'price',
-            '4.50',
-            $linkToData
-        );
-        $this->defineThingAttributeValue(
-            $thing,
-            $context['production-date'],
-            '20180429',
-            $linkToData
-        );
-        $this->defineThingAttributeValue(
-            $thing,
-            $context['place-of-production'],
-            'Челябинск',
-            $linkToData
-        );
+        foreach ($codes as $code => $settings) {
+            foreach ($settings as $attribute => $value) {
+                $this->defineThingAttributeValue(
+                    $code,
+                    $attribute,
+                    $value,
+                    $linkToData
+                );
+            }
+        }
 
         return $context;
     }
@@ -550,6 +509,7 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Создаём представление для характеристик моделей
      * @depends testDefineEssence
      *
      * @param array $context
@@ -584,6 +544,7 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Получаем данные всех моделей из представления
      * @depends testDefineThings
      *
      * @param array $context
@@ -712,6 +673,8 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Получаем значения фильтров для поиска моделей в представлении
+     * по значениям характеристик
      * @depends testDefineThings
      *
      * @param array $context
@@ -756,7 +719,12 @@ class BusinessProcessTest extends TestCase
             . ' must have type discrete'
         );
 
-        $filtersValue = 'a:2:{s:10:"continuous";a:4:{s:9:"max@price";s:4:"9.50";s:9:"min@price";s:5:"15.50";s:19:"max@production-date";s:13:"20180429T1356";s:19:"min@production-date";s:8:"20180427";}s:8:"discrete";a:1:{s:19:"place-of-production";a:2:{i:0;s:24:"Екатеринбург";i:1;s:18:"Челябинск";}}}';
+        $filtersValue = 'a:2:{s:10:"continuous";a:4:{s:9:"max@price";'
+            . 's:4:"9.50";s:9:"min@price";s:5:"15.50";'
+            . 's:19:"max@production-date";s:13:"20180429T1356";'
+            . 's:19:"min@production-date";s:8:"20180427";}'
+            . 's:8:"discrete";a:1:{s:19:"place-of-production";'
+            . 'a:2:{i:0;s:24:"Екатеринбург";i:1;s:18:"Челябинск";}}}';
         $this->assertTrue(
             serialize($data) === $filtersValue,
             "Filters of essence `$essence` must have proper value"
@@ -764,6 +732,8 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Фильтруем модели из представления по заданным значениям
+     * характеристик
      * @depends testDefineThings
      *
      * @param array $context
@@ -805,6 +775,8 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Создаём материализованное представление для характеристик
+     * моделей
      * @depends testDefineEssence
      *
      * @param array $context
@@ -820,6 +792,8 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Читаем характеристики моделей из материализованного
+     * представления
      * @depends testDefineThings
      *
      * @param array $context
@@ -837,6 +811,8 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Получаем значения фильтров для поиска моделей в
+     * материализованном представлении по значениям характеристик
      * @depends testDefineThings
      *
      * @param array $context
@@ -854,6 +830,8 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Фильтруем модели из материализованного представления по
+     * заданным значениям характеристик
      * @depends testDefineThings
      *
      * @param array $context
@@ -871,6 +849,7 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Создаём таблицу для значений характеристик моделей
      * @depends testDefineEssence
      *
      * @param array $context
@@ -888,6 +867,7 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Получаем характеристики всех моделей из таблицы
      * @depends testDefineThings
      *
      * @param array $context
@@ -905,6 +885,8 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Получаем значения фильтров для поиска моделей в таблице
+     * по значениям характеристик
      * @depends testDefineThings
      *
      * @param array $context
@@ -922,6 +904,8 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Фильтруем модели из таблицы по заданным значениям
+     * характеристик
      * @depends testDefineThings
      *
      * @param array $context
@@ -939,6 +923,7 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Добавляем новую модель
      * @depends testThingsCreate
      *
      * @param array $context
@@ -994,6 +979,7 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Добавляем новую модель в представление
      * @depends testAddNewThing
      *
      * @param array $context
@@ -1017,6 +1003,7 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Добавляем новую модель в материализованное представление
      * @depends testAddNewThing
      *
      * @param array $context
@@ -1038,6 +1025,7 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Добавляем новую модель в таблицу
      * @depends testAddNewThing
      *
      * @param array $context
@@ -1076,6 +1064,7 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Добавляем новую характеристику
      * @depends testAddNewThing
      *
      * @param array $context
@@ -1089,17 +1078,17 @@ class BusinessProcessTest extends TestCase
         /* Добавляем новую характеристику package и задаём параметры
         этой характеристики */
         $code = 'package';
-        $context[$code] = $code;
-        $this->createAttribute($context, $code);
+        $context = $this->addAttributeToContext($code, $context);
         $value = Attribute::GetDefaultAttribute();
         $value->setCode($code);
         $value->setTitle('Упаковка');
         $value->setDataType('symbol');
         $value->setRangeType('discrete');
-        $handler = new AllThings\Essence\AttributeManager(
+        $handler = new AttributeManager(
             $value,
             $linkToData
         );
+        /** @noinspection PhpUnusedLocalVariableInspection */
         $isSuccess = $handler->correct($code);
 
         /* Добавим сущности cake новую характеристику package */
@@ -1145,6 +1134,7 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Добавляем новую характеристику в представление
      * @depends testAddNewAttribute
      *
      * @param array $context
@@ -1168,6 +1158,8 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Добавляем новую характеристику в материализованное
+     * представление
      * @depends testAddNewAttribute
      *
      * @param array $context
@@ -1189,6 +1181,7 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Добавляем новую характеристику в таблицу
      * @depends testAddNewAttribute
      *
      * @param array $context
@@ -1210,6 +1203,7 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Заключительные действия, откатываем транзакцию
      * @depends testInit
      *
      * @param array $context
@@ -1225,5 +1219,17 @@ class BusinessProcessTest extends TestCase
             $isSuccess,
             'Transaction must be rolled back'
         );
+    }
+
+    /**
+     * @param string $code
+     * @param array $context
+     * @return array
+     */
+    private function addAttributeToContext(string $code, array $context): array
+    {
+        $context[$code] = $code;
+        $this->createAttribute($context, $code);
+        return $context;
     }
 }
