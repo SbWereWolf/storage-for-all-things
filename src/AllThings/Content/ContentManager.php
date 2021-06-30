@@ -1,8 +1,8 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * Copyright © 2018 Volkhin Nikolay
- * 03.06.18 11:29
+ * Copyright © 2021 Volkhin Nikolay
+ * 01.07.2021, 1:42
  */
 
 
@@ -19,77 +19,71 @@ use PDO;
 
 class ContentManager implements CrossoverManager, Retrievable
 {
-    private $container = null;
-    private $dataPath = null;
-    private $thingKey = null;
-    private $attributeKey = null;
-    private $contentTable = null;
+    private ICrossover $container;
+    private PDO $dataPath;
+    private CrossoverHandler $handler;
 
     public function __construct(ICrossover $container, PDO $dataPath)
     {
         $this->container = $container->getCrossoverCopy();
         $this->dataPath = $dataPath;
 
-        $this->thingKey = new ForeignKey('thing', 'id', 'code');
-        $this->attributeKey = new ForeignKey('attribute', 'id', 'code');
-        $this->contentTable = new CrossoverTable('content', 'thing_id', 'attribute_id');
+        $thingKey = new ForeignKey(
+            'thing',
+            'id',
+            'code'
+        );
+        $attributeKey = new ForeignKey(
+            'attribute',
+            'id',
+            'code'
+        );
+        $contentTable = new CrossoverTable(
+            'content',
+            'thing_id',
+            'attribute_id'
+        );
+
+        $this->handler = new CrossoverHandler(
+            $this->container,
+            $thingKey,
+            $attributeKey,
+            $contentTable,
+            $this->dataPath
+        );
     }
 
 
     public function attach(): bool
     {
-        $handler = $this->getHandler();
-
-        $result = $handler->crossing();
+        $result = $this->getHandler()->combine();
 
         return $result;
-    }
-
-    private function getHandler(): CrossoverHandler
-    {
-        $handler = new CrossoverHandler(
-            $this->container,
-            $this->thingKey,
-            $this->attributeKey,
-            $this->contentTable,
-            $this->dataPath
-        );
-
-        return $handler;
     }
 
     public function store(ICrossover $crossover): bool
     {
         $handler = $this->getHandler();
+        $result = $handler->push($crossover);
 
-        $result = $handler->setCrossover($crossover);
-
-        $this->loadContainer($result, $handler);
+        $this->unloadContainer($result, $handler);
 
         return $result;
-    }
-
-    /**
-     * @param bool $result
-     * @param CrossoverHandler $handler
-     */
-    private function loadContainer(bool $result, CrossoverHandler $handler): void
-    {
-        $isSuccess = $result === true;
-        if ($isSuccess) {
-            $this->container = $handler->retrieveData();
-        }
     }
 
     public function take(ICrossover $crossover): bool
     {
         $handler = $this->getHandler();
+        $result = $handler->pull($crossover);
 
-        $result = $handler->getCrossover($crossover);
-
-        $this->loadContainer($result, $handler);
+        $this->unloadContainer($result, $handler);
 
         return $result;
+    }
+
+    public function has(): bool
+    {
+        return !is_null($this->container);
     }
 
     public function retrieveData(): ICrossover
@@ -99,8 +93,22 @@ class ContentManager implements CrossoverManager, Retrievable
         return $data;
     }
 
-    public function has(): bool
+    private function getHandler(): CrossoverHandler
     {
-        return !is_null($this->container);
+        return $this->handler;
+    }
+
+    /**
+     * @param bool $result
+     * @param CrossoverHandler $handler
+     */
+    private function unloadContainer(
+        bool $result,
+        CrossoverHandler $handler
+    ): void {
+        $isSuccess = $result === true;
+        if ($isSuccess) {
+            $this->container = $handler->retrieveData();
+        }
     }
 }

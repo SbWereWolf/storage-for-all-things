@@ -1,8 +1,8 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * Copyright © 2018 Volkhin Nikolay
- * 02.06.18 21:34
+ * Copyright © 2021 Volkhin Nikolay
+ * 01.07.2021, 1:42
  */
 
 namespace AllThings\DataAccess\Handler;
@@ -19,11 +19,11 @@ use PDO;
 
 class CrossoverHandler implements ICrossoverHandler, Retrievable
 {
-    private $container = null;
-    private $dataPath = null;
-    private $tableStructure = null;
-    private $leftKey = null;
-    private $rightKey = null;
+    private $container;
+    private $dataPath;
+    private ICrossoverTable $tableStructure;
+    private $leftKey;
+    private IForeignKey $rightKey;
 
     public function __construct(
         ICrossover $container,
@@ -39,7 +39,7 @@ class CrossoverHandler implements ICrossoverHandler, Retrievable
         $this->rightKey = $rightKey;
     }
 
-    public function crossing(): bool
+    public function combine(): bool
     {
         $writer = $this->getCrossoverWriter();
 
@@ -50,12 +50,17 @@ class CrossoverHandler implements ICrossoverHandler, Retrievable
 
     private function getCrossoverWriter(): CrossoverWriter
     {
-        $location = new CrossoverLocation($this->leftKey, $this->rightKey, $this->tableStructure, $this->dataPath);
+        $location = new CrossoverLocation(
+            $this->leftKey,
+            $this->rightKey,
+            $this->tableStructure,
+            $this->dataPath
+        );
 
         return $location;
     }
 
-    public function setCrossover(ICrossover $crossover): bool
+    public function push(ICrossover $crossover): bool
     {
         $writer = $this->getCrossoverWriter();
 
@@ -64,7 +69,7 @@ class CrossoverHandler implements ICrossoverHandler, Retrievable
         return $result;
     }
 
-    public function getCrossover(ICrossover $crossover): bool
+    public function pull(ICrossover $crossover): bool
     {
         $reader = $this->getCrossoverReader();
 

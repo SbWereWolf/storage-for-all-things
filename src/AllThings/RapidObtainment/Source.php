@@ -1,13 +1,14 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * Copyright © 2019 Volkhin Nikolay
- * 01.12.19 0:42
+ * Copyright © 2021 Volkhin Nikolay
+ * 01.07.2021, 1:42
  */
 
 namespace AllThings\RapidObtainment;
 
 
+use AllThings\DataObject\ICrossover;
 use AllThings\Essence\EssenceAttributeManager;
 use AllThings\StorageEngine\Installation;
 use PDO;
@@ -134,7 +135,7 @@ WHERE
         return $this->essence;
     }
 
-    public function refresh(): bool
+    public function refresh(?ICrossover $value = null): bool
     {
         $ddl = "
 REFRESH MATERIALIZED VIEW {$this->name()}

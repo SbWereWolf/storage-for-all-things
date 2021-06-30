@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 29.06.2021, 17:59
+ * 01.07.2021, 1:42
  */
 
 namespace Integration;
@@ -565,24 +565,27 @@ class BusinessProcessTest extends TestCase
 
     /**
      * @param array $context
-     * @param $seeker
-     * @param $essence
-     * @param bool $extended
+     * @param Seeker $seeker
+     * @param string $essence
+     * @param bool $withAdditional
+     * @param bool $withExtended
      */
     private function checkShowAll(
         array $context,
         Seeker $seeker,
         string $essence,
-        bool $extended = false
+        bool $withAdditional = false,
+        bool $withExtended = false,
+        bool $withChanges = false
     ): void {
         $data = $seeker->data();
 
         $properNumbers = 3;
-        if ($extended) {
+        if ($withAdditional) {
             $properNumbers = 4;
         }
-        $isEnough = (count($data) === $properNumbers && !$extended)
-            || (count($data) === $properNumbers && $extended);
+        $isEnough = (count($data) === $properNumbers && !$withAdditional)
+            || (count($data) === $properNumbers && $withAdditional);
         $this->assertTrue(
             $isEnough,
             "Essence `$essence` must have ($properNumbers) things"
@@ -602,6 +605,13 @@ class BusinessProcessTest extends TestCase
                     $isProper = $isProper
                         && $thing[$context['place-of-production']]
                         === 'Екатеринбург';
+
+                    if ($isProper && $withExtended) {
+                        $isProper = $isProper
+                            && $thing[$context['package']]
+                            === 'без упаковки';
+                    }
+
                     $this->assertTrue(
                         $isProper,
                         "Thing `$code`"
@@ -619,6 +629,13 @@ class BusinessProcessTest extends TestCase
                     $isProper = $isProper
                         && $thing[$context['place-of-production']]
                         === 'Екатеринбург';
+
+                    if ($isProper && $withExtended) {
+                        $isProper = $isProper
+                            && $thing[$context['package']]
+                            === 'без упаковки';
+                    }
+
                     $this->assertTrue(
                         $isProper,
                         "Thing `$code`"
@@ -636,6 +653,13 @@ class BusinessProcessTest extends TestCase
                     $isProper = $isProper
                         && $thing[$context['place-of-production']]
                         === 'Челябинск';
+
+                    if ($isProper && $withExtended) {
+                        $isProper = $isProper
+                            && $thing[$context['package']]
+                            === 'пакет';
+                    }
+
                     $this->assertTrue(
                         $isProper,
                         "Thing `$code`"
@@ -653,6 +677,18 @@ class BusinessProcessTest extends TestCase
                     $isProper = $isProper
                         && $thing[$context['place-of-production']]
                         === 'Екатеринбург';
+
+                    if ($isProper && $withExtended && !$withChanges) {
+                        $isProper = $isProper
+                            && $thing[$context['package']]
+                            === 'пакет';
+                    }
+                    if ($isProper && $withChanges) {
+                        $isProper = $isProper
+                            && $thing[$context['package']]
+                            === 'коробка';
+                    }
+
                     $this->assertTrue(
                         $isProper,
                         "Thing `$code`"
@@ -663,8 +699,8 @@ class BusinessProcessTest extends TestCase
             }
         }
 
-        $isEnough = ($thingTested === $properNumbers && !$extended)
-            || ($thingTested === $properNumbers && $extended);
+        $isEnough = ($thingTested === $properNumbers && !$withAdditional)
+            || ($thingTested === $properNumbers && $withAdditional);
         $this->assertTrue(
             $isEnough,
             "Each thing of essence `$essence`"
@@ -1104,6 +1140,7 @@ class BusinessProcessTest extends TestCase
             'bun-with-jam',
             'bun-with-raisins',
             'cinnamon-bun',
+            'new-thing',
         ];
         foreach ($thingList as $thing) {
             $context[$thing] = $thing;
@@ -1125,6 +1162,12 @@ class BusinessProcessTest extends TestCase
         );
         $this->defineThingAttributeValue(
             $context['cinnamon-bun'],
+            $context['package'],
+            'пакет',
+            $linkToData
+        );
+        $this->defineThingAttributeValue(
+            $context['new-thing'],
             $context['package'],
             'пакет',
             $linkToData
@@ -1203,6 +1246,114 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * Изменим значение характеристики модели
+     * @depends testAddNewAttribute
+     *
+     * @param array $context
+     *
+     * @return array
+     */
+    public function testChangeThingAttribute(array $context)
+    {
+        $linkToData = $context['PDO'];
+        $this->defineThingAttributeValue(
+            $context['new-thing'],
+            $context['package'],
+            'коробка',
+            $linkToData
+        );
+
+        return $context;
+    }
+
+    /**
+     * Добавляем новую модель в представление
+     * @depends testAddNewAttribute
+     *
+     * @param array $context
+     */
+    public function testChangeThingWithinView(array $context)
+    {
+        $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+
+        $source = new DirectReading\Source($essence, $linkToData);
+        $isSuccess = $this->changeContent($context, $source);
+        $this->assertTrue(
+            $isSuccess,
+            'View MUST BE refreshed with success'
+        );
+
+        $seeker = new Seeker($source);
+        $this->checkShowAll(
+            $context,
+            $seeker,
+            $essence,
+            true,
+            true,
+            true
+        );
+    }
+
+    /**
+     * Добавляем новую модель в материализованное представление
+     * @depends testAddNewAttribute
+     *
+     * @param array $context
+     */
+    public function testChangeThingWithinMathView(array $context)
+    {
+        $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+
+        $source = new RapidObtainment\Source($essence, $linkToData);
+        $isSuccess = $this->changeContent($context, $source);
+        $this->assertTrue(
+            $isSuccess,
+            'MathView MUST BE refreshed with success'
+        );
+
+        $seeker = new Seeker($source);
+        $this->checkShowAll(
+            $context,
+            $seeker,
+            $essence,
+            true,
+            true,
+            true
+        );
+    }
+
+    /**
+     * Добавляем новую модель в таблицу
+     * @depends testAddNewAttribute
+     *
+     * @param array $context
+     */
+    public function testChangeThingWithinTable(array $context)
+    {
+        $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+
+        $source = new RapidRecording\Source($essence, $linkToData);
+        $isSuccess = $this->changeContent($context, $source);
+        $this->assertTrue(
+            $isSuccess,
+            'Table MUST BE refreshed with success'
+        );
+
+        $seeker = new Seeker($source);
+        $this->checkShowAll(
+            $context,
+            $seeker,
+            $essence,
+            true,
+            true,
+            true
+        );
+    }
+
+    /**
      * Заключительные действия, откатываем транзакцию
      * @depends testInit
      *
@@ -1231,5 +1382,22 @@ class BusinessProcessTest extends TestCase
         $context[$code] = $code;
         $this->createAttribute($context, $code);
         return $context;
+    }
+
+    /**
+     * @param array $context
+     * @param Installation $source
+     * @return mixed
+     */
+    private function changeContent(
+        array $context,
+        Installation $source
+    ) {
+        $content = (new Crossover())->
+        setLeftValue($context['new-thing'])
+            ->setRightValue($context['package'])
+            ->setContent('коробка');
+        $isSuccess = $source->refresh($content);
+        return $isSuccess;
     }
 }

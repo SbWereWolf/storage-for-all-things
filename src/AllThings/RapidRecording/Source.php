@@ -2,12 +2,14 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 29.05.2021, 4:53
+ * 01.07.2021, 1:42
  */
 
 namespace AllThings\RapidRecording;
 
 
+use AllThings\Content\ContentManager;
+use AllThings\DataObject\ICrossover;
 use AllThings\Essence\Attribute;
 use AllThings\Essence\AttributeManager;
 use AllThings\Essence\EssenceAttributeManager;
@@ -52,6 +54,18 @@ class Source implements Installation
         return $this;
     }
 
+    /**
+     * @param string $dml
+     * @return bool
+     */
+    private function executeSql(string $dml): bool
+    {
+        $affected = $this->linkToData->exec($dml);
+        $result = $affected !== false;
+
+        return $result;
+    }
+
     public function setup(): bool
     {
         $linkToData = $this->getLinkToData();
@@ -83,7 +97,10 @@ class Source implements Installation
         foreach ($attributeCodes as $code) {
             $subject = Attribute::GetDefaultAttribute();
             $subject->setCode($code);
-            $attributeManager = new AttributeManager($subject, $linkToData);
+            $attributeManager = new AttributeManager(
+                $subject,
+                $linkToData
+            );
 
             $isSuccess = $attributeManager->browse();
             if ($isSuccess) {
@@ -137,12 +154,12 @@ CREATE TABLE {$this->name()}
                 $this->getLinkToData()
             );
             /** @noinspection SqlInsertValues */
-            $ddl = "
+            $dml = "
 INSERT INTO {$this->name()}(thing_id,code,$names)
 SELECT id,code,$names
 FROM {$view->name()}
 ";
-            $affected = $linkToData->exec($ddl);
+            $affected = $linkToData->exec($dml);
             $result = $affected !== false;
         }
 
@@ -159,7 +176,7 @@ FROM {$view->name()}
 
     public function name(): string
     {
-        $name = self::STRUCTURE_PREFIX . $this->getEssence();
+        $name = static::STRUCTURE_PREFIX . $this->getEssence();
 
         return $name;
     }
@@ -172,54 +189,45 @@ FROM {$view->name()}
         return $this->essence;
     }
 
-    public function refresh(): bool
+    public function refresh(?ICrossover $value = null): bool
     {
-        $essence = $this->getEssence();
         $linkToData = $this->getLinkToData();
 
-        $essenceManager = new EssenceAttributeManager($essence, '', $linkToData);
-        $isSuccess = $essenceManager->getAssociated();
+        $isSuccess = false;
+        if (!$value) {
+            $essenceManager = new EssenceAttributeManager(
+                $this->getEssence(),
+                '',
+                $linkToData
+            );
+            $isSuccess = $essenceManager->getAssociated();
+        }
+
         if ($isSuccess) {
             $isSuccess = $essenceManager->has();
         }
-        $attributeCodes = [];
-        if ($isSuccess) {
-            $attributeCodes = $essenceManager->retrieveData();
-        }
-
         $attributes = [];
-        foreach ($attributeCodes as $code) {
-            $subject = Attribute::GetDefaultAttribute();
-            $subject->setCode($code);
-            $attributeManager = new AttributeManager($subject, $linkToData);
-
-            $isSuccess = $attributeManager->browse();
-            if ($isSuccess) {
-                $isSuccess = $attributeManager->has();
-            }
-            if ($isSuccess) {
-                $attributes[] = $attributeManager->retrieveData();
-            }
+        if ($isSuccess) {
+            $attributes = $essenceManager->retrieveData();
         }
         $columnNames = [];
-        foreach ($attributes as $attribute) {
-            /* @var IAttribute $attribute */
-            $code = $attribute->getCode();
+        foreach ($attributes as $code) {
             $columnNames[] = "\"{$code}\"";
         }
 
-        $view = new \AllThings\DirectReading\Source(
-            $this->getEssence(),
-            $this->getLinkToData()
-        );
+        $result = false;
+        if ($columnNames) {
+            $prefix = 'v.';
+            $viewNames = $prefix . implode(",$prefix", $columnNames);
+            $tableNames = implode(',', $columnNames);
 
-        $prefix = 'v.';
-        $viewNames = $prefix . implode(",$prefix", $columnNames);
-        $tableNames = implode(',', $columnNames);
-
-        /* Удаляем из таблицы записи, которых нет в представлении */
-        /** @noinspection SqlInsertValues */
-        $ddl = "
+            $view = new \AllThings\DirectReading\Source(
+                $this->getEssence(),
+                $this->getLinkToData()
+            );
+            /* Удаляем из таблицы записи, которых нет в представлении */
+            /** @noinspection SqlInsertValues */
+            $dml = "
 DELETE FROM {$this->name()}
 WHERE thing_id in (
     SELECT t.thing_id
@@ -230,13 +238,13 @@ WHERE thing_id in (
     ORDER BY t.thing_id
 )
 ";
-        $affected = $linkToData->exec($ddl);
-        $result = $affected !== false;
+            $result = $this->executeSql($dml);
+        }
 
         /* Добавляем в таблицу недостающие записи из представления */
         if ($result) {
             /** @noinspection SqlInsertValues */
-            $ddl = "
+            $dml = "
 INSERT INTO {$this->name()}(thing_id,code,$tableNames)
 SELECT {$prefix}id,{$prefix}code,$viewNames
 FROM {$view->name()} as v
@@ -244,10 +252,29 @@ LEFT JOIN {$this->name()} t
 on v.id = t.thing_id
 WHERE t.thing_id IS NULL
 ";
-            $affected = $linkToData->exec($ddl);
-            $result = $affected !== false;
+            $result = $this->executeSql($dml);
         }
 
+        if ($value) {
+            $handler = new ContentManager($value, $linkToData);
+            $handler->store($value);
+
+            $dml = "
+UPDATE {$this->name()}
+SET
+    \"{$value->getRightValue()}\" = :new_value
+WHERE thing_id = (
+    SELECT id
+    FROM thing
+    WHERE code = '{$value->getLeftValue()}'
+)
+";
+            $query = $linkToData->prepare($dml);
+            $content = $value->getContent();
+            $query->bindParam(':new_value', $content);
+
+            $result = $query->execute();
+        }
 
         return $result;
     }

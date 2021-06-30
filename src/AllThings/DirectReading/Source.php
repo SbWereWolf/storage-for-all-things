@@ -2,12 +2,13 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 29.05.2021, 4:53
+ * 01.07.2021, 1:42
  */
 
 namespace AllThings\DirectReading;
 
 
+use AllThings\DataObject\ICrossover;
 use AllThings\Essence\EssenceAttributeManager;
 use AllThings\StorageEngine\Installation;
 use PDO;
@@ -131,7 +132,7 @@ WHERE
         return $this->essence;
     }
 
-    public function refresh(): bool
+    public function refresh(?ICrossover $value = null): bool
     {
         return true;
     }

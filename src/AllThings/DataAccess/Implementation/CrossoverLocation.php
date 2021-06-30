@@ -1,8 +1,8 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * Copyright © 2018 Volkhin Nikolay
- * 02.06.18 19:02
+ * Copyright © 2021 Volkhin Nikolay
+ * 01.07.2021, 1:42
  */
 
 namespace AllThings\DataAccess\Implementation;
@@ -17,10 +17,10 @@ use PDO;
 class CrossoverLocation implements CrossoverWriter
 {
 
-    private $tableStructure = null;
-    private $dataPath = null;
-    private $rightKey = null;
-    private $leftKey = null;
+    private $tableStructure;
+    private $dataPath;
+    private $rightKey;
+    private $leftKey;
 
     public function __construct(
         IForeignKey $leftKey,
@@ -36,8 +36,8 @@ class CrossoverLocation implements CrossoverWriter
 
     public function insert(ICrossover $entity): bool
     {
-        $suggestionRightValue = $entity->getRightValue();
-        $suggestionLeftValue = $entity->getLeftValue();
+        $proposalRightValue = $entity->getRightValue();
+        $proposalLeftValue = $entity->getLeftValue();
 
         $leftKeyTable = $this->leftKey->getTable();
         $leftKeyColumn = $this->leftKey->getColumn();
@@ -60,21 +60,23 @@ select $rightKeyColumn from $rightKeyTable where $rightKeyIndex = :right_value
 ))";
         $connection = $this->dataPath;
         $query = $connection->prepare($sqlText);
-        $query->bindParam(':left_value', $suggestionLeftValue);
-        $query->bindParam(':right_value', $suggestionRightValue);
+        $query->bindParam(':left_value', $proposalLeftValue);
+        $query->bindParam(':right_value', $proposalRightValue);
         $result = $query->execute();
 
         return $result;
     }
 
-    public function update(ICrossover $targetEntity, ICrossover $suggestionEntity): bool
-    {
+    public function update(
+        ICrossover $targetEntity,
+        ICrossover $suggestionEntity
+    ): bool {
         $targetRightValue = $targetEntity->getRightValue();
         $targetLeftValue = $targetEntity->getLeftValue();
 
-        $suggestionRightValue = $suggestionEntity->getRightValue();
-        $suggestionLeftValue = $suggestionEntity->getLeftValue();
-        $suggestionContent = $suggestionEntity->getContent();
+        $proposalRightValue = $suggestionEntity->getRightValue();
+        $proposalLeftValue = $suggestionEntity->getLeftValue();
+        $proposalContent = $suggestionEntity->getContent();
 
         $leftKeyTable = $this->leftKey->getTable();
         $leftKeyColumn = $this->leftKey->getColumn();
@@ -88,21 +90,44 @@ select $rightKeyColumn from $rightKeyTable where $rightKeyIndex = :right_value
         $leftColumn = $this->tableStructure->getLeftColumn();
         $rightColumn = $this->tableStructure->getRightColumn();
 
+        $updateLeftKey = '';
+        if ($proposalLeftValue !== $targetLeftValue) {
+            $updateLeftKey =
+                "$leftColumn = (select $leftKeyColumn "
+                . "from $leftKeyTable"
+                . " where $leftKeyIndex = :proposal_left),";
+        }
+        $updateRightKey = '';
+        if ($proposalRightValue !== $targetRightValue) {
+            $updateRightKey =
+                "$rightColumn = (select $rightKeyColumn "
+                . "from $rightKeyTable "
+                . "where $rightKeyIndex = :proposal_right),";
+        }
+
         $sqlText = "
 UPDATE $tableName
 SET 
-$leftColumn = (select $leftKeyColumn from $leftKeyTable where $leftKeyIndex = :suggestion_left),
-$rightColumn = (select $rightKeyColumn from $rightKeyTable where $rightKeyIndex = :suggestion_right),
+$updateLeftKey
+$updateRightKey
 content = :content
 WHERE 
-    $leftColumn = (select $leftKeyColumn from $leftKeyTable where $leftKeyIndex = :target_left)
-AND $rightColumn = (select $rightKeyColumn from $rightKeyTable where $rightKeyIndex = :target_right)
+    $leftColumn = 
+    (select $leftKeyColumn from $leftKeyTable 
+    where $leftKeyIndex = :target_left)
+AND $rightColumn = 
+(select $rightKeyColumn from $rightKeyTable 
+where $rightKeyIndex = :target_right)
 ";
         $connection = $this->dataPath;
         $query = $connection->prepare($sqlText);
-        $query->bindParam(':content', $suggestionContent);
-        $query->bindParam(':suggestion_left', $suggestionLeftValue);
-        $query->bindParam(':suggestion_right', $suggestionRightValue);
+        $query->bindParam(':content', $proposalContent);
+        if ($updateLeftKey) {
+            $query->bindParam(':proposal_left', $proposalLeftValue);
+        }
+        if ($updateRightKey) {
+            $query->bindParam(':proposal_right', $proposalRightValue);
+        }
         $query->bindParam(':target_left', $targetLeftValue);
         $query->bindParam(':target_right', $targetRightValue);
         $result = $query->execute();
