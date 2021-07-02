@@ -1,9 +1,9 @@
 {
     "require": {
-      "php": "~7.2",
-        "slim/slim": "^3.0",
-        "slim/php-view": "^2.2",
-        "ext-pdo": "*",
+      "php": "~7.4",
+      "slim/slim": "^3.0",
+      "slim/php-view": "^2.2",
+      "ext-pdo": "*",
       "ext-json": "*",
       "sbwerewolf/language-specific": "~7"
     },
