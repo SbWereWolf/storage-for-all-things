@@ -1,10 +1,14 @@
 <?php
-
+/*
+ * storage-for-all-things
+ * Copyright © 2021 Volkhin Nikolay
+ * 02.07.2021, 13:44
+ */
 
 namespace Environment\Presentation;
 
 
-use AllThings\Essence\IEssence;
+use AllThings\Attribute\IEssence;
 
 class FromEssenceEntity implements Jsonable
 {

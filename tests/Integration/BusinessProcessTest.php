@@ -2,29 +2,29 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 13:22
+ * 02.07.2021, 13:44
  */
 
 namespace Integration;
 
+use AllThings\Attribute\Attribute;
+use AllThings\Attribute\AttributeManager;
+use AllThings\Attribute\Essence;
+use AllThings\Attribute\EssenceAttributeManager;
+use AllThings\Attribute\EssenceManager;
+use AllThings\Catalog\EssenceThingManager;
 use AllThings\Content\ContentManager;
 use AllThings\DataAccess\Manager\NamedEntityManager;
 use AllThings\DataObject\Crossover;
 use AllThings\DataObject\ICrossover;
 use AllThings\DataObject\NamedEntity;
-use AllThings\DirectReading;
-use AllThings\Essence\Attribute;
-use AllThings\Essence\AttributeManager;
-use AllThings\Essence\Essence;
-use AllThings\Essence\EssenceAttributeManager;
-use AllThings\Essence\EssenceManager;
-use AllThings\Essence\EssenceThingManager;
-use AllThings\RapidObtainment;
-use AllThings\RapidRecording;
 use AllThings\SearchEngine\ContinuousFilter;
 use AllThings\SearchEngine\DiscreteFilter;
 use AllThings\SearchEngine\Seeker;
+use AllThings\StorageEngine\DirectReading;
 use AllThings\StorageEngine\Installation;
+use AllThings\StorageEngine\RapidObtainment;
+use AllThings\StorageEngine\RapidRecording;
 use Environment\DbConnection;
 use PDO;
 use PHPUnit\Framework\TestCase;
@@ -520,7 +520,7 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $handler = new DirectReading\Source(
+        $handler = new DirectReading(
             $essence, $linkToData
         );
         $this->checkSourceSetup($handler, $essence);
@@ -556,7 +556,7 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $source = new DirectReading\Source(
+        $source = new DirectReading(
             $essence, $linkToData
         );
         $seeker = new Seeker($source);
@@ -722,7 +722,7 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $source = new DirectReading\Source(
+        $source = new DirectReading(
             $essence, $linkToData
         );
         $seeker = new Seeker($source);
@@ -780,7 +780,7 @@ class BusinessProcessTest extends TestCase
         условиям поиска (поиск в представлении) */
         $essence = $context['essence'];
         $linkToData = $context['PDO'];
-        $source = new DirectReading\Source(
+        $source = new DirectReading(
             $essence, $linkToData
         );
         $seeker = new Seeker($source);
@@ -823,7 +823,7 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $handler = new RapidObtainment\Source($essence, $linkToData);
+        $handler = new RapidObtainment($essence, $linkToData);
         $this->checkSourceSetup($handler, $essence);
     }
 
@@ -841,7 +841,7 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $source = new RapidObtainment\Source($essence, $linkToData);
+        $source = new RapidObtainment($essence, $linkToData);
         $seeker = new Seeker($source);
         $this->checkShowAll($context, $seeker, $essence);
     }
@@ -860,7 +860,7 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $source = new RapidObtainment\Source($essence, $linkToData);
+        $source = new RapidObtainment($essence, $linkToData);
         $seeker = new Seeker($source);
         $this->checkFilters($seeker, $essence);
     }
@@ -878,7 +878,7 @@ class BusinessProcessTest extends TestCase
         условиям поиска (поиск в представлении) */
         $essence = $context['essence'];
         $linkToData = $context['PDO'];
-        $source = new RapidObtainment\Source($essence, $linkToData);
+        $source = new RapidObtainment($essence, $linkToData);
         $seeker = new Seeker($source);
 
         $this->checkSearch($context, $seeker);
@@ -896,7 +896,7 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $handler = new RapidRecording\Source(
+        $handler = new RapidRecording(
             $essence, $linkToData
         );
         $this->checkSourceSetup($handler, $essence);
@@ -915,7 +915,7 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $source = new RapidRecording\Source($essence, $linkToData);
+        $source = new RapidRecording($essence, $linkToData);
         $seeker = new Seeker($source);
         $this->checkShowAll($context, $seeker, $essence);
     }
@@ -934,7 +934,7 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $source = new RapidRecording\Source($essence, $linkToData);
+        $source = new RapidRecording($essence, $linkToData);
         $seeker = new Seeker($source);
         $this->checkFilters($seeker, $essence);
     }
@@ -952,7 +952,7 @@ class BusinessProcessTest extends TestCase
         условиям поиска (поиск в представлении) */
         $essence = $context['essence'];
         $linkToData = $context['PDO'];
-        $source = new RapidRecording\Source($essence, $linkToData);
+        $source = new RapidRecording($essence, $linkToData);
         $seeker = new Seeker($source);
 
         $this->checkSearch($context, $seeker);
@@ -1025,7 +1025,7 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $source = new DirectReading\Source(
+        $source = new DirectReading(
             $essence, $linkToData
         );
         $isSuccess = $source->refresh();
@@ -1049,7 +1049,7 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $source = new RapidObtainment\Source($essence, $linkToData);
+        $source = new RapidObtainment($essence, $linkToData);
         $isSuccess = $source->refresh();
         $this->assertTrue(
             $isSuccess,
@@ -1071,7 +1071,7 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $source = new RapidRecording\Source($essence, $linkToData);
+        $source = new RapidRecording($essence, $linkToData);
         $isSuccess = $source->refresh();
         $this->assertTrue(
             $isSuccess,
@@ -1187,7 +1187,7 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $source = new DirectReading\Source(
+        $source = new DirectReading(
             $essence, $linkToData
         );
         $isSuccess = $source->setup();
@@ -1212,7 +1212,7 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $source = new RapidObtainment\Source($essence, $linkToData);
+        $source = new RapidObtainment($essence, $linkToData);
         $isSuccess = $source->setup();
         $this->assertTrue(
             $isSuccess,
@@ -1234,7 +1234,7 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $source = new RapidRecording\Source($essence, $linkToData);
+        $source = new RapidRecording($essence, $linkToData);
         $isSuccess = $source->setup();
         $this->assertTrue(
             $isSuccess,
@@ -1277,7 +1277,7 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $source = new DirectReading\Source($essence, $linkToData);
+        $source = new DirectReading($essence, $linkToData);
         $isSuccess = $this->changeContent($context, $source);
         $this->assertTrue(
             $isSuccess,
@@ -1306,7 +1306,7 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $source = new RapidObtainment\Source($essence, $linkToData);
+        $source = new RapidObtainment($essence, $linkToData);
         $isSuccess = $this->changeContent($context, $source);
         $this->assertTrue(
             $isSuccess,
@@ -1335,7 +1335,7 @@ class BusinessProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $source = new RapidRecording\Source($essence, $linkToData);
+        $source = new RapidRecording($essence, $linkToData);
         $isSuccess = $this->changeContent($context, $source);
         $this->assertTrue(
             $isSuccess,

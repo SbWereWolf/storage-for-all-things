@@ -1,4 +1,10 @@
 <?php
+/*
+ * storage-for-all-things
+ * Copyright © 2021 Volkhin Nikolay
+ * 02.07.2021, 13:44
+ */
+
 /**
  * storage-for-all-things
  * © Volkhin Nikolay M., 2018
@@ -8,8 +14,8 @@
 namespace AllThings\DataAccess\Implementation;
 
 
+use AllThings\Attribute\IEssence;
 use AllThings\DataAccess\Core\EssenceReader;
-use AllThings\Essence\IEssence;
 use PDO;
 
 class EssenceSource implements EssenceReader

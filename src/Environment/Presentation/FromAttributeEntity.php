@@ -1,14 +1,14 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * Copyright © 2018 Volkhin Nikolay
- * 23.05.18 1:23
+ * Copyright © 2021 Volkhin Nikolay
+ * 02.07.2021, 13:44
  */
 
 namespace Environment\Presentation;
 
 
-use AllThings\Essence\IAttribute;
+use AllThings\Attribute\IAttribute;
 
 class FromAttributeEntity implements Jsonable
 {

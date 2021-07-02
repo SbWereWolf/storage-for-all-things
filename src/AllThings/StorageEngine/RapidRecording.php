@@ -2,22 +2,21 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 01.07.2021, 1:42
+ * 02.07.2021, 13:44
  */
 
-namespace AllThings\RapidRecording;
+namespace AllThings\StorageEngine;
 
 
+use AllThings\Attribute\Attribute;
+use AllThings\Attribute\AttributeManager;
+use AllThings\Attribute\EssenceAttributeManager;
+use AllThings\Attribute\IAttribute;
 use AllThings\Content\ContentManager;
 use AllThings\DataObject\ICrossover;
-use AllThings\Essence\Attribute;
-use AllThings\Essence\AttributeManager;
-use AllThings\Essence\EssenceAttributeManager;
-use AllThings\Essence\IAttribute;
-use AllThings\StorageEngine\Installation;
 use PDO;
 
-class Source implements Installation
+class RapidRecording implements Installation
 {
     public const STRUCTURE_PREFIX = 'auto_t_';
 
@@ -149,7 +148,7 @@ CREATE TABLE {$this->name()}
         $result = $affected !== false;
 
         if ($result) {
-            $view = new \AllThings\DirectReading\Source(
+            $view = new DirectReading(
                 $this->getEssence(),
                 $this->getLinkToData()
             );
@@ -221,7 +220,7 @@ FROM {$view->name()}
             $viewNames = $prefix . implode(",$prefix", $columnNames);
             $tableNames = implode(',', $columnNames);
 
-            $view = new \AllThings\DirectReading\Source(
+            $view = new DirectReading(
                 $this->getEssence(),
                 $this->getLinkToData()
             );

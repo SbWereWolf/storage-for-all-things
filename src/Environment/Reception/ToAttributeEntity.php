@@ -2,13 +2,13 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 13:22
+ * 02.07.2021, 13:44
  */
 
 
 namespace Environment\Reception;
 
-use AllThings\Essence\Attribute;
+use AllThings\Attribute\Attribute;
 use Environment\Command\AttributeUpdateCommand;
 use Environment\Command\IAttributeUpdateCommand;
 use Slim\Http\Request;

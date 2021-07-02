@@ -1,11 +1,11 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * © Volkhin Nikolay M., 2018
- * Date: 18.05.2018 Time: 0:33
+ * Copyright © 2021 Volkhin Nikolay
+ * 02.07.2021, 13:44
  */
 
-namespace AllThings\Essence;
+namespace AllThings\Attribute;
 
 
 use AllThings\DataAccess\Handler\Retrievable;

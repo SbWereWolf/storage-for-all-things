@@ -2,16 +2,16 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 13:22
+ * 02.07.2021, 13:44
  */
 
+use AllThings\Attribute\Attribute;
+use AllThings\Attribute\Essence;
+use AllThings\Attribute\EssenceAttributeManager;
+use AllThings\Catalog\EssenceThingManager;
 use AllThings\Content\ContentManager;
 use AllThings\DataAccess\Manager\NamedEntityManager;
 use AllThings\DataObject\NamedEntity;
-use AllThings\Essence\Attribute;
-use AllThings\Essence\Essence;
-use AllThings\Essence\EssenceAttributeManager;
-use AllThings\Essence\EssenceThingManager;
 use Environment\Command\EssenceAttributeCommand;
 use Environment\Command\EssenceThingCommand;
 use Environment\DbConnection;
@@ -232,7 +232,7 @@ $app->post('/essence/{code}', function (Request $request, Response $response, ar
     $essence = Essence::GetDefaultEssence();
     $essence->setCode($essenceCode);
 
-    $handler = new AllThings\Essence\EssenceManager($essence, $dataPath);
+    $handler = new AllThings\Attribute\EssenceManager($essence, $dataPath);
 
     $isSuccess = $handler->create();
     if ($isSuccess) {
@@ -272,7 +272,7 @@ $app->get('/essence/{code}', function (Request $request, Response $response, arr
     $subject = Essence::GetDefaultEssence();
     $subject->setCode($parameter);
     $dataPath = (new DbConnection())->getForRead();
-    $handler = new AllThings\Essence\EssenceManager($subject, $dataPath);
+    $handler = new AllThings\Attribute\EssenceManager($subject, $dataPath);
 
     $isSuccess = $handler->browse();
 
@@ -323,7 +323,7 @@ $app->put('/essence/{code}', function (Request $request, Response $response, arr
 
     $subject = $command->getSubject();
     $dataPath = (new DbConnection())->getForWrite();
-    $handler = new AllThings\Essence\EssenceManager($subject, $dataPath);
+    $handler = new AllThings\Attribute\EssenceManager($subject, $dataPath);
 
     $parameter = $command->getParameter();
     $isSuccess = $handler->correct($parameter);
@@ -419,7 +419,7 @@ $app->post('/attribute/{code}', function (Request $request, Response $response, 
     $attribute = (Attribute::GetDefaultAttribute());
     $attribute->setCode($attributeCode);
 
-    $handler = new AllThings\Essence\AttributeManager($attribute, $dataPath);
+    $handler = new AllThings\Attribute\AttributeManager($attribute, $dataPath);
 
     $isSuccess = $handler->create();
     if ($isSuccess) {
@@ -459,7 +459,7 @@ $app->get('/attribute/{code}', function (Request $request, Response $response, a
     $subject = Attribute::GetDefaultAttribute();
     $subject->setCode($parameter);
     $dataPath = (new DbConnection())->getForRead();
-    $handler = new AllThings\Essence\AttributeManager($subject, $dataPath);
+    $handler = new AllThings\Attribute\AttributeManager($subject, $dataPath);
 
     $isSuccess = $handler->browse();
 
@@ -510,7 +510,7 @@ $app->put('/attribute/{code}', function (Request $request, Response $response, a
 
     $subject = $command->getSubject();
     $dataPath = (new DbConnection())->getForWrite();
-    $manager = new AllThings\Essence\AttributeManager($subject, $dataPath);
+    $manager = new AllThings\Attribute\AttributeManager($subject, $dataPath);
 
     $parameter = $command->getParameter();
     $isSuccess = $manager->correct($parameter);

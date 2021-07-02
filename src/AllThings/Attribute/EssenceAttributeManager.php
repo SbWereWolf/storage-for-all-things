@@ -1,39 +1,39 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * Copyright © 2018 Volkhin Nikolay
- * 27.05.18 21:43
+ * Copyright © 2021 Volkhin Nikolay
+ * 02.07.2021, 13:44
  */
 
 
-namespace AllThings\Essence;
+namespace AllThings\Attribute;
 
 
-use AllThings\DataAccess\Handler\EssenceThingHandler;
+use AllThings\DataAccess\Handler\EssenceAttributeHandler;
 use AllThings\DataAccess\Handler\Retrievable;
 use AllThings\DataAccess\Manager\LinkageManager;
 use AllThings\DataObject\ForeignKey;
 use PDO;
 
-class EssenceThingManager implements LinkageManager, Retrievable
+class EssenceAttributeManager implements LinkageManager, Retrievable
 {
     public const ESSENCE_IDENTIFIER = 'essence';
-    public const THING_IDENTIFIER = 'thing';
+    public const ATTRIBUTE_IDENTIFIER = 'attribute';
 
     private $linkage = [];
     private $essenceForeignKey = null;
-    private $thingForeignKey = null;
+    private $attributeForeignKey = null;
     private $dataPath = null;
     private $dataSet = [];
 
-    public function __construct(string $essence, string $thing, PDO $dataPath)
+    public function __construct(string $essence, string $attribute, PDO $dataPath)
     {
         $linkage[self::ESSENCE_IDENTIFIER] = $essence;
-        $linkage[self::THING_IDENTIFIER] = $thing;
+        $linkage[self::ATTRIBUTE_IDENTIFIER] = $attribute;
         $this->linkage = $linkage;
 
         $this->essenceForeignKey = new ForeignKey('essence', 'id', 'code');
-        $this->thingForeignKey = new ForeignKey('thing', 'id', 'code');
+        $this->attributeForeignKey = new ForeignKey('attribute', 'id', 'code');
 
         $this->dataPath = $dataPath;
     }
@@ -49,11 +49,11 @@ class EssenceThingManager implements LinkageManager, Retrievable
     }
 
     /**
-     * @return EssenceThingHandler
+     * @return EssenceAttributeHandler
      */
-    private function getHandler(): EssenceThingHandler
+    private function getHandler(): EssenceAttributeHandler
     {
-        $handler = new EssenceThingHandler($this->dataPath);
+        $handler = new EssenceAttributeHandler($this->dataPath);
 
         return $handler;
     }

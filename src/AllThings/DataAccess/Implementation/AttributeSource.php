@@ -2,15 +2,15 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 29.05.2021, 2:55
+ * 02.07.2021, 13:44
  */
 
 
 namespace AllThings\DataAccess\Implementation;
 
 
+use AllThings\Attribute\IAttribute;
 use AllThings\DataAccess\Core\AttributeReader;
-use AllThings\Essence\IAttribute;
 use PDO;
 
 class AttributeSource implements AttributeReader

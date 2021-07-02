@@ -2,20 +2,19 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 01.07.2021, 1:42
+ * 02.07.2021, 13:44
  */
 
-namespace AllThings\DirectReading;
+namespace AllThings\StorageEngine;
 
 
+use AllThings\Attribute\EssenceAttributeManager;
 use AllThings\DataObject\ICrossover;
-use AllThings\Essence\EssenceAttributeManager;
-use AllThings\StorageEngine\Installation;
 use PDO;
 
-class Source implements Installation
+class RapidObtainment implements Installation
 {
-    public const STRUCTURE_PREFIX = 'auto_v_';
+    public const STRUCTURE_PREFIX = 'auto_mv_';
 
     private $essence = '';
     /**
@@ -31,9 +30,9 @@ class Source implements Installation
     /**
      * @param PDO $linkToData
      *
-     * @return Source
+     * @return self
      */
-    private function setLinkToData(PDO $linkToData): Source
+    private function setLinkToData(PDO $linkToData): self
     {
         $this->linkToData = $linkToData;
         return $this;
@@ -42,9 +41,9 @@ class Source implements Installation
     /**
      * @param string $essence
      *
-     * @return Source
+     * @return self
      */
-    private function setEssence(string $essence): Source
+    private function setEssence(string $essence): self
     {
         $this->essence = $essence;
         return $this;
@@ -54,12 +53,13 @@ class Source implements Installation
     {
         $linkToData = $this->getLinkToData();
 
-        $ddl = "DROP VIEW IF EXISTS {$this->name()}";
+        $name = $this->name();
+        $ddl = "DROP MATERIALIZED VIEW IF EXISTS $name";
         $affected = $linkToData->exec($ddl);
         $isSuccess = $affected !== false;
 
-        $essence = $this->getEssence();
         if ($isSuccess) {
+            $essence = $this->getEssence();
             $manager = new EssenceAttributeManager($essence, '', $linkToData);
             $isSuccess = $manager->getAssociated();
         }
@@ -90,7 +90,6 @@ WHERE
         $selectPhase = implode(",", $columns);
         $contentRequest = "
 SELECT
-    T.id AS id,
     T.code AS code,
     $selectPhase
 FROM
@@ -102,9 +101,12 @@ FROM
 WHERE 
     E.code = '$essence'
 ";
-        $ddl = "CREATE VIEW {$this->name()} AS $contentRequest";
-        $affected = $linkToData->exec($ddl);
-        $result = $affected !== false;
+
+        if ($isSuccess) {
+            $ddl = "CREATE MATERIALIZED VIEW $name AS $contentRequest";
+            $affected = $linkToData->exec($ddl);
+            $result = $affected !== false;
+        }
 
         return $result;
     }
@@ -134,6 +136,13 @@ WHERE
 
     public function refresh(?ICrossover $value = null): bool
     {
-        return true;
+        $ddl = "
+REFRESH MATERIALIZED VIEW {$this->name()}
+";
+        $linkToData = $this->getLinkToData();
+        $affected = $linkToData->exec($ddl);
+        $result = $affected !== false;
+
+        return $result;
     }
 }

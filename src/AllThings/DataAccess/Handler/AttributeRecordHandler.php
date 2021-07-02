@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 29.05.2021, 2:55
+ * 02.07.2021, 13:44
  */
 
 /**
@@ -14,10 +14,10 @@
 namespace AllThings\DataAccess\Handler;
 
 
+use AllThings\Attribute\Attribute;
+use AllThings\Attribute\IAttribute;
 use AllThings\DataAccess\Implementation\AttributeLocation;
 use AllThings\DataAccess\Implementation\AttributeSource;
-use AllThings\Essence\Attribute;
-use AllThings\Essence\IAttribute;
 use PDO;
 
 class AttributeRecordHandler implements Valuable, Hideable, Retrievable

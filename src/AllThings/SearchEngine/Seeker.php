@@ -2,13 +2,13 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 13:22
+ * 02.07.2021, 13:44
  */
 
 namespace AllThings\SearchEngine;
 
 
-use AllThings\Essence\EssenceAttributeManager;
+use AllThings\Attribute\EssenceAttributeManager;
 use AllThings\StorageEngine\Installation;
 use PDO;
 

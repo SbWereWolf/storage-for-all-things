@@ -1,14 +1,14 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * Copyright © 2018 Volkhin Nikolay
- * 23.05.18 0:29
+ * Copyright © 2021 Volkhin Nikolay
+ * 02.07.2021, 13:44
  */
 
 namespace AllThings\DataAccess\Core;
 
 
-use AllThings\Essence\IAttribute;
+use AllThings\Attribute\IAttribute;
 
 interface AttributeWriter
 {

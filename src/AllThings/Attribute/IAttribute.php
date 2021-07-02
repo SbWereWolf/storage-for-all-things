@@ -1,11 +1,11 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * Copyright © 2018 Volkhin Nikolay
- * 22.05.18 22:59
+ * Copyright © 2021 Volkhin Nikolay
+ * 02.07.2021, 13:44
  */
 
-namespace AllThings\Essence;
+namespace AllThings\Attribute;
 
 
 use AllThings\DataObject\Nameable;
