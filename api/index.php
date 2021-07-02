@@ -2,18 +2,18 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 29.05.2021, 3:01
+ * 02.07.2021, 13:22
  */
 
 use AllThings\Content\ContentManager;
 use AllThings\DataAccess\Manager\NamedEntityManager;
-use AllThings\DataObject\EssenceAttributeCommand;
-use AllThings\DataObject\EssenceThingCommand;
 use AllThings\DataObject\NamedEntity;
 use AllThings\Essence\Attribute;
 use AllThings\Essence\Essence;
 use AllThings\Essence\EssenceAttributeManager;
 use AllThings\Essence\EssenceThingManager;
+use Environment\Command\EssenceAttributeCommand;
+use Environment\Command\EssenceThingCommand;
 use Environment\DbConnection;
 use Environment\Development\Page;
 use Environment\Presentation\ForNameableEntity;

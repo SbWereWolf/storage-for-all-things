@@ -1,11 +1,11 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * Copyright © 2019 Volkhin Nikolay
- * 01.10.2019, 19:37
+ * Copyright © 2021 Volkhin Nikolay
+ * 02.07.2021, 13:22
  */
 
-namespace AllThings\DataObject;
+namespace AllThings\SearchEngine;
 
 
 class ContinuousFilter extends Filter

@@ -1,4 +1,10 @@
 <?php
+/*
+ * storage-for-all-things
+ * Copyright © 2021 Volkhin Nikolay
+ * 02.07.2021, 13:22
+ */
+
 /**
  * storage-for-all-things
  * © Volkhin Nikolay M., 2018
@@ -7,9 +13,9 @@
 
 namespace Environment\Reception;
 
-use AllThings\DataObject\EssenceUpdateCommand;
-use AllThings\DataObject\IEssenceUpdateCommand;
 use AllThings\Essence\Essence;
+use Environment\Command\EssenceUpdateCommand;
+use Environment\Command\IEssenceUpdateCommand;
 use Slim\Http\Request;
 
 class ToEssenceEntity implements ToEssence

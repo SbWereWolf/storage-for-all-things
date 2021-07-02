@@ -1,11 +1,11 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * Copyright © 2018 Volkhin Nikolay
- * 20.05.18 0:04
+ * Copyright © 2021 Volkhin Nikolay
+ * 02.07.2021, 13:22
  */
 
-namespace AllThings\DataObject;
+namespace Environment\Command;
 
 
 use AllThings\Essence\IEssence;

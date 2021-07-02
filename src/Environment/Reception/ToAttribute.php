@@ -1,14 +1,14 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * Copyright © 2018 Volkhin Nikolay
- * 23.05.18 1:21
+ * Copyright © 2021 Volkhin Nikolay
+ * 02.07.2021, 13:22
  */
 
 namespace Environment\Reception;
 
 
-use AllThings\DataObject\IAttributeUpdateCommand;
+use Environment\Command\IAttributeUpdateCommand;
 
 interface ToAttribute
 {

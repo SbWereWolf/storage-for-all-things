@@ -1,15 +1,13 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * Copyright © 2019 Volkhin Nikolay
- * 01.12.19 0:42
+ * Copyright © 2021 Volkhin Nikolay
+ * 02.07.2021, 13:22
  */
 
 namespace AllThings\SearchEngine;
 
 
-use AllThings\DataObject\ContinuousFilter;
-use AllThings\DataObject\DiscreteFilter;
 use AllThings\Essence\EssenceAttributeManager;
 use AllThings\StorageEngine\Installation;
 use PDO;

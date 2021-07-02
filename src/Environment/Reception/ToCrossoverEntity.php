@@ -1,17 +1,17 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * Copyright © 2018 Volkhin Nikolay
- * 03.06.18 15:15
+ * Copyright © 2021 Volkhin Nikolay
+ * 02.07.2021, 13:22
  */
 
 namespace Environment\Reception;
 
 
-use AllThings\DataObject\ContentUpdateCommand;
 use AllThings\DataObject\Crossover;
-use AllThings\DataObject\IContentUpdateCommand;
 use AllThings\DataObject\ICrossover;
+use Environment\Command\ContentUpdateCommand;
+use Environment\Command\IContentUpdateCommand;
 use Slim\Http\Request;
 
 class ToCrossoverEntity implements ToCrossover

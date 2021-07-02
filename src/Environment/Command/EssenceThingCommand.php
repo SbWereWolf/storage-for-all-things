@@ -1,21 +1,21 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * Copyright © 2018 Volkhin Nikolay
- * 27.05.18 3:11
+ * Copyright © 2021 Volkhin Nikolay
+ * 02.07.2021, 13:22
  */
 
 
-namespace AllThings\DataObject;
+namespace Environment\Command;
 
 
 use Slim\Http\Request;
 
-class EssenceAttributeCommand implements IEssenceAttributeCommand
+class EssenceThingCommand implements IEssenceThingCommand
 {
 
     private $essenceIdentifier = '';
-    private $attributeIdentifier = '';
+    private $thingIdentifier = '';
 
     public function __construct(Request $request, array $arguments)
     {
@@ -24,9 +24,9 @@ class EssenceAttributeCommand implements IEssenceAttributeCommand
             $this->essenceIdentifier = $arguments['essence-code'];
         }
 
-        $isExists = array_key_exists('attribute-code', $arguments);
+        $isExists = array_key_exists('thing-code', $arguments);
         if ($isExists) {
-            $this->attributeIdentifier = $arguments['attribute-code'];
+            $this->thingIdentifier = $arguments['thing-code'];
         }
     }
 
@@ -37,10 +37,10 @@ class EssenceAttributeCommand implements IEssenceAttributeCommand
         return $essenceIdentifier;
     }
 
-    public function getAttributeIdentifier()
+    public function getThingIdentifier()
     {
-        $attributeIdentifier = $this->attributeIdentifier;
+        $thingIdentifier = $this->thingIdentifier;
 
-        return $attributeIdentifier;
+        return $thingIdentifier;
     }
 }

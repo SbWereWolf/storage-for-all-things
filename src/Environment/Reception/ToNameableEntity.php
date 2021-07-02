@@ -1,4 +1,10 @@
 <?php
+/*
+ * storage-for-all-things
+ * Copyright © 2021 Volkhin Nikolay
+ * 02.07.2021, 13:22
+ */
+
 /**
  * storage-for-all-things
  * © Volkhin Nikolay M., 2018
@@ -7,9 +13,9 @@
 
 namespace Environment\Reception;
 
-use AllThings\DataObject\NameableUpdateCommand;
 use AllThings\DataObject\NamedEntity;
-use AllThings\DataObject\NamedEntityUpdateCommand;
+use Environment\Command\NameableUpdateCommand;
+use Environment\Command\NamedEntityUpdateCommand;
 use Slim\Http\Request;
 
 class ToNameableEntity implements ToNamed
@@ -40,8 +46,6 @@ class ToNameableEntity implements ToNamed
     public function fromPut(): NameableUpdateCommand
     {
         $parameterCode = $this->arguments['code'];
-        $parameter = new NamedEntity();
-        $parameter->setCode($parameterCode);
 
         $request = $this->request;
 
@@ -65,7 +69,7 @@ class ToNameableEntity implements ToNamed
             $named->setRemark($remark);
         }
 
-        $command = new NamedEntityUpdateCommand($parameter, $named);
+        $command = new NamedEntityUpdateCommand($parameterCode, $named);
 
         return $command;
     }

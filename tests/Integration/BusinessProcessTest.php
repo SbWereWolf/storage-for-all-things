@@ -2,16 +2,14 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 01.07.2021, 1:42
+ * 02.07.2021, 13:22
  */
 
 namespace Integration;
 
 use AllThings\Content\ContentManager;
 use AllThings\DataAccess\Manager\NamedEntityManager;
-use AllThings\DataObject\ContinuousFilter;
 use AllThings\DataObject\Crossover;
-use AllThings\DataObject\DiscreteFilter;
 use AllThings\DataObject\ICrossover;
 use AllThings\DataObject\NamedEntity;
 use AllThings\DirectReading;
@@ -23,6 +21,8 @@ use AllThings\Essence\EssenceManager;
 use AllThings\Essence\EssenceThingManager;
 use AllThings\RapidObtainment;
 use AllThings\RapidRecording;
+use AllThings\SearchEngine\ContinuousFilter;
+use AllThings\SearchEngine\DiscreteFilter;
 use AllThings\SearchEngine\Seeker;
 use AllThings\StorageEngine\Installation;
 use Environment\DbConnection;

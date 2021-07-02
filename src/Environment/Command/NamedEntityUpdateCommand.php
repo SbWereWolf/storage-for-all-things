@@ -1,12 +1,14 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * Copyright © 2019 Volkhin Nikolay
- * 26.09.2019, 22:29
+ * Copyright © 2021 Volkhin Nikolay
+ * 02.07.2021, 13:22
  */
 
-namespace AllThings\DataObject;
+namespace Environment\Command;
 
+
+use AllThings\DataObject\Nameable;
 
 class NamedEntityUpdateCommand implements NameableUpdateCommand
 {
