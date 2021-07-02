@@ -2,18 +2,18 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 13:44
+ * 02.07.2021, 16:47
  */
 
 namespace AllThings\StorageEngine;
 
 
-use AllThings\Attribute\Attribute;
-use AllThings\Attribute\AttributeManager;
-use AllThings\Attribute\EssenceAttributeManager;
-use AllThings\Attribute\IAttribute;
+use AllThings\Blueprint\Attribute\Attribute;
+use AllThings\Blueprint\Attribute\AttributeManager;
+use AllThings\Blueprint\Attribute\IAttribute;
+use AllThings\Blueprint\Specification\SpecificationManager;
 use AllThings\Content\ContentManager;
-use AllThings\DataObject\ICrossover;
+use AllThings\DataAccess\Crossover\ICrossover;
 use PDO;
 
 class RapidRecording implements Installation
@@ -76,7 +76,7 @@ class RapidRecording implements Installation
         $essence = $this->getEssence();
         $isSuccess = false;
         if ($result) {
-            $essenceManager = new EssenceAttributeManager(
+            $essenceManager = new SpecificationManager(
                 $essence,
                 '',
                 $linkToData
@@ -194,7 +194,7 @@ FROM {$view->name()}
 
         $isSuccess = false;
         if (!$value) {
-            $essenceManager = new EssenceAttributeManager(
+            $essenceManager = new SpecificationManager(
                 $this->getEssence(),
                 '',
                 $linkToData

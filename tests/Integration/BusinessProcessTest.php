@@ -2,22 +2,22 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 13:44
+ * 02.07.2021, 16:47
  */
 
 namespace Integration;
 
-use AllThings\Attribute\Attribute;
-use AllThings\Attribute\AttributeManager;
-use AllThings\Attribute\Essence;
-use AllThings\Attribute\EssenceAttributeManager;
-use AllThings\Attribute\EssenceManager;
-use AllThings\Catalog\EssenceThingManager;
+use AllThings\Blueprint\Attribute\Attribute;
+use AllThings\Blueprint\Attribute\AttributeManager;
+use AllThings\Blueprint\Essence\Essence;
+use AllThings\Blueprint\Essence\EssenceManager;
+use AllThings\Blueprint\Specification\SpecificationManager;
+use AllThings\Catalog\CatalogManager;
 use AllThings\Content\ContentManager;
-use AllThings\DataAccess\Manager\NamedEntityManager;
-use AllThings\DataObject\Crossover;
-use AllThings\DataObject\ICrossover;
-use AllThings\DataObject\NamedEntity;
+use AllThings\DataAccess\Crossover\Crossover;
+use AllThings\DataAccess\Crossover\ICrossover;
+use AllThings\DataAccess\Nameable\NamedEntity;
+use AllThings\DataAccess\Nameable\NamedEntityManager;
 use AllThings\SearchEngine\ContinuousFilter;
 use AllThings\SearchEngine\DiscreteFilter;
 use AllThings\SearchEngine\Seeker;
@@ -261,7 +261,7 @@ class BusinessProcessTest extends TestCase
         $attribute,
         $linkToData
     ): void {
-        $manager = new EssenceAttributeManager(
+        $manager = new SpecificationManager(
             $essence, $attribute,
             $linkToData
         );
@@ -317,7 +317,7 @@ class BusinessProcessTest extends TestCase
         string $essence,
         PDO $linkToData
     ): array {
-        $manager = new EssenceAttributeManager($essence, '', $linkToData);
+        $manager = new SpecificationManager($essence, '', $linkToData);
         $isSuccess = $manager->getAssociated();
         $this->assertTrue(
             $isSuccess,
@@ -386,7 +386,7 @@ class BusinessProcessTest extends TestCase
         string $code,
         $linkToData
     ): bool {
-        $manager = new EssenceThingManager(
+        $manager = new CatalogManager(
             $essence, $code,
             $linkToData
         );

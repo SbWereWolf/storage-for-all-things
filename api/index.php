@@ -2,16 +2,18 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 13:44
+ * 02.07.2021, 16:47
  */
 
-use AllThings\Attribute\Attribute;
-use AllThings\Attribute\Essence;
-use AllThings\Attribute\EssenceAttributeManager;
-use AllThings\Catalog\EssenceThingManager;
+use AllThings\Blueprint\Attribute\Attribute;
+use AllThings\Blueprint\Attribute\AttributeManager;
+use AllThings\Blueprint\Essence\Essence;
+use AllThings\Blueprint\Essence\EssenceManager;
+use AllThings\Blueprint\Specification\SpecificationManager;
+use AllThings\Catalog\CatalogManager;
 use AllThings\Content\ContentManager;
-use AllThings\DataAccess\Manager\NamedEntityManager;
-use AllThings\DataObject\NamedEntity;
+use AllThings\DataAccess\Nameable\NamedEntity;
+use AllThings\DataAccess\Nameable\NamedEntityManager;
 use Environment\Command\EssenceAttributeCommand;
 use Environment\Command\EssenceThingCommand;
 use Environment\DbConnection;
@@ -232,7 +234,7 @@ $app->post('/essence/{code}', function (Request $request, Response $response, ar
     $essence = Essence::GetDefaultEssence();
     $essence->setCode($essenceCode);
 
-    $handler = new AllThings\Attribute\EssenceManager($essence, $dataPath);
+    $handler = new EssenceManager($essence, $dataPath);
 
     $isSuccess = $handler->create();
     if ($isSuccess) {
@@ -272,7 +274,7 @@ $app->get('/essence/{code}', function (Request $request, Response $response, arr
     $subject = Essence::GetDefaultEssence();
     $subject->setCode($parameter);
     $dataPath = (new DbConnection())->getForRead();
-    $handler = new AllThings\Attribute\EssenceManager($subject, $dataPath);
+    $handler = new EssenceManager($subject, $dataPath);
 
     $isSuccess = $handler->browse();
 
@@ -323,7 +325,7 @@ $app->put('/essence/{code}', function (Request $request, Response $response, arr
 
     $subject = $command->getSubject();
     $dataPath = (new DbConnection())->getForWrite();
-    $handler = new AllThings\Attribute\EssenceManager($subject, $dataPath);
+    $handler = new EssenceManager($subject, $dataPath);
 
     $parameter = $command->getParameter();
     $isSuccess = $handler->correct($parameter);
@@ -419,7 +421,7 @@ $app->post('/attribute/{code}', function (Request $request, Response $response, 
     $attribute = (Attribute::GetDefaultAttribute());
     $attribute->setCode($attributeCode);
 
-    $handler = new AllThings\Attribute\AttributeManager($attribute, $dataPath);
+    $handler = new AttributeManager($attribute, $dataPath);
 
     $isSuccess = $handler->create();
     if ($isSuccess) {
@@ -459,7 +461,7 @@ $app->get('/attribute/{code}', function (Request $request, Response $response, a
     $subject = Attribute::GetDefaultAttribute();
     $subject->setCode($parameter);
     $dataPath = (new DbConnection())->getForRead();
-    $handler = new AllThings\Attribute\AttributeManager($subject, $dataPath);
+    $handler = new AttributeManager($subject, $dataPath);
 
     $isSuccess = $handler->browse();
 
@@ -510,7 +512,7 @@ $app->put('/attribute/{code}', function (Request $request, Response $response, a
 
     $subject = $command->getSubject();
     $dataPath = (new DbConnection())->getForWrite();
-    $manager = new AllThings\Attribute\AttributeManager($subject, $dataPath);
+    $manager = new AttributeManager($subject, $dataPath);
 
     $parameter = $command->getParameter();
     $isSuccess = $manager->correct($parameter);
@@ -609,7 +611,7 @@ $app->post('/essence-attribute/{essence-code}/{attribute-code}', function (Reque
     $attribute = $command->getAttributeIdentifier();
     $dataPath = (new DbConnection())->getForWrite();
 
-    $manager = new EssenceAttributeManager($essence,$attribute,$dataPath);
+    $manager = new SpecificationManager($essence, $attribute, $dataPath);
 
     $result = $manager->setUp();
 
@@ -655,7 +657,7 @@ $app->delete('/essence-attribute/{essence-code}/{attribute-code}', function (Req
     $attribute = $command->getAttributeIdentifier();
     $dataPath = (new DbConnection())->getForDelete();
 
-    $manager = new EssenceAttributeManager($essence,$attribute,$dataPath);
+    $manager = new SpecificationManager($essence, $attribute, $dataPath);
 
     $result = $manager->breakDown();
 
@@ -700,7 +702,7 @@ $app->get('/essence-attribute/{essence-code}', function (Request $request, Respo
     $attribute = $command->getAttributeIdentifier();
     $dataPath = (new DbConnection())->getForDelete();
 
-    $manager = new EssenceAttributeManager($essence,$attribute,$dataPath);
+    $manager = new SpecificationManager($essence, $attribute, $dataPath);
 
     $result = $manager->getAssociated();
 
@@ -752,7 +754,7 @@ $app->post('/essence-thing/{essence-code}/{thing-code}', function (Request $requ
     $thingIdentifier = $command->getThingIdentifier();
     $dataPath = (new DbConnection())->getForWrite();
 
-    $manager = new EssenceThingManager($essenceIdentifier,$thingIdentifier,$dataPath);
+    $manager = new CatalogManager($essenceIdentifier, $thingIdentifier, $dataPath);
 
     $result = $manager->setUp();
 
@@ -798,7 +800,7 @@ $app->delete('/essence-thing/{essence-code}/{thing-code}', function (Request $re
     $thingIdentifier = $command->getThingIdentifier();
     $dataPath = (new DbConnection())->getForDelete();
 
-    $manager = new EssenceThingManager($essenceIdentifier,$thingIdentifier,$dataPath);
+    $manager = new CatalogManager($essenceIdentifier, $thingIdentifier, $dataPath);
 
     $result = $manager->breakDown();
 
@@ -843,7 +845,7 @@ $app->get('/essence-thing/{essence-code}', function (Request $request, Response 
     $thingIdentifier = $command->getThingIdentifier();
     $dataPath = (new DbConnection())->getForRead();
 
-    $manager = new EssenceThingManager($essenceIdentifier,$thingIdentifier,$dataPath);
+    $manager = new CatalogManager($essenceIdentifier, $thingIdentifier, $dataPath);
 
     $result = $manager->getAssociated();
 

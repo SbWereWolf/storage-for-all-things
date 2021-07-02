@@ -2,14 +2,14 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 13:44
+ * 02.07.2021, 16:47
  */
 
 namespace AllThings\StorageEngine;
 
 
-use AllThings\Attribute\EssenceAttributeManager;
-use AllThings\DataObject\ICrossover;
+use AllThings\Blueprint\Specification\SpecificationManager;
+use AllThings\DataAccess\Crossover\ICrossover;
 use PDO;
 
 class RapidObtainment implements Installation
@@ -60,7 +60,7 @@ class RapidObtainment implements Installation
 
         if ($isSuccess) {
             $essence = $this->getEssence();
-            $manager = new EssenceAttributeManager($essence, '', $linkToData);
+            $manager = new SpecificationManager($essence, '', $linkToData);
             $isSuccess = $manager->getAssociated();
         }
         if ($isSuccess) {

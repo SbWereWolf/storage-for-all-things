@@ -1,14 +1,14 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * Copyright © 2018 Volkhin Nikolay
- * 03.06.18 16:03
+ * Copyright © 2021 Volkhin Nikolay
+ * 02.07.2021, 16:47
  */
 
 namespace Environment\Presentation;
 
 
-use AllThings\DataObject\ICrossover;
+use AllThings\DataAccess\Crossover\ICrossover;
 
 class FromCrossoverEntity implements Jsonable
 {

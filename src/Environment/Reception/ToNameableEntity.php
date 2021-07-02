@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 13:22
+ * 02.07.2021, 16:47
  */
 
 /**
@@ -13,7 +13,7 @@
 
 namespace Environment\Reception;
 
-use AllThings\DataObject\NamedEntity;
+use AllThings\DataAccess\Nameable\NamedEntity;
 use Environment\Command\NameableUpdateCommand;
 use Environment\Command\NamedEntityUpdateCommand;
 use Slim\Http\Request;

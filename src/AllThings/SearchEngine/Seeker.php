@@ -2,13 +2,13 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 13:44
+ * 02.07.2021, 16:47
  */
 
 namespace AllThings\SearchEngine;
 
 
-use AllThings\Attribute\EssenceAttributeManager;
+use AllThings\Blueprint\Specification\SpecificationManager;
 use AllThings\StorageEngine\Installation;
 use PDO;
 
@@ -93,7 +93,7 @@ class Seeker implements Searching
         $essence = $this->getSource()->getEssence();
         $linkToData = $this->getSource()->getLinkToData();
 
-        $manager = new EssenceAttributeManager($essence, '', $linkToData);
+        $manager = new SpecificationManager($essence, '', $linkToData);
         $isSuccess = $manager->getAssociated();
         if ($isSuccess) {
             $isSuccess = $manager->has();

@@ -2,13 +2,13 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 01.07.2021, 1:42
+ * 02.07.2021, 16:47
  */
 
 namespace AllThings\StorageEngine;
 
 
-use AllThings\DataObject\ICrossover;
+use AllThings\DataAccess\Crossover\ICrossover;
 use PDO;
 
 interface Installation

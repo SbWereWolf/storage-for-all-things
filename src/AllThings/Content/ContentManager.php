@@ -2,19 +2,19 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 01.07.2021, 1:42
+ * 02.07.2021, 16:47
  */
 
 
 namespace AllThings\Content;
 
 
-use AllThings\DataAccess\Handler\CrossoverHandler;
-use AllThings\DataAccess\Handler\Retrievable;
-use AllThings\DataAccess\Manager\CrossoverManager;
-use AllThings\DataObject\CrossoverTable;
-use AllThings\DataObject\ForeignKey;
-use AllThings\DataObject\ICrossover;
+use AllThings\DataAccess\Crossover\CrossoverHandler;
+use AllThings\DataAccess\Crossover\CrossoverManager;
+use AllThings\DataAccess\Crossover\CrossoverTable;
+use AllThings\DataAccess\Crossover\ForeignKey;
+use AllThings\DataAccess\Crossover\ICrossover;
+use AllThings\DataAccess\Retrievable;
 use PDO;
 
 class ContentManager implements CrossoverManager, Retrievable

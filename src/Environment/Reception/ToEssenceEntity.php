@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 13:44
+ * 02.07.2021, 16:47
  */
 
 /**
@@ -13,7 +13,7 @@
 
 namespace Environment\Reception;
 
-use AllThings\Attribute\Essence;
+use AllThings\Blueprint\Essence\Essence;
 use Environment\Command\EssenceUpdateCommand;
 use Environment\Command\IEssenceUpdateCommand;
 use Slim\Http\Request;
