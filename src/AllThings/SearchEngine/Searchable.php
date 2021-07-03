@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 16:47
+ * 03.07.2021, 17:12
  */
 
 
@@ -17,8 +17,19 @@ interface Searchable
     public const DECIMAL = 'decimal';
     public const TIMESTAMP = 'timestamp';
 
+    public const DATA_TYPE = [
+        self::SYMBOLS,
+        self::DECIMAL,
+        self::TIMESTAMP,
+    ];
+
     public const CONTINUOUS = 'continuous';
     public const DISCRETE = 'discrete';
+
+    public const RANGE_TYPE = [
+        self::CONTINUOUS,
+        self::DISCRETE,
+    ];
 
     public function getDataType(): string;
 

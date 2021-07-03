@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 16:47
+ * 03.07.2021, 17:12
  */
 
 
@@ -27,8 +27,8 @@ class SpecificationManager implements LinkageManager, Retrievable
 
     public function __construct(string $essence, string $attribute, PDO $dataPath)
     {
-        $linkage[self::ESSENCE_IDENTIFIER] = $essence;
-        $linkage[self::ATTRIBUTE_IDENTIFIER] = $attribute;
+        $linkage[static::ESSENCE_IDENTIFIER] = $essence;
+        $linkage[static::ATTRIBUTE_IDENTIFIER] = $attribute;
         $this->linkage = $linkage;
 
         $this->essenceForeignKey = new ForeignKey('essence', 'id', 'code');
@@ -37,7 +37,7 @@ class SpecificationManager implements LinkageManager, Retrievable
         $this->dataPath = $dataPath;
     }
 
-    public function setUp(): bool
+    public function linkUp(): bool
     {
         $handler = $this->getHandler();
         $linkage = $this->linkage;

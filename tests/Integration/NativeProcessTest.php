@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 03.07.2021, 10:08
+ * 03.07.2021, 17:12
  */
 
 namespace Integration;
@@ -249,7 +249,7 @@ class NativeProcessTest extends TestCase
             $linkToData
         );
 
-        $isSuccess = $manager->setUp();
+        $isSuccess = $manager->linkUp();
         $this->assertTrue(
             $isSuccess,
             "Attribute `$attribute` must be linked to"
@@ -373,7 +373,7 @@ class NativeProcessTest extends TestCase
             $essence, $code,
             $linkToData
         );
-        $isSuccess = $manager->setUp();
+        $isSuccess = $manager->linkUp();
         $this->assertTrue(
             $isSuccess,
             "Thing `$code` must be linked"

@@ -2,13 +2,11 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 03.07.2021, 10:21
+ * 03.07.2021, 17:12
  */
 
 namespace Integration;
 
-use AllThings\Blueprint\Attribute\Attribute;
-use AllThings\Blueprint\Attribute\AttributeManager;
 use AllThings\Blueprint\Specification\SpecificationManager;
 use AllThings\Catalog\CatalogManager;
 use AllThings\Content\ContentManager;
@@ -92,151 +90,81 @@ class AutomatedProcessTest extends TestCase
      *
      * @return array
      */
-    public function testAttributesCreate(array $context)
+    public function testKindCreate(array $context)
     {
         /* ## S001A1S03 создать характеристику */
-        $codes = ['price', 'production-date', 'place-of-production',];
-        foreach ($codes as $code) {
-            $context = $this->addAttributeToContext($code, $context);
-        }
-
-        return $context;
-    }
-
-    /**
-     * @param string $code
-     * @param array $context
-     * @return array
-     */
-    private function addAttributeToContext(string $code, array $context): array
-    {
-        $context[$code] = $code;
-        $this->createAttribute($context, $code);
-        return $context;
-    }
-
-    /**
-     * @param array $context
-     * @param string $code
-     */
-    private function createAttribute(array $context, string $code): void
-    {
-        $attribute = (Attribute::GetDefaultAttribute());
-        $attribute->setCode($code);
-
-        $linkToData = $context['PDO'];
-        $handler = new AttributeManager(
-            $attribute,
-            $linkToData
-        );
-
-        $isSuccess = $handler->create();
-        $this->assertTrue(
-            $isSuccess,
-            "Attribute $code must be created with success"
-        );
-    }
-
-    /**
-     * Задаём свойства атрибутов
-     * @depends testAttributesCreate
-     *
-     * @param array $context
-     */
-    public function testSetupAttributes(array $context)
-    {
         /* ## S001A1S04 задать свойства характеристики */
-        $linkToData = $context['PDO'];
 
         $codes = [
-            $context['price'] => [
+            'price' => [
                 'Title' => 'цена, руб.',
                 'DataType' => 'decimal',
                 'RangeType' => 'continuous',
             ],
-            $context['production-date'] => [
+            'production-date' => [
                 'Title' => 'дата выработки',
                 'DataType' => 'timestamp',
                 'RangeType' => 'continuous',
             ],
-            $context['place-of-production'] => [
+            'place-of-production' => [
                 'Title' => 'Место производства',
-                'DataType' => 'symbol',
+                'DataType' => 'symbols',
                 'RangeType' => 'discrete',
             ],
         ];
 
+        $operator = new Operator($context['PDO']);
         foreach ($codes as $code => $settings) {
-            $value = Attribute::GetDefaultAttribute();
-            $value->setCode($code)
-                ->setTitle($settings['Title'])
-                ->setDataType($settings['DataType'])
-                ->setRangeType($settings['RangeType']);
-            $handler = new AttributeManager(
-                $value,
-                $linkToData
+            $attribute = $operator->createKind(
+                $code,
+                $settings['DataType'],
+                $settings['RangeType'],
+                $settings['Title'],
             );
 
-            $isSuccess = $handler->correct($code);
-            $this->assertTrue(
-                $isSuccess,
-                "Attribute `$code` must be updated with success"
-            );
-        }
-    }
-
-    /**
-     * Задаём характеристики для сущности
-     * @depends testAttributesCreate
-     *
-     * @param array $context
-     *
-     * @return array
-     */
-    public function testDefineEssence(array $context)
-    {
-        /* ## S001A1S05 охарактеризовать сущность (назначить
-         характеристики для предметов этого типа) */
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
-
-        $attributes = ['price', 'production-date', 'place-of-production'];
-        foreach ($attributes as $attribute) {
-            $this->LinkEssenceToAttribute(
-                $essence,
+            $this->assertNotEmpty(
                 $attribute,
-                $linkToData
+                'Attribute must be created with success'
             );
+            $context[$code] = $code;
         }
 
         return $context;
     }
 
     /**
-     * @param $essence
-     * @param $attribute
-     * @param $linkToData
+     * Задаём характеристики для сущности
+     * @depends testKindCreate
+     *
+     * @param array $context
+     *
+     * @return array
      */
-    private function LinkEssenceToAttribute(
-        $essence,
-        $attribute,
-        $linkToData
-    ): void {
-        $manager = new SpecificationManager(
-            $essence, $attribute,
-            $linkToData
+    public function testDefineBlueprint(array $context)
+    {
+        /* ## S001A1S05 охарактеризовать сущность (назначить
+         характеристики для предметов этого типа) */
+        $essence = $context['essence'];
+
+        $attributes = ['price', 'production-date', 'place-of-production'];
+        $operator = new Operator($context['PDO']);
+        foreach ($attributes as $attribute) {
+            $operator->attachKind(
+                $attribute,
+                $essence,
+            );
+        }
+
+        $this->assertTrue(
+            true,
+            'Blueprint must be defined with success'
         );
 
-        $isSuccess = $manager->setUp();
-        $this->assertTrue(
-            $isSuccess,
-            "Attribute `$attribute` must be linked to"
-            . " essence `$essence` with success"
-        );
+        return $context;
     }
 
     /** Создаём модели на основе сущности
-     * @depends testDefineEssence
+     * @depends testDefineBlueprint
      *
      * @param array $context
      *
@@ -351,7 +279,7 @@ class AutomatedProcessTest extends TestCase
             $essence, $code,
             $linkToData
         );
-        $isSuccess = $manager->setUp();
+        $isSuccess = $manager->linkUp();
         $this->assertTrue(
             $isSuccess,
             "Thing `$code` must be linked"
@@ -488,7 +416,7 @@ class AutomatedProcessTest extends TestCase
 
     /**
      * Создаём представление для характеристик моделей
-     * @depends testDefineEssence
+     * @depends testDefineBlueprint
      *
      * @param array $context
      */
@@ -791,7 +719,7 @@ class AutomatedProcessTest extends TestCase
     /**
      * Создаём материализованное представление для характеристик
      * моделей
-     * @depends testDefineEssence
+     * @depends testDefineBlueprint
      *
      * @param array $context
      */
@@ -864,7 +792,7 @@ class AutomatedProcessTest extends TestCase
 
     /**
      * Создаём таблицу для значений характеристик моделей
-     * @depends testDefineEssence
+     * @depends testDefineBlueprint
      *
      * @param array $context
      */
@@ -1070,30 +998,40 @@ class AutomatedProcessTest extends TestCase
      */
     public function testAddNewAttribute(array $context)
     {
-        $linkToData = $context['PDO'];
-
         /* Добавляем новую характеристику package и задаём параметры
         этой характеристики */
-        $code = 'package';
-        $context = $this->addAttributeToContext($code, $context);
-        $value = Attribute::GetDefaultAttribute();
-        $value->setCode($code);
-        $value->setTitle('Упаковка');
-        $value->setDataType('symbol');
-        $value->setRangeType('discrete');
-        $handler = new AttributeManager(
-            $value,
-            $linkToData
-        );
-        /** @noinspection PhpUnusedLocalVariableInspection */
-        $isSuccess = $handler->correct($code);
+
+        $codes = [
+            'package' => [
+                'Title' => 'Упаковка',
+                'DataType' => 'symbols',
+                'RangeType' => 'discrete',
+            ],
+        ];
+
+        $linkToData = $context['PDO'];
+        $operator = new Operator($linkToData);
+        foreach ($codes as $code => $settings) {
+            $attribute = $operator->createKind(
+                $code,
+                $settings['DataType'],
+                $settings['RangeType'],
+                $settings['Title'],
+            );
+
+            $this->assertNotEmpty(
+                $attribute,
+                'Attribute must be created with success'
+            );
+            $context[$code] = $code;
+        }
 
         /* Добавим сущности cake новую характеристику package */
         $essence = $context['essence'];
-        $this->LinkEssenceToAttribute(
-            $essence,
+        $operator = new Operator($linkToData);
+        $operator->attachKind(
             $code,
-            $linkToData
+            $essence,
         );
 
         /* Добавим существующим моделям новую характеристику */

@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 16:47
+ * 03.07.2021, 17:12
  */
 
 
@@ -37,7 +37,7 @@ class CatalogManager implements LinkageManager, Retrievable
         $this->dataPath = $dataPath;
     }
 
-    public function setUp(): bool
+    public function linkUp(): bool
     {
         $handler = $this->getHandler();
         $linkage = $this->linkage;

@@ -2,15 +2,19 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 03.07.2021, 10:21
+ * 03.07.2021, 17:12
  */
 
 namespace AllThings\ControlPanel;
 
 
+use AllThings\Blueprint\Attribute\Attribute;
+use AllThings\Blueprint\Attribute\AttributeManager;
+use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Essence\Essence;
 use AllThings\Blueprint\Essence\EssenceManager;
 use AllThings\Blueprint\Essence\IEssence;
+use AllThings\Blueprint\Specification\SpecificationManager;
 use AllThings\StorageEngine\Storable;
 use Exception;
 use PDO;
@@ -52,10 +56,6 @@ class Operator
             $essence->setRemark($description);
         }
         if ($storageKind || $title || $description) {
-            $handler = new EssenceManager(
-                $essence,
-                $this->db
-            );
             $isSuccess = $handler->correct();
         }
         if (!$isSuccess) {
@@ -65,17 +65,58 @@ class Operator
         return $essence;
     }
 
-    public function changeStorage(
-        IEssence $essence,
-        string $storageKind
-    ) {
-        $essence->setStorage($storageKind);
-        $handler = new EssenceManager(
-            $essence,
+    public function createKind(
+        string $code,
+        string $dataType,
+        string $rangeType,
+        string $title = '',
+        string $description = ''
+    ): IAttribute {
+        $attribute = Attribute::GetDefaultAttribute();
+        $attribute->setCode($code)
+            ->setDataType($dataType)
+            ->setRangeType($rangeType);
+
+        $handler = new AttributeManager(
+            $attribute,
             $this->db
         );
-        /** @noinspection PhpUnusedLocalVariableInspection */
+
+        $isSuccess = $handler->create();
+        if (!$isSuccess) {
+            throw new Exception('Attribute must be created with success');
+        }
+
+        $attribute->setDataType($dataType)
+            ->setRangeType($rangeType);
+
+        if ($title) {
+            $attribute->setTitle($title);
+        }
+        if ($description) {
+            $attribute->setRemark($description);
+        }
+
         $isSuccess = $handler->correct();
+        if (!$isSuccess) {
+            throw new Exception('Attribute must be updated with success');
+        }
+
+        return $attribute;
+    }
+
+    public function attachKind(string $kind, string $essence)
+    {
+        $manager = new SpecificationManager(
+            $essence,
+            $kind,
+            $this->db
+        );
+        $isSuccess = $manager->linkUp();
+
+        if (!$isSuccess) {
+            throw new Exception('Attribute must be linked with success');
+        }
 
         return $this;
     }

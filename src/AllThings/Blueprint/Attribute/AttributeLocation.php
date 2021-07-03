@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 16:47
+ * 03.07.2021, 17:12
  */
 
 namespace AllThings\Blueprint\Attribute;
@@ -24,13 +24,21 @@ class AttributeLocation implements AttributeWriter
 
     public function insert(IAttribute $entity): bool
     {
-        $suggestion_code = $entity->getCode();
+        $proposalCode = $entity->getCode();
+        $proposalDatatype = $entity->getDataType();
+        $proposalRangeType = $entity->getRangeType();
 
-        $sqlText = 'insert into ' . $this->tableName . ' (code)values(:code)';
+        $sqlText = "
+insert into {$this->tableName} 
+    (code,data_type,range_type)
+    values(:code,:data_type,:range_type)
+    ";
         $connection = $this->storageLocation;
 
         $query = $connection->prepare($sqlText);
-        $query->bindParam(':code', $suggestion_code);
+        $query->bindParam(':code', $proposalCode);
+        $query->bindParam(':data_type', $proposalDatatype);
+        $query->bindParam(':range_type', $proposalRangeType);
 
         $result = $query->execute();
 
