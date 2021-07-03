@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 16:47
+ * 03.07.2021, 8:12
  */
 
 namespace Integration;
@@ -25,7 +25,7 @@ use AllThings\StorageEngine\DirectReading;
 use AllThings\StorageEngine\Installation;
 use AllThings\StorageEngine\RapidObtainment;
 use AllThings\StorageEngine\RapidRecording;
-use Environment\DbConnection;
+use Environment\Database\DbConnection;
 use PDO;
 use PHPUnit\Framework\TestCase;
 
@@ -39,23 +39,6 @@ class BusinessProcessTest extends TestCase
      */
     public function testInit()
     {
-        define(
-            'APPLICATION_ROOT',
-            realpath(__DIR__)
-            . DIRECTORY_SEPARATOR . '..'
-            . DIRECTORY_SEPARATOR . '..'
-        );
-        define(
-            'CONFIGURATION_ROOT',
-            APPLICATION_ROOT
-            . DIRECTORY_SEPARATOR . 'configuration'
-        );
-        define(
-            'DB_READ_CONFIGURATION',
-            CONFIGURATION_ROOT
-            . DIRECTORY_SEPARATOR . 'db_test.php'
-        );
-
         $linkToData = (new DbConnection())->getForRead();
 
         $isSuccess = static::SKIP;

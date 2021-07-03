@@ -1,11 +1,11 @@
 <?php
-/**
+/*
  * storage-for-all-things
- * © Volkhin Nikolay M., 2018
- * Date: 13.05.2018 Time: 12:24
+ * Copyright © 2021 Volkhin Nikolay
+ * 03.07.2021, 8:12
  */
 
-namespace Environment;
+namespace Environment\Database;
 
 
 use PDO;

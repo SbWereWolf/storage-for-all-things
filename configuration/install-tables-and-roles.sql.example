@@ -92,10 +92,10 @@ create table content
     content text
 );
 
-create index content_attribyte_id_index
+create index content_attribute_id_index
     on content (attribute_id);
 
-create unique index content_thing_id_attribyte_id_uindex
+create unique index content_thing_id_attribute_id_uindex
     on content (thing_id, attribute_id);
 
 create table essence_thing

@@ -1,6 +1,11 @@
 <?php
+/*
+ * storage-for-all-things
+ * Copyright © 2021 Volkhin Nikolay
+ * 03.07.2021, 8:12
+ */
 
-namespace Environment;
+namespace Environment\Database;
 
 class DbCredentials implements IDbCredentials
 {
@@ -16,7 +21,9 @@ class DbCredentials implements IDbCredentials
      */
     public static function getReaderCredentials(): array
     {
-        $dbReadCredentials = new self(DB_READ_CONFIGURATION);
+        $dbReadCredentials = new static(
+            IDbCredentials::DB_READ_CONFIGURATION
+        );
         $readerCredentials = $dbReadCredentials->getPdoAttributes();
 
         return $readerCredentials;
@@ -55,7 +62,9 @@ class DbCredentials implements IDbCredentials
      */
     public static function getWriterCredentials(): array
     {
-        $dbWriteCredentials = new self(DB_WRITE_CONFIGURATION);
+        $dbWriteCredentials = new static(
+            IDbCredentials::DB_WRITE_CONFIGURATION
+        );
         $writerCredentials = $dbWriteCredentials->getPdoAttributes();
 
         return $writerCredentials;
@@ -63,11 +72,11 @@ class DbCredentials implements IDbCredentials
 
     public static function getDeleteCredentials(): array
     {
-        $dbDeleteCredentials = new self(DB_DELETE_CONFIGURATION);
+        $dbDeleteCredentials = new static(
+            IDbCredentials::DB_DELETE_CONFIGURATION
+        );
         $deleteCredentials = $dbDeleteCredentials->getPdoAttributes();
 
         return $deleteCredentials;
     }
 }
-
-
