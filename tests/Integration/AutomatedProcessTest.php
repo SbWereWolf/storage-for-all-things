@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 03.07.2021, 10:08
+ * 03.07.2021, 10:21
  */
 
 namespace Integration;
@@ -86,7 +86,7 @@ class AutomatedProcessTest extends TestCase
 
     /**
      * Создаём характеристики
-     * @depends testEssenceCreate
+     * @depends testBlueprintCreate
      *
      * @param array $context
      *

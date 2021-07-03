@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 03.07.2021, 10:08
+ * 03.07.2021, 10:21
  */
 
 namespace AllThings\ControlPanel;
@@ -56,7 +56,7 @@ class Operator
                 $essence,
                 $this->db
             );
-            $isSuccess = $handler->correct($code);
+            $isSuccess = $handler->correct();
         }
         if (!$isSuccess) {
             throw new Exception('Essence must be updated with success');
@@ -69,5 +69,14 @@ class Operator
         IEssence $essence,
         string $storageKind
     ) {
+        $essence->setStorage($storageKind);
+        $handler = new EssenceManager(
+            $essence,
+            $this->db
+        );
+        /** @noinspection PhpUnusedLocalVariableInspection */
+        $isSuccess = $handler->correct();
+
+        return $this;
     }
 }
