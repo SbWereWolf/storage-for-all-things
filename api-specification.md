@@ -32,7 +32,7 @@ body MUST have values for fields of the essence object :
 code => value
 title => value
 remark => value
-store-at => value ( MUST be one of : view | matherial view | table )
+store-at => value ( MUST be one of : view | materialized view | table )
 ```
 ## essence-catalog - Каталог сущностей
 
@@ -47,7 +47,7 @@ filter (any parameter MAY be omitted):
 code => %like%
 title => %like%
 remark => %like%
-store-at => MUST be one of : view | matherial view | table
+store-at => MUST be one of : view | materialized view | table
 
 result MUST be collection of:
 essence-code

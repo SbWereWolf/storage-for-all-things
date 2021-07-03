@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 16:47
+ * 03.07.2021, 10:08
  */
 
 namespace AllThings\Blueprint\Essence;
@@ -28,6 +28,7 @@ class Essence implements IEssence
     {
         $nameable = new NamedEntity();
         $storable = new Storage();
+        $storable->setStorage(static::DIRECT_READING);
 
         $essence = new Essence($nameable, $storable);
 
@@ -76,16 +77,16 @@ class Essence implements IEssence
         return $remark;
     }
 
-    public function getStoreAt(): string
+    public function getStorage(): string
     {
-        $storage = $this->storable->getStoreAt();
+        $storage = $this->storable->getStorage();
 
         return $storage;
     }
 
-    public function setStoreAt(string $value): Storable
+    public function setStorage(string $value): Storable
     {
-        $this->storable->setStoreAt($value);
+        $this->storable->setStorage($value);
 
         return $this;
     }

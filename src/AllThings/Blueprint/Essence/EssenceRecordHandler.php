@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 16:47
+ * 03.07.2021, 10:08
  */
 
 namespace AllThings\Blueprint\Essence;
@@ -72,9 +72,12 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
 
     public function write(string $code): bool
     {
-        $target = $this->setEssenceByCode($code);
-
         $essence = $this->essence->GetEssenceCopy();
+
+        $target = $essence;
+        if ($code) {
+            $target = $this->setEssenceByCode($code);
+        }
 
         $result = ($this->getEssenceLocation())->update($target, $essence);
 

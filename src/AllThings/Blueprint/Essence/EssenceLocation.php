@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 16:47
+ * 03.07.2021, 10:08
  */
 
 namespace AllThings\Blueprint\Essence;
@@ -62,7 +62,7 @@ class EssenceLocation implements EssenceWriter
         $suggestion_code = $suggestion_entity->getCode();
         $suggestion_title = $suggestion_entity->getTitle();
         $suggestion_remark = $suggestion_entity->getRemark();
-        $suggestion_storage = $suggestion_entity->getStoreAt();
+        $suggestion_storage = $suggestion_entity->getStorage();
 
         $sqlText = 'update '
             . $this->tableName

@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 16:47
+ * 03.07.2021, 10:08
  */
 
 namespace AllThings\Blueprint\Essence;
@@ -59,7 +59,7 @@ class EssenceSource implements EssenceReader
             $entity->setCode($code);
             $entity->setTitle($title);
             $entity->setRemark($remark);
-            $entity->setStoreAt($storeAt);
+            $entity->setStorage($storeAt);
         }
 
         return $result;

@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 16:47
+ * 03.07.2021, 10:08
  */
 
 /**
@@ -17,10 +17,18 @@ namespace AllThings\StorageEngine;
 
 interface Storable
 {
+    public const DIRECT_READING = 'view';
+    public const RAPID_OBTAINMENT = 'materialized view';
+    public const RAPID_RECORDING = 'table';
+    public const AVAILABLE = [
+        self::DIRECT_READING,
+        self::RAPID_OBTAINMENT,
+        self::RAPID_RECORDING,
+    ];
 
-    public function getStoreAt(): string;
+    public function getStorage(): string;
 
-    public function setStoreAt(string $value): Storable;
+    public function setStorage(string $value): Storable;
 
     public function getStorableCopy(): Storable;
 }

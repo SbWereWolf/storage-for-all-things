@@ -2,18 +2,17 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 03.07.2021, 8:12
+ * 03.07.2021, 10:08
  */
 
 namespace Integration;
 
 use AllThings\Blueprint\Attribute\Attribute;
 use AllThings\Blueprint\Attribute\AttributeManager;
-use AllThings\Blueprint\Essence\Essence;
-use AllThings\Blueprint\Essence\EssenceManager;
 use AllThings\Blueprint\Specification\SpecificationManager;
 use AllThings\Catalog\CatalogManager;
 use AllThings\Content\ContentManager;
+use AllThings\ControlPanel\Operator;
 use AllThings\DataAccess\Crossover\Crossover;
 use AllThings\DataAccess\Crossover\ICrossover;
 use AllThings\DataAccess\Nameable\NamedEntity;
@@ -25,11 +24,12 @@ use AllThings\StorageEngine\DirectReading;
 use AllThings\StorageEngine\Installation;
 use AllThings\StorageEngine\RapidObtainment;
 use AllThings\StorageEngine\RapidRecording;
+use AllThings\StorageEngine\Storable;
 use Environment\Database\DbConnection;
 use PDO;
 use PHPUnit\Framework\TestCase;
 
-class BusinessProcessTest extends TestCase
+class AutomatedProcessTest extends TestCase
 {
     public const SKIP = false;
 
@@ -61,59 +61,25 @@ class BusinessProcessTest extends TestCase
      *
      * @return array
      */
-    public function testEssenceCreate(array $context)
+    public function testBlueprintCreate(array $context)
     {
-        /* ## S001A1S01 создать сущность для предметов типа "пирожок" */
-        $essence = Essence::GetDefaultEssence();
-        $essence->setCode('cake');
-
         $linkToData = $context['PDO'];
-        $handler = new EssenceManager(
-            $essence,
-            $linkToData
-        );
 
-        $isSuccess = $handler->create();
-        $this->assertTrue(
-            $isSuccess,
+        $operator = new Operator($linkToData);
+
+        /* ## S001A1S01 создать сущность для предметов типа "пирожок" */
+        $essence = $operator->createBlueprint(
+            'cake',
+            Storable::DIRECT_READING,
+            'The Cakes',
+            'Cakes  of all kinds'
+        );
+        $this->assertNotEmpty(
+            $essence,
             'Essence must be created with success'
         );
 
         $context['essence'] = 'cake';
-
-        return $context;
-    }
-
-    /**
-     * Задаём название и описание сущности
-     * @depends testEssenceCreate
-     *
-     * @param array $context
-     *
-     * @return array
-     */
-    public function testSetupEssence(array $context)
-    {
-        /* ## S001A1S02 задать свойства сущности */
-        $code = $context['essence'];
-        $value = Essence::GetDefaultEssence();
-        $value->setCode($code);
-        $value->setTitle('The Cakes');
-        $value->setRemark('Cakes  of all kinds');
-        $value->setStoreAt('view');
-
-        $linkToData = $context['PDO'];
-        $handler = new EssenceManager(
-            $value,
-            $linkToData
-        );
-
-
-        $isSuccess = $handler->correct($code);
-        $this->assertTrue(
-            $isSuccess,
-            'Essence must be updated with success'
-        );
 
         return $context;
     }
@@ -134,6 +100,18 @@ class BusinessProcessTest extends TestCase
             $context = $this->addAttributeToContext($code, $context);
         }
 
+        return $context;
+    }
+
+    /**
+     * @param string $code
+     * @param array $context
+     * @return array
+     */
+    private function addAttributeToContext(string $code, array $context): array
+    {
+        $context[$code] = $code;
+        $this->createAttribute($context, $code);
         return $context;
     }
 
@@ -468,6 +446,23 @@ class BusinessProcessTest extends TestCase
         }
 
         return $context;
+    }
+
+    /**
+     * @param $thing
+     * @param $attribute
+     * @param string $content
+     * @param $linkToData
+     */
+    private function defineThingAttributeValue(
+        $thing,
+        $attribute,
+        string $content,
+        $linkToData
+    ) {
+        $value = (new Crossover())->setContent($content)
+            ->setLeftValue($thing)->setRightValue($attribute);
+        $this->defineContent($thing, $attribute, $value, $linkToData);
     }
 
     /**
@@ -1066,23 +1061,6 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
-     * @param $thing
-     * @param $attribute
-     * @param string $content
-     * @param $linkToData
-     */
-    private function defineThingAttributeValue(
-        $thing,
-        $attribute,
-        string $content,
-        $linkToData
-    ) {
-        $value = (new Crossover())->setContent($content)
-            ->setLeftValue($thing)->setRightValue($attribute);
-        $this->defineContent($thing, $attribute, $value, $linkToData);
-    }
-
-    /**
      * Добавляем новую характеристику
      * @depends testAddNewThing
      *
@@ -1279,6 +1257,23 @@ class BusinessProcessTest extends TestCase
     }
 
     /**
+     * @param array $context
+     * @param Installation $source
+     * @return mixed
+     */
+    private function changeContent(
+        array $context,
+        Installation $source
+    ) {
+        $content = (new Crossover())->
+        setLeftValue($context['new-thing'])
+            ->setRightValue($context['package'])
+            ->setContent('коробка');
+        $isSuccess = $source->refresh($content);
+        return $isSuccess;
+    }
+
+    /**
      * Добавляем новую модель в материализованное представление
      * @depends testAddNewAttribute
      *
@@ -1353,34 +1348,5 @@ class BusinessProcessTest extends TestCase
             $isSuccess,
             'Transaction must be rolled back'
         );
-    }
-
-    /**
-     * @param string $code
-     * @param array $context
-     * @return array
-     */
-    private function addAttributeToContext(string $code, array $context): array
-    {
-        $context[$code] = $code;
-        $this->createAttribute($context, $code);
-        return $context;
-    }
-
-    /**
-     * @param array $context
-     * @param Installation $source
-     * @return mixed
-     */
-    private function changeContent(
-        array $context,
-        Installation $source
-    ) {
-        $content = (new Crossover())->
-        setLeftValue($context['new-thing'])
-            ->setRightValue($context['package'])
-            ->setContent('коробка');
-        $isSuccess = $source->refresh($content);
-        return $isSuccess;
     }
 }

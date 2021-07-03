@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 16:47
+ * 03.07.2021, 10:08
  */
 
 namespace AllThings\Blueprint\Attribute;
@@ -72,9 +72,11 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
 
     public function write(string $code): bool
     {
-        $target = $this->setAttributeByCode($code);
-
         $attribute = $this->attribute->GetAttributeCopy();
+        $target = $attribute;
+        if ($code) {
+            $target = $this->setAttributeByCode($code);
+        }
 
         $result = ($this->getAttributeLocation())->update($target, $attribute);
 

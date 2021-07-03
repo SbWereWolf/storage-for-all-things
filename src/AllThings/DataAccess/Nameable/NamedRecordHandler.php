@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 16:47
+ * 03.07.2021, 10:08
  */
 
 namespace AllThings\DataAccess\Nameable;
@@ -55,10 +55,14 @@ class NamedRecordHandler implements Valuable, Hideable, Retrievable
 
     public function write(string $code): bool
     {
-        $entity = (new NamedEntity())->setCode($code);
+        $entity = $this->container->getNameableCopy();
+        $target = $entity;
+        if ($code) {
+            $target = (new NamedEntity())->setCode($code);
+        }
 
         $result = ($this->getStorageLocation())
-            ->update($entity, $this->container);
+            ->update($target, $entity);
 
         return $result;
     }
