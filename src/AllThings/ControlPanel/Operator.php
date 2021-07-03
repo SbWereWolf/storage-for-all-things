@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 03.07.2021, 17:12
+ * 04.07.2021, 2:22
  */
 
 namespace AllThings\ControlPanel;
@@ -15,6 +15,11 @@ use AllThings\Blueprint\Essence\Essence;
 use AllThings\Blueprint\Essence\EssenceManager;
 use AllThings\Blueprint\Essence\IEssence;
 use AllThings\Blueprint\Specification\SpecificationManager;
+use AllThings\Catalog\CatalogManager;
+use AllThings\Content\ContentManager;
+use AllThings\DataAccess\Crossover\Crossover;
+use AllThings\DataAccess\Nameable\NamedEntity;
+use AllThings\DataAccess\Nameable\NamedEntityManager;
 use AllThings\StorageEngine\Storable;
 use Exception;
 use PDO;
@@ -28,6 +33,9 @@ class Operator
         $this->db = $connection;
     }
 
+    /**
+     * @throws Exception
+     */
     public function createBlueprint(
         string $code,
         string $storageKind = Storable::DIRECT_READING,
@@ -47,7 +55,7 @@ class Operator
         }
 
         if ($storageKind) {
-            $essence->setStorage($storageKind);
+            $essence->setStorageKind($storageKind);
         }
         if ($title) {
             $essence->setTitle($title);
@@ -65,6 +73,9 @@ class Operator
         return $essence;
     }
 
+    /**
+     * @throws Exception
+     */
     public function createKind(
         string $code,
         string $dataType,
@@ -73,6 +84,7 @@ class Operator
         string $description = ''
     ): IAttribute {
         $attribute = Attribute::GetDefaultAttribute();
+        /** @noinspection PhpPossiblePolymorphicInvocationInspection */
         $attribute->setCode($code)
             ->setDataType($dataType)
             ->setRangeType($rangeType);
@@ -105,7 +117,10 @@ class Operator
         return $attribute;
     }
 
-    public function attachKind(string $kind, string $essence)
+    /**
+     * @throws Exception
+     */
+    public function attachKind(string $essence, string $kind): Operator
     {
         $manager = new SpecificationManager(
             $essence,
@@ -116,6 +131,124 @@ class Operator
 
         if (!$isSuccess) {
             throw new Exception('Attribute must be linked with success');
+        }
+
+        return $this;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function createItem(
+        string $essence,
+        string $code,
+        string $title = '',
+        string $description = ''
+    ) {
+        $manager = new SpecificationManager($essence, '', $this->db);
+        $isSuccess = $manager->getAssociated();
+        if (!$isSuccess) {
+            throw new Exception('Attributes of essence'
+                . ' must be fetched with success');
+        }
+        $isSuccess = $manager->has();
+        if (!$isSuccess) {
+            throw new Exception("Essence must be linked to some attributes");
+        }
+        $attributes = $manager->retrieveData();
+
+        $nameable = (new NamedEntity())->setCode($code);
+        $handler = new NamedEntityManager($nameable, 'thing', $this->db);
+
+        $isSuccess = $handler->create();
+        if (!$isSuccess) {
+            throw new Exception("Thing must be created with success");
+        }
+
+        if ($title) {
+            $nameable->setTitle($title);
+        }
+        if ($description) {
+            $nameable->setRemark($description);
+        }
+        if ($title || $description) {
+            $isSuccess = $handler->correct();
+        }
+        if (!$isSuccess) {
+            throw new Exception("Thing must be updated with success");
+        }
+
+        foreach ($attributes as $attribute) {
+            $content = (new Crossover())
+                ->setLeftValue($code)
+                ->setRightValue($attribute);
+            $handler = new ContentManager($content, $this->db);
+
+            $isSuccess = $handler->attach();
+            if (!$isSuccess) {
+                throw new Exception("Attribute must be defined"
+                    . " for thing with success");
+            }
+        }
+
+        $manager = new CatalogManager(
+            $essence,
+            $code,
+            $this->db
+        );
+        $isSuccess = $manager->linkUp();
+        if (!$isSuccess) {
+            throw new Exception("Thing `$code` must be linked"
+                . " to essence `$essence` with success");
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function changeContent(
+        string $thing,
+        string $attribute,
+        string $content
+    ) {
+        $value = (new Crossover())
+            ->setLeftValue($thing)
+            ->setRightValue($attribute)
+            ->setContent($content);
+
+        $handler = new ContentManager($value, $this->db);
+
+        $isSuccess = $handler->store($value);
+        if (!$isSuccess) {
+            throw new Exception('Attribute of thing'
+                . ' must be defined with success');
+        }
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function expandItem(
+        string $thing,
+        string $attribute,
+        string $value
+    ): Operator {
+        $content = (new Crossover())
+            ->setLeftValue($thing)
+            ->setRightValue($attribute);
+        $manager = new ContentManager($content, $this->db);
+
+        $isSuccess = $manager->attach();
+        if (!$isSuccess) {
+            throw new Exception("Attribute must be defined"
+                . " for thing with success");
+        }
+
+        $content->setContent($value);
+        $isSuccess = $manager->store($content);
+        if (!$isSuccess) {
+            throw new Exception("Content must be assign"
+                . " with success");
         }
 
         return $this;

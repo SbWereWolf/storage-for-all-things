@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 03.07.2021, 17:12
+ * 04.07.2021, 2:22
  */
 
 namespace Integration;
@@ -26,6 +26,7 @@ use AllThings\StorageEngine\Installation;
 use AllThings\StorageEngine\RapidObtainment;
 use AllThings\StorageEngine\RapidRecording;
 use Environment\Database\DbConnection;
+use Exception;
 use PDO;
 use PHPUnit\Framework\TestCase;
 
@@ -37,7 +38,7 @@ class NativeProcessTest extends TestCase
      * Настраиваем тестовое окружение (соединение с БД)
      * @return array
      */
-    public function testInit()
+    public function testInit(): array
     {
         $linkToData = (new DbConnection())->getForRead();
 
@@ -60,8 +61,9 @@ class NativeProcessTest extends TestCase
      * @param array $context
      *
      * @return array
+     * @throws Exception
      */
-    public function testEssenceCreate(array $context)
+    public function testEssenceCreate(array $context): array
     {
         /* ## S001A1S01 создать сущность для предметов типа "пирожок" */
         $essence = Essence::GetDefaultEssence();
@@ -91,8 +93,9 @@ class NativeProcessTest extends TestCase
      * @param array $context
      *
      * @return array
+     * @throws Exception
      */
-    public function testSetupEssence(array $context)
+    public function testSetupEssence(array $context): array
     {
         /* ## S001A1S02 задать свойства сущности */
         $code = $context['essence'];
@@ -100,7 +103,7 @@ class NativeProcessTest extends TestCase
         $value->setCode($code);
         $value->setTitle('The Cakes');
         $value->setRemark('Cakes  of all kinds');
-        $value->setStorage('view');
+        $value->setStorageKind('view');
 
         $linkToData = $context['PDO'];
         $handler = new EssenceManager(
@@ -126,7 +129,7 @@ class NativeProcessTest extends TestCase
      *
      * @return array
      */
-    public function testAttributesCreate(array $context)
+    public function testAttributesCreate(array $context): array
     {
         /* ## S001A1S03 создать характеристику */
         $codes = ['price', 'production-date', 'place-of-production',];
@@ -164,6 +167,7 @@ class NativeProcessTest extends TestCase
      * @depends testAttributesCreate
      *
      * @param array $context
+     * @noinspection PhpPossiblePolymorphicInvocationInspection
      */
     public function testSetupAttributes(array $context)
     {
@@ -215,7 +219,7 @@ class NativeProcessTest extends TestCase
      *
      * @return array
      */
-    public function testDefineEssence(array $context)
+    public function testDefineEssence(array $context): array
     {
         /* ## S001A1S05 охарактеризовать сущность (назначить
          характеристики для предметов этого типа) */
@@ -264,7 +268,7 @@ class NativeProcessTest extends TestCase
      *
      * @return array
      */
-    public function testThingsCreate(array $context)
+    public function testThingsCreate(array $context): array
     {
         /* ## S001A2S01 создать предметы типа "пирожок"
         (создать пирожки) */
@@ -291,8 +295,8 @@ class NativeProcessTest extends TestCase
     }
 
     /**
-     * @param $essence
-     * @param $linkToData
+     * @param string $essence
+     * @param PDO $linkToData
      *
      * @return array
      */
@@ -362,13 +366,13 @@ class NativeProcessTest extends TestCase
      * @param string $code
      * @param        $linkToData
      *
-     * @return bool
+     * @return void
      */
     private function linkThingToEssence(
         $essence,
         string $code,
         $linkToData
-    ): bool {
+    ): void {
         $manager = new CatalogManager(
             $essence, $code,
             $linkToData
@@ -379,7 +383,6 @@ class NativeProcessTest extends TestCase
             "Thing `$code` must be linked"
             . " to essence `$essence` with success"
         );
-        return $isSuccess;
     }
 
     /**
@@ -431,7 +434,7 @@ class NativeProcessTest extends TestCase
      *
      * @return array
      */
-    public function testDefineThings(array $context)
+    public function testDefineThings(array $context): array
     {
         /* ## S001A2S03 задать значения для характеристики предмета */
         $linkToData = $context['PDO'];
@@ -510,8 +513,8 @@ class NativeProcessTest extends TestCase
     }
 
     /**
-     * @param $handler
-     * @param $essence
+     * @param Installation $handler
+     * @param string $essence
      */
     private function checkSourceSetup(
         Installation $handler,
@@ -552,6 +555,7 @@ class NativeProcessTest extends TestCase
      * @param string $essence
      * @param bool $withAdditional
      * @param bool $withExtended
+     * @param bool $withChanges
      */
     private function checkShowAll(
         array $context,
@@ -590,8 +594,7 @@ class NativeProcessTest extends TestCase
                         === 'Екатеринбург';
 
                     if ($isProper && $withExtended) {
-                        $isProper = $isProper
-                            && $thing[$context['package']]
+                        $isProper = $thing[$context['package']]
                             === 'без упаковки';
                     }
 
@@ -614,8 +617,7 @@ class NativeProcessTest extends TestCase
                         === 'Екатеринбург';
 
                     if ($isProper && $withExtended) {
-                        $isProper = $isProper
-                            && $thing[$context['package']]
+                        $isProper = $thing[$context['package']]
                             === 'без упаковки';
                     }
 
@@ -638,8 +640,7 @@ class NativeProcessTest extends TestCase
                         === 'Челябинск';
 
                     if ($isProper && $withExtended) {
-                        $isProper = $isProper
-                            && $thing[$context['package']]
+                        $isProper = $thing[$context['package']]
                             === 'пакет';
                     }
 
@@ -662,13 +663,11 @@ class NativeProcessTest extends TestCase
                         === 'Екатеринбург';
 
                     if ($isProper && $withExtended && !$withChanges) {
-                        $isProper = $isProper
-                            && $thing[$context['package']]
+                        $isProper = $thing[$context['package']]
                             === 'пакет';
                     }
                     if ($isProper && $withChanges) {
-                        $isProper = $isProper
-                            && $thing[$context['package']]
+                        $isProper = $thing[$context['package']]
                             === 'коробка';
                     }
 
@@ -713,13 +712,14 @@ class NativeProcessTest extends TestCase
     }
 
     /**
-     * @param $seeker
-     * @param $essence
+     * @param Seeker $seeker
+     * @param string $essence
      */
     private function checkFilters(
         Seeker $seeker,
         string $essence
-    ): void {
+    ): void
+    {
         $data = $seeker->filters();
 
         $this->assertTrue(
@@ -727,13 +727,13 @@ class NativeProcessTest extends TestCase
             "Filters of essence `$essence`"
             . ' must have two types'
         );
-        $this->assertTrue(
-            array_key_exists('continuous', $data),
+        $this->assertArrayHasKey(
+            'continuous', $data,
             "Filters of essence `$essence`"
             . ' must have type continuous'
         );
-        $this->assertTrue(
-            array_key_exists('discrete', $data),
+        $this->assertArrayHasKey(
+            'discrete', $data,
             "Filters of essence `$essence`"
             . ' must have type discrete'
         );
@@ -773,7 +773,7 @@ class NativeProcessTest extends TestCase
 
     /**
      * @param array $context
-     * @param $seeker
+     * @param Seeker $seeker
      */
     private function checkSearch(array $context, Seeker $seeker): void
     {
@@ -946,8 +946,9 @@ class NativeProcessTest extends TestCase
      * @depends testThingsCreate
      *
      * @param array $context
+     * @return array
      */
-    public function testAddNewThing(array $context)
+    public function testAddNewThing(array $context): array
     {
         /* получаем атрибуты сущности */
         $linkToData = $context['PDO'];
@@ -1090,7 +1091,7 @@ class NativeProcessTest extends TestCase
      *
      * @return array
      */
-    public function testAddNewAttribute(array $context)
+    public function testAddNewAttribute(array $context): array
     {
         $linkToData = $context['PDO'];
 
@@ -1236,7 +1237,7 @@ class NativeProcessTest extends TestCase
      *
      * @return array
      */
-    public function testChangeThingAttribute(array $context)
+    public function testChangeThingAttribute(array $context): array
     {
         $linkToData = $context['PDO'];
         $this->defineThingAttributeValue(
@@ -1370,17 +1371,19 @@ class NativeProcessTest extends TestCase
     /**
      * @param array $context
      * @param Installation $source
-     * @return mixed
+     * @return bool
      */
     private function changeContent(
         array $context,
         Installation $source
-    ) {
+    ): bool {
         $content = (new Crossover())->
         setLeftValue($context['new-thing'])
             ->setRightValue($context['package'])
             ->setContent('коробка');
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $isSuccess = $source->refresh($content);
+
         return $isSuccess;
     }
 }

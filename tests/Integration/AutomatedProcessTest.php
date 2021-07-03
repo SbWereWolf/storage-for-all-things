@@ -2,29 +2,20 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 03.07.2021, 17:12
+ * 04.07.2021, 2:22
  */
 
 namespace Integration;
 
-use AllThings\Blueprint\Specification\SpecificationManager;
-use AllThings\Catalog\CatalogManager;
-use AllThings\Content\ContentManager;
+use AllThings\ControlPanel\Browser;
 use AllThings\ControlPanel\Operator;
+use AllThings\ControlPanel\Schema;
 use AllThings\DataAccess\Crossover\Crossover;
-use AllThings\DataAccess\Crossover\ICrossover;
-use AllThings\DataAccess\Nameable\NamedEntity;
-use AllThings\DataAccess\Nameable\NamedEntityManager;
 use AllThings\SearchEngine\ContinuousFilter;
 use AllThings\SearchEngine\DiscreteFilter;
-use AllThings\SearchEngine\Seeker;
-use AllThings\StorageEngine\DirectReading;
-use AllThings\StorageEngine\Installation;
-use AllThings\StorageEngine\RapidObtainment;
-use AllThings\StorageEngine\RapidRecording;
 use AllThings\StorageEngine\Storable;
 use Environment\Database\DbConnection;
-use PDO;
+use Exception;
 use PHPUnit\Framework\TestCase;
 
 class AutomatedProcessTest extends TestCase
@@ -35,7 +26,7 @@ class AutomatedProcessTest extends TestCase
      * Настраиваем тестовое окружение (соединение с БД)
      * @return array
      */
-    public function testInit()
+    public function testInit(): array
     {
         $linkToData = (new DbConnection())->getForRead();
 
@@ -58,8 +49,9 @@ class AutomatedProcessTest extends TestCase
      * @param array $context
      *
      * @return array
+     * @throws Exception
      */
-    public function testBlueprintCreate(array $context)
+    public function testBlueprintCreate(array $context): array
     {
         $linkToData = $context['PDO'];
 
@@ -89,8 +81,9 @@ class AutomatedProcessTest extends TestCase
      * @param array $context
      *
      * @return array
+     * @throws Exception
      */
-    public function testKindCreate(array $context)
+    public function testKindCreate(array $context): array
     {
         /* ## S001A1S03 создать характеристику */
         /* ## S001A1S04 задать свойства характеристики */
@@ -139,8 +132,9 @@ class AutomatedProcessTest extends TestCase
      * @param array $context
      *
      * @return array
+     * @throws Exception
      */
-    public function testDefineBlueprint(array $context)
+    public function testDefineBlueprint(array $context): array
     {
         /* ## S001A1S05 охарактеризовать сущность (назначить
          характеристики для предметов этого типа) */
@@ -150,8 +144,8 @@ class AutomatedProcessTest extends TestCase
         $operator = new Operator($context['PDO']);
         foreach ($attributes as $attribute) {
             $operator->attachKind(
-                $attribute,
                 $essence,
+                $attribute,
             );
         }
 
@@ -169,175 +163,45 @@ class AutomatedProcessTest extends TestCase
      * @param array $context
      *
      * @return array
+     * @throws Exception
      */
-    public function testThingsCreate(array $context)
+    public function testCreateItem(array $context): array
     {
         /* ## S001A2S01 создать предметы типа "пирожок"
         (создать пирожки) */
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
-        $attributes = $this->getEssenceAttributes(
-            $essence,
-            $linkToData
-        );
-
-        $codes = ['bun-with-jam', 'bun-with-raisins', 'cinnamon-bun'];
-        foreach ($codes as $thing) {
-            $context[$thing] = $thing;
-            $this->createThing($thing, $linkToData);
-
-            foreach ($attributes as $attribute) {
-                $this->defineThing($thing, $attribute, $linkToData);
-            }
-
-            $this->linkThingToEssence($essence, $thing, $linkToData);
-        }
-
-        return $context;
-    }
-
-    /**
-     * @param $essence
-     * @param $linkToData
-     *
-     * @return array
-     */
-    private function getEssenceAttributes(
-        string $essence,
-        PDO $linkToData
-    ): array {
-        $manager = new SpecificationManager($essence, '', $linkToData);
-        $isSuccess = $manager->getAssociated();
-        $this->assertTrue(
-            $isSuccess,
-            "Attributes of essence `$essence`"
-            . " must be fetched with success"
-        );
-        if ($isSuccess) {
-            $isSuccess = $manager->has();
-            $this->assertTrue(
-                $isSuccess,
-                "Essence `$essence` must be linked to some attributes"
-            );
-        }
-        $attributes = [];
-        if ($isSuccess) {
-            $attributes = $manager->retrieveData();
-        }
-
-        return $attributes;
-    }
-
-    /**
-     * @param string $code
-     * @param        $linkToData
-     */
-    private function createThing(string $code, $linkToData): void
-    {
-        $nameable = (new NamedEntity())->setCode($code);
-        $handler = new NamedEntityManager($nameable, 'thing', $linkToData);
-
-        $isSuccess = $handler->create();
-        $this->assertTrue(
-            $isSuccess,
-            "Thing ` $code ` must be created with success"
-        );
-    }
-
-    /**
-     * @param $thing
-     * @param $attribute
-     * @param $linkToData
-     */
-    private function defineThing($thing, $attribute, $linkToData)
-    {
-        $content = (new Crossover())->setLeftValue($thing)
-            ->setRightValue($attribute);
-        $handler = new ContentManager($content, $linkToData);
-
-        $isSuccess = $handler->attach();
-        $this->assertTrue(
-            $isSuccess,
-            "Attribute `$attribute` must be defined"
-            . " for thing `$thing` with success"
-        );
-    }
-
-    /**
-     * @param        $essence
-     * @param string $code
-     * @param        $linkToData
-     *
-     * @return bool
-     */
-    private function linkThingToEssence(
-        $essence,
-        string $code,
-        $linkToData
-    ): bool {
-        $manager = new CatalogManager(
-            $essence, $code,
-            $linkToData
-        );
-        $isSuccess = $manager->linkUp();
-        $this->assertTrue(
-            $isSuccess,
-            "Thing `$code` must be linked"
-            . " to essence `$essence` with success"
-        );
-        return $isSuccess;
-    }
-
-    /**
-     * Задаём свойства моделям
-     * @depends testThingsCreate
-     *
-     * @param array $context
-     */
-    public function testSetupThing(array $context)
-    {
         /* ## S001A2S02 задать значения свойствам предметов
         (дать имена пирожкам) */
-        $linkToData = $context['PDO'];
-
         $titles = [];
         $titles['bun-with-jam'] = 'Булочка с повидлом';
         $titles['bun-with-raisins'] = 'Булочка с изюмом';
         $titles['cinnamon-bun'] = 'Булочка с корицей';
 
+        $operator = new Operator($context['PDO']);
         foreach ($titles as $code => $title) {
-            $this->updateTitle($code, $title, $linkToData);
+            $context[$code] = $code;
+
+            $operator->createItem(
+                $context['essence'],
+                $code,
+                $title,
+            );
         }
-    }
 
-    /**
-     * @param $code
-     * @param $title
-     * @param $linkToData
-     */
-    private function updateTitle($code, $title, $linkToData): void
-    {
-        $subject = (new NamedEntity())
-            ->setCode($code)
-            ->setTitle($title);
-        $handler = new NamedEntityManager($subject, 'thing', $linkToData);
+        $this->assertTrue(true, "Thing must be created with success");
 
-        $isSuccess = $handler->correct($code);
-        $this->assertTrue(
-            $isSuccess,
-            "Thing `$code` title must be updated with success"
-        );
+        return $context;
     }
 
     /**
      * Задаём значения характеристикам моделей
-     * @depends testThingsCreate
+     * @depends testCreateItem
      *
      * @param array $context
      *
      * @return array
+     * @throws Exception
      */
-    public function testDefineThings(array $context)
+    public function testCreateContent(array $context): array
     {
         /* ## S001A2S03 задать значения для характеристики предмета */
         $linkToData = $context['PDO'];
@@ -362,56 +226,19 @@ class AutomatedProcessTest extends TestCase
             ],
         ];
 
+        $operator = new Operator($linkToData);
         foreach ($codes as $code => $settings) {
             foreach ($settings as $attribute => $value) {
-                $this->defineThingAttributeValue(
+                $operator->changeContent(
                     $code,
                     $attribute,
                     $value,
-                    $linkToData
                 );
             }
         }
+        $this->assertTrue(true, 'Content must be created with success');
 
         return $context;
-    }
-
-    /**
-     * @param $thing
-     * @param $attribute
-     * @param string $content
-     * @param $linkToData
-     */
-    private function defineThingAttributeValue(
-        $thing,
-        $attribute,
-        string $content,
-        $linkToData
-    ) {
-        $value = (new Crossover())->setContent($content)
-            ->setLeftValue($thing)->setRightValue($attribute);
-        $this->defineContent($thing, $attribute, $value, $linkToData);
-    }
-
-    /**
-     * @param string $thing
-     * @param string $attribute
-     * @param ICrossover $value
-     * @param PDO $linkToData
-     */
-    private function defineContent(
-        string $thing,
-        string $attribute,
-        ICrossover $value,
-        PDO $linkToData
-    ): void {
-        $handler = new ContentManager($value, $linkToData);
-        $isSuccess = $handler->store($value);
-        $this->assertTrue(
-            $isSuccess,
-            "Attribute `$attribute` of thing `$thing`"
-            . ' must be defined with success'
-        );
     }
 
     /**
@@ -419,73 +246,48 @@ class AutomatedProcessTest extends TestCase
      * @depends testDefineBlueprint
      *
      * @param array $context
+     * @throws Exception
      */
     public function testCreateView(array $context)
     {
         /* S001A4S02 создать представление */
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
+        $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->storeWithDirectReading();
 
-        $handler = new DirectReading(
-            $essence, $linkToData
-        );
-        $this->checkSourceSetup($handler, $essence);
-    }
-
-    /**
-     * @param $handler
-     * @param $essence
-     */
-    private function checkSourceSetup(
-        Installation $handler,
-        string $essence
-    ): void {
-        $result = $handler->setup();
-
-        $this->assertTrue(
-            $result,
-            "DB source for"
-            . " `$essence` must be created with success"
-        );
+        $this->assertTrue(true, 'View must be created with success');
     }
 
     /**
      * Получаем данные всех моделей из представления
-     * @depends testDefineThings
+     * @depends testCreateContent
      *
      * @param array $context
+     * @throws Exception
      */
     public function testShowAllFromView(array $context)
     {
         /* ## S001A4S04 получить данные из представления
         (без фильтрации) */
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
-
-        $source = new DirectReading(
-            $essence, $linkToData
-        );
-        $seeker = new Seeker($source);
-        $this->checkShowAll($context, $seeker, $essence);
+        $browser = new Browser($context['PDO']);
+        $data = $browser->filterData($context['essence'], []);
+        $this->checkShowAll($context, $data);
     }
 
     /**
      * @param array $context
-     * @param Seeker $seeker
-     * @param string $essence
+     * @param array $data
      * @param bool $withAdditional
      * @param bool $withExtended
+     * @param bool $withChanges
      */
     private function checkShowAll(
         array $context,
-        Seeker $seeker,
-        string $essence,
+        array $data,
         bool $withAdditional = false,
         bool $withExtended = false,
         bool $withChanges = false
     ): void {
-        $data = $seeker->data();
-
+        $essence = $context['essence'];
         $properNumbers = 3;
         if ($withAdditional) {
             $properNumbers = 4;
@@ -513,8 +315,7 @@ class AutomatedProcessTest extends TestCase
                         === 'Екатеринбург';
 
                     if ($isProper && $withExtended) {
-                        $isProper = $isProper
-                            && $thing[$context['package']]
+                        $isProper = $thing[$context['package']]
                             === 'без упаковки';
                     }
 
@@ -537,8 +338,7 @@ class AutomatedProcessTest extends TestCase
                         === 'Екатеринбург';
 
                     if ($isProper && $withExtended) {
-                        $isProper = $isProper
-                            && $thing[$context['package']]
+                        $isProper = $thing[$context['package']]
                             === 'без упаковки';
                     }
 
@@ -561,8 +361,7 @@ class AutomatedProcessTest extends TestCase
                         === 'Челябинск';
 
                     if ($isProper && $withExtended) {
-                        $isProper = $isProper
-                            && $thing[$context['package']]
+                        $isProper = $thing[$context['package']]
                             === 'пакет';
                     }
 
@@ -585,13 +384,11 @@ class AutomatedProcessTest extends TestCase
                         === 'Екатеринбург';
 
                     if ($isProper && $withExtended && !$withChanges) {
-                        $isProper = $isProper
-                            && $thing[$context['package']]
+                        $isProper = $thing[$context['package']]
                             === 'пакет';
                     }
                     if ($isProper && $withChanges) {
-                        $isProper = $isProper
-                            && $thing[$context['package']]
+                        $isProper = $thing[$context['package']]
                             === 'коробка';
                     }
 
@@ -617,46 +414,41 @@ class AutomatedProcessTest extends TestCase
     /**
      * Получаем значения фильтров для поиска моделей в представлении
      * по значениям характеристик
-     * @depends testDefineThings
+     * @depends testCreateContent
      *
      * @param array $context
+     * @throws Exception
      */
     public function testGetFiltersForView(array $context)
     {
         /* ## S002A4S03 определить возможные условия для поиска
         (параметры фильтрации) */
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
+        $browser = new Browser($context['PDO']);
+        $filters = $browser->filters($context['essence']);
 
-        $source = new DirectReading(
-            $essence, $linkToData
-        );
-        $seeker = new Seeker($source);
-        $this->checkFilters($seeker, $essence);
+        $this->checkFilters($filters, $context['essence']);
     }
 
     /**
-     * @param $seeker
-     * @param $essence
+     * @param array $data
+     * @param string $essence
      */
     private function checkFilters(
-        Seeker $seeker,
+        array $data,
         string $essence
     ): void {
-        $data = $seeker->filters();
-
         $this->assertTrue(
             count($data) === 2,
             "Filters of essence `$essence`"
             . ' must have two types'
         );
-        $this->assertTrue(
-            array_key_exists('continuous', $data),
+        $this->assertArrayHasKey(
+            'continuous', $data,
             "Filters of essence `$essence`"
             . ' must have type continuous'
         );
-        $this->assertTrue(
-            array_key_exists('discrete', $data),
+        $this->assertArrayHasKey(
+            'discrete', $data,
             "Filters of essence `$essence`"
             . ' must have type discrete'
         );
@@ -676,43 +468,33 @@ class AutomatedProcessTest extends TestCase
     /**
      * Фильтруем модели из представления по заданным значениям
      * характеристик
-     * @depends testDefineThings
+     * @depends testCreateContent
      *
      * @param array $context
+     * @throws Exception
      */
     public function testSearchWithinView(array $context)
     {
         /* ## ## S002A4S04 сделать выборку экземпляров по заданным
         условиям поиска (поиск в представлении) */
-        $essence = $context['essence'];
-        $linkToData = $context['PDO'];
-        $source = new DirectReading(
-            $essence, $linkToData
-        );
-        $seeker = new Seeker($source);
-
-        $this->checkSearch($context, $seeker);
-    }
-
-    /**
-     * @param array $context
-     * @param $seeker
-     */
-    private function checkSearch(array $context, Seeker $seeker): void
-    {
         $continuous = new ContinuousFilter(
             $context['price'], '15.50', '4.50'
         );
-        $data = $seeker->data([$continuous]);
-        $this->assertTrue(!empty($data));
-
         $discrete = new DiscreteFilter(
             $context['place-of-production'], ['Челябинск']
         );
-        $data = $seeker->data([$discrete]);
+        $browser = new Browser($context['PDO']);
+
+        $data = $browser->filterData($context['essence'], [$continuous]);
         $this->assertTrue(!empty($data));
 
-        $data = $seeker->data([$discrete, $continuous]);
+        $data = $browser->filterData($context['essence'], [$discrete]);
+        $this->assertTrue(!empty($data));
+
+        $data = $browser->filterData(
+            $context['essence'],
+            [$discrete, $continuous]
+        );
         $this->assertTrue(!empty($data));
     }
 
@@ -722,72 +504,83 @@ class AutomatedProcessTest extends TestCase
      * @depends testDefineBlueprint
      *
      * @param array $context
+     * @throws Exception
      */
     public function testCreateMathView(array $context)
     {
         /* S001A4S02 создать материализованное представление */
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
+        $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->storeWithRapidObtainment();
 
-        $handler = new RapidObtainment($essence, $linkToData);
-        $this->checkSourceSetup($handler, $essence);
+        $this->assertTrue(true, 'Math view must be created with success');
     }
 
     /**
      * Читаем характеристики моделей из материализованного
      * представления
-     * @depends testDefineThings
+     * @depends testCreateContent
      *
      * @param array $context
+     * @throws Exception
      */
     public function testShowAllFromMathView(array $context)
     {
         /* ## S001A4S04 получить данные из представления
         (без фильтрации) */
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
-
-        $source = new RapidObtainment($essence, $linkToData);
-        $seeker = new Seeker($source);
-        $this->checkShowAll($context, $seeker, $essence);
+        $browser = new Browser($context['PDO']);
+        $data = $browser->filterData($context['essence'], []);
+        $this->checkShowAll($context, $data);
     }
 
     /**
      * Получаем значения фильтров для поиска моделей в
      * материализованном представлении по значениям характеристик
-     * @depends testDefineThings
+     * @depends testCreateContent
      *
      * @param array $context
+     * @throws Exception
      */
     public function testGetFiltersForMathView(array $context)
     {
         /* ## S002A4S03 определить возможные условия для поиска
         (параметры фильтрации) */
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
+        $browser = new Browser($context['PDO']);
+        $filters = $browser->filters($context['essence']);
 
-        $source = new RapidObtainment($essence, $linkToData);
-        $seeker = new Seeker($source);
-        $this->checkFilters($seeker, $essence);
+        $this->checkFilters($filters, $context['essence']);
     }
 
     /**
      * Фильтруем модели из материализованного представления по
      * заданным значениям характеристик
-     * @depends testDefineThings
+     * @depends testCreateContent
      *
      * @param array $context
+     * @throws Exception
      */
     public function testSearchWithinMathView(array $context)
     {
         /* ## ## S002A4S04 сделать выборку экземпляров по заданным
         условиям поиска (поиск в представлении) */
-        $essence = $context['essence'];
-        $linkToData = $context['PDO'];
-        $source = new RapidObtainment($essence, $linkToData);
-        $seeker = new Seeker($source);
+        $continuous = new ContinuousFilter(
+            $context['price'], '15.50', '4.50'
+        );
+        $discrete = new DiscreteFilter(
+            $context['place-of-production'], ['Челябинск']
+        );
+        $browser = new Browser($context['PDO']);
 
-        $this->checkSearch($context, $seeker);
+        $data = $browser->filterData($context['essence'], [$continuous]);
+        $this->assertTrue(!empty($data));
+
+        $data = $browser->filterData($context['essence'], [$discrete]);
+        $this->assertTrue(!empty($data));
+
+        $data = $browser->filterData(
+            $context['essence'],
+            [$discrete, $continuous]
+        );
+        $this->assertTrue(!empty($data));
     }
 
     /**
@@ -795,208 +588,187 @@ class AutomatedProcessTest extends TestCase
      * @depends testDefineBlueprint
      *
      * @param array $context
+     * @throws Exception
      */
     public function testCreateTable(array $context)
     {
         /* S001A4S02 создать представление */
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
+        $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->storeWithRapidRecording();
 
-        $handler = new RapidRecording(
-            $essence, $linkToData
-        );
-        $this->checkSourceSetup($handler, $essence);
+        $this->assertTrue(true, 'Table must be created with success');
     }
 
     /**
      * Получаем характеристики всех моделей из таблицы
-     * @depends testDefineThings
+     * @depends testCreateContent
      *
      * @param array $context
+     * @throws Exception
      */
     public function testShowAllFromTable(array $context)
     {
         /* ## S001A4S04 получить данные из представления
         (без фильтрации) */
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
-
-        $source = new RapidRecording($essence, $linkToData);
-        $seeker = new Seeker($source);
-        $this->checkShowAll($context, $seeker, $essence);
+        $browser = new Browser($context['PDO']);
+        $data = $browser->filterData($context['essence'], []);
+        $this->checkShowAll($context, $data);
     }
 
     /**
      * Получаем значения фильтров для поиска моделей в таблице
      * по значениям характеристик
-     * @depends testDefineThings
+     * @depends testCreateContent
      *
      * @param array $context
+     * @throws Exception
      */
     public function testGetFiltersForTable(array $context)
     {
         /* ## S002A4S03 определить возможные условия для поиска
         (параметры фильтрации) */
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
+        $browser = new Browser($context['PDO']);
+        $filters = $browser->filters($context['essence']);
 
-        $source = new RapidRecording($essence, $linkToData);
-        $seeker = new Seeker($source);
-        $this->checkFilters($seeker, $essence);
+        $this->checkFilters($filters, $context['essence']);
     }
 
     /**
      * Фильтруем модели из таблицы по заданным значениям
      * характеристик
-     * @depends testDefineThings
+     * @depends testCreateContent
      *
      * @param array $context
+     * @throws Exception
      */
     public function testSearchWithinTable(array $context)
     {
         /* ## ## S002A4S04 сделать выборку экземпляров по заданным
         условиям поиска (поиск в представлении) */
-        $essence = $context['essence'];
-        $linkToData = $context['PDO'];
-        $source = new RapidRecording($essence, $linkToData);
-        $seeker = new Seeker($source);
+        $continuous = new ContinuousFilter(
+            $context['price'], '15.50', '4.50'
+        );
+        $discrete = new DiscreteFilter(
+            $context['place-of-production'], ['Челябинск']
+        );
+        $browser = new Browser($context['PDO']);
 
-        $this->checkSearch($context, $seeker);
+        $data = $browser->filterData($context['essence'], [$continuous]);
+        $this->assertTrue(!empty($data));
+
+        $data = $browser->filterData($context['essence'], [$discrete]);
+        $this->assertTrue(!empty($data));
+
+        $data = $browser->filterData(
+            $context['essence'],
+            [$discrete, $continuous]
+        );
+        $this->assertTrue(!empty($data));
     }
 
     /**
      * Добавляем новую модель
-     * @depends testThingsCreate
+     * @depends testCreateItem
      *
      * @param array $context
+     * @return array
+     * @throws Exception
      */
-    public function testAddNewThing(array $context)
+    public function testAddNewItem(array $context): array
     {
-        /* получаем атрибуты сущности */
         $linkToData = $context['PDO'];
-        $essence = $context['essence'];
-        $attributes = $this->getEssenceAttributes(
-            $essence,
-            $linkToData
-        );
+        $context['new-thing'] = 'new-thing';
         /* добавляем модель, задаём для неё атрибуты */
-        $codes = ['new-thing'];
-        foreach ($codes as $thing) {
-            $context[$thing] = $thing;
-            $this->createThing($thing, $linkToData);
-
-            foreach ($attributes as $attribute) {
-                $this->defineThing($thing, $attribute, $linkToData);
-            }
-
-            $this->linkThingToEssence($essence, $thing, $linkToData);
-        }
         /* даём модели название */
-        $titles = [];
-        $titles['new-thing'] = 'новая модель';
-        foreach ($titles as $code => $title) {
-            $this->updateTitle($code, $title, $linkToData);
-        }
+        $operator = new Operator($linkToData);
+        $operator->createItem(
+            $context['essence'],
+            $context['new-thing'],
+            'новая модель',
+        );
+
         /* задаём характеристики модели */
-        $this->defineThingAttributeValue(
+        $operator->changeContent(
             $context['new-thing'],
             $context['price'],
             '11.11',
-            $linkToData
         );
-        $this->defineThingAttributeValue(
+        $operator->changeContent(
             $context['new-thing'],
             $context['production-date'],
             '20210531T0306',
-            $linkToData
         );
-        $this->defineThingAttributeValue(
+        $operator->changeContent(
             $context['new-thing'],
             $context['place-of-production'],
             'Екатеринбург',
-            $linkToData
         );
+        $this->assertTrue(true, 'Thing must be created with success');
 
         return $context;
     }
 
     /**
      * Добавляем новую модель в представление
-     * @depends testAddNewThing
+     * @depends testAddNewItem
      *
      * @param array $context
+     * @throws Exception
      */
-    public function testAddNewThingToView(array $context)
+    public function testAddNewItemToView(array $context)
     {
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
+        $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->refresh();
 
-        $source = new DirectReading(
-            $essence, $linkToData
-        );
-        $isSuccess = $source->refresh();
-        $this->assertTrue(
-            $isSuccess,
-            'View MUST BE refreshed with success'
-        );
-
-        $seeker = new Seeker($source);
-        $this->checkShowAll($context, $seeker, $essence, true);
+        $browser = new Browser($context['PDO']);
+        $data = $browser->filterData($context['essence'], []);
+        $this->checkShowAll($context, $data, true);
     }
 
     /**
      * Добавляем новую модель в материализованное представление
-     * @depends testAddNewThing
+     * @depends testAddNewItem
      *
      * @param array $context
+     * @throws Exception
      */
-    public function testAddNewThingToMathView(array $context)
+    public function testAddNewItemToMathView(array $context)
     {
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
+        $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->refresh();
 
-        $source = new RapidObtainment($essence, $linkToData);
-        $isSuccess = $source->refresh();
-        $this->assertTrue(
-            $isSuccess,
-            'MathView MUST BE refreshed with success'
-        );
-
-        $seeker = new Seeker($source);
-        $this->checkShowAll($context, $seeker, $essence, true);
+        $browser = new Browser($context['PDO']);
+        $data = $browser->filterData($context['essence'], []);
+        $this->checkShowAll($context, $data, true);
     }
 
     /**
      * Добавляем новую модель в таблицу
-     * @depends testAddNewThing
+     * @depends testAddNewItem
      *
      * @param array $context
+     * @throws Exception
      */
-    public function testAddNewThingToTable(array $context)
+    public function testAddNewItemToTable(array $context)
     {
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
+        $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->refresh();
 
-        $source = new RapidRecording($essence, $linkToData);
-        $isSuccess = $source->refresh();
-        $this->assertTrue(
-            $isSuccess,
-            'Table MUST BE refreshed with success'
-        );
-
-        $seeker = new Seeker($source);
-        $this->checkShowAll($context, $seeker, $essence, true);
+        $browser = new Browser($context['PDO']);
+        $data = $browser->filterData($context['essence'], []);
+        $this->checkShowAll($context, $data, true);
     }
 
     /**
      * Добавляем новую характеристику
-     * @depends testAddNewThing
+     * @depends testAddNewItem
      *
      * @param array $context
      *
      * @return array
+     * @throws Exception
      */
-    public function testAddNewAttribute(array $context)
+    public function testAddNewKind(array $context): array
     {
         /* Добавляем новую характеристику package и задаём параметры
         этой характеристики */
@@ -1028,166 +800,120 @@ class AutomatedProcessTest extends TestCase
 
         /* Добавим сущности cake новую характеристику package */
         $essence = $context['essence'];
-        $operator = new Operator($linkToData);
         $operator->attachKind(
-            $code,
             $essence,
+            $code,
         );
 
         /* Добавим существующим моделям новую характеристику */
-        $thingList = [
-            'bun-with-jam',
-            'bun-with-raisins',
-            'cinnamon-bun',
-            'new-thing',
-        ];
-        foreach ($thingList as $thing) {
-            $context[$thing] = $thing;
-            $this->defineThing($thing, $code, $linkToData);
-        }
-
         /* Зададим значения новой характеристики для всех моделей */
-        $this->defineThingAttributeValue(
-            $context['bun-with-jam'],
-            $context['package'],
-            'без упаковки',
-            $linkToData
-        );
-        $this->defineThingAttributeValue(
-            $context['bun-with-raisins'],
-            $context['package'],
-            'без упаковки',
-            $linkToData
-        );
-        $this->defineThingAttributeValue(
-            $context['cinnamon-bun'],
-            $context['package'],
-            'пакет',
-            $linkToData
-        );
-        $this->defineThingAttributeValue(
-            $context['new-thing'],
-            $context['package'],
-            'пакет',
-            $linkToData
-        );
+        $thingList = [
+            'bun-with-jam' => 'без упаковки',
+            'bun-with-raisins' => 'без упаковки',
+            'cinnamon-bun' => 'пакет',
+            'new-thing' => 'пакет',
+        ];
+        foreach ($thingList as $thing => $value) {
+            $context[$thing] = $thing;
+            $operator->expandItem($thing, $code, $value);
+        }
 
         return $context;
     }
 
     /**
      * Добавляем новую характеристику в представление
-     * @depends testAddNewAttribute
+     * @depends testAddNewKind
      *
      * @param array $context
+     * @throws Exception
      */
-    public function testAddNewAttributeToView(array $context)
+    public function testAddNewKindToView(array $context)
     {
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
+        $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->storeWithDirectReading();
 
-        $source = new DirectReading(
-            $essence, $linkToData
-        );
-        $isSuccess = $source->setup();
-        $this->assertTrue(
-            $isSuccess,
-            'View MUST BE recreated with success'
-        );
-
-        $seeker = new Seeker($source);
-        $this->checkShowAll($context, $seeker, $essence, true);
+        $browser = new Browser($context['PDO']);
+        $data = $browser->filterData($context['essence'], []);
+        $this->checkShowAll($context, $data, true);
     }
 
     /**
      * Добавляем новую характеристику в материализованное
      * представление
-     * @depends testAddNewAttribute
+     * @depends testAddNewKind
      *
      * @param array $context
+     * @throws Exception
      */
-    public function testAddNewAttributeToMathView(array $context)
+    public function testAddNewKindToMathView(array $context)
     {
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
+        $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->storeWithRapidObtainment();
 
-        $source = new RapidObtainment($essence, $linkToData);
-        $isSuccess = $source->setup();
-        $this->assertTrue(
-            $isSuccess,
-            'MathView MUST BE recreated with success'
-        );
-
-        $seeker = new Seeker($source);
-        $this->checkShowAll($context, $seeker, $essence, true);
+        $browser = new Browser($context['PDO']);
+        $data = $browser->filterData($context['essence'], []);
+        $this->checkShowAll($context, $data, true);
     }
 
     /**
      * Добавляем новую характеристику в таблицу
-     * @depends testAddNewAttribute
+     * @depends testAddNewKind
      *
      * @param array $context
+     * @throws Exception
      */
-    public function testAddNewAttributeToTable(array $context)
+    public function testAddNewKindToTable(array $context)
     {
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
+        $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->storeWithRapidRecording();
 
-        $source = new RapidRecording($essence, $linkToData);
-        $isSuccess = $source->setup();
-        $this->assertTrue(
-            $isSuccess,
-            'Table MUST BE recreated with success'
-        );
-
-        $seeker = new Seeker($source);
-        $this->checkShowAll($context, $seeker, $essence, true);
+        $browser = new Browser($context['PDO']);
+        $data = $browser->filterData($context['essence'], []);
+        $this->checkShowAll($context, $data, true);
     }
 
     /**
      * Изменим значение характеристики модели
-     * @depends testAddNewAttribute
+     * @depends testAddNewKind
      *
      * @param array $context
      *
      * @return array
+     * @throws Exception
      */
-    public function testChangeThingAttribute(array $context)
+    public function testChangeContent(array $context): array
     {
-        $linkToData = $context['PDO'];
-        $this->defineThingAttributeValue(
+        $operator = new Operator($context['PDO']);
+        $operator->changeContent(
             $context['new-thing'],
             $context['package'],
             'коробка',
-            $linkToData
         );
+
+        $this->assertTrue(true, 'Content'
+            . ' must be changed with success');
 
         return $context;
     }
 
     /**
      * Добавляем новую модель в представление
-     * @depends testAddNewAttribute
+     * @depends testAddNewKind
      *
      * @param array $context
+     * @throws Exception
      */
-    public function testChangeThingWithinView(array $context)
+    public function testChangeContentWithinView(array $context)
     {
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
+        $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->changeStorage(Storable::DIRECT_READING);
+        $schema->refresh();
 
-        $source = new DirectReading($essence, $linkToData);
-        $isSuccess = $this->changeContent($context, $source);
-        $this->assertTrue(
-            $isSuccess,
-            'View MUST BE refreshed with success'
-        );
-
-        $seeker = new Seeker($source);
+        $browser = new Browser($context['PDO']);
+        $data = $browser->filterData($context['essence'], []);
         $this->checkShowAll(
-            $context,
-            $seeker,
-            $essence,
+            $context, $data,
             true,
             true,
             true
@@ -1195,45 +921,22 @@ class AutomatedProcessTest extends TestCase
     }
 
     /**
-     * @param array $context
-     * @param Installation $source
-     * @return mixed
-     */
-    private function changeContent(
-        array $context,
-        Installation $source
-    ) {
-        $content = (new Crossover())->
-        setLeftValue($context['new-thing'])
-            ->setRightValue($context['package'])
-            ->setContent('коробка');
-        $isSuccess = $source->refresh($content);
-        return $isSuccess;
-    }
-
-    /**
      * Добавляем новую модель в материализованное представление
-     * @depends testAddNewAttribute
+     * @depends testAddNewKind
      *
      * @param array $context
+     * @throws Exception
      */
-    public function testChangeThingWithinMathView(array $context)
+    public function testChangeContentWithinMathView(array $context)
     {
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
+        $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->changeStorage(Storable::RAPID_OBTAINMENT);
+        $schema->refresh();
 
-        $source = new RapidObtainment($essence, $linkToData);
-        $isSuccess = $this->changeContent($context, $source);
-        $this->assertTrue(
-            $isSuccess,
-            'MathView MUST BE refreshed with success'
-        );
-
-        $seeker = new Seeker($source);
+        $browser = new Browser($context['PDO']);
+        $data = $browser->filterData($context['essence'], []);
         $this->checkShowAll(
-            $context,
-            $seeker,
-            $essence,
+            $context, $data,
             true,
             true,
             true
@@ -1242,27 +945,26 @@ class AutomatedProcessTest extends TestCase
 
     /**
      * Добавляем новую модель в таблицу
-     * @depends testAddNewAttribute
+     * @depends testAddNewKind
      *
      * @param array $context
+     * @throws Exception
      */
-    public function testChangeThingWithinTable(array $context)
+    public function testChangeContentWithinTable(array $context)
     {
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
+        $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->changeStorage(Storable::RAPID_RECORDING);
 
-        $source = new RapidRecording($essence, $linkToData);
-        $isSuccess = $this->changeContent($context, $source);
-        $this->assertTrue(
-            $isSuccess,
-            'Table MUST BE refreshed with success'
-        );
+        $content = (new Crossover())->
+        setLeftValue($context['new-thing'])
+            ->setRightValue($context['package'])
+            ->setContent('коробка');
+        $schema->refresh($content);
 
-        $seeker = new Seeker($source);
+        $browser = new Browser($context['PDO']);
+        $data = $browser->filterData($context['essence'], []);
         $this->checkShowAll(
-            $context,
-            $seeker,
-            $essence,
+            $context, $data,
             true,
             true,
             true

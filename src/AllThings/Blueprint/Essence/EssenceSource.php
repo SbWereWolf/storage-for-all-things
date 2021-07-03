@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 03.07.2021, 10:08
+ * 04.07.2021, 2:22
  */
 
 namespace AllThings\Blueprint\Essence;
@@ -13,11 +13,11 @@ use PDO;
 class EssenceSource implements EssenceReader
 {
 
-    private $tableName = '';
+    private string $tableName;
     /**
      * @var PDO
      */
-    private $dataSource;
+    private PDO $dataSource;
 
     public function __construct(string $table, PDO $dataSource)
     {
@@ -59,7 +59,7 @@ class EssenceSource implements EssenceReader
             $entity->setCode($code);
             $entity->setTitle($title);
             $entity->setRemark($remark);
-            $entity->setStorage($storeAt);
+            $entity->setStorageKind($storeAt);
         }
 
         return $result;

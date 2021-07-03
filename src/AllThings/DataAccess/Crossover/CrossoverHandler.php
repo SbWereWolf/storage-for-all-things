@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 02.07.2021, 16:47
+ * 04.07.2021, 2:22
  */
 
 namespace AllThings\DataAccess\Crossover;
@@ -13,10 +13,10 @@ use PDO;
 
 class CrossoverHandler implements ICrossoverHandler, Retrievable
 {
-    private $container;
-    private $dataPath;
+    private ICrossover $container;
+    private PDO $dataPath;
     private ICrossoverTable $tableStructure;
-    private $leftKey;
+    private IForeignKey $leftKey;
     private IForeignKey $rightKey;
 
     public function __construct(
@@ -37,6 +37,7 @@ class CrossoverHandler implements ICrossoverHandler, Retrievable
     {
         $writer = $this->getCrossoverWriter();
 
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $writer->insert($this->container);
 
         return $result;
@@ -44,6 +45,7 @@ class CrossoverHandler implements ICrossoverHandler, Retrievable
 
     private function getCrossoverWriter(): CrossoverWriter
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $location = new CrossoverLocation(
             $this->leftKey,
             $this->rightKey,
@@ -58,7 +60,8 @@ class CrossoverHandler implements ICrossoverHandler, Retrievable
     {
         $writer = $this->getCrossoverWriter();
 
-        $result = $writer->update($crossover, $this->container);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $writer->update($this->container, $crossover);
 
         return $result;
     }
@@ -79,6 +82,7 @@ class CrossoverHandler implements ICrossoverHandler, Retrievable
 
     private function getCrossoverReader(): CrossoverReader
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $source = new CrossoverSource($this->leftKey, $this->rightKey, $this->tableStructure, $this->dataPath);
 
         return $source;
@@ -86,6 +90,7 @@ class CrossoverHandler implements ICrossoverHandler, Retrievable
 
     public function retrieveData(): ICrossover
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $data = $this->container->getCrossoverCopy();
 
         return $data;

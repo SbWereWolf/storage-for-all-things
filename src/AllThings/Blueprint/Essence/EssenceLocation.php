@@ -1,8 +1,9 @@
 <?php
+
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 03.07.2021, 10:08
+ * 04.07.2021, 2:22
  */
 
 namespace AllThings\Blueprint\Essence;
@@ -13,11 +14,11 @@ use PDO;
 class EssenceLocation implements EssenceWriter
 {
 
-    private $tableName = '';
+    private string $tableName;
     /**
      * @var PDO
      */
-    private $storageLocation;
+    private PDO $storageLocation;
 
     public function __construct(string $table, PDO $storageLocation)
     {
@@ -35,6 +36,7 @@ class EssenceLocation implements EssenceWriter
 
         $query = $connection->prepare($sqlText);
         $query->bindParam(':code', $suggestion_code);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $query->execute();
 
         return $result;
@@ -49,6 +51,7 @@ class EssenceLocation implements EssenceWriter
 
         $query = $connection->prepare($sqlText);
         $query->bindParam(':code', $target_code);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $query->execute();
 
         return $result;
@@ -62,7 +65,7 @@ class EssenceLocation implements EssenceWriter
         $suggestion_code = $suggestion_entity->getCode();
         $suggestion_title = $suggestion_entity->getTitle();
         $suggestion_remark = $suggestion_entity->getRemark();
-        $suggestion_storage = $suggestion_entity->getStorage();
+        $suggestion_storage = $suggestion_entity->getStorageKind();
 
         $sqlText = 'update '
             . $this->tableName
@@ -94,6 +97,7 @@ where
             $suggestion_storage
         );
         $query->bindParam(':target_code', $target_code);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $query->execute();
 
         return $result;

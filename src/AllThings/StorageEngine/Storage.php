@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 03.07.2021, 17:12
+ * 04.07.2021, 2:22
  */
 
 namespace AllThings\StorageEngine;
@@ -12,22 +12,25 @@ use Exception;
 
 class Storage implements Storable
 {
-
-    private $storeAt;
+    private string $storeAt;
 
     public function __construct()
     {
         $this->storeAt = static::UNDEFINED;
     }
 
-    public function getStorage(): string
+    public function getStorageKind(): string
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $storeAt = $this->storeAt;
 
         return $storeAt;
     }
 
-    public function setStorage(string $value): Storable
+    /**
+     * @throws Exception
+     */
+    public function setStorageKind(string $value): Storable
     {
         $isAcceptable = in_array(
             $value,
@@ -40,17 +43,18 @@ class Storage implements Storable
                 . ' view | materialized view | table'
                 . ", `$value` given");
         }
-        if ($isAcceptable) {
-            $this->storeAt = $value;
-        }
+        $this->storeAt = $value;
 
         return $this;
     }
 
+    /**
+     * @throws Exception
+     */
     public function getStorableCopy(): Storable
     {
         $copy = new Storage();
-        $copy->setStorage($this->storeAt);
+        $copy->setStorageKind($this->storeAt);
 
         return $copy;
     }
