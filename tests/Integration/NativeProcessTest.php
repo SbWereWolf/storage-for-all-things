@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 04.07.2021, 2:22
+ * 05.07.2021, 1:37
  */
 
 namespace Integration;
@@ -148,6 +148,24 @@ class NativeProcessTest extends TestCase
     {
         $attribute = (Attribute::GetDefaultAttribute());
         $attribute->setCode($code);
+        switch ($code) {
+            case 'price':
+                $attribute->setDataType('decimal');
+                $attribute->setRangeType('continuous');
+                break;
+            case 'production-date':
+                $attribute->setDataType('timestamp');
+                $attribute->setRangeType('continuous');
+                break;
+            case 'place-of-production':
+                $attribute->setDataType('symbols');
+                $attribute->setRangeType('discrete');
+                break;
+            case 'package':
+                $attribute->setDataType('symbols');
+                $attribute->setRangeType('discrete');
+                break;
+        }
 
         $linkToData = $context['PDO'];
         $handler = new AttributeManager(
@@ -187,7 +205,7 @@ class NativeProcessTest extends TestCase
             ],
             $context['place-of-production'] => [
                 'Title' => 'Место производства',
-                'DataType' => 'symbol',
+                'DataType' => 'symbols',
                 'RangeType' => 'discrete',
             ],
         ];
@@ -1102,7 +1120,7 @@ class NativeProcessTest extends TestCase
         $value = Attribute::GetDefaultAttribute();
         $value->setCode($code);
         $value->setTitle('Упаковка');
-        $value->setDataType('symbol');
+        $value->setDataType('symbols');
         $value->setRangeType('discrete');
         $handler = new AttributeManager(
             $value,
