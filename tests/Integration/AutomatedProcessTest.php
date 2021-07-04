@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 04.07.2021, 2:22
+ * 04.07.2021, 23:30
  */
 
 namespace Integration;
@@ -252,7 +252,7 @@ class AutomatedProcessTest extends TestCase
     {
         /* S001A4S02 создать представление */
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->storeWithDirectReading();
+        $schema->handleWithDirectReading();
 
         $this->assertTrue(true, 'View must be created with success');
     }
@@ -402,8 +402,8 @@ class AutomatedProcessTest extends TestCase
             }
         }
 
-        $isEnough = ($thingTested === $properNumbers && !$withAdditional)
-            || ($thingTested === $properNumbers && $withAdditional);
+        $isEnough = ($thingTested === 3 && !$withAdditional)
+            || ($thingTested === 4 && $withAdditional);
         $this->assertTrue(
             $isEnough,
             "Each thing of essence `$essence`"
@@ -510,7 +510,7 @@ class AutomatedProcessTest extends TestCase
     {
         /* S001A4S02 создать материализованное представление */
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->storeWithRapidObtainment();
+        $schema->handleWithRapidObtainment();
 
         $this->assertTrue(true, 'Math view must be created with success');
     }
@@ -594,7 +594,7 @@ class AutomatedProcessTest extends TestCase
     {
         /* S001A4S02 создать представление */
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->storeWithRapidRecording();
+        $schema->handleWithRapidRecording();
 
         $this->assertTrue(true, 'Table must be created with success');
     }
@@ -703,7 +703,7 @@ class AutomatedProcessTest extends TestCase
             $context['place-of-production'],
             'Екатеринбург',
         );
-        $this->assertTrue(true, 'Thing must be created with success');
+        $this->assertTrue(true, 'Item must be created with success');
 
         return $context;
     }
@@ -718,6 +718,7 @@ class AutomatedProcessTest extends TestCase
     public function testAddNewItemToView(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->changeStorage(Storable::DIRECT_READING);
         $schema->refresh();
 
         $browser = new Browser($context['PDO']);
@@ -735,6 +736,7 @@ class AutomatedProcessTest extends TestCase
     public function testAddNewItemToMathView(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->changeStorage(Storable::RAPID_OBTAINMENT);
         $schema->refresh();
 
         $browser = new Browser($context['PDO']);
@@ -752,6 +754,7 @@ class AutomatedProcessTest extends TestCase
     public function testAddNewItemToTable(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->changeStorage(Storable::RAPID_RECORDING);
         $schema->refresh();
 
         $browser = new Browser($context['PDO']);
@@ -831,7 +834,8 @@ class AutomatedProcessTest extends TestCase
     public function testAddNewKindToView(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->storeWithDirectReading();
+        $schema->changeStorage(Storable::DIRECT_READING);
+        $schema->setup();
 
         $browser = new Browser($context['PDO']);
         $data = $browser->filterData($context['essence'], []);
@@ -849,7 +853,8 @@ class AutomatedProcessTest extends TestCase
     public function testAddNewKindToMathView(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->storeWithRapidObtainment();
+        $schema->changeStorage(Storable::RAPID_OBTAINMENT);
+        $schema->setup();
 
         $browser = new Browser($context['PDO']);
         $data = $browser->filterData($context['essence'], []);
@@ -866,7 +871,8 @@ class AutomatedProcessTest extends TestCase
     public function testAddNewKindToTable(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->storeWithRapidRecording();
+        $schema->changeStorage(Storable::RAPID_RECORDING);
+        $schema->setup();
 
         $browser = new Browser($context['PDO']);
         $data = $browser->filterData($context['essence'], []);

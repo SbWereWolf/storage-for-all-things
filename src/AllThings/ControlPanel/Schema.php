@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 04.07.2021, 2:22
+ * 04.07.2021, 23:30
  */
 
 namespace AllThings\ControlPanel;
@@ -119,7 +119,7 @@ class Schema
     /**
      * @throws Exception
      */
-    public function storeWithDirectReading(): Schema
+    public function handleWithDirectReading(): Schema
     {
         $this->changeStorage(Storable::DIRECT_READING);
         $handler = new DirectReading(
@@ -161,7 +161,7 @@ class Schema
     /**
      * @throws Exception
      */
-    public function storeWithRapidObtainment(): Schema
+    public function handleWithRapidObtainment(): Schema
     {
         $this->changeStorage(Storable::RAPID_OBTAINMENT);
         $handler = new RapidObtainment(
@@ -181,7 +181,7 @@ class Schema
     /**
      * @throws Exception
      */
-    public function storeWithRapidRecording(): Schema
+    public function handleWithRapidRecording(): Schema
     {
         $this->changeStorage(Storable::RAPID_RECORDING);
         $handler = new RapidRecording(
