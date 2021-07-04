@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 04.07.2021, 2:22
+ * 05.07.2021, 4:04
  */
 
 namespace AllThings\ControlPanel;
@@ -18,6 +18,7 @@ use AllThings\Blueprint\Specification\SpecificationManager;
 use AllThings\Catalog\CatalogManager;
 use AllThings\Content\ContentManager;
 use AllThings\DataAccess\Crossover\Crossover;
+use AllThings\DataAccess\Nameable\Nameable;
 use AllThings\DataAccess\Nameable\NamedEntity;
 use AllThings\DataAccess\Nameable\NamedEntityManager;
 use AllThings\StorageEngine\Storable;
@@ -137,6 +138,11 @@ class Operator
     }
 
     /**
+     * @param string $essence
+     * @param string $code
+     * @param string $title
+     * @param string $description
+     * @return Nameable
      * @throws Exception
      */
     public function createItem(
@@ -144,7 +150,7 @@ class Operator
         string $code,
         string $title = '',
         string $description = ''
-    ) {
+    ): Nameable {
         $manager = new SpecificationManager($essence, '', $this->db);
         $isSuccess = $manager->getAssociated();
         if (!$isSuccess) {
@@ -189,6 +195,8 @@ class Operator
                 throw new Exception("Attribute must be defined"
                     . " for thing with success");
             }
+
+            return $nameable;
         }
 
         $manager = new CatalogManager(

@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 04.07.2021, 23:30
+ * 05.07.2021, 4:04
  */
 
 namespace AllThings\ControlPanel;
@@ -139,9 +139,8 @@ class Schema
     /**
      * @throws Exception
      */
-    public function changeStorage(
-        string $storageKind
-    ): Schema {
+    public function changeStorage(string $storageKind): Schema
+    {
         $payload = $this->readEssence();
         if (count($payload) === 0) {
             throw new Exception('Essence must be find with success');
