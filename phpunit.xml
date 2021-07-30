@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+  ~ storage-for-all-things
+  ~ Copyright © 2021 Volkhin Nikolay
+  ~ 30.07.2021, 5:45
+  -->
+
+<phpunit bootstrap="vendor/autoload.php"
+
+         backupStaticAttributes="false"
+
+         cacheTokens="false"
+         colors="true"
+
+         processIsolation="false"
+         stopOnError="false"
+         stopOnFailure="false"
+         stopOnIncomplete="false"
+         stopOnSkipped="false"
+
+         verbose="true"
+
+         forceCoversAnnotation="false"
+>
+    <testsuites>
+        <testsuite name="integration">
+            <directory>tests/integration</directory>
+        </testsuite>
+    </testsuites>
+    <filter>
+        <whitelist>
+            <directory suffix=".php">src</directory>
+        </whitelist>
+    </filter>
+</phpunit>

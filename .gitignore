@@ -1,9 +1,9 @@
 .htaccess
 .idea/
-app/configuration/*.php
-app/configuration/*.sql
--app/configuration/*.example
+configuration/*.php
+configuration/*.sql
+-configuration/*.example
 
-app/vendor/*
-app/build/**
+vendor/*
+build/**
 .phpunit.result.cache
