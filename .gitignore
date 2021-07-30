@@ -1,11 +1,9 @@
 .htaccess
 .idea/
-configuration/*.php
-configuration/*.sql
--configuration/*.example
+app/configuration/*.php
+app/configuration/*.sql
+-app/configuration/*.example
 
-vendor/*
-api/swagger.json
-api/dist/
-build/**
+app/vendor/*
+app/build/**
 .phpunit.result.cache
