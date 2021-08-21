@@ -12,7 +12,7 @@ $options = [
     IDbCredentials::DB_HOST => 'localhost',
     IDbCredentials::DB_PORT => '5432',
     IDbCredentials::DB_LOGIN => 'postgres',
-    IDbCredentials::DB_PASSWORD => 'data_tester_password_to_test_db',
+    IDbCredentials::DB_PASSWORD => '',
     IDbCredentials::DB_NAME => 'all-things',
     IDbCredentials::PDO_DBMS => 'pgsql',
 ];
