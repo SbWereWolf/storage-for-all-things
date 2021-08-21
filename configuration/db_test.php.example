@@ -5,15 +5,16 @@
  * 26.09.2019, 0:04
  */
 
-use Environment\IDbCredentials;
 
-$options = array(
+use Environment\Database\IDbCredentials;
+
+$options = [
     IDbCredentials::DB_HOST => 'localhost',
     IDbCredentials::DB_PORT => '5432',
-    IDbCredentials::DB_LOGIN => 'tester',
+    IDbCredentials::DB_LOGIN => 'postgres',
     IDbCredentials::DB_PASSWORD => 'data_tester_password_to_test_db',
-    IDbCredentials::DB_NAME => 'storage_for_all_things',
+    IDbCredentials::DB_NAME => 'all-things',
     IDbCredentials::PDO_DBMS => 'pgsql',
-);
+];
 
 return $options;
