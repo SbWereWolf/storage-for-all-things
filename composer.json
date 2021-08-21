@@ -1,6 +1,6 @@
 {
     "require": {
-        "php": "~7.4",
+        "php": "~8",
         "ext-pdo": "*",
         "ext-json": "*",
         "ext-mbstring": "*"
