@@ -7,13 +7,9 @@
 
 namespace AllThings\SearchEngine;
 
-
 class DiscreteFilter extends Filter
 {
-    /**
-     * @var array
-     */
-    private $values;
+    private array $values;
 
     public function __construct(string $attribute, array $values)
     {

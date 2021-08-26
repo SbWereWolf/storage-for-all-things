@@ -13,11 +13,11 @@ class Filter implements Filtering
     /**
      * @var string
      */
-    private $attribute;
+    private string $attribute;
 
     public function __construct(string $attribute)
     {
-        $this->attribute = $attribute;
+        $this->setAttribute($attribute);
     }
 
     /**
@@ -33,7 +33,7 @@ class Filter implements Filtering
      *
      * @return Filter
      */
-    private function setAttribute(string $attribute): Filter
+    private function setAttribute(string $attribute): self
     {
         $this->attribute = $attribute;
         return $this;

@@ -441,28 +441,27 @@ class AutomatedProcessTest extends TestCase
         array $data,
         string $essence
     ): void {
-        $this->assertTrue(
-            count($data) === 2,
-            "Filters of essence `$essence`"
-            . ' must have two types'
-        );
-        $this->assertArrayHasKey(
-            'continuous', $data,
-            "Filters of essence `$essence`"
-            . ' must have type continuous'
-        );
-        $this->assertArrayHasKey(
-            'discrete', $data,
-            "Filters of essence `$essence`"
-            . ' must have type discrete'
-        );
 
-        $filtersValue = 'a:2:{s:10:"continuous";a:4:{s:9:"max@price";'
-            . 's:4:"9.50";s:9:"min@price";s:5:"15.50";'
-            . 's:19:"max@production-date";s:13:"20180429T1356";'
-            . 's:19:"min@production-date";s:8:"20180427";}'
-            . 's:8:"discrete";a:1:{s:19:"place-of-production";'
-            . 'a:2:{i:0;s:24:"Екатеринбург";i:1;s:18:"Челябинск";}}}';
+        $filtersValue = 'a:3:{i:0;O:37:'
+            . '"AllThings\SearchEngine\DiscreteFilter":2:{s:45:'
+            . '" AllThings\SearchEngine\DiscreteFilter values";'
+            . 'a:2:{i:0;s:24:"Екатеринбург";i:1;s:18:"Челябинск";}'
+            . 's:40:" AllThings\SearchEngine\Filter attribute";'
+            . 's:19:"place-of-production";}i:1;O:39:'
+            . '"AllThings\SearchEngine\ContinuousFilter":3:{s:44:'
+            . '" AllThings\SearchEngine\ContinuousFilter min";'
+            . 's:4:"9.50";s:44:'
+            . '" AllThings\SearchEngine\ContinuousFilter max";'
+            . 's:5:"15.50";s:40:'
+            . '" AllThings\SearchEngine\Filter attribute";s:5:'
+            . '"price";}i:2;O:39:'
+            . '"AllThings\SearchEngine\ContinuousFilter":3:{s:44:'
+            . '" AllThings\SearchEngine\ContinuousFilter min";'
+            . 's:13:"20180429T1356";s:44:'
+            . '" AllThings\SearchEngine\ContinuousFilter max";'
+            . 's:8:"20180427";s:40:'
+            . '" AllThings\SearchEngine\Filter attribute";s:15:'
+            . '"production-date";}}';
         $this->assertTrue(
             serialize($data) === $filtersValue,
             "Filters of essence `$essence` must have proper value"
