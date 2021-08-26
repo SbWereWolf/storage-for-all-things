@@ -305,6 +305,7 @@ class AutomatedProcessTest extends TestCase
             switch ($code) {
                 case $context['bun-with-jam']:
                     $isProper = true;
+                    /** @noinspection PhpConditionAlreadyCheckedInspection */
                     $isProper = $isProper
                         && $thing[$context['price']] === '15.50';
                     $isProper = $isProper
@@ -328,6 +329,7 @@ class AutomatedProcessTest extends TestCase
                     break;
                 case $context['bun-with-raisins']:
                     $isProper = true;
+                    /** @noinspection PhpConditionAlreadyCheckedInspection */
                     $isProper = $isProper
                         && $thing[$context['price']] === '9.50';
                     $isProper = $isProper
@@ -351,6 +353,7 @@ class AutomatedProcessTest extends TestCase
                     break;
                 case $context['cinnamon-bun']:
                     $isProper = true;
+                    /** @noinspection PhpConditionAlreadyCheckedInspection */
                     $isProper = $isProper
                         && $thing[$context['price']] === '4.50';
                     $isProper = $isProper
@@ -374,6 +377,7 @@ class AutomatedProcessTest extends TestCase
                     break;
                 case $context['new-thing']:
                     $isProper = true;
+                    /** @noinspection PhpConditionAlreadyCheckedInspection */
                     $isProper = $isProper
                         && $thing[$context['price']] === '11.11';
                     $isProper = $isProper
@@ -486,16 +490,16 @@ class AutomatedProcessTest extends TestCase
         $browser = new Browser($context['PDO']);
 
         $data = $browser->filterData($context['essence'], [$continuous]);
-        $this->assertTrue(!empty($data));
+        $this->assertNotEmpty($data);
 
         $data = $browser->filterData($context['essence'], [$discrete]);
-        $this->assertTrue(!empty($data));
+        $this->assertNotEmpty($data);
 
         $data = $browser->filterData(
             $context['essence'],
             [$discrete, $continuous]
         );
-        $this->assertTrue(!empty($data));
+        $this->assertNotEmpty($data);
     }
 
     /**
@@ -571,16 +575,16 @@ class AutomatedProcessTest extends TestCase
         $browser = new Browser($context['PDO']);
 
         $data = $browser->filterData($context['essence'], [$continuous]);
-        $this->assertTrue(!empty($data));
+        $this->assertNotEmpty($data);
 
         $data = $browser->filterData($context['essence'], [$discrete]);
-        $this->assertTrue(!empty($data));
+        $this->assertNotEmpty($data);
 
         $data = $browser->filterData(
             $context['essence'],
             [$discrete, $continuous]
         );
-        $this->assertTrue(!empty($data));
+        $this->assertNotEmpty($data);
     }
 
     /**
@@ -654,16 +658,16 @@ class AutomatedProcessTest extends TestCase
         $browser = new Browser($context['PDO']);
 
         $data = $browser->filterData($context['essence'], [$continuous]);
-        $this->assertTrue(!empty($data));
+        $this->assertNotEmpty($data);
 
         $data = $browser->filterData($context['essence'], [$discrete]);
-        $this->assertTrue(!empty($data));
+        $this->assertNotEmpty($data);
 
         $data = $browser->filterData(
             $context['essence'],
             [$discrete, $continuous]
         );
-        $this->assertTrue(!empty($data));
+        $this->assertNotEmpty($data);
     }
 
     /**
@@ -808,8 +812,8 @@ class AutomatedProcessTest extends TestCase
             $code,
         );
 
-        /* Добавим существующим моделям новую характеристику */
-        /* Зададим значения новой характеристики для всех моделей */
+        /* Добавим существующим моделям новую характеристику. */
+        /* Зададим значения новой характеристики для всех моделей. */
         $thingList = [
             'bun-with-jam' => 'без упаковки',
             'bun-with-raisins' => 'без упаковки',
