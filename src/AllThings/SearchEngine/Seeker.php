@@ -36,6 +36,74 @@ class Seeker implements Searching
         return $this;
     }
 
+    /**
+     * @param mixed $sql
+     * @return array
+     */
+    private function readData(string $sql): array
+    {
+        $cursor = $this
+            ->getSource()
+            ->getLinkToData()
+            ->query($sql, PDO::FETCH_ASSOC);
+
+        $isSuccess = $cursor !== false;
+        if ($isSuccess) {
+            $data = $cursor->fetchAll();
+        }
+        if (!$isSuccess || $data === false) {
+            $data = [];
+        }
+
+        return $data;
+    }
+
+    /**
+     * @param array $parameters
+     * @return string
+     */
+    private static function glueUpWithComma(array $parameters): string
+    {
+        $match = '';
+        $isSuccess = count($parameters) !== 0;
+        if ($isSuccess) {
+            $match .= '\'';
+            $match .= implode("','", $parameters);
+            $match .= '\'';
+        }
+        return $match;
+    }
+
+    /**
+     * @param string $match
+     * @param string $rangeType
+     * @return array
+     */
+    private function getSpecificParams(
+        string $match,
+        string $rangeType
+    ): array
+    {
+        $readParams = "
+SELECT
+    code
+FROM
+    attribute
+WHERE 
+    code IN ($match)
+    and range_type = '$rangeType'
+ORDER BY code
+";
+
+        $specific = $this->readData($readParams);
+        $params = [];
+        if ($specific) {
+            $params = array_column($specific, 'code');
+        }
+
+        return $params;
+    }
+
     public function data(array $filters = []): array
     {
         $name = $this->getSource()->name();
@@ -70,13 +138,8 @@ class Seeker implements Searching
             $obtain = "$obtain where $wherePhrase";
         }
 
-        $linkToData = $this->getSource()->getLinkToData();
-        $dataSet = $linkToData->query($obtain, PDO::FETCH_ASSOC);
-
-        $data = [];
-        if ($dataSet !== false) {
-            $data = $dataSet->fetchAll();
-        }
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $data = $this->readData($obtain);
 
         return $data;
     }
@@ -91,6 +154,17 @@ class Seeker implements Searching
 
     public function filters(): array
     {
+        $parameters = $this->getPossibleParameters();
+
+        $result = [];
+        $result['continuous'] = $this->getBoundaries($parameters);
+        $result['discrete'] = $this->getValues($parameters);
+
+        return $result;
+    }
+
+    private function getPossibleParameters(): array
+    {
         $essence = $this->getSource()->getEssence();
         $linkToData = $this->getSource()->getLinkToData();
 
@@ -100,138 +174,115 @@ class Seeker implements Searching
         if ($isSuccess) {
             $isSuccess = $manager->has();
         }
-        $match = '';
+        $attributes = [];
         if ($isSuccess) {
             $attributes = $manager->retrieveData();
-            $match = implode("','", $attributes);
-            $match = "'$match'";
         }
 
-        $getValues = "
-SELECT
-    code,data_type,range_type
-FROM
-    attribute
-WHERE 
-      code IN ($match)
-";
-        $range = $linkToData->query($getValues, PDO::FETCH_ASSOC);
+        return $attributes;
+    }
 
-        $data = [];
-        if ($range !== false) {
-            $data = $range->fetchAll();
-        }
-
+    /**
+     * @param array $parameters
+     * @return array
+     */
+    private function getBoundaries(array $parameters): array
+    {
+        $match = self::glueUpWithComma($parameters);
+        $continuousParams = $this->getSpecificParams(
+            $match,
+            'continuous'
+        );
         $continuous = [];
-        $discrete = [];
-        foreach ($data as $options) {
-            $attribute = $options['code'];
-            $type = $options['range_type'];
-            switch ($type) {
-                case 'continuous':
-                    $column = "
-SELECT
-    max(C.content)
-FROM
-    attribute A
-    JOIN content C
-    ON C.attribute_id = A.id
-    JOIN essence_thing ET 
-    ON C.thing_id = ET.thing_id
-WHERE
-        A.code = '$attribute'
+        foreach ($continuousParams as $attribute) {
+            $column = "
+SELECT max(C.content)
+FROM essence E
+        JOIN essence_thing ET
+             ON E.id = ET.essence_id
+        JOIN content C
+             ON ET.thing_id = C.thing_id
+        JOIN attribute A
+             ON C.attribute_id = A.id
+WHERE E.id = EE.id
+ and A.code = '$attribute'
 ";
-                    $continuous["max@$attribute"] =
-                        "($column) AS \"max@$attribute\"";
-                    $column = "
-SELECT
-    min(C.content)
-FROM
-    attribute A
-    JOIN content C
-    ON C.attribute_id = A.id
-    JOIN essence_thing ET 
-    ON C.thing_id = ET.thing_id
-WHERE
-        A.code = '$attribute'
+            $continuous["max@$attribute"] =
+                "($column) AS \"max@$attribute\"";
+            $column = "
+
+SELECT min(C.content)
+FROM essence E
+        JOIN essence_thing ET
+             ON E.id = ET.essence_id
+        JOIN content C
+             ON ET.thing_id = C.thing_id
+        JOIN attribute A
+             ON C.attribute_id = A.id
+WHERE E.id = EE.id
+ and A.code = '$attribute'
 ";
-                    $continuous["min@$attribute"] =
-                        "($column) AS \"min@$attribute\"";
-                    break;
-                case 'discrete':
-                    $column = "
-SELECT
-    DISTINCT C.content
-FROM
-    essence E 
-    JOIN essence_attribute
-    ON E.id = essence_attribute.essence_id
-    JOIN  attribute A
-    ON essence_attribute.attribute_id = A.id
-    JOIN content C
-    ON C.attribute_id = A.id
-    JOIN essence_thing ET 
-    ON C.thing_id = ET.thing_id
-WHERE
-        E.code = '$essence'  
-    AND A.code = '$attribute'    
-ORDER BY C.content
-";
-                    $discrete[$attribute] = $column;
-                    break;
-            }
+            $continuous["min@$attribute"] =
+                "($column) AS \"min@$attribute\"";
         }
 
         $selectPhase = implode(",", $continuous);
-        $getRange = "
-SELECT
-    $selectPhase
-FROM
-    essence E
-WHERE 
-    E.code = '$essence'
+        $essence = $this->getSource()->getEssence();
+        $getBoundaries = "
+SELECT $selectPhase
+FROM essence EE
+where EE.code = '$essence';
 ";
-        $isSuccess = strlen($selectPhase) > 0;
+        $isSuccess = !empty($selectPhase);
         if ($isSuccess) {
-            $cursor = $linkToData->query($getRange, PDO::FETCH_ASSOC);
-            $isSuccess = $range !== false;
+            $data = $this->readData($getBoundaries);
+            $isSuccess = count($data) !== 0;
         }
-        if ($isSuccess && isset($cursor)) {
-            $range = $cursor->fetchAll();
-            $isSuccess = count($range) !== 0;
-        }
-
-        $data = [];
+        $boundaries = [];
         if ($isSuccess) {
-            $data['continuous'] = $range[0];
+            $boundaries = $data[0];
         }
 
-        foreach ($discrete as $attribute => $getValues) {
-            $cursor = $linkToData->query($getValues, PDO::FETCH_ASSOC);
-            $isSuccess = $cursor !== false;
+        return $boundaries;
+    }
 
-            $values = null;
+    /**
+     * @param array $parameters
+     * @return array
+     */
+    private function getValues(array $parameters): array
+    {
+        $match = self::glueUpWithComma($parameters);
+        $params = $this->getSpecificParams($match, 'discrete');
+        $essence = $this->getSource()->getEssence();
+        $discrete = [];
+        foreach ($params as $attribute) {
+            $column = "
+SELECT
+    DISTINCT C.content
+FROM essence E
+        JOIN essence_thing ET
+             ON E.id = ET.essence_id
+        JOIN content C
+             ON ET.thing_id = C.thing_id
+        JOIN attribute A
+             ON C.attribute_id = A.id
+WHERE E.code = '$essence'
+ and A.code = '$attribute'
+ORDER BY C.content
+";
+            $discrete[$attribute] = $column;
+        }
+
+        $values = [];
+        foreach ($discrete as $attribute => $readValues) {
+            $content = $this->readData($readValues);
+            $isSuccess = count($content) !== 0;
             if ($isSuccess) {
-                $values = $cursor->fetchAll();
-                $isSuccess = count($values) !== 0;
-            }
-            if ($isSuccess) {
-                $data['discrete'][$attribute] = $values;
+                $simplified = array_column($content, 'content');
+                $values[$attribute] = $simplified;
             }
         }
-
-        $isSuccess = !empty($data['discrete']);
-        if ($isSuccess) {
-            foreach ($data['discrete'] as $key => $values) {
-                $simplified = array_column($values, 'content');
-                $data['discrete'][$key] = [];
-                foreach ($simplified as $value) {
-                    $data['discrete'][$key][] = $value;
-                }
-            }
-        }
-
-
-        return $data;
+        return $values;
     }
 }
