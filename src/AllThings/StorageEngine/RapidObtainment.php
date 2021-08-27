@@ -92,6 +92,7 @@ WHERE
         $selectPhase = implode(",", $columns);
         $contentRequest = "
 SELECT
+    T.id AS id,
     T.code AS code,
     $selectPhase
 FROM
