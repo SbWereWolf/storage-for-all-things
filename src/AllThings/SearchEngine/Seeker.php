@@ -71,7 +71,8 @@ class Seeker implements Searching
                     $attribute = $filter->getAttribute();
                     $min = $filter->getMin();
                     $max = $filter->getMax();
-                    $condition = "(\"$attribute\" between '$min' and '$max')";
+                    $condition =
+                        "(\"$attribute\" between '$min' and '$max')";
                     $where[] = $condition;
                 }
 

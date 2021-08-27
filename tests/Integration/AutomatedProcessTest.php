@@ -28,7 +28,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testInit(): array
     {
-        $linkToData = (new DbConnection())->getForRead();
+        $linkToData = (new DbConnection())->getForWrite();
 
         $isSuccess = static::SKIP;
         if (!static::SKIP) {
@@ -515,7 +515,10 @@ class AutomatedProcessTest extends TestCase
         $schema = new Schema($context['PDO'], $context['essence']);
         $schema->handleWithRapidObtainment();
 
-        $this->assertTrue(true, 'Math view must be created with success');
+        $this->assertTrue(
+            true,
+            'Math view must be created with success'
+        );
     }
 
     /**
