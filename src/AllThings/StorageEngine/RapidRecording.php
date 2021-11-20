@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:46
+ * 20.11.2021, 13:47
  */
 
 namespace AllThings\StorageEngine;
@@ -20,6 +20,7 @@ use PDO;
 class RapidRecording implements Installation
 {
     public const STRUCTURE_PREFIX = 'auto_t_';
+    public const SEPARATORS = ['.', ':', '-', '+', '@', '#', '&',];
 
     private $essence = '';
     /**
@@ -111,6 +112,7 @@ class RapidRecording implements Installation
         }
         $columns = [];
         $columnNames = [];
+        $indexes = [];
         foreach ($attributes as $attribute) {
             /* @var IAttribute $attribute */
 
@@ -118,7 +120,7 @@ class RapidRecording implements Installation
             /*
                         switch ($attribute->getDataType()) {
                             case Searchable::DECIMAL:
-                                $datatype = 'NUMERIC(8,8)';
+                                $datatype = 'NUMERIC(24,12)';
                                 break;
                             case Searchable::TIMESTAMP:
                                 $datatype = 'TIMESTAMP';
@@ -127,8 +129,16 @@ class RapidRecording implements Installation
             */
 
             $code = $attribute->getCode();
-            $columns[] = "\"{$code}\" $datatype";
-            $columnNames[] = "\"{$code}\"";
+            $name = "\"{$code}\"";
+
+            $columns[] = "$name $datatype";
+            $columnNames[] = $name;
+
+            $stripped = str_replace(static::SEPARATORS, '', $code);
+            $indexes[] = 'DROP INDEX IF EXISTS'
+                . " {$essence}_{$stripped}_ix;";
+            $indexes[] = "CREATE INDEX {$essence}_{$stripped}_ix"
+                . " on {$this->name()}($name);";
         }
 
         $columnsPhase = implode(',', $columns);
@@ -160,6 +170,9 @@ FROM {$view->name()}
 ";
             $affected = $linkToData->exec($dml);
             $result = $affected !== false;
+
+            $ddl = implode('', $indexes);
+            $affected = $linkToData->exec($ddl);
         }
 
         return $result;

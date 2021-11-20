@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:46
+ * 20.11.2021, 13:47
  */
 
 namespace AllThings\StorageEngine;
@@ -16,6 +16,7 @@ use PDO;
 class RapidObtainment implements Installation
 {
     public const STRUCTURE_PREFIX = 'auto_mv_';
+    public const SEPARATORS = ['.', ':', '-', '+', '@', '#', '&',];
 
     private $essence = '';
     /**
@@ -74,6 +75,7 @@ class RapidObtainment implements Installation
         }
 
         $columns = [];
+        $indexes = [];
         foreach ($attributes as $attribute) {
             $column = "
 SELECT
@@ -87,6 +89,11 @@ WHERE
     AND C.thing_id = ET.thing_id
 ";
             $columns[$attribute] = "($column) AS \"$attribute\"";
+            $stripped = str_replace(static::SEPARATORS, '', $attribute);
+            $indexes[] = 'DROP INDEX IF EXISTS'
+                . " {$essence}_{$stripped}_ix;";
+            $indexes[] = "CREATE INDEX {$essence}_{$stripped}_ix"
+                . " on {$this->name()} (\"{$attribute}\");";
         }
 
         $selectPhase = implode(",", $columns);
@@ -109,6 +116,9 @@ WHERE
             $ddl = "CREATE MATERIALIZED VIEW $name AS $contentRequest";
             $affected = $linkToData->exec($ddl);
             $result = $affected !== false;
+
+            $ddl = implode('', $indexes);
+            $affected = $linkToData->exec($ddl);
         }
 
         return $result;
