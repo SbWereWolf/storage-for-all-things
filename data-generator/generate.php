@@ -1,4 +1,9 @@
 <?php
+/*
+ * storage-for-all-things
+ * Copyright © 2021 Volkhin Nikolay
+ * 20.11.2021, 13:45
+ */
 
 declare(strict_types=1);
 
@@ -58,9 +63,11 @@ const MAX = 99;
 const LOW = 15;
 const HIGH = 84;
 
+/* количество характеристик */
 const POOR = 5;
 const RICH = 40;
 
+/* количество моделей */
 const FEW = 3;
 const MANY = 24;
 

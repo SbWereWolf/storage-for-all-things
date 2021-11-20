@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * 20.11.2021, 13:45
  */
 
 namespace AllThings\DataAccess;
@@ -11,7 +11,7 @@ namespace AllThings\DataAccess;
 interface Retrievable
 {
     /**
-     * Получит данные
+     * Получить данные
      * @return mixed
      */
     public function retrieveData();
