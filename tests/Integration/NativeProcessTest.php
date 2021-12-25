@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:46
+ * 26.12.2021, 0:29
  */
 
 namespace Integration;
@@ -15,6 +15,7 @@ use AllThings\Blueprint\Specification\SpecificationManager;
 use AllThings\Catalog\CatalogManager;
 use AllThings\Content\ContentManager;
 use AllThings\DataAccess\Crossover\Crossover;
+use AllThings\DataAccess\Crossover\CrossoverTable;
 use AllThings\DataAccess\Crossover\ICrossover;
 use AllThings\DataAccess\Nameable\NamedEntity;
 use AllThings\DataAccess\Nameable\NamedEntityManager;
@@ -372,7 +373,13 @@ class NativeProcessTest extends TestCase
     {
         $content = (new Crossover())->setLeftValue($thing)
             ->setRightValue($attribute);
-        $handler = new ContentManager($content, $linkToData);
+
+        $contentTable = new CrossoverTable(
+            'content',
+            'thing_id',
+            'attribute_id'
+        );
+        $handler = new ContentManager($content, $linkToData, $contentTable);
 
         $isSuccess = $handler->attach();
         $this->assertTrue(
@@ -510,8 +517,14 @@ class NativeProcessTest extends TestCase
         string $attribute,
         ICrossover $value,
         PDO $linkToData
-    ): void {
-        $handler = new ContentManager($value, $linkToData);
+    ): void
+    {
+        $contentTable = new CrossoverTable(
+            'content',
+            'thing_id',
+            'attribute_id'
+        );
+        $handler = new ContentManager($value, $linkToData, $contentTable);
         $isSuccess = $handler->store($value);
         $this->assertTrue(
             $isSuccess,
@@ -734,42 +747,36 @@ class NativeProcessTest extends TestCase
             $essence, $linkToData
         );
         $seeker = new Seeker($source);
-        $this->checkFilters($seeker, $essence);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $filters = $seeker->filters();
+
+        $this->checkFilters($filters, $essence);
     }
 
     /**
-     * @param Seeker $seeker
+     * @param array $data
      * @param string $essence
      */
     private function checkFilters(
-        Seeker $seeker,
+        array $data,
         string $essence
-    ): void
-    {
-        $data = $seeker->filters();
-
-        $this->assertTrue(
-            count($data) === 2,
-            "Filters of essence `$essence`"
-            . ' must have two types'
-        );
-        $this->assertArrayHasKey(
-            'continuous', $data,
-            "Filters of essence `$essence`"
-            . ' must have type continuous'
-        );
-        $this->assertArrayHasKey(
-            'discrete', $data,
-            "Filters of essence `$essence`"
-            . ' must have type discrete'
-        );
-
-        $filtersValue = 'a:2:{s:10:"continuous";a:4:{s:9:"max@price";'
-            . 's:4:"9.50";s:9:"min@price";s:5:"15.50";'
-            . 's:19:"max@production-date";s:13:"20180429T1356";'
-            . 's:19:"min@production-date";s:8:"20180427";}'
-            . 's:8:"discrete";a:1:{s:19:"place-of-production";'
-            . 'a:2:{i:0;s:24:"Екатеринбург";i:1;s:18:"Челябинск";}}}';
+    ): void {
+        $filtersValue = 'a:3:{i:0;O:37:' .
+            '"AllThings\SearchEngine\DiscreteFilter":2:{s:45:" Al' .
+            'lThings\SearchEngine\DiscreteFilter values";a:2:{i:0' .
+            ';s:24:"Екатеринбург";i:1;s:18:"Челябинск";}s:40:" Al' .
+            'lThings\SearchEngine\Filter attribute";s:19:"place-o' .
+            'f-production";}i:1;O:39:"AllThings\SearchEngine\Contin' .
+            'uousFilter":3:{s:44:" AllThings\SearchEngine\Continu' .
+            'ousFilter min";s:4:"9.50";s:44:" AllThings\SearchE' .
+            'ngine\ContinuousFilter max";s:5:"15.50";s:40:" All' .
+            'Things\SearchEngine\Filter attribute";s:5:"price";}i' .
+            ':2;O:39:"AllThings\SearchEngine\ContinuousFilter":3:{s' .
+            ':44:" AllThings\SearchEngine\ContinuousFilter min"' .
+            ';s:13:"20180429T1356";s:44:" AllThings\SearchEngine' .
+            '\ContinuousFilter max";s:8:"20180427";s:40:" AllTh' .
+            'ings\SearchEngine\Filter attribute";s:15:"production' .
+            '-date";}}';
         $this->assertTrue(
             serialize($data) === $filtersValue,
             "Filters of essence `$essence` must have proper value"
@@ -871,7 +878,10 @@ class NativeProcessTest extends TestCase
 
         $source = new RapidObtainment($essence, $linkToData);
         $seeker = new Seeker($source);
-        $this->checkFilters($seeker, $essence);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $filters = $seeker->filters();
+
+        $this->checkFilters($filters, $essence);
     }
 
     /**
@@ -945,7 +955,10 @@ class NativeProcessTest extends TestCase
 
         $source = new RapidRecording($essence, $linkToData);
         $seeker = new Seeker($source);
-        $this->checkFilters($seeker, $essence);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $filters = $seeker->filters();
+
+        $this->checkFilters($filters, $essence);
     }
 
     /**
