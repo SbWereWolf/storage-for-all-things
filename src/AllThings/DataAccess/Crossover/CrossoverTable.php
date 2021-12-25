@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * 26.12.2021, 1:56
  */
 
 namespace AllThings\DataAccess\Crossover;
@@ -14,8 +14,11 @@ class CrossoverTable implements ICrossoverTable
     private $leftColumn = '';
     private $rightColumn = '';
 
-    public function __construct(string $tableName, string $leftColumn, string $rightColumn)
-    {
+    public function __construct(
+        string $tableName,
+        string $leftColumn,
+        string $rightColumn
+    ) {
         $this->tableName = $tableName;
         $this->leftColumn = $leftColumn;
         $this->rightColumn = $rightColumn;
