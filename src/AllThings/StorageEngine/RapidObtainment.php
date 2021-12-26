@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 20.11.2021, 13:47
+ * 26.12.2021, 5:51
  */
 
 namespace AllThings\StorageEngine;
@@ -77,12 +77,17 @@ class RapidObtainment implements Installation
         $columns = [];
         $indexes = [];
         foreach ($attributes as $attribute) {
+            $table = SpecificationManager::getLocation(
+                $attribute,
+                $this->linkToData
+            );
+
             $column = "
 SELECT
     C.content
 FROM
     attribute A
-    JOIN content C
+    JOIN $table C
     ON C.attribute_id = A.id
 WHERE
         A.code = '$attribute'

@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * 26.12.2021, 5:51
  */
 
 namespace AllThings\Blueprint\Attribute;
@@ -15,5 +15,9 @@ interface IAttributeManager extends DataManager, Retrievable
 {
 
     public function retrieveData(): IAttribute;
+
+    public function getLocation(): string;
+
+    public function getFormat(): string;
 
 }

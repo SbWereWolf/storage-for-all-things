@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:46
+ * 26.12.2021, 5:51
  */
 
 namespace AllThings\SearchEngine;
@@ -67,19 +67,32 @@ class Seeker implements Searching
         $where = [];
         if ($isExists) {
             foreach ($filters as $filter) {
+                /* @var Filter $filter */
+                $attribute = $filter->getAttribute();
+                $format = SpecificationManager::getFormat(
+                    $attribute,
+                    $this
+                        ->getSource()
+                        ->getLinkToData()
+                );
+
+
                 if ($filter instanceof ContinuousFilter) {
-                    $attribute = $filter->getAttribute();
                     $min = $filter->getMin();
                     $max = $filter->getMax();
                     $condition =
-                        "(\"$attribute\" between '$min' and '$max')";
+                        "(\"$attribute\" between " .
+                        "'$min'::$format and '$max'::$format)";
                     $where[] = $condition;
                 }
 
                 if ($filter instanceof DiscreteFilter) {
-                    $attribute = $filter->getAttribute();
-                    $condition = implode("','", $filter->getValues());
-                    $condition = "\"$attribute\" IN ('$condition')";
+                    $condition = implode(
+                        "'::$format,'",
+                        $filter->getValues()
+                    );
+                    $condition = "\"$attribute\" " .
+                        "IN ('$condition'::$format)";
                     $where[] = $condition;
                 }
             }

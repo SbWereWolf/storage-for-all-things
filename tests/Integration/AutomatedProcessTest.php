@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:46
+ * 26.12.2021, 5:51
  */
 
 namespace Integration;
@@ -91,17 +91,17 @@ class AutomatedProcessTest extends TestCase
         $codes = [
             'price' => [
                 'Title' => 'цена, руб.',
-                'DataType' => 'decimal',
+                'DataType' => 'number',
                 'RangeType' => 'continuous',
             ],
             'production-date' => [
                 'Title' => 'дата выработки',
-                'DataType' => 'timestamp',
+                'DataType' => 'time',
                 'RangeType' => 'continuous',
             ],
             'place-of-production' => [
                 'Title' => 'Место производства',
-                'DataType' => 'symbols',
+                'DataType' => 'word',
                 'RangeType' => 'discrete',
             ],
         ];
@@ -307,10 +307,10 @@ class AutomatedProcessTest extends TestCase
                     $isProper = true;
                     /** @noinspection PhpConditionAlreadyCheckedInspection */
                     $isProper = $isProper
-                        && $thing[$context['price']] === '15.50';
+                        && $thing[$context['price']] === '15.5000';
                     $isProper = $isProper
                         && $thing[$context['production-date']]
-                        === '20180429T1356';
+                        === '2018-04-29 13:56:00+00';
                     $isProper = $isProper
                         && $thing[$context['place-of-production']]
                         === 'Екатеринбург';
@@ -331,10 +331,10 @@ class AutomatedProcessTest extends TestCase
                     $isProper = true;
                     /** @noinspection PhpConditionAlreadyCheckedInspection */
                     $isProper = $isProper
-                        && $thing[$context['price']] === '9.50';
+                        && $thing[$context['price']] === '9.5000';
                     $isProper = $isProper
                         && $thing[$context['production-date']]
-                        === '20180427';
+                        === '2018-04-27 00:00:00+00';
                     $isProper = $isProper
                         && $thing[$context['place-of-production']]
                         === 'Екатеринбург';
@@ -355,10 +355,10 @@ class AutomatedProcessTest extends TestCase
                     $isProper = true;
                     /** @noinspection PhpConditionAlreadyCheckedInspection */
                     $isProper = $isProper
-                        && $thing[$context['price']] === '4.50';
+                        && $thing[$context['price']] === '4.5000';
                     $isProper = $isProper
                         && $thing[$context['production-date']]
-                        === '20180429';
+                        === '2018-04-29 00:00:00+00';
                     $isProper = $isProper
                         && $thing[$context['place-of-production']]
                         === 'Челябинск';
@@ -379,10 +379,10 @@ class AutomatedProcessTest extends TestCase
                     $isProper = true;
                     /** @noinspection PhpConditionAlreadyCheckedInspection */
                     $isProper = $isProper
-                        && $thing[$context['price']] === '11.11';
+                        && $thing[$context['price']] === '11.1100';
                     $isProper = $isProper
                         && $thing[$context['production-date']]
-                        === '20210531T0306';
+                        === '2021-05-31 03:06:00+00';
                     $isProper = $isProper
                         && $thing[$context['place-of-production']]
                         === 'Екатеринбург';
@@ -441,27 +441,22 @@ class AutomatedProcessTest extends TestCase
         array $data,
         string $essence
     ): void {
-
-        $filtersValue = 'a:3:{i:0;O:37:'
-            . '"AllThings\SearchEngine\DiscreteFilter":2:{s:45:'
-            . '" AllThings\SearchEngine\DiscreteFilter values";'
-            . 'a:2:{i:0;s:24:"Екатеринбург";i:1;s:18:"Челябинск";}'
-            . 's:40:" AllThings\SearchEngine\Filter attribute";'
-            . 's:19:"place-of-production";}i:1;O:39:'
-            . '"AllThings\SearchEngine\ContinuousFilter":3:{s:44:'
-            . '" AllThings\SearchEngine\ContinuousFilter min";'
-            . 's:4:"9.50";s:44:'
-            . '" AllThings\SearchEngine\ContinuousFilter max";'
-            . 's:5:"15.50";s:40:'
-            . '" AllThings\SearchEngine\Filter attribute";s:5:'
-            . '"price";}i:2;O:39:'
-            . '"AllThings\SearchEngine\ContinuousFilter":3:{s:44:'
-            . '" AllThings\SearchEngine\ContinuousFilter min";'
-            . 's:13:"20180429T1356";s:44:'
-            . '" AllThings\SearchEngine\ContinuousFilter max";'
-            . 's:8:"20180427";s:40:'
-            . '" AllThings\SearchEngine\Filter attribute";s:15:'
-            . '"production-date";}}';
+        $filtersValue = 'a:3:{i:0;O:37:"AllThings\SearchEngine\Disc' .
+            'reteFilter":2:{s:45:" AllThings\SearchEngine\Discret' .
+            'eFilter values";a:2:{i:0;s:24:"Екатеринбург";i:1;s:1' .
+            '8:"Челябинск";}s:40:" AllThings\SearchEngine\Filter' .
+            ' attribute";s:19:"place-of-production";}i:1;O:39:"Al' .
+            'lThings\SearchEngine\ContinuousFilter":3:{s:44:" All' .
+            'Things\SearchEngine\ContinuousFilter min";s:6:"4.500' .
+            '0";s:44:" AllThings\SearchEngine\ContinuousFilter ' .
+            'max";s:7:"15.5000";s:40:" AllThings\SearchEngine\Fil' .
+            'ter attribute";s:5:"price";}i:2;O:39:"AllThings\Sear' .
+            'chEngine\ContinuousFilter":3:{s:44:" AllThings\Searc' .
+            'hEngine\ContinuousFilter min";s:22:"2018-04-27 00:00' .
+            ':00+00";s:44:" AllThings\SearchEngine\ContinuousFilt' .
+            'er max";s:22:"2018-04-29 13:56:00+00";s:40:" AllTh' .
+            'ings\SearchEngine\Filter attribute";s:15:"production' .
+            '-date";}}';
         $this->assertTrue(
             serialize($data) === $filtersValue,
             "Filters of essence `$essence` must have proper value"
@@ -481,7 +476,7 @@ class AutomatedProcessTest extends TestCase
         /* ## ## S002A4S04 сделать выборку экземпляров по заданным
         условиям поиска (поиск в представлении) */
         $continuous = new ContinuousFilter(
-            $context['price'], '15.50', '4.50'
+            $context['price'], '4.50', '15.50'
         );
         $discrete = new DiscreteFilter(
             $context['place-of-production'], ['Челябинск']
@@ -569,7 +564,7 @@ class AutomatedProcessTest extends TestCase
         /* ## ## S002A4S04 сделать выборку экземпляров по заданным
         условиям поиска (поиск в представлении) */
         $continuous = new ContinuousFilter(
-            $context['price'], '15.50', '4.50'
+            $context['price'], '4.50', '15.50'
         );
         $discrete = new DiscreteFilter(
             $context['place-of-production'], ['Челябинск']
@@ -652,7 +647,7 @@ class AutomatedProcessTest extends TestCase
         /* ## ## S002A4S04 сделать выборку экземпляров по заданным
         условиям поиска (поиск в представлении) */
         $continuous = new ContinuousFilter(
-            $context['price'], '15.50', '4.50'
+            $context['price'], '4.50', '15.50'
         );
         $discrete = new DiscreteFilter(
             $context['place-of-production'], ['Челябинск']
@@ -785,7 +780,7 @@ class AutomatedProcessTest extends TestCase
         $codes = [
             'package' => [
                 'Title' => 'Упаковка',
-                'DataType' => 'symbols',
+                'DataType' => 'word',
                 'RangeType' => 'discrete',
             ],
         ];

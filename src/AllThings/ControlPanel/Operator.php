@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:46
+ * 26.12.2021, 5:51
  */
 
 namespace AllThings\ControlPanel;
@@ -18,6 +18,7 @@ use AllThings\Blueprint\Specification\SpecificationManager;
 use AllThings\Catalog\CatalogManager;
 use AllThings\Content\ContentManager;
 use AllThings\DataAccess\Crossover\Crossover;
+use AllThings\DataAccess\Crossover\CrossoverTable;
 use AllThings\DataAccess\Nameable\Nameable;
 use AllThings\DataAccess\Nameable\NamedEntity;
 use AllThings\DataAccess\Nameable\NamedEntityManager;
@@ -191,12 +192,29 @@ class Operator
             $content = (new Crossover())
                 ->setLeftValue($code)
                 ->setRightValue($attribute);
-            $handler = new ContentManager($content, $this->db);
+
+            $table = SpecificationManager::getLocation(
+                $attribute,
+                $this->db
+            );
+
+            $contentTable = new CrossoverTable(
+                $table,
+                'thing_id',
+                'attribute_id'
+            );
+            $handler = new ContentManager(
+                $content,
+                $this->db,
+                $contentTable,
+            );
 
             $isSuccess = $handler->attach();
             if (!$isSuccess) {
-                throw new Exception("Attribute must be defined"
-                    . " for thing with success");
+                throw new Exception(
+                    "Attribute must be defined"
+                    . " for thing with success"
+                );
             }
         }
 
@@ -230,12 +248,24 @@ class Operator
             ->setRightValue($attribute)
             ->setContent($content);
 
-        $handler = new ContentManager($value, $this->db);
+        $table = SpecificationManager::getLocation(
+            $attribute,
+            $this->db
+        );
+
+        $contentTable = new CrossoverTable(
+            $table,
+            'thing_id',
+            'attribute_id'
+        );
+        $handler = new ContentManager($value, $this->db, $contentTable);
 
         $isSuccess = $handler->store($value);
         if (!$isSuccess) {
-            throw new Exception('Attribute of thing'
-                . ' must be defined with success');
+            throw new Exception(
+                'Attribute of thing'
+                . ' must be defined with success'
+            );
         }
     }
 
@@ -250,19 +280,33 @@ class Operator
         $content = (new Crossover())
             ->setLeftValue($thing)
             ->setRightValue($attribute);
-        $manager = new ContentManager($content, $this->db);
+        $table = SpecificationManager::getLocation(
+            $attribute,
+            $this->db,
+        );
+
+        $contentTable = new CrossoverTable(
+            $table,
+            'thing_id',
+            'attribute_id'
+        );
+        $manager = new ContentManager($content, $this->db, $contentTable);
 
         $isSuccess = $manager->attach();
         if (!$isSuccess) {
-            throw new Exception("Attribute must be defined"
-                . " for thing with success");
+            throw new Exception(
+                'Attribute must be defined'
+                . ' for thing with success'
+            );
         }
 
         $content->setContent($value);
         $isSuccess = $manager->store($content);
         if (!$isSuccess) {
-            throw new Exception("Content must be assign"
-                . " with success");
+            throw new Exception(
+                'Content must be assign'
+                . ' with success'
+            );
         }
 
         return $this;

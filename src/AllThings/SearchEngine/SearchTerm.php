@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * 26.12.2021, 5:51
  */
 
 
@@ -40,7 +40,7 @@ class SearchTerm implements Searchable
         if (!$isAcceptable) {
             throw new Exception('Data type'
                 . ' MUST be one of :'
-                . ' symbols | decimal | timestamp'
+                . ' word | number | time | interval'
                 . ", `$value` given");
         }
 

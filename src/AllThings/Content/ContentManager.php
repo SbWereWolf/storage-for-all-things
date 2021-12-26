@@ -2,18 +2,17 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:46
+ * 26.12.2021, 5:51
  */
-
 
 namespace AllThings\Content;
 
 
 use AllThings\DataAccess\Crossover\CrossoverHandler;
 use AllThings\DataAccess\Crossover\CrossoverManager;
-use AllThings\DataAccess\Crossover\CrossoverTable;
 use AllThings\DataAccess\Crossover\ForeignKey;
 use AllThings\DataAccess\Crossover\ICrossover;
+use AllThings\DataAccess\Crossover\ICrossoverTable;
 use AllThings\DataAccess\Retrievable;
 use PDO;
 
@@ -22,10 +21,15 @@ class ContentManager implements CrossoverManager, Retrievable
     private ICrossover $container;
     private PDO $dataPath;
     private CrossoverHandler $handler;
+    private ICrossoverTable $storage;
 
-    public function __construct(ICrossover $container, PDO $dataPath)
-    {
+    public function __construct(
+        ICrossover $container,
+        PDO $dataPath,
+        ICrossoverTable $storage
+    ) {
         $this->container = $container->getCrossoverCopy();
+        $this->storage = $storage;
         $this->dataPath = $dataPath;
 
         $thingKey = new ForeignKey(
@@ -38,21 +42,15 @@ class ContentManager implements CrossoverManager, Retrievable
             'id',
             'code'
         );
-        $contentTable = new CrossoverTable(
-            'content',
-            'thing_id',
-            'attribute_id'
-        );
 
         $this->handler = new CrossoverHandler(
             $this->container,
             $thingKey,
             $attributeKey,
-            $contentTable,
+            $this->storage,
             $this->dataPath
         );
     }
-
 
     public function attach(): bool
     {

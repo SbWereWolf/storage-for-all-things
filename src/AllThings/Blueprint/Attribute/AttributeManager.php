@@ -2,12 +2,14 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * 26.12.2021, 5:51
  */
 
 namespace AllThings\Blueprint\Attribute;
 
 
+use AllThings\SearchEngine\Searchable;
+use Exception;
 use PDO;
 
 class AttributeManager implements IAttributeManager
@@ -99,5 +101,58 @@ class AttributeManager implements IAttributeManager
     public function has(): bool
     {
         return !is_null($this->subject);
+    }
+
+    public function getLocation(): string
+    {
+        $dataType = $this->getDataType();
+
+        $isAcceptable = in_array(
+            $dataType,
+            array_keys(Searchable::DATA_LOCATION),
+            true
+        );
+        if (!$isAcceptable) {
+            throw new Exception(
+                'Data location'
+                . " for `$dataType` is not defined"
+            );
+        }
+
+        $table = Searchable::DATA_LOCATION[$dataType];
+
+        return $table;
+    }
+
+    public function getFormat(): string
+    {
+        $dataType = $this->getDataType();
+
+        $isAcceptable = in_array(
+            $dataType,
+            array_keys(Searchable::DATA_FORMAT),
+            true
+        );
+        if (!$isAcceptable) {
+            throw new Exception(
+                'Format for type'
+                . " `$dataType` is not defined"
+            );
+        }
+
+        $table = Searchable::DATA_FORMAT[$dataType];
+
+        return $table;
+    }
+
+    /**
+     * @return string
+     */
+    private function getDataType(): string
+    {
+        $this->browse();
+        $dataType = $this->retrieveData()->getDataType();
+
+        return $dataType;
     }
 }

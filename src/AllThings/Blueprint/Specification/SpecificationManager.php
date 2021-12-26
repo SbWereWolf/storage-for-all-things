@@ -2,13 +2,16 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:46
+ * 26.12.2021, 5:51
  */
 
 
 namespace AllThings\Blueprint\Specification;
 
 
+use AllThings\Blueprint\Attribute\Attribute;
+use AllThings\Blueprint\Attribute\AttributeManager;
+use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\DataAccess\Crossover\ForeignKey;
 use AllThings\DataAccess\Crossover\ICrossover;
 use AllThings\DataAccess\Crossover\LinkageManager;
@@ -29,6 +32,17 @@ class SpecificationManager implements LinkageManager, Retrievable
             $essenceForeignKey,
             $attributeForeignKey
         );
+    }
+
+    /**
+     * @param string $attribute
+     * @return IAttribute
+     */
+    private static function getDefault(string $attribute): IAttribute
+    {
+        $default = Attribute::GetDefaultAttribute();
+        $default->setCode($attribute);
+        return $default;
     }
 
     public function linkUp(ICrossover $linkage): bool
@@ -79,5 +93,27 @@ class SpecificationManager implements LinkageManager, Retrievable
     public function has(): bool
     {
         return !is_null($this->dataSet);
+    }
+
+    public static function getLocation(
+        string $attribute,
+        PDO $dataPath
+    ) {
+        $default = self::getDefault($attribute);
+        $table = (new AttributeManager($default, $dataPath))
+            ->getLocation();
+
+        return $table;
+    }
+
+    public static function getFormat(
+        string $attribute,
+        PDO $dataPath
+    ) {
+        $default = self::getDefault($attribute);
+        $table = (new AttributeManager($default, $dataPath))
+            ->getFormat();
+
+        return $table;
     }
 }

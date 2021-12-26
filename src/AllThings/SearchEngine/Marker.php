@@ -1,7 +1,13 @@
 <?php
+/*
+ * storage-for-all-things
+ * Copyright © 2021 Volkhin Nikolay
+ * 26.12.2021, 5:51
+ */
 
 namespace AllThings\SearchEngine;
 
+use AllThings\Blueprint\Specification\SpecificationManager;
 use AllThings\StorageEngine\Installation;
 use PDO;
 
@@ -41,12 +47,21 @@ class Marker
             $max = "max@$attribute";
             $min = "min@$attribute";
             $filters[$attribute] = ['max' => $max, 'min' => $min];
+
+            $table = SpecificationManager::getLocation(
+                $attribute,
+                $this
+                    ->getSource()
+                    ->getLinkToData()
+            );
+
+
             $column = "
 SELECT max(C.content)
 FROM essence E
         JOIN essence_thing ET
              ON E.id = ET.essence_id
-        JOIN content C
+        JOIN $table C
              ON ET.thing_id = C.thing_id
         JOIN attribute A
              ON C.attribute_id = A.id
@@ -60,7 +75,7 @@ SELECT min(C.content)
 FROM essence E
         JOIN essence_thing ET
              ON E.id = ET.essence_id
-        JOIN content C
+        JOIN $table C
              ON ET.thing_id = C.thing_id
         JOIN attribute A
              ON C.attribute_id = A.id
@@ -100,7 +115,7 @@ where EE.code = '$essence';
                 }
             }
 
-            $filter = new ContinuousFilter($attribute, $max, $min);
+            $filter = new ContinuousFilter($attribute, $min, $max);
             $confines[] = $filter;
         }
 
@@ -114,9 +129,8 @@ where EE.code = '$essence';
      */
     private function getSpecificParams(
         string $rangeType,
-        array  $parameters
-    ): array
-    {
+        array $parameters
+    ): array {
         $match = '';
         $isSuccess = count($parameters) !== 0;
         if ($isSuccess) {
@@ -184,13 +198,20 @@ ORDER BY code
         $essence = $this->getSource()->getEssence();
         $discrete = [];
         foreach ($params as $attribute) {
+            $table = SpecificationManager::getLocation(
+                $attribute,
+                $this
+                    ->getSource()
+                    ->getLinkToData()
+            );
+
             $column = "
 SELECT
     DISTINCT C.content
 FROM essence E
         JOIN essence_thing ET
              ON E.id = ET.essence_id
-        JOIN content C
+        JOIN $table C
              ON ET.thing_id = C.thing_id
         JOIN attribute A
              ON C.attribute_id = A.id

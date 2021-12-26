@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 20.11.2021, 13:47
+ * 26.12.2021, 5:51
  */
 
 namespace AllThings\StorageEngine;
@@ -14,7 +14,10 @@ use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Specification\SpecificationManager;
 use AllThings\Content\ContentManager;
 use AllThings\DataAccess\Crossover\Crossover;
+use AllThings\DataAccess\Crossover\CrossoverTable;
 use AllThings\DataAccess\Crossover\ICrossover;
+use AllThings\SearchEngine\Searchable;
+use Exception;
 use PDO;
 
 class RapidRecording implements Installation
@@ -116,22 +119,32 @@ class RapidRecording implements Installation
         foreach ($attributes as $attribute) {
             /* @var IAttribute $attribute */
 
-            $datatype = 'VARCHAR(255)';
-            /*
-                        switch ($attribute->getDataType()) {
-                            case Searchable::DECIMAL:
-                                $datatype = 'NUMERIC(24,12)';
-                                break;
-                            case Searchable::TIMESTAMP:
-                                $datatype = 'TIMESTAMP';
-                                break;
-                        }
-            */
+            $dataType = $attribute->getDataType();
+            switch ($dataType) {
+                case Searchable::SYMBOLS:
+                    $sqlType = 'VARCHAR(255)';
+                    break;
+                case Searchable::DECIMAL:
+                    $sqlType = 'DECIMAL(14,4)';
+                    break;
+                case Searchable::TIMESTAMP:
+                    $sqlType = 'TIMESTAMP WITH TIME ZONE';
+                    break;
+                case Searchable::INTERVAL:
+                    $sqlType = 'INTERVAL';
+                    break;
+                default:
+
+                    throw new Exception(
+                        'SQL data type for'
+                        . " `$dataType` is not defined"
+                    );
+            }
 
             $code = $attribute->getCode();
             $name = "\"{$code}\"";
 
-            $columns[] = "$name $datatype";
+            $columns[] = "$name $sqlType";
             $columnNames[] = $name;
 
             $stripped = str_replace(static::SEPARATORS, '', $code);
@@ -268,7 +281,18 @@ WHERE t.thing_id IS NULL
         }
 
         if ($value) {
-            $handler = new ContentManager($value, $linkToData);
+            $attribute = $value->getRightValue();
+            $table = SpecificationManager::getLocation(
+                $attribute,
+                $this->linkToData,
+            );
+
+            $contentTable = new CrossoverTable(
+                $table,
+                'thing_id',
+                'attribute_id'
+            );
+            $handler = new ContentManager($value, $linkToData, $contentTable);
             $handler->store($value);
 
             $dml = "
