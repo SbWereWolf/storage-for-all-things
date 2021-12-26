@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 26.12.2021, 0:29
+ * 26.12.2021, 6:19
  */
 
 namespace Integration;
@@ -151,19 +151,19 @@ class NativeProcessTest extends TestCase
         $attribute->setCode($code);
         switch ($code) {
             case 'price':
-                $attribute->setDataType('decimal');
+                $attribute->setDataType('number');
                 $attribute->setRangeType('continuous');
                 break;
             case 'production-date':
-                $attribute->setDataType('timestamp');
+                $attribute->setDataType('time');
                 $attribute->setRangeType('continuous');
                 break;
             case 'place-of-production':
-                $attribute->setDataType('symbols');
+                $attribute->setDataType('word');
                 $attribute->setRangeType('discrete');
                 break;
             case 'package':
-                $attribute->setDataType('symbols');
+                $attribute->setDataType('word');
                 $attribute->setRangeType('discrete');
                 break;
         }
@@ -196,17 +196,17 @@ class NativeProcessTest extends TestCase
         $codes = [
             $context['price'] => [
                 'Title' => 'цена, руб.',
-                'DataType' => 'decimal',
+                'DataType' => 'number',
                 'RangeType' => 'continuous',
             ],
             $context['production-date'] => [
                 'Title' => 'дата выработки',
-                'DataType' => 'timestamp',
+                'DataType' => 'time',
                 'RangeType' => 'continuous',
             ],
             $context['place-of-production'] => [
                 'Title' => 'Место производства',
-                'DataType' => 'symbols',
+                'DataType' => 'word',
                 'RangeType' => 'discrete',
             ],
         ];
@@ -374,8 +374,12 @@ class NativeProcessTest extends TestCase
         $content = (new Crossover())->setLeftValue($thing)
             ->setRightValue($attribute);
 
+        $table = SpecificationManager::getLocation(
+            $attribute,
+            $linkToData
+        );
         $contentTable = new CrossoverTable(
-            'content',
+            $table,
             'thing_id',
             'attribute_id'
         );
@@ -519,8 +523,13 @@ class NativeProcessTest extends TestCase
         PDO $linkToData
     ): void
     {
+        $table = SpecificationManager::getLocation(
+            $attribute,
+            $linkToData
+        );
+
         $contentTable = new CrossoverTable(
-            'content',
+            $table,
             'thing_id',
             'attribute_id'
         );
@@ -585,27 +594,25 @@ class NativeProcessTest extends TestCase
             $essence, $linkToData
         );
         $seeker = new Seeker($source);
-        $this->checkShowAll($context, $seeker, $essence);
+        $data = $seeker->data();
+        $this->checkShowAll($context, $data);
     }
 
     /**
      * @param array $context
-     * @param Seeker $seeker
-     * @param string $essence
+     * @param array $data
      * @param bool $withAdditional
      * @param bool $withExtended
      * @param bool $withChanges
      */
     private function checkShowAll(
         array $context,
-        Seeker $seeker,
-        string $essence,
+        array $data,
         bool $withAdditional = false,
         bool $withExtended = false,
         bool $withChanges = false
     ): void {
-        $data = $seeker->data();
-
+        $essence = $context['essence'];
         $properNumbers = 3;
         if ($withAdditional) {
             $properNumbers = 4;
@@ -623,11 +630,12 @@ class NativeProcessTest extends TestCase
             switch ($code) {
                 case $context['bun-with-jam']:
                     $isProper = true;
+                    /** @noinspection PhpConditionAlreadyCheckedInspection */
                     $isProper = $isProper
-                        && $thing[$context['price']] === '15.50';
+                        && $thing[$context['price']] === '15.5000';
                     $isProper = $isProper
                         && $thing[$context['production-date']]
-                        === '20180429T1356';
+                        === '2018-04-29 13:56:00+00';
                     $isProper = $isProper
                         && $thing[$context['place-of-production']]
                         === 'Екатеринбург';
@@ -646,11 +654,12 @@ class NativeProcessTest extends TestCase
                     break;
                 case $context['bun-with-raisins']:
                     $isProper = true;
+                    /** @noinspection PhpConditionAlreadyCheckedInspection */
                     $isProper = $isProper
-                        && $thing[$context['price']] === '9.50';
+                        && $thing[$context['price']] === '9.5000';
                     $isProper = $isProper
                         && $thing[$context['production-date']]
-                        === '20180427';
+                        === '2018-04-27 00:00:00+00';
                     $isProper = $isProper
                         && $thing[$context['place-of-production']]
                         === 'Екатеринбург';
@@ -669,11 +678,12 @@ class NativeProcessTest extends TestCase
                     break;
                 case $context['cinnamon-bun']:
                     $isProper = true;
+                    /** @noinspection PhpConditionAlreadyCheckedInspection */
                     $isProper = $isProper
-                        && $thing[$context['price']] === '4.50';
+                        && $thing[$context['price']] === '4.5000';
                     $isProper = $isProper
                         && $thing[$context['production-date']]
-                        === '20180429';
+                        === '2018-04-29 00:00:00+00';
                     $isProper = $isProper
                         && $thing[$context['place-of-production']]
                         === 'Челябинск';
@@ -692,11 +702,12 @@ class NativeProcessTest extends TestCase
                     break;
                 case $context['new-thing']:
                     $isProper = true;
+                    /** @noinspection PhpConditionAlreadyCheckedInspection */
                     $isProper = $isProper
-                        && $thing[$context['price']] === '11.11';
+                        && $thing[$context['price']] === '11.1100';
                     $isProper = $isProper
                         && $thing[$context['production-date']]
-                        === '20210531T0306';
+                        === '2021-05-31 03:06:00+00';
                     $isProper = $isProper
                         && $thing[$context['place-of-production']]
                         === 'Екатеринбург';
@@ -720,8 +731,8 @@ class NativeProcessTest extends TestCase
             }
         }
 
-        $isEnough = ($thingTested === $properNumbers && !$withAdditional)
-            || ($thingTested === $properNumbers && $withAdditional);
+        $isEnough = ($thingTested === 3 && !$withAdditional)
+            || ($thingTested === 4 && $withAdditional);
         $this->assertTrue(
             $isEnough,
             "Each thing of essence `$essence`"
@@ -760,21 +771,22 @@ class NativeProcessTest extends TestCase
     private function checkFilters(
         array $data,
         string $essence
-    ): void {
-        $filtersValue = 'a:3:{i:0;O:37:' .
-            '"AllThings\SearchEngine\DiscreteFilter":2:{s:45:" Al' .
-            'lThings\SearchEngine\DiscreteFilter values";a:2:{i:0' .
-            ';s:24:"Екатеринбург";i:1;s:18:"Челябинск";}s:40:" Al' .
-            'lThings\SearchEngine\Filter attribute";s:19:"place-o' .
-            'f-production";}i:1;O:39:"AllThings\SearchEngine\Contin' .
-            'uousFilter":3:{s:44:" AllThings\SearchEngine\Continu' .
-            'ousFilter min";s:4:"9.50";s:44:" AllThings\SearchE' .
-            'ngine\ContinuousFilter max";s:5:"15.50";s:40:" All' .
-            'Things\SearchEngine\Filter attribute";s:5:"price";}i' .
-            ':2;O:39:"AllThings\SearchEngine\ContinuousFilter":3:{s' .
-            ':44:" AllThings\SearchEngine\ContinuousFilter min"' .
-            ';s:13:"20180429T1356";s:44:" AllThings\SearchEngine' .
-            '\ContinuousFilter max";s:8:"20180427";s:40:" AllTh' .
+    ): void
+    {
+        $filtersValue = 'a:3:{i:0;O:37:"AllThings\SearchEngine\Disc' .
+            'reteFilter":2:{s:45:" AllThings\SearchEngine\Discret' .
+            'eFilter values";a:2:{i:0;s:24:"Екатеринбург";i:1;s:1' .
+            '8:"Челябинск";}s:40:" AllThings\SearchEngine\Filter' .
+            ' attribute";s:19:"place-of-production";}i:1;O:39:"Al' .
+            'lThings\SearchEngine\ContinuousFilter":3:{s:44:" All' .
+            'Things\SearchEngine\ContinuousFilter min";s:6:"4.500' .
+            '0";s:44:" AllThings\SearchEngine\ContinuousFilter ' .
+            'max";s:7:"15.5000";s:40:" AllThings\SearchEngine\Fil' .
+            'ter attribute";s:5:"price";}i:2;O:39:"AllThings\Sear' .
+            'chEngine\ContinuousFilter":3:{s:44:" AllThings\Searc' .
+            'hEngine\ContinuousFilter min";s:22:"2018-04-27 00:00' .
+            ':00+00";s:44:" AllThings\SearchEngine\ContinuousFilt' .
+            'er max";s:22:"2018-04-29 13:56:00+00";s:40:" AllTh' .
             'ings\SearchEngine\Filter attribute";s:15:"production' .
             '-date";}}';
         $this->assertTrue(
@@ -811,7 +823,7 @@ class NativeProcessTest extends TestCase
     private function checkSearch(array $context, Seeker $seeker): void
     {
         $continuous = new ContinuousFilter(
-            $context['price'], '15.50', '4.50'
+            $context['price'], '4.50', '15.50'
         );
         $data = $seeker->data([$continuous]);
         $this->assertTrue(!empty($data));
@@ -859,7 +871,8 @@ class NativeProcessTest extends TestCase
 
         $source = new RapidObtainment($essence, $linkToData);
         $seeker = new Seeker($source);
-        $this->checkShowAll($context, $seeker, $essence);
+        $data = $seeker->data();
+        $this->checkShowAll($context, $data);
     }
 
     /**
@@ -936,7 +949,8 @@ class NativeProcessTest extends TestCase
 
         $source = new RapidRecording($essence, $linkToData);
         $seeker = new Seeker($source);
-        $this->checkShowAll($context, $seeker, $essence);
+        $data = $seeker->data();
+        $this->checkShowAll($context, $data);
     }
 
     /**
@@ -1049,7 +1063,8 @@ class NativeProcessTest extends TestCase
         $essence = $context['essence'];
 
         $source = new DirectReading(
-            $essence, $linkToData
+            $essence,
+            $linkToData
         );
         $isSuccess = $source->refresh();
         $this->assertTrue(
@@ -1058,7 +1073,8 @@ class NativeProcessTest extends TestCase
         );
 
         $seeker = new Seeker($source);
-        $this->checkShowAll($context, $seeker, $essence, true);
+        $data = $seeker->data();
+        $this->checkShowAll($context, $data, true);
     }
 
     /**
@@ -1080,7 +1096,8 @@ class NativeProcessTest extends TestCase
         );
 
         $seeker = new Seeker($source);
-        $this->checkShowAll($context, $seeker, $essence, true);
+        $data = $seeker->data();
+        $this->checkShowAll($context, $data, true);
     }
 
     /**
@@ -1102,7 +1119,8 @@ class NativeProcessTest extends TestCase
         );
 
         $seeker = new Seeker($source);
-        $this->checkShowAll($context, $seeker, $essence, true);
+        $data = $seeker->data();
+        $this->checkShowAll($context, $data, true);
     }
 
     /**
@@ -1141,7 +1159,7 @@ class NativeProcessTest extends TestCase
         $value = Attribute::GetDefaultAttribute();
         $value->setCode($code);
         $value->setTitle('Упаковка');
-        $value->setDataType('symbols');
+        $value->setDataType('word');
         $value->setRangeType('discrete');
         $handler = new AttributeManager(
             $value,
@@ -1220,7 +1238,8 @@ class NativeProcessTest extends TestCase
         );
 
         $seeker = new Seeker($source);
-        $this->checkShowAll($context, $seeker, $essence, true);
+        $data = $seeker->data();
+        $this->checkShowAll($context, $data, true);
     }
 
     /**
@@ -1243,7 +1262,8 @@ class NativeProcessTest extends TestCase
         );
 
         $seeker = new Seeker($source);
-        $this->checkShowAll($context, $seeker, $essence, true);
+        $data = $seeker->data();
+        $this->checkShowAll($context, $data, true);
     }
 
     /**
@@ -1265,7 +1285,8 @@ class NativeProcessTest extends TestCase
         );
 
         $seeker = new Seeker($source);
-        $this->checkShowAll($context, $seeker, $essence, true);
+        $data = $seeker->data();
+        $this->checkShowAll($context, $data, true);
     }
 
     /**
@@ -1308,14 +1329,8 @@ class NativeProcessTest extends TestCase
         );
 
         $seeker = new Seeker($source);
-        $this->checkShowAll(
-            $context,
-            $seeker,
-            $essence,
-            true,
-            true,
-            true
-        );
+        $data = $seeker->data();
+        $this->checkShowAll($context, $data, true, true, true);
     }
 
     /**
@@ -1337,14 +1352,8 @@ class NativeProcessTest extends TestCase
         );
 
         $seeker = new Seeker($source);
-        $this->checkShowAll(
-            $context,
-            $seeker,
-            $essence,
-            true,
-            true,
-            true
-        );
+        $data = $seeker->data();
+        $this->checkShowAll($context, $data, true, true, true);
     }
 
     /**
@@ -1366,14 +1375,8 @@ class NativeProcessTest extends TestCase
         );
 
         $seeker = new Seeker($source);
-        $this->checkShowAll(
-            $context,
-            $seeker,
-            $essence,
-            true,
-            true,
-            true
-        );
+        $data = $seeker->data();
+        $this->checkShowAll($context, $data, true, true, true);
     }
 
     /**
