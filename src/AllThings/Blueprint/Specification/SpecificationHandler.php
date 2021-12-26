@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:46
+ * 26.12.2021, 5:43
  */
 
 namespace AllThings\Blueprint\Specification;
@@ -89,7 +89,11 @@ class SpecificationHandler implements Linkable, Retrievable
      */
     private function getDataSource(): SpecificationSource
     {
-        $dataSource = new SpecificationSource($this->essenceForeignKey, $this->attributeForeignKey, $this->dataPath);
+        $dataSource = new SpecificationSource(
+            $this->essenceForeignKey,
+            $this->attributeForeignKey,
+            $this->dataPath
+        );
 
         return $dataSource;
     }
