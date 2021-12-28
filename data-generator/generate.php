@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 20.11.2021, 13:45
+ * 29.12.2021, 1:52
  */
 
 declare(strict_types=1);
@@ -22,33 +22,44 @@ $path = [
 $autoloader = implode(DIRECTORY_SEPARATOR, $path);
 require_once($autoloader);
 
-$attributes = file(
+$names = file(
     'adjective.txt',
     FILE_IGNORE_NEW_LINES | FILE_SKIP_EMPTY_LINES
 );
-$attributeLimit = count($attributes);
+
+const MULTIPLIER = 3;
+
+$namesNumber = count($names);
+$attributeLimit = $namesNumber * MULTIPLIER;
 $conn = (new DbConnection())->getForWrite();
 $conn->beginTransaction();
-$operator = new Operator($conn);
-foreach ($attributes as $key => $adjective) {
-    $isDiscrete = roll(0, 1) === 0;
-    if ($isDiscrete) {
-        $attribute = $operator->createKind(
-            $adjective,
-            Searchable::SYMBOLS,
-            Searchable::DISCRETE
-        );
-    }
-    if (!$isDiscrete) {
-        $attribute = $operator->createKind(
-            $adjective,
-            Searchable::DECIMAL,
-            Searchable::CONTINUOUS
-        );
-    }
 
-    $attributes[$key] = $attribute;
+$operator = new Operator($conn);
+$attributes = [];
+echo date('H:i:s') . ': Starting generating of kinds' . PHP_EOL;
+for ($cycle = 0; $cycle < MULTIPLIER; $cycle++) {
+    foreach ($names as $key => $adjective) {
+        $isDiscrete = roll(0, 1) === 0;
+        $adjective = "$adjective$cycle";
+        if ($isDiscrete) {
+            $attribute = $operator->createKind(
+                $adjective,
+                Searchable::SYMBOLS,
+                Searchable::DISCRETE
+            );
+        }
+        if (!$isDiscrete) {
+            $attribute = $operator->createKind(
+                $adjective,
+                Searchable::DECIMAL,
+                Searchable::CONTINUOUS
+            );
+        }
+
+        $attributes[$key + ($namesNumber * $cycle)] = $attribute;
+    }
 }
+echo date('H:i:s') . ': Finish generate kinds' . PHP_EOL;
 /* @var IAttribute[] $attributes */
 
 $nouns = file(
@@ -57,19 +68,19 @@ $nouns = file(
 );
 $entityLimit = count($nouns);
 
+/* границы вероятностей */
 const MIN = 0;
 const MAX = 99;
-
 const LOW = 15;
 const HIGH = 84;
 
 /* количество характеристик */
 const POOR = 5;
-const RICH = 40;
+const RICH = 140;
 
 /* количество моделей */
 const FEW = 3;
-const MANY = 24;
+const MANY = 300;
 
 /**
  * @param int $min
@@ -90,6 +101,7 @@ function roll(int $min, int $max): int
 /* @var IEssence[] $allEssences */
 $allEssences = [];
 $allKinds = [];
+echo date('H:i:s') . ': Starting generating of essences' . PHP_EOL;
 for ($i = 0; $i < $entityLimit; $i++) {
     $dice = roll(MIN, MAX);
     $numbers = roll(POOR * 2, RICH / 2);
@@ -124,7 +136,16 @@ for ($i = 0; $i < $entityLimit; $i++) {
     }
 }
 
+echo date('H:i:s') . ': Finish generate essences' . PHP_EOL;
+$conn->commit();
+
+
+echo date('H:i:s') . ': Starting generating of items' . PHP_EOL;
 foreach ($allEssences as $essence) {
+    echo date('H:i:s') .
+        ": Make items for {$essence->getCode()}" .
+        PHP_EOL;
+    $conn->beginTransaction();
 
     $dice = roll(MIN, MAX);
     $numbers = roll(FEW * 2, MANY / 2);
@@ -145,21 +166,24 @@ foreach ($allEssences as $essence) {
         foreach ($kinds as $kind) {
             $isDiscrete =
                 $kind->getRangeType() === Searchable::DISCRETE;
-            $val = '';
+            $val = '' . PHP_EOL;
             if ($isDiscrete) {
                 $index = roll(0, $attributeLimit - 1);
                 $val = $attributes[$index]->getCode();
             }
             if (!$isDiscrete) {
-                $index = roll(0, 99);
-                $val = str_pad((string)$index, 2, '0', STR_PAD_LEFT);
+                $index = roll(1111, 9999);
+                $val = (string)$index;
             }
             $operator->changeContent($item, $kind->getCode(), $val);
         }
     }
+    $conn->commit();
+    echo date('H:i:s') .
+        ": Finish items for {$essence->getCode()}" .
+        PHP_EOL;
 }
+echo date('H:i:s') . ': Finish generate items' . PHP_EOL;
 
-
-$conn->commit();
 
 echo 'Data has generated with success' . PHP_EOL;

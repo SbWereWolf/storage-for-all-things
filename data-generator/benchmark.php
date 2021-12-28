@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 20.11.2021, 13:49
+ * 29.12.2021, 1:52
  */
 
 declare(strict_types=1);
@@ -155,7 +155,7 @@ function filterData(Browser $browser, string $essence, array $filters): float
 function reduceFilters(mixed $filters): array
 {
     $total = count($filters);
-    $limit = ceil($total * 0.8 / 2);
+    $limit = ceil($total * 0.4 / 2);
     for ($i = 0; $i < $limit; $i++) {
         unset($filters[$i]);
     }
@@ -169,9 +169,6 @@ function reduceFilters(mixed $filters): array
             $min = $min > $max ? $min / 2 : $min * 2;
             $max = $min > $max ? $max * 2 : $max / 2;
 
-            $min = str_pad((string)round($min), 2, '0', STR_PAD_LEFT);
-            $max = str_pad((string)round($max), 2, '0', STR_PAD_LEFT);
-
             if ($min > $max) {
                 $buf = $min;
                 $min = $max;
@@ -180,15 +177,15 @@ function reduceFilters(mixed $filters): array
 
             $filter = new ContinuousFilter(
                 $filter->getAttribute(),
-                $min,
-                $max
+                (string)$min,
+                (string)$max,
             );
             $filters[$key] = $filter;
         }
 
         if ($filter instanceof DiscreteFilter) {
             $values = $filter->getValues();
-            $limit = ceil(count($values) * 0.8);
+            $limit = ceil(count($values) * 0.4);
             $limit = $limit === 0 ? 1 : $limit;
             $vals = [];
             foreach ($values as $index => $value) {
@@ -210,10 +207,18 @@ function reduceFilters(mixed $filters): array
 $linkToData = (new DbConnection())->getForWrite();
 $browser = new Browser($linkToData);
 
-$essences = ['shirt', 'elephant', 'roof',];
+$essences = [
+    'MANY' => 'zebra',
+    'AVERAGE' => 'sugar',
+    'FEW' => 'salad',
+];
 
-foreach ($essences as $essence) {
-    echo PHP_EOL . 'Benchmark with ' . $essence . PHP_EOL;
+foreach ($essences as $category => $essence) {
+    echo PHP_EOL .
+        'Benchmark with ' .
+        $essence .
+        "($category)" .
+        PHP_EOL;
     $schema = new Schema($linkToData, $essence);
 
     /* MAKE VIEW */
@@ -250,12 +255,11 @@ foreach ($essences as $essence) {
     echo 'MAKE MATH VIEW ' . $average . PHP_EOL;
     /* GET FILTERS */
     try {
-        [$filters, $average] = getFilters($browser, $essence);
+        [$dummy, $average] = getFilters($browser, $essence);
     } catch (Exception $e) {
         var_dump($e);
     }
     echo 'GET FILTERS FROM MATH VIEW ' . $average . PHP_EOL;
-    $filters = reduceFilters($filters);
 
     /* TAKE ALL */
     try {
@@ -277,12 +281,11 @@ foreach ($essences as $essence) {
     echo 'MAKE TABLE ' . $average . PHP_EOL;
     /* GET FILTERS */
     try {
-        [$filters, $average] = getFilters($browser, $essence);
+        [$dummy, $average] = getFilters($browser, $essence);
     } catch (Exception $e) {
         var_dump($e);
     }
     echo 'GET FILTERS FROM TABLE ' . $average . PHP_EOL;
-    $filters = reduceFilters($filters);
 
     /* TAKE ALL */
     try {
