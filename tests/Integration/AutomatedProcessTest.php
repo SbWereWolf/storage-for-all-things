@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 26.12.2021, 5:51
+ * 31.12.2021, 13:08
  */
 
 namespace Integration;
@@ -20,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 
 class AutomatedProcessTest extends TestCase
 {
-    public const SKIP = false;
+    public const USE_TRANSACTION = true;
 
     /**
      * Настраиваем тестовое окружение (соединение с БД)
@@ -30,8 +30,8 @@ class AutomatedProcessTest extends TestCase
     {
         $linkToData = (new DbConnection())->getForWrite();
 
-        $isSuccess = static::SKIP;
-        if (!static::SKIP) {
+        $isSuccess = static::USE_TRANSACTION;
+        if (static::USE_TRANSACTION) {
             $isSuccess = $linkToData->beginTransaction();
         }
         $this->assertTrue($isSuccess, 'Transaction must be opened');
@@ -986,8 +986,8 @@ class AutomatedProcessTest extends TestCase
      */
     public function testFinally(array $context)
     {
-        $isSuccess = static::SKIP;
-        if (!static::SKIP) {
+        $isSuccess = static::USE_TRANSACTION;
+        if (static::USE_TRANSACTION) {
             $linkToData = $context['PDO'];
             $isSuccess = $linkToData->rollBack();
         }
