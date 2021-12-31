@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 26.12.2021, 5:51
+ * 31.12.2021, 13:37
  */
 
 namespace AllThings\SearchEngine;
@@ -104,18 +104,7 @@ class Seeker implements Searching
             $obtain = "$obtain where $wherePhrase";
         }
 
-        $cursor = $this
-            ->getSource()
-            ->getLinkToData()
-            ->query($obtain, PDO::FETCH_ASSOC);
-
-        $isSuccess = $cursor !== false;
-        if ($isSuccess) {
-            $data = $cursor->fetchAll();
-        }
-        if (!$isSuccess || $data === false) {
-            $data = [];
-        }
+        $data = $this->readData($obtain);
 
         return $data;
     }
@@ -141,7 +130,7 @@ class Seeker implements Searching
         return $result;
     }
 
-    private function getPossibleParameters(): array
+    public function getPossibleParameters(): array
     {
         $essence = $this->getSource()->getEssence();
         $linkToData = $this->getSource()->getLinkToData();

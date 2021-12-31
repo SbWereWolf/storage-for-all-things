@@ -2,12 +2,13 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 26.12.2021, 5:51
+ * 31.12.2021, 13:37
  */
 
 namespace AllThings\StorageEngine;
 
 
+use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Specification\SpecificationManager;
 use AllThings\DataAccess\Crossover\Crossover;
 use AllThings\DataAccess\Crossover\ICrossover;
@@ -51,7 +52,7 @@ class RapidObtainment implements Installation
         return $this;
     }
 
-    public function setup(): bool
+    public function setup(?IAttribute $attribute = null): bool
     {
         $linkToData = $this->getLinkToData();
 
@@ -96,15 +97,15 @@ WHERE
             $columns[$attribute] = "($column) AS \"$attribute\"";
             $stripped = str_replace(static::SEPARATORS, '', $attribute);
             $indexes[] = 'DROP INDEX IF EXISTS'
-                . " {$essence}_{$stripped}_ix;";
-            $indexes[] = "CREATE INDEX {$essence}_{$stripped}_ix"
+                . " {$this->name()}_{$stripped}_ix;";
+            $indexes[] = "CREATE INDEX {$this->name()}_{$stripped}_ix"
                 . " on {$this->name()} (\"{$attribute}\");";
         }
 
         $selectPhase = implode(",", $columns);
         $contentRequest = "
 SELECT
-    T.id AS id,
+    T.id AS thing_id,
     T.code AS code,
     $selectPhase
 FROM

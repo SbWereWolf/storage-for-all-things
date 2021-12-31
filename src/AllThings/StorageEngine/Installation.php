@@ -2,12 +2,13 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * 31.12.2021, 13:37
  */
 
 namespace AllThings\StorageEngine;
 
 
+use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\DataAccess\Crossover\ICrossover;
 use PDO;
 
@@ -15,9 +16,10 @@ interface Installation
 {
     /**
      * Настроить и установить источник
+     * @param IAttribute|null $attribute
      * @return bool
      */
-    public function setup(): bool;
+    public function setup(?IAttribute $attribute = null): bool;
 
     /**
      * Получить имя источника

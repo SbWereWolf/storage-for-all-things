@@ -2,12 +2,13 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 26.12.2021, 5:51
+ * 31.12.2021, 13:37
  */
 
 namespace AllThings\StorageEngine;
 
 
+use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Specification\SpecificationManager;
 use AllThings\DataAccess\Crossover\Crossover;
 use AllThings\DataAccess\Crossover\ICrossover;
@@ -50,7 +51,7 @@ class DirectReading implements Installation
         return $this;
     }
 
-    public function setup(): bool
+    public function setup(?IAttribute $attribute = null): bool
     {
         $linkToData = $this->getLinkToData();
 
@@ -96,7 +97,7 @@ WHERE
         $selectPhase = implode(",", $columns);
         $contentRequest = "
 SELECT
-    T.id AS id,
+    T.id AS thing_id,
     T.code AS code,
     $selectPhase
 FROM

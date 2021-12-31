@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 26.12.2021, 5:51
+ * 31.12.2021, 13:37
  */
 
 namespace AllThings\StorageEngine;
@@ -70,7 +70,151 @@ class RapidRecording implements Installation
         return $result;
     }
 
-    public function setup(): bool
+    public function setup(?IAttribute $attribute = null): bool
+    {
+        $result = false;
+        if (!$attribute) {
+            $result = $this->setupTable();
+        }
+        if ($attribute) {
+            $result = $this->setupColumn($attribute);
+        }
+
+        return $result;
+    }
+
+    /**
+     * @return PDO
+     */
+    public function getLinkToData(): PDO
+    {
+        return $this->linkToData;
+    }
+
+    public function name(): string
+    {
+        $name = static::STRUCTURE_PREFIX . $this->getEssence();
+
+        return $name;
+    }
+
+    /**
+     * @return string
+     */
+    public function getEssence(): string
+    {
+        return $this->essence;
+    }
+
+    public function refresh(?ICrossover $value = null): bool
+    {
+        $linkToData = $this->getLinkToData();
+
+        $isSuccess = false;
+        if (!$value) {
+            $essenceManager = new SpecificationManager(
+                $linkToData
+            );
+            $linkage = (new Crossover())
+                ->setLeftValue($this->getEssence());
+            $isSuccess = $essenceManager->getAssociated($linkage);
+        }
+
+        if ($isSuccess) {
+            $isSuccess = $essenceManager->has();
+        }
+        $attributes = [];
+        if ($isSuccess) {
+            $attributes = $essenceManager->retrieveData();
+        }
+        $columnNames = [];
+        foreach ($attributes as $code) {
+            $columnNames[] = "\"{$code}\"";
+        }
+
+        $result = false;
+        if ($columnNames) {
+            $prefix = 'v.';
+            $viewNames = $prefix . implode(",$prefix", $columnNames);
+            $tableNames = implode(',', $columnNames);
+
+            $view = new DirectReading(
+                $this->getEssence(),
+                $this->getLinkToData()
+            );
+            /* Удаляем из таблицы записи, которых нет в представлении */
+            /** @noinspection SqlInsertValues */
+            $dml = "
+DELETE FROM {$this->name()}
+WHERE thing_id in (
+    SELECT t.thing_id
+    FROM {$view->name()} as v
+    RIGHT JOIN {$this->name()} t
+    on {$prefix}thing_id = t.thing_id
+    WHERE {$prefix}thing_id IS NULL 
+    ORDER BY t.thing_id
+)
+";
+            $result = $this->executeSql($dml);
+        }
+
+        /* Добавляем в таблицу недостающие записи из представления */
+        if ($result) {
+            /** @noinspection SqlInsertValues */
+            $dml = "
+INSERT INTO {$this->name()}(thing_id,code,$tableNames)
+SELECT {$prefix}thing_id,{$prefix}code,$viewNames
+FROM {$view->name()} as v
+LEFT JOIN {$this->name()} t
+on v.thing_id = t.thing_id
+WHERE t.thing_id IS NULL
+";
+            $result = $this->executeSql($dml);
+        }
+
+        if ($value) {
+            $attribute = $value->getRightValue();
+            $table = SpecificationManager::getLocation(
+                $attribute,
+                $this->linkToData,
+            );
+
+            $format = SpecificationManager::getFormat(
+                $attribute,
+                $this->linkToData,
+            );
+
+            $contentTable = new CrossoverTable(
+                $table,
+                'thing_id',
+                'attribute_id'
+            );
+            $handler = new ContentManager($value, $linkToData, $contentTable);
+            $handler->store($value);
+
+            $code = $value->getLeftValue();
+            $dml = "
+UPDATE {$this->name()}
+SET
+    \"{$value->getRightValue()}\" = :new_value::$format
+WHERE thing_id = (
+    SELECT id
+    FROM thing
+    WHERE code = :thing_code
+)
+";
+            $query = $linkToData->prepare($dml);
+            $content = $value->getContent();
+            $query->bindParam(':new_value', $content);
+            $query->bindParam(':thing_code', $code);
+
+            $result = $query->execute();
+        }
+
+        return $result;
+    }
+
+    private function setupTable(): bool
     {
         $linkToData = $this->getLinkToData();
 
@@ -148,9 +292,7 @@ class RapidRecording implements Installation
             $columnNames[] = $name;
 
             $stripped = str_replace(static::SEPARATORS, '', $code);
-            $indexes[] = 'DROP INDEX IF EXISTS'
-                . " {$essence}_{$stripped}_ix;";
-            $indexes[] = "CREATE INDEX {$essence}_{$stripped}_ix"
+            $indexes[] = "CREATE INDEX {$this->name()}_{$stripped}_ix"
                 . " on {$this->name()}($name);";
         }
 
@@ -178,7 +320,7 @@ CREATE TABLE {$this->name()}
             /** @noinspection SqlInsertValues */
             $dml = "
 INSERT INTO {$this->name()}(thing_id,code,$names)
-SELECT id,code,$names
+SELECT thing_id,code,$names
 FROM {$view->name()}
 ";
             $affected = $linkToData->exec($dml);
@@ -192,125 +334,51 @@ FROM {$view->name()}
     }
 
     /**
-     * @return PDO
+     * @param IAttribute $attribute
+     * @return bool
+     * @throws Exception
      */
-    public function getLinkToData(): PDO
+    private function setupColumn(IAttribute $attribute): bool
     {
-        return $this->linkToData;
-    }
+        $dataType = $attribute->getDataType();
+        switch ($dataType) {
+            case Searchable::SYMBOLS:
+                $sqlType = 'VARCHAR(255)';
+                break;
+            case Searchable::DECIMAL:
+                $sqlType = 'DECIMAL(14,4)';
+                break;
+            case Searchable::TIMESTAMP:
+                $sqlType = 'TIMESTAMP WITH TIME ZONE';
+                break;
+            case Searchable::INTERVAL:
+                $sqlType = 'INTERVAL';
+                break;
+            default:
 
-    public function name(): string
-    {
-        $name = static::STRUCTURE_PREFIX . $this->getEssence();
+                throw new Exception(
+                    'SQL data type for'
+                    . " `$dataType` is not defined"
+                );
+        }
 
-        return $name;
-    }
+        $code = $attribute->getCode();
+        $name = "\"{$code}\"";
 
-    /**
-     * @return string
-     */
-    public function getEssence(): string
-    {
-        return $this->essence;
-    }
+        $essence = $this->getEssence();
 
-    public function refresh(?ICrossover $value = null): bool
-    {
+        $ddl = "
+ALTER TABLE {$this->name()} ADD COLUMN {$name} $sqlType
+";
         $linkToData = $this->getLinkToData();
 
-        $isSuccess = false;
-        if (!$value) {
-            $essenceManager = new SpecificationManager(
-                $linkToData
-            );
-            $linkage = (new Crossover())
-                ->setLeftValue($this->getEssence());
-            $isSuccess = $essenceManager->getAssociated($linkage);
-        }
+        $affected = $linkToData->exec($ddl);
+        $result = $affected !== false;
 
-        if ($isSuccess) {
-            $isSuccess = $essenceManager->has();
-        }
-        $attributes = [];
-        if ($isSuccess) {
-            $attributes = $essenceManager->retrieveData();
-        }
-        $columnNames = [];
-        foreach ($attributes as $code) {
-            $columnNames[] = "\"{$code}\"";
-        }
-
-        $result = false;
-        if ($columnNames) {
-            $prefix = 'v.';
-            $viewNames = $prefix . implode(",$prefix", $columnNames);
-            $tableNames = implode(',', $columnNames);
-
-            $view = new DirectReading(
-                $this->getEssence(),
-                $this->getLinkToData()
-            );
-            /* Удаляем из таблицы записи, которых нет в представлении */
-            /** @noinspection SqlInsertValues */
-            $dml = "
-DELETE FROM {$this->name()}
-WHERE thing_id in (
-    SELECT t.thing_id
-    FROM {$view->name()} as v
-    RIGHT JOIN {$this->name()} t
-    on {$prefix}id = t.thing_id
-    WHERE {$prefix}id IS NULL 
-    ORDER BY t.thing_id
-)
-";
-            $result = $this->executeSql($dml);
-        }
-
-        /* Добавляем в таблицу недостающие записи из представления */
-        if ($result) {
-            /** @noinspection SqlInsertValues */
-            $dml = "
-INSERT INTO {$this->name()}(thing_id,code,$tableNames)
-SELECT {$prefix}id,{$prefix}code,$viewNames
-FROM {$view->name()} as v
-LEFT JOIN {$this->name()} t
-on v.id = t.thing_id
-WHERE t.thing_id IS NULL
-";
-            $result = $this->executeSql($dml);
-        }
-
-        if ($value) {
-            $attribute = $value->getRightValue();
-            $table = SpecificationManager::getLocation(
-                $attribute,
-                $this->linkToData,
-            );
-
-            $contentTable = new CrossoverTable(
-                $table,
-                'thing_id',
-                'attribute_id'
-            );
-            $handler = new ContentManager($value, $linkToData, $contentTable);
-            $handler->store($value);
-
-            $dml = "
-UPDATE {$this->name()}
-SET
-    \"{$value->getRightValue()}\" = :new_value
-WHERE thing_id = (
-    SELECT id
-    FROM thing
-    WHERE code = '{$value->getLeftValue()}'
-)
-";
-            $query = $linkToData->prepare($dml);
-            $content = $value->getContent();
-            $query->bindParam(':new_value', $content);
-
-            $result = $query->execute();
-        }
+        $stripped = str_replace(static::SEPARATORS, '', $code);
+        $columnIndex = "CREATE INDEX {$this->name()}_{$stripped}_ix"
+            . " on {$this->name()}($name);";
+        $affected = $linkToData->exec($columnIndex);
 
         return $result;
     }

@@ -2,12 +2,13 @@
 /*
  * storage-for-all-things
  * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * 31.12.2021, 13:37
  */
 
 namespace AllThings\ControlPanel;
 
 
+use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Essence\Essence;
 use AllThings\Blueprint\Essence\EssenceManager;
 use AllThings\Blueprint\Essence\IEssence;
@@ -101,14 +102,11 @@ class Schema
         return $data;
     }
 
-    /**
-     * @throws Exception
-     */
-    public function setup(): Schema
+    public function setup(?IAttribute $attribute = null): Schema
     {
         $installation = $this->getInstallation();
 
-        $isSuccess = $installation->setup();
+        $isSuccess = $installation->setup($attribute);
         if (!$isSuccess) {
             throw new Exception('Installation MUST BE defined with success');
         }
