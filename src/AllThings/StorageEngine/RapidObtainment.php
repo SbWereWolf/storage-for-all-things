@@ -1,8 +1,8 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 31.12.2021, 13:37
+ * Copyright © 2022 Volkhin Nikolay
+ * 03.01.2022, 6:20
  */
 
 namespace AllThings\StorageEngine;
@@ -11,7 +11,6 @@ namespace AllThings\StorageEngine;
 use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Specification\SpecificationManager;
 use AllThings\DataAccess\Crossover\Crossover;
-use AllThings\DataAccess\Crossover\ICrossover;
 use PDO;
 
 class RapidObtainment implements Installation
@@ -153,7 +152,7 @@ WHERE
         return $this->essence;
     }
 
-    public function refresh(?ICrossover $value = null): bool
+    public function refresh(array $values = []): bool
     {
         $ddl = "
 REFRESH MATERIALIZED VIEW {$this->name()}

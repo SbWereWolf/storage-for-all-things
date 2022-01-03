@@ -1,8 +1,8 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 31.12.2021, 13:37
+ * Copyright © 2022 Volkhin Nikolay
+ * 03.01.2022, 6:20
  */
 
 namespace AllThings\StorageEngine;
@@ -106,12 +106,12 @@ class RapidRecording implements Installation
         return $this->essence;
     }
 
-    public function refresh(?ICrossover $value = null): bool
+    public function refresh(array $values = []): bool
     {
         $linkToData = $this->getLinkToData();
 
         $isSuccess = false;
-        if (!$value) {
+        if (!$values) {
             $essenceManager = new SpecificationManager(
                 $linkToData
             );
@@ -172,14 +172,12 @@ WHERE t.thing_id IS NULL
             $result = $this->executeSql($dml);
         }
 
-        if ($value) {
+        $pieces = [];
+        $setParts = [];
+        foreach ($values as $index => $value) {
+            /* @var ICrossover $value */
             $attribute = $value->getRightValue();
             $table = SpecificationManager::getLocation(
-                $attribute,
-                $this->linkToData,
-            );
-
-            $format = SpecificationManager::getFormat(
                 $attribute,
                 $this->linkToData,
             );
@@ -189,14 +187,29 @@ WHERE t.thing_id IS NULL
                 'thing_id',
                 'attribute_id'
             );
-            $handler = new ContentManager($value, $linkToData, $contentTable);
+            $handler = new ContentManager(
+                $value,
+                $linkToData,
+                $contentTable
+            );
             $handler->store($value);
 
-            $code = $value->getLeftValue();
+            $format = SpecificationManager::getFormat(
+                $attribute,
+                $this->linkToData,
+            );
+
+            $pieces[":new_value$index"] = $value->getContent();
+            $setParts[] = "\"{$value->getRightValue()}\"" .
+                " = :new_value$index::$format";
+        }
+        $setClause = implode(',', $setParts);
+        $query = false;
+        if ($setClause) {
             $dml = "
 UPDATE {$this->name()}
 SET
-    \"{$value->getRightValue()}\" = :new_value::$format
+    $setClause
 WHERE thing_id = (
     SELECT id
     FROM thing
@@ -204,10 +217,13 @@ WHERE thing_id = (
 )
 ";
             $query = $linkToData->prepare($dml);
-            $content = $value->getContent();
-            $query->bindParam(':new_value', $content);
-            $query->bindParam(':thing_code', $code);
-
+            $thing = $value->getLeftValue();
+            $query->bindParam(':thing_code', $thing);
+        }
+        foreach ($pieces as $placeholder => $content) {
+            $query->bindParam($placeholder, $pieces[$placeholder]);
+        }
+        if ($query) {
             $result = $query->execute();
         }
 

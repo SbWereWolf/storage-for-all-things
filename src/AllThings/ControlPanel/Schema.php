@@ -1,8 +1,8 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 31.12.2021, 13:37
+ * Copyright © 2022 Volkhin Nikolay
+ * 03.01.2022, 6:20
  */
 
 namespace AllThings\ControlPanel;
@@ -12,7 +12,6 @@ use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Essence\Essence;
 use AllThings\Blueprint\Essence\EssenceManager;
 use AllThings\Blueprint\Essence\IEssence;
-use AllThings\DataAccess\Crossover\ICrossover;
 use AllThings\StorageEngine\DirectReading;
 use AllThings\StorageEngine\Installation;
 use AllThings\StorageEngine\RapidObtainment;
@@ -35,11 +34,11 @@ class Schema
     /**
      * @throws Exception
      */
-    public function refresh(?ICrossover $value = null): Schema
+    public function refresh(array $values = []): Schema
     {
         $installation = $this->getInstallation();
 
-        $isSuccess = $installation->refresh($value);
+        $isSuccess = $installation->refresh($values);
         if (!$isSuccess) {
             throw new Exception('Installation MUST BE refreshed with success');
         }

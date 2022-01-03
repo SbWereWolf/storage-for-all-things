@@ -1,15 +1,14 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 31.12.2021, 13:37
+ * Copyright © 2022 Volkhin Nikolay
+ * 03.01.2022, 6:20
  */
 
 namespace AllThings\StorageEngine;
 
 
 use AllThings\Blueprint\Attribute\IAttribute;
-use AllThings\DataAccess\Crossover\ICrossover;
 use PDO;
 
 interface Installation
@@ -41,5 +40,5 @@ interface Installation
      * Освежить данные в источнике
      * @return bool
      */
-    public function refresh(?ICrossover $value = null): bool;
+    public function refresh(array $values = []): bool;
 }
