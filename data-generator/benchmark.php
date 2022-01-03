@@ -1,8 +1,8 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 31.12.2021, 13:39
+ * Copyright © 2022 Volkhin Nikolay
+ * 03.01.2022, 6:23
  */
 
 declare(strict_types=1);
@@ -16,7 +16,6 @@ declare(strict_types=1);
 use AllThings\Blueprint\Attribute\AttributeManager;
 use AllThings\Blueprint\Essence\Essence;
 use AllThings\Blueprint\Essence\EssenceManager;
-use AllThings\Blueprint\Essence\IEssence;
 use AllThings\ControlPanel\Browser;
 use AllThings\ControlPanel\Operator;
 use AllThings\ControlPanel\Schema;
@@ -26,6 +25,7 @@ use AllThings\SearchEngine\ContinuousFilter;
 use AllThings\SearchEngine\DiscreteFilter;
 use AllThings\SearchEngine\Searchable;
 use AllThings\SearchEngine\Seeker;
+use AllThings\StorageEngine\RapidRecording;
 use AllThings\StorageEngine\Storable;
 use Environment\Database\DbConnection;
 
@@ -38,6 +38,241 @@ $path = [
 $autoloader = implode(DIRECTORY_SEPARATOR, $path);
 require_once($autoloader);
 
+$linkToData = (new DbConnection())->getForWrite();
+$browser = new Browser($linkToData);
+$operator = new Operator($linkToData);
+
+$essences = [
+    'MANY' => 'underclothes',
+    'AVERAGE' => 'sugar',
+    'FEW' => 'salad',
+];
+
+foreach ($essences as $category => $essence) {
+    echo PHP_EOL .
+        'Benchmark with ' .
+        $essence .
+        "($category)" .
+        PHP_EOL;
+    $schema = new Schema($linkToData, $essence);
+    $average = setupSource($schema, 'handleWithDirectReading');
+    echo 'MAKE VIEW ' . $average . PHP_EOL;
+
+    $filters = [];
+    try {
+        [$filters, $average] = getFilters($browser, $essence);
+    } catch (Exception $e) {
+        var_dump($e);
+    }
+    echo 'GET FILTERS FROM VIEW ' . $average . PHP_EOL;
+    $filters = reduceFilters($filters);
+
+    try {
+        $average = filterData($browser, $essence, []);
+    } catch (Exception $e) {
+        var_dump($e);
+    }
+    echo 'TAKE ALL FROM VIEW ' . $average . PHP_EOL;
+
+    try {
+        $average = filterData($browser, $essence, $filters);
+    } catch (Exception $e) {
+        var_dump($e);
+    }
+    echo 'TAKE SOME FROM VIEW ' . $average . PHP_EOL;
+
+    $average = setupSource($schema, 'handleWithRapidObtainment');
+    echo 'MAKE MATH VIEW ' . $average . PHP_EOL;
+
+    try {
+        [$dummy, $average] = getFilters($browser, $essence);
+    } catch (Exception $e) {
+        var_dump($e);
+    }
+    echo 'GET FILTERS FROM MATH VIEW ' . $average . PHP_EOL;
+
+    try {
+        $average = filterData($browser, $essence, []);
+    } catch (Exception $e) {
+        var_dump($e);
+    }
+    echo 'TAKE ALL FROM MATH VIEW ' . $average . PHP_EOL;
+
+    try {
+        $average = filterData($browser, $essence, $filters);
+    } catch (Exception $e) {
+        var_dump($e);
+    }
+    echo 'TAKE SOME FROM MATH VIEW ' . $average . PHP_EOL;
+
+    $average = setupSource($schema, 'handleWithRapidRecording');
+    echo 'MAKE TABLE ' . $average . PHP_EOL;
+
+    try {
+        [$dummy, $average] = getFilters($browser, $essence);
+    } catch (Exception $e) {
+        var_dump($e);
+    }
+    echo 'GET FILTERS FROM TABLE ' . $average . PHP_EOL;
+
+    try {
+        $average = filterData($browser, $essence, []);
+    } catch (Exception $e) {
+        var_dump($e);
+    }
+    echo 'TAKE ALL FROM TABLE ' . $average . PHP_EOL;
+
+    try {
+        $average = filterData($browser, $essence, $filters);
+    } catch (Exception $e) {
+        var_dump($e);
+    }
+    echo 'TAKE SOME FROM TABLE ' . $average . PHP_EOL;
+
+    /* @var Nameable $thing */
+
+    [$average, $thing] = addNewItem($operator, $essence);
+    echo 'ADD NEW ITEM ' . $average . PHP_EOL;
+
+
+    $essenceEntity = (Essence::GetDefaultEssence());
+    $essenceEntity->setCode($essence);
+    $essenceEntity->setStorageKind(Storable::RAPID_OBTAINMENT);
+
+    $manager = new EssenceManager($essenceEntity, $linkToData);
+    $manager->correct($essenceEntity->getCode());
+
+    $start = microtime(true);
+
+    $schema->refresh();
+
+    $finish = microtime(true);
+    $duration = $finish - $start;
+
+    echo 'ADD NEW ITEM TO MATH VIEW ' . $duration . PHP_EOL;
+
+    $essenceEntity->setStorageKind(Storable::RAPID_RECORDING);
+
+    $manager = new EssenceManager($essenceEntity, $linkToData);
+    $manager->correct($essenceEntity->getCode());
+
+    $start = microtime(true);
+
+    $schema->refresh();
+
+    $finish = microtime(true);
+    $duration = $finish - $start;
+
+    echo 'ADD NEW ITEM TO TABLE ' . $duration . PHP_EOL;
+
+    $source = $schema->getInstallation();
+    $seeker = new Seeker($source);
+    $kinds = $seeker->getPossibleParameters();
+
+    foreach ($kinds as $key => $code) {
+        $attribute = \AllThings\Blueprint\Attribute\Attribute
+            ::GetDefaultAttribute();
+        $attribute->setCode($code);
+        $manager = new AttributeManager($attribute, $linkToData);
+        $manager->browse();
+        $kinds[$key] = $manager->retrieveData();
+    }
+
+    $essenceEntity->setStorageKind(Storable::DIRECT_READING);
+
+    $manager = new EssenceManager($essenceEntity, $linkToData);
+    $manager->correct($essenceEntity->getCode());
+
+    $average = setupThing(
+        $kinds,
+        $operator,
+        $thing,
+        $schema,
+    );
+
+    echo 'SETUP NEW ITEM FOR VIEW ' . $average . PHP_EOL;
+
+    $essenceEntity->setStorageKind(Storable::RAPID_OBTAINMENT);
+
+    $manager = new EssenceManager($essenceEntity, $linkToData);
+    $manager->correct($essenceEntity->getCode());
+
+    $average = setupThing(
+        $kinds,
+        $operator,
+        $thing,
+        $schema,
+    );
+
+    echo 'SETUP NEW ITEM FOR MATH VIEW ' . $average . PHP_EOL;
+
+    $essenceEntity->setStorageKind(Storable::RAPID_RECORDING);
+
+    $manager = new EssenceManager($essenceEntity, $linkToData);
+    $manager->correct($essenceEntity->getCode());
+
+    $average = setupThing(
+        $kinds,
+        $operator,
+        $thing,
+        $schema,
+    );
+
+    echo 'SETUP NEW ITEM FOR TABLE ' . $average . PHP_EOL;
+
+    $adjective = 'test-' . time() . uniqid();
+    $attribute = $operator->createKind(
+        $adjective,
+        Searchable::SYMBOLS,
+        Searchable::DISCRETE
+    );
+    $operator->attachKind(
+        $essence,
+        $attribute->getCode()
+    );
+
+    $essenceEntity->setStorageKind(Storable::DIRECT_READING);
+
+    $manager = new EssenceManager($essenceEntity, $linkToData);
+    $manager->correct($essenceEntity->getCode());
+
+    $start = microtime(true);
+
+    $schema->setup();
+
+    $finish = microtime(true);
+    $duration = $finish - $start;
+
+    echo 'ADD NEW KIND FOR VIEW ' . $duration . PHP_EOL;
+
+    $essenceEntity->setStorageKind(Storable::RAPID_OBTAINMENT);
+
+    $manager = new EssenceManager($essenceEntity, $linkToData);
+    $manager->correct($essenceEntity->getCode());
+
+    $start = microtime(true);
+
+    $schema->setup();
+
+    $finish = microtime(true);
+    $duration = $finish - $start;
+
+    echo 'ADD NEW KIND FOR MATH VIEW ' . $duration . PHP_EOL;
+
+    $essenceEntity->setStorageKind(Storable::RAPID_RECORDING);
+
+    $manager = new EssenceManager($essenceEntity, $linkToData);
+    $manager->correct($essenceEntity->getCode());
+
+    $start = microtime(true);
+
+    $schema->setup($attribute);
+
+    $finish = microtime(true);
+    $duration = $finish - $start;
+
+    echo 'ADD NEW KIND FOR TABLE ' . $duration . PHP_EOL;
+}
 
 /**
  * @param Schema $schema
@@ -257,9 +492,9 @@ function addNewItem(Operator $operator, $essence): array
 /**
  * @param array $kinds
  * @param Operator $operator
- * @param string $thing
+ * @param Nameable $thing
  * @param Schema $schema
- * @param IEssence $essence
+ * @return array
  * @throws Exception
  */
 function defineThing(
@@ -267,37 +502,34 @@ function defineThing(
     Operator $operator,
     Nameable $thing,
     Schema $schema,
-    IEssence $essence,
-): void {
-    $r = $essence->getStorageKind() === Storable::RAPID_RECORDING;
+): array {
+    $result = [];
+    $isTable = $schema->getInstallation() instanceof RapidRecording;
     foreach ($kinds as $kind) {
+        $value = '';
         if ($kind->getDataType() === Searchable::SYMBOLS
         ) {
             $value = uniqid();
-            $operator->changeContent(
-                $thing->getCode(),
-                $kind->getCode(),
-                $value,
-            );
         }
         if ($kind->getDataType() === Searchable::DECIMAL
         ) {
             $value = (string)roll(1111, 9999);
+        }
+        if (!$isTable) {
             $operator->changeContent(
                 $thing->getCode(),
                 $kind->getCode(),
                 $value,
             );
         }
-        if ($r) {
-            $schema->refresh(
-                (new Crossover())
-                    ->setLeftValue($thing->getCode())
-                    ->setRightValue($kind->getCode())
-                    ->setContent($value)
-            );
-        }
+
+        $result[] = (new Crossover())
+            ->setLeftValue($thing->getCode())
+            ->setRightValue($kind->getCode())
+            ->setContent($value);
     }
+
+    return $result;
 }
 
 function setupThing(
@@ -305,7 +537,6 @@ function setupThing(
     Operator $operator,
     Nameable $thing,
     Schema $schema,
-    IEssence $essence,
 ): float {
     $maxVal = PHP_FLOAT_MIN;
     $minVal = PHP_FLOAT_MAX;
@@ -315,12 +546,8 @@ function setupThing(
     for ($i = 0; $i < 5; $i++) {
         $start = microtime(true);
 
-        defineThing($kinds, $operator, $thing, $schema, $essence);
-        $r = $essence->getStorageKind() ===
-            Storable::RAPID_OBTAINMENT;
-        if ($r) {
-            $schema->refresh();
-        }
+        $data = defineThing($kinds, $operator, $thing, $schema);
+        $schema->refresh($data);
 
         $finish = microtime(true);
         $duration = $finish - $start;
@@ -359,245 +586,4 @@ function roll(int $min, int $max): int
         exit;
     }
     return $dice;
-}
-
-$linkToData = (new DbConnection())->getForWrite();
-$browser = new Browser($linkToData);
-$operator = new Operator($linkToData);
-
-$essences = [
-    'MANY' => 'underclothes',
-    'AVERAGE' => 'sugar',
-    'FEW' => 'salad',
-];
-
-foreach ($essences as $category => $essence) {
-    echo PHP_EOL .
-        'Benchmark with ' .
-        $essence .
-        "($category)" .
-        PHP_EOL;
-    $schema = new Schema($linkToData, $essence);
-
-    $average = setupSource($schema, 'handleWithDirectReading');
-    echo 'MAKE VIEW ' . $average . PHP_EOL;
-
-    $filters = [];
-    try {
-        [$filters, $average] = getFilters($browser, $essence);
-    } catch (Exception $e) {
-        var_dump($e);
-    }
-    echo 'GET FILTERS FROM VIEW ' . $average . PHP_EOL;
-    $filters = reduceFilters($filters);
-
-    try {
-        $average = filterData($browser, $essence, []);
-    } catch (Exception $e) {
-        var_dump($e);
-    }
-    echo 'TAKE ALL FROM VIEW ' . $average . PHP_EOL;
-
-    try {
-        $average = filterData($browser, $essence, $filters);
-    } catch (Exception $e) {
-        var_dump($e);
-    }
-    echo 'TAKE SOME FROM VIEW ' . $average . PHP_EOL;
-
-    $average = setupSource($schema, 'handleWithRapidObtainment');
-    echo 'MAKE MATH VIEW ' . $average . PHP_EOL;
-
-    try {
-        [$dummy, $average] = getFilters($browser, $essence);
-    } catch (Exception $e) {
-        var_dump($e);
-    }
-    echo 'GET FILTERS FROM MATH VIEW ' . $average . PHP_EOL;
-
-    try {
-        $average = filterData($browser, $essence, []);
-    } catch (Exception $e) {
-        var_dump($e);
-    }
-    echo 'TAKE ALL FROM MATH VIEW ' . $average . PHP_EOL;
-
-    try {
-        $average = filterData($browser, $essence, $filters);
-    } catch (Exception $e) {
-        var_dump($e);
-    }
-    echo 'TAKE SOME FROM MATH VIEW ' . $average . PHP_EOL;
-
-    $average = setupSource($schema, 'handleWithRapidRecording');
-    echo 'MAKE TABLE ' . $average . PHP_EOL;
-
-    try {
-        [$dummy, $average] = getFilters($browser, $essence);
-    } catch (Exception $e) {
-        var_dump($e);
-    }
-    echo 'GET FILTERS FROM TABLE ' . $average . PHP_EOL;
-
-    try {
-        $average = filterData($browser, $essence, []);
-    } catch (Exception $e) {
-        var_dump($e);
-    }
-    echo 'TAKE ALL FROM TABLE ' . $average . PHP_EOL;
-
-    try {
-        $average = filterData($browser, $essence, $filters);
-    } catch (Exception $e) {
-        var_dump($e);
-    }
-    echo 'TAKE SOME FROM TABLE ' . $average . PHP_EOL;
-
-
-    /* @var Nameable $thing */
-
-    [$average, $thing] = addNewItem($operator, $essence);
-    echo 'ADD NEW ITEM ' . $average . PHP_EOL;
-
-
-    $essenceEntity = (Essence::GetDefaultEssence());
-    $essenceEntity->setCode($essence);
-    $essenceEntity->setStorageKind(Storable::RAPID_OBTAINMENT);
-
-    $manager = new EssenceManager($essenceEntity, $linkToData);
-    $manager->correct($essenceEntity->getCode());
-
-    $start = microtime(true);
-
-    $schema->refresh();
-
-    $finish = microtime(true);
-    $duration = $finish - $start;
-
-    echo 'ADD NEW ITEM TO MATH VIEW ' . $duration . PHP_EOL;
-
-    $essenceEntity->setStorageKind(Storable::RAPID_RECORDING);
-
-    $manager = new EssenceManager($essenceEntity, $linkToData);
-    $manager->correct($essenceEntity->getCode());
-
-    $start = microtime(true);
-
-    $schema->refresh();
-
-    $finish = microtime(true);
-    $duration = $finish - $start;
-
-    echo 'ADD NEW ITEM TO TABLE ' . $duration . PHP_EOL;
-
-    $source = $schema->getInstallation();
-    $seeker = new Seeker($source);
-    $kinds = $seeker->getPossibleParameters();
-
-    foreach ($kinds as $key => $code) {
-        $attribute = \AllThings\Blueprint\Attribute\Attribute
-            ::GetDefaultAttribute();
-        $attribute->setCode($code);
-        $manager = new AttributeManager($attribute, $linkToData);
-        $manager->browse();
-        $kinds[$key] = $manager->retrieveData();
-    }
-
-    $essenceEntity->setStorageKind(Storable::DIRECT_READING);
-
-    $manager = new EssenceManager($essenceEntity, $linkToData);
-    $manager->correct($essenceEntity->getCode());
-
-    $average = setupThing(
-        $kinds,
-        $operator,
-        $thing,
-        $schema,
-        $essenceEntity
-    );
-
-    echo 'SETUP NEW ITEM FOR VIEW ' . $average . PHP_EOL;
-
-    $essenceEntity->setStorageKind(Storable::RAPID_OBTAINMENT);
-
-    $manager = new EssenceManager($essenceEntity, $linkToData);
-    $manager->correct($essenceEntity->getCode());
-
-    $average = setupThing(
-        $kinds,
-        $operator,
-        $thing,
-        $schema,
-        $essenceEntity
-    );
-
-    echo 'SETUP NEW ITEM FOR MATH VIEW ' . $average . PHP_EOL;
-
-    $essenceEntity->setStorageKind(Storable::RAPID_RECORDING);
-
-    $manager = new EssenceManager($essenceEntity, $linkToData);
-    $manager->correct($essenceEntity->getCode());
-
-    $average = setupThing(
-        $kinds,
-        $operator,
-        $thing,
-        $schema,
-        $essenceEntity
-    );
-
-    echo 'SETUP NEW ITEM FOR TABLE ' . $average . PHP_EOL;
-
-    $adjective = 'test-' . time() . uniqid();
-    $attribute = $operator->createKind(
-        $adjective,
-        Searchable::SYMBOLS,
-        Searchable::DISCRETE
-    );
-    $operator->attachKind(
-        $essence,
-        $attribute->getCode()
-    );
-
-    $essenceEntity->setStorageKind(Storable::DIRECT_READING);
-
-    $manager = new EssenceManager($essenceEntity, $linkToData);
-    $manager->correct($essenceEntity->getCode());
-
-    $start = microtime(true);
-
-    $schema->setup();
-
-    $finish = microtime(true);
-    $duration = $finish - $start;
-
-    echo 'ADD NEW KIND FOR VIEW ' . $duration . PHP_EOL;
-
-    $essenceEntity->setStorageKind(Storable::RAPID_OBTAINMENT);
-
-    $manager = new EssenceManager($essenceEntity, $linkToData);
-    $manager->correct($essenceEntity->getCode());
-
-    $start = microtime(true);
-
-    $schema->setup();
-
-    $finish = microtime(true);
-    $duration = $finish - $start;
-
-    echo 'ADD NEW KIND FOR MATH VIEW ' . $duration . PHP_EOL;
-
-    $essenceEntity->setStorageKind(Storable::RAPID_RECORDING);
-
-    $manager = new EssenceManager($essenceEntity, $linkToData);
-    $manager->correct($essenceEntity->getCode());
-
-    $start = microtime(true);
-
-    $schema->setup($attribute);
-
-    $finish = microtime(true);
-    $duration = $finish - $start;
-
-    echo 'ADD NEW KIND FOR TABLE ' . $duration . PHP_EOL;
 }
