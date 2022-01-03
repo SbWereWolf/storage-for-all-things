@@ -1,8 +1,8 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 26.12.2021, 6:19
+ * Copyright © 2022 Volkhin Nikolay
+ * 03.01.2022, 6:25
  */
 
 namespace Integration;
@@ -1424,7 +1424,7 @@ class NativeProcessTest extends TestCase
             ->setRightValue($context['package'])
             ->setContent('коробка');
         /** @noinspection PhpUnnecessaryLocalVariableInspection */
-        $isSuccess = $source->refresh($content);
+        $isSuccess = $source->refresh([$content]);
 
         return $isSuccess;
     }

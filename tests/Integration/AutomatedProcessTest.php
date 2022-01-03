@@ -1,8 +1,8 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 31.12.2021, 13:08
+ * Copyright © 2022 Volkhin Nikolay
+ * 03.01.2022, 6:25
  */
 
 namespace Integration;
@@ -966,7 +966,7 @@ class AutomatedProcessTest extends TestCase
         setLeftValue($context['new-thing'])
             ->setRightValue($context['package'])
             ->setContent('коробка');
-        $schema->refresh($content);
+        $schema->refresh([$content]);
 
         $browser = new Browser($context['PDO']);
         $data = $browser->filterData($context['essence'], []);
