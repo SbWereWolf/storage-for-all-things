@@ -1,56 +1,38 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 05.01.2022, 2:51
  */
 
 namespace AllThings\DataAccess\Nameable;
 
 
 use AllThings\DataAccess\Retrievable;
+use AllThings\DataAccess\Uniquable\UniqueHandler;
 use PDO;
 
-class NamedRecordHandler implements Valuable, Hideable, Retrievable
+class NamedRecordHandler extends UniqueHandler implements Valuable, Retrievable
 {
+    private string $source;
+    private ?Nameable $container;
 
-    private $dataPath = null;
-    private $table = '';
-    private $container = null;
-
-    public function __construct(Nameable $named, string $tableName, PDO $dataPath)
-    {
-        $this->container = $named->getNameableCopy();
-        $this->dataPath = $dataPath;
-        $this->table = $tableName;
-    }
-
-    public function add(): bool
-    {
-        $entity = $this->container->getNameableCopy();
-
-        $result = ($this->getStorageLocation())->insert($entity);
-
-        if ($result) {
-            $this->container = $entity;
-        }
-
-        return $result;
+    public function __construct(
+        string $uniqueness,
+        string $locationName,
+        PDO $pdo,
+    ) {
+        parent::__construct($uniqueness, $locationName, $pdo);
+        $this->source = $locationName;
     }
 
     private function getStorageLocation(): StorageLocation
     {
-        $repository = new StorageLocation($this->table, $this->dataPath);
+        $repository = new StorageLocation(
+            $this->location,
+            $this->dataPath,
+        );
         return $repository;
-    }
-
-    public function hide(): bool
-    {
-        $entity = $this->container->getNameableCopy();
-
-        $result = ($this->getStorageLocation())->setIsHidden($entity);
-
-        return $result;
     }
 
     public function write(string $code): bool
@@ -84,7 +66,7 @@ class NamedRecordHandler implements Valuable, Hideable, Retrievable
 
     private function getDataSource(): DataSource
     {
-        $repository = new DataSource($this->table, $this->dataPath);
+        $repository = new DataSource($this->source, $this->dataPath);
         return $repository;
     }
 
@@ -98,5 +80,21 @@ class NamedRecordHandler implements Valuable, Hideable, Retrievable
     public function has(): bool
     {
         return !is_null($this->container);
+    }
+
+    /**
+     * @param Nameable|null $container
+     */
+    public function setContainer(?Nameable $container): void
+    {
+        $this->container = $container;
+    }
+
+    /**
+     * @param string $source
+     */
+    public function setSource(string $source): void
+    {
+        $this->source = $source;
     }
 }

@@ -1,13 +1,11 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 26.12.2021, 5:51
+ * Copyright © 2022 Volkhin Nikolay
+ * 05.01.2022, 2:51
  */
 
-
 namespace AllThings\Blueprint\Specification;
-
 
 use AllThings\Blueprint\Attribute\Attribute;
 use AllThings\Blueprint\Attribute\AttributeManager;
@@ -43,6 +41,23 @@ class SpecificationManager implements LinkageManager, Retrievable
         $default = Attribute::GetDefaultAttribute();
         $default->setCode($attribute);
         return $default;
+    }
+
+    /**
+     * @param string $attribute
+     * @param PDO $dataPath
+     * @return AttributeManager
+     */
+    private static function setupAttributeManager(string $attribute, PDO $dataPath): AttributeManager
+    {
+        $default = static::getDefault($attribute);
+        $manager = new AttributeManager(
+            $attribute,
+            'attribute',
+            $dataPath,
+        );
+        $manager->setSubject($default);
+        return $manager;
     }
 
     public function linkUp(ICrossover $linkage): bool
@@ -99,9 +114,11 @@ class SpecificationManager implements LinkageManager, Retrievable
         string $attribute,
         PDO $dataPath
     ) {
-        $default = self::getDefault($attribute);
-        $table = (new AttributeManager($default, $dataPath))
-            ->getLocation();
+        $manager = static::setupAttributeManager(
+            $attribute,
+            $dataPath,
+        );
+        $table = $manager->getLocation();
 
         return $table;
     }
@@ -110,10 +127,12 @@ class SpecificationManager implements LinkageManager, Retrievable
         string $attribute,
         PDO $dataPath
     ) {
-        $default = self::getDefault($attribute);
-        $table = (new AttributeManager($default, $dataPath))
-            ->getFormat();
+        $manager = static::setupAttributeManager(
+            $attribute,
+            $dataPath,
+        );
+        $format = $manager->getFormat();
 
-        return $table;
+        return $format;
     }
 }

@@ -1,24 +1,27 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 05.01.2022, 2:51
  */
 
 namespace AllThings\DataAccess\Nameable;
-
 
 use PDO;
 
 class DataSource implements ValuableReader
 {
 
-    private $tableName = '';
+    private string $tableName;
     /**
      * @var PDO
      */
-    private $dataSource;
+    private PDO $dataSource;
 
+    /**
+     * @param string $table
+     * @param PDO $dataSource
+     */
     public function __construct(string $table, PDO $dataSource)
     {
         $this->tableName = $table;

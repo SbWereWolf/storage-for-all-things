@@ -1,48 +1,33 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 26.12.2021, 5:51
+ * Copyright © 2022 Volkhin Nikolay
+ * 05.01.2022, 2:51
  */
 
 namespace AllThings\Blueprint\Attribute;
 
-
+use AllThings\DataAccess\Uniquable\UniqueManager;
 use AllThings\SearchEngine\Searchable;
 use Exception;
-use PDO;
 
-class AttributeManager implements IAttributeManager
+class AttributeManager
+    extends UniqueManager
+    implements IAttributeManager
 {
-    private $subject = null;
-    private $dataPath = null;
-
-
-    public function __construct(IAttribute $subject, PDO $dataPath)
-    {
-        $this->subject = $subject;
-        $this->dataPath = $dataPath;
-    }
-
-    public function create(): bool
-    {
-        $handler = $this->getHandler();
-
-        $result = $handler->add();
-
-        $this->setSubject($result, $handler);
-
-        return $result;
-    }
+    private ?IAttribute $subject;
 
     /**
      * @return AttributeRecordHandler
      */
-    private function getHandler(): AttributeRecordHandler
+    private function getAttributeHandler(): AttributeRecordHandler
     {
-        $subject = $this->subject;
-        $dataPath = $this->dataPath;
-        $handler = new AttributeRecordHandler($subject, $dataPath);
+        $handler = new AttributeRecordHandler(
+            $this->subject->getCode(),
+            $this->storageLocation,
+            $this->dataPath,
+        );
+        $handler->setSubject($this->subject);
 
         return $handler;
     }
@@ -51,42 +36,31 @@ class AttributeManager implements IAttributeManager
      * @param bool $isSuccess
      * @param AttributeRecordHandler $handler
      */
-    private function setSubject(bool $isSuccess, AttributeRecordHandler $handler): void
+    public function loadSubject(bool $isSuccess, AttributeRecordHandler $handler): void
     {
         if ($isSuccess) {
             $this->subject = $handler->retrieveData();
         }
     }
 
-    public function remove(): bool
-    {
-        $handler = $this->getHandler();
-
-        $result = $handler->hide();
-
-        $this->setSubject($result, $handler);
-
-        return $result;
-    }
-
     public function correct(string $targetIdentity = ''): bool
     {
-        $handler = $this->getHandler();
+        $handler = $this->getAttributeHandler();
 
         $result = $handler->write($targetIdentity);
 
-        $this->setSubject($result, $handler);
+        $this->loadSubject($result, $handler);
 
         return $result;
     }
 
     public function browse(): bool
     {
-        $handler = $this->getHandler();
+        $handler = $this->getAttributeHandler();
 
         $result = $handler->read();
 
-        $this->setSubject($result, $handler);
+        $this->loadSubject($result, $handler);
 
         return $result;
     }
@@ -154,5 +128,15 @@ class AttributeManager implements IAttributeManager
         $dataType = $this->retrieveData()->getDataType();
 
         return $dataType;
+    }
+
+    /**
+     * @param IAttribute|null $subject
+     */
+    public function setSubject(IAttribute $subject): static
+    {
+        $this->subject = $subject;
+
+        return $this;
     }
 }

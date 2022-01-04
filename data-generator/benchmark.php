@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 04.01.2022, 14:01
+ * 05.01.2022, 2:51
  */
 
 declare(strict_types=1);
@@ -137,7 +137,13 @@ foreach ($essences as $category => $essence) {
     $essenceEntity->setCode($essence);
     $essenceEntity->setStorageKind(Storable::RAPID_OBTAINMENT);
 
-    $manager = new EssenceManager($essenceEntity, $linkToData);
+    $manager = new EssenceManager(
+        $essenceEntity->getCode(),
+        'essence',
+        $linkToData,
+    );
+    $manager->setSubject($essenceEntity);
+
     $manager->correct($essenceEntity->getCode());
 
     $start = microtime(true);
@@ -151,7 +157,13 @@ foreach ($essences as $category => $essence) {
 
     $essenceEntity->setStorageKind(Storable::RAPID_RECORDING);
 
-    $manager = new EssenceManager($essenceEntity, $linkToData);
+    $manager = new EssenceManager(
+        $essenceEntity->getCode(),
+        'essence',
+        $linkToData,
+    );
+    $manager->setSubject($essenceEntity);
+
     $manager->correct($essenceEntity->getCode());
 
     $start = microtime(true);
@@ -171,14 +183,27 @@ foreach ($essences as $category => $essence) {
         $attribute = \AllThings\Blueprint\Attribute\Attribute
             ::GetDefaultAttribute();
         $attribute->setCode($code);
-        $manager = new AttributeManager($attribute, $linkToData);
+
+        $manager = new AttributeManager(
+            $code,
+            'attribute',
+            $linkToData,
+        );
+        $manager->setSubject($attribute);
+
         $manager->browse();
         $kinds[$key] = $manager->retrieveData();
     }
 
     $essenceEntity->setStorageKind(Storable::DIRECT_READING);
 
-    $manager = new EssenceManager($essenceEntity, $linkToData);
+    $manager = new EssenceManager(
+        $essenceEntity->getCode(),
+        'essence',
+        $linkToData,
+    );
+    $manager->setSubject($essenceEntity);
+
     $manager->correct($essenceEntity->getCode());
 
     $average = setupThing(
@@ -192,7 +217,13 @@ foreach ($essences as $category => $essence) {
 
     $essenceEntity->setStorageKind(Storable::RAPID_OBTAINMENT);
 
-    $manager = new EssenceManager($essenceEntity, $linkToData);
+    $manager = new EssenceManager(
+        $essenceEntity->getCode(),
+        'essence',
+        $linkToData,
+    );
+    $manager->setSubject($essenceEntity);
+
     $manager->correct($essenceEntity->getCode());
 
     $average = setupThing(
@@ -206,7 +237,13 @@ foreach ($essences as $category => $essence) {
 
     $essenceEntity->setStorageKind(Storable::RAPID_RECORDING);
 
-    $manager = new EssenceManager($essenceEntity, $linkToData);
+    $manager = new EssenceManager(
+        $essenceEntity->getCode(),
+        'essence',
+        $linkToData,
+    );
+    $manager->setSubject($essenceEntity);
+
     $manager->correct($essenceEntity->getCode());
 
     $average = setupThing(
@@ -231,7 +268,13 @@ foreach ($essences as $category => $essence) {
 
     $essenceEntity->setStorageKind(Storable::DIRECT_READING);
 
-    $manager = new EssenceManager($essenceEntity, $linkToData);
+    $manager = new EssenceManager(
+        $essenceEntity->getCode(),
+        'essence',
+        $linkToData,
+    );
+    $manager->setSubject($essenceEntity);
+
     $manager->correct($essenceEntity->getCode());
 
     $start = microtime(true);
@@ -245,7 +288,13 @@ foreach ($essences as $category => $essence) {
 
     $essenceEntity->setStorageKind(Storable::RAPID_OBTAINMENT);
 
-    $manager = new EssenceManager($essenceEntity, $linkToData);
+    $manager = new EssenceManager(
+        $essenceEntity->getCode(),
+        'essence',
+        $linkToData,
+    );
+    $manager->setSubject($essenceEntity);
+
     $manager->correct($essenceEntity->getCode());
 
     $start = microtime(true);
@@ -259,7 +308,13 @@ foreach ($essences as $category => $essence) {
 
     $essenceEntity->setStorageKind(Storable::RAPID_RECORDING);
 
-    $manager = new EssenceManager($essenceEntity, $linkToData);
+    $manager = new EssenceManager(
+        $essenceEntity->getCode(),
+        'essence',
+        $linkToData,
+    );
+    $manager->setSubject($essenceEntity);
+
     $manager->correct($essenceEntity->getCode());
 
     $start = microtime(true);

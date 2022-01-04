@@ -1,88 +1,64 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 05.01.2022, 2:51
  */
 
 namespace AllThings\DataAccess\Nameable;
 
 
-use PDO;
+use AllThings\DataAccess\Uniquable\UniqueManager;
 
-class NamedEntityManager implements INamedEntityManager
+class NamedEntityManager
+    extends UniqueManager
+    implements INamedEntityManager
 {
-    private $subject = null;
-    private $dataPath = null;
-    private $storageLocation = '';
-
-    public function __construct(Nameable $subject, $storageLocation, PDO $dataPath)
-    {
-        $this->subject = $subject;
-        $this->dataPath = $dataPath;
-        $this->storageLocation = $storageLocation;
-    }
-
-    public function create(): bool
-    {
-        $handler = $this->getHandler();
-
-        $result = $handler->add();
-
-        $this->setSubject($handler);
-
-        return $result;
-    }
+    private ?Nameable $subject;
 
     /**
      * @return NamedRecordHandler
      */
-    private function getHandler(): NamedRecordHandler
+    private function getNameableHandler(): NamedRecordHandler
     {
         $subject = $this->subject;
         $dataPath = $this->dataPath;
-        $handler = new NamedRecordHandler($subject, $this->storageLocation, $dataPath);
+        $handler = new NamedRecordHandler(
+            $subject->getCode(),
+            $this->storageLocation,
+            $dataPath,
+        );
+        $handler->setContainer($subject);
 
         return $handler;
     }
 
     /**
-     * @param $handler
+     * @param NamedRecordHandler $handler
      */
-    private function setSubject(NamedRecordHandler $handler): void
+    private function loadSubject(NamedRecordHandler $handler): void
     {
         $this->subject = $handler->retrieveData();
     }
 
-    public function remove(): bool
-    {
-        $handler = $this->getHandler();
-
-        $result = $handler->hide();
-
-        $this->setSubject($handler);
-
-        return $result;
-    }
-
     public function correct(string $targetIdentity = ''): bool
     {
-        $handler = $this->getHandler();
+        $handler = $this->getNameableHandler();
 
         $result = $handler->write($targetIdentity);
 
-        $this->setSubject($handler);
+        $this->loadSubject($handler);
 
         return $result;
     }
 
     public function browse(): bool
     {
-        $handler = $this->getHandler();
+        $handler = $this->getNameableHandler();
 
         $result = $handler->read();
 
-        $this->setSubject($handler);
+        $this->loadSubject($handler);
 
         return $result;
     }
@@ -97,5 +73,13 @@ class NamedEntityManager implements INamedEntityManager
     public function has(): bool
     {
         return !is_null($this->subject);
+    }
+
+    /**
+     * @param Nameable $subject
+     */
+    public function setSubject(Nameable $subject): void
+    {
+        $this->subject = $subject;
     }
 }

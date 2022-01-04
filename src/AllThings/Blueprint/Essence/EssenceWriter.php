@@ -1,19 +1,15 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 05.01.2022, 2:51
  */
 
 namespace AllThings\Blueprint\Essence;
 
+use AllThings\DataAccess\Uniquable\UniquableWriter;
 
-interface EssenceWriter
+interface EssenceWriter extends UniquableWriter
 {
-
-    public function insert(IEssence $entity): bool;
-
-    public function setIsHidden(IEssence $entity): bool;
-
     public function update(IEssence $target_entity, IEssence $suggestion_entity): bool;
 }

@@ -1,12 +1,11 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 26.12.2021, 5:51
+ * Copyright © 2022 Volkhin Nikolay
+ * 05.01.2022, 2:51
  */
 
 namespace AllThings\ControlPanel;
-
 
 use AllThings\Blueprint\Attribute\Attribute;
 use AllThings\Blueprint\Attribute\AttributeManager;
@@ -48,8 +47,9 @@ class Operator
         $essence->setCode($code);
 
         $handler = new EssenceManager(
-            $essence,
-            $this->db
+            $code,
+            'essence',
+            $this->db,
         );
         $isSuccess = $handler->create();
         if (!$isSuccess) {
@@ -65,6 +65,8 @@ class Operator
         if ($description) {
             $essence->setRemark($description);
         }
+        $handler->setSubject($essence);
+
         if ($storageKind || $title || $description) {
             $isSuccess = $handler->correct();
         }
@@ -92,7 +94,8 @@ class Operator
             ->setRangeType($rangeType);
 
         $handler = new AttributeManager(
-            $attribute,
+            $code,
+            'attribute',
             $this->db
         );
 
@@ -110,6 +113,7 @@ class Operator
         if ($description) {
             $attribute->setRemark($description);
         }
+        $handler->setSubject($attribute);
 
         $isSuccess = $handler->correct();
         if (!$isSuccess) {
@@ -168,7 +172,7 @@ class Operator
         $attributes = $manager->retrieveData();
 
         $nameable = (new NamedEntity())->setCode($code);
-        $handler = new NamedEntityManager($nameable, 'thing', $this->db);
+        $handler = new NamedEntityManager($code, 'thing', $this->db);
 
         $isSuccess = $handler->create();
         if (!$isSuccess) {
@@ -181,6 +185,7 @@ class Operator
         if ($description) {
             $nameable->setRemark($description);
         }
+        $handler->setSubject($nameable);
         if ($title || $description) {
             $isSuccess = $handler->correct();
         }

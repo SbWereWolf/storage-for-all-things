@@ -1,70 +1,24 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:46
+ * Copyright © 2022 Volkhin Nikolay
+ * 05.01.2022, 2:51
  */
 
 namespace AllThings\DataAccess\Nameable;
 
+use AllThings\DataAccess\Uniquable\UniquableWriter;
+use AllThings\DataAccess\Uniquable\UniqueLocation;
 
-use PDO;
-
-class StorageLocation implements ValuableWriter
+class StorageLocation
+    extends UniqueLocation
+    implements ValuableWriter,
+               UniquableWriter
 {
-
-    private $tableName = '';
-    /**
-     * @var PDO
-     */
-    private $storageLocation;
-
-    public function __construct(string $table, PDO $storageLocation)
-    {
-        $this->tableName = $table;
-        $this->storageLocation = $storageLocation;
-    }
-
-    public function insert(Nameable $entity): bool
-    {
-        $suggestion_code = $entity->getCode();
-
-        $sqlText = 'insert into ' . $this->tableName . ' (code)values(:code)';
-        $connection = $this->storageLocation;
-
-        $query = $connection->prepare($sqlText);
-        $query->bindParam(':code', $suggestion_code);
-        $result = $query->execute();
-
-        return $result;
-    }
-
-    public function setIsHidden(Nameable $entity): bool
-    {
-        $target_code = $entity->getCode();
-
-        $sqlText = "
-update {$this->tableName} set is_hidden = 1 where code = :code";
-        $connection = $this->storageLocation;
-
-        $connection->beginTransaction();
-        $query = $connection->prepare($sqlText);
-        $query->bindParam(':code', $target_code);
-        $result = $query->execute();
-
-        $isSuccess = $result === true;
-        if ($isSuccess) {
-            $result = $connection->commit();
-        }
-        if (!$isSuccess) {
-            $connection->rollBack();
-        }
-
-        return $result;
-    }
-
-    public function update(Nameable $target_entity, Nameable $suggestion_entity): bool
-    {
+    public function update(
+        Nameable $target_entity,
+        Nameable $suggestion_entity,
+    ): bool {
         $targetCode = $target_entity->getCode();
         $proposalCode = $suggestion_entity->getCode();
         $proposalTitle = $suggestion_entity->getTitle();

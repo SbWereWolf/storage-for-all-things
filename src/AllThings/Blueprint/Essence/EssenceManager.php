@@ -1,89 +1,58 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 05.01.2022, 2:51
  */
 
 namespace AllThings\Blueprint\Essence;
 
+use AllThings\DataAccess\Uniquable\UniqueManager;
 
-use PDO;
-
-class EssenceManager implements IEssenceManager
+class EssenceManager extends UniqueManager implements IEssenceManager
 {
-    private $subject = null;
-    private $dataPath = null;
-
-
-    public function __construct(IEssence $subject, PDO $dataPath)
-    {
-        $this->subject = $subject;
-        $this->dataPath = $dataPath;
-    }
-
-    public function create(): bool
-    {
-        $handler = $this->getHandler();
-
-        $result = $handler->add();
-
-        $this->setSubject($handler);
-
-        return $result;
-    }
+    private ?IEssence $subject = null;
 
     /**
      * @return EssenceRecordHandler
      */
-    private function getHandler(): EssenceRecordHandler
+    private function getEssenceHandler(): EssenceRecordHandler
     {
-        $subject = $this->subject;
-        $dataPath = $this->dataPath;
-        $handler = new EssenceRecordHandler($subject, $dataPath);
+        $handler = new EssenceRecordHandler(
+            $this->subject->getCode(),
+            $this->storageLocation,
+            $this->dataPath,
+        );
+        $handler->setEssence($this->subject);
 
         return $handler;
     }
 
-    /**
-     * @param $handler
-     */
-    private function setSubject(EssenceRecordHandler $handler)
+    private function loadSubject(EssenceRecordHandler $handler)
     {
         $this->subject = $handler->has()
             ? $handler->retrieveData()
             : null;
     }
 
-    public function remove(): bool
-    {
-        $handler = $this->getHandler();
-
-        $result = $handler->hide();
-
-        $this->setSubject($handler);
-
-        return $result;
-    }
-
     public function correct(string $targetIdentity = ''): bool
     {
-        $handler = $this->getHandler();
+        $handler = $this->getEssenceHandler();
 
         $result = $handler->write($targetIdentity);
 
-        $this->setSubject($handler);
+        $this->loadSubject($handler);
 
         return $result;
     }
 
     public function browse(): bool
     {
-        $handler = $this->getHandler();
+        $handler = $this->getEssenceHandler();
 
         $result = $handler->read();
 
-        $this->setSubject($handler);
+        $this->loadSubject($handler);
 
         return $result;
     }
@@ -101,5 +70,13 @@ class EssenceManager implements IEssenceManager
     public function has(): bool
     {
         return !is_null($this->subject);
+    }
+
+    /**
+     * @param IEssence|null $subject
+     */
+    public function setSubject(IEssence $subject): void
+    {
+        $this->subject = $subject;
     }
 }

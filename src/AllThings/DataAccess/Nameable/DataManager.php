@@ -1,20 +1,16 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 05.01.2022, 2:51
  */
 
 namespace AllThings\DataAccess\Nameable;
 
+use AllThings\DataAccess\Uniquable\UniquableManager;
 
-interface DataManager
+interface DataManager extends UniquableManager
 {
-
-    public function create(): bool;
-
-    public function remove(): bool;
-
     public function correct(string $targetIdentity = ''): bool;
 
     public function browse(): bool;

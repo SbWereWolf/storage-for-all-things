@@ -1,55 +1,32 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 05.01.2022, 2:51
  */
 
 namespace AllThings\Blueprint\Attribute;
 
-
-use AllThings\DataAccess\Nameable\Hideable;
 use AllThings\DataAccess\Nameable\Valuable;
 use AllThings\DataAccess\Retrievable;
-use PDO;
+use AllThings\DataAccess\Uniquable\UniqueHandler;
 
-class AttributeRecordHandler implements Valuable, Hideable, Retrievable
+class AttributeRecordHandler extends UniqueHandler implements Valuable, Retrievable
 {
-
-    private $storageLocation = 'attribute';
-    private $dataSource = 'attribute';
-
-    private $dataPath = null;
-    private $attribute = null;
-
-    public function __construct(IAttribute $attribute, PDO $dataPath)
-    {
-        $this->attribute = $attribute;
-        $this->dataPath = $dataPath;
-    }
-
-    public function add(): bool
-    {
-        $attribute = $this->attribute->GetAttributeCopy();
-
-        $result = ($this->getAttributeLocation())->insert($attribute);
-
-        $this->setAttribute($result, $attribute);
-
-        return $result;
-    }
+    private string $dataSource = 'attribute';
+    private ?IAttribute $attribute = null;
 
     private function getAttributeLocation(): AttributeLocation
     {
-        $repository = new AttributeLocation($this->storageLocation, $this->dataPath);
+        $repository = new AttributeLocation($this->location, $this->dataPath);
         return $repository;
     }
 
     /**
-     * @param $result
-     * @param $attribute
+     * @param bool $result
+     * @param IAttribute $attribute
      */
-    private function setAttribute(bool $result, IAttribute $attribute): void
+    public function assignAttribute(bool $result, IAttribute $attribute): void
     {
         if ($result) {
             $this->attribute = $attribute;
@@ -57,17 +34,6 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
         if (!$result) {
             $this->attribute = null;
         }
-    }
-
-    public function hide(): bool
-    {
-        $attribute = $this->attribute->GetAttributeCopy();
-
-        $result = ($this->getAttributeLocation())->setIsHidden($attribute);
-
-        $this->setAttribute($result, $attribute);
-
-        return $result;
     }
 
     public function write(string $code): bool
@@ -80,7 +46,7 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
 
         $result = ($this->getAttributeLocation())->update($target, $attribute);
 
-        $this->setAttribute($result, $attribute);
+        $this->assignAttribute($result, $attribute);
 
         return $result;
     }
@@ -101,7 +67,7 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
     {
         $result = ($this->getAttributeSource())->select($this->attribute);
 
-        $this->setAttribute($result, $this->attribute);
+        $this->assignAttribute($result, $this->attribute);
 
         return $result;
     }
@@ -123,5 +89,10 @@ class AttributeRecordHandler implements Valuable, Hideable, Retrievable
     public function has(): bool
     {
         return !is_null($this->attribute);
+    }
+
+    public function setSubject(?IAttribute $subject)
+    {
+        $this->attribute = $subject;
     }
 }

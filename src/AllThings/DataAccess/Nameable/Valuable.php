@@ -1,19 +1,15 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 05.01.2022, 2:51
  */
 
 namespace AllThings\DataAccess\Nameable;
 
-
 interface Valuable
 {
-    public function add(): bool;
-
     public function write(string $code): bool;
 
     public function read(): bool;
-
 }

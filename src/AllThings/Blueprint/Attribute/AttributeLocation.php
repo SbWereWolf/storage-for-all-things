@@ -1,65 +1,16 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 05.01.2022, 2:51
  */
 
 namespace AllThings\Blueprint\Attribute;
 
+use AllThings\DataAccess\Uniquable\UniqueLocation;
 
-use PDO;
-
-class AttributeLocation implements AttributeWriter
+class AttributeLocation extends UniqueLocation implements AttributeWriter
 {
-
-    private $tableName = '';
-    private $storageLocation = null;
-
-    public function __construct(string $table, PDO $storageLocation)
-    {
-        $this->tableName = $table;
-        $this->storageLocation = $storageLocation;
-    }
-
-    public function insert(IAttribute $entity): bool
-    {
-        $proposalCode = $entity->getCode();
-        $proposalDatatype = $entity->getDataType();
-        $proposalRangeType = $entity->getRangeType();
-
-        $sqlText = "
-insert into {$this->tableName} 
-    (code,data_type,range_type)
-    values(:code,:data_type,:range_type)
-    ";
-        $connection = $this->storageLocation;
-
-        $query = $connection->prepare($sqlText);
-        $query->bindParam(':code', $proposalCode);
-        $query->bindParam(':data_type', $proposalDatatype);
-        $query->bindParam(':range_type', $proposalRangeType);
-
-        $result = $query->execute();
-
-        return $result;
-    }
-
-    public function setIsHidden(IAttribute $entity): bool
-    {
-        $target_code = $entity->getCode();
-
-        $sqlText = 'update ' . $this->tableName . ' set is_hidden = 1 where code = :code';
-        $connection = $this->storageLocation;
-
-        $query = $connection->prepare($sqlText);
-        $query->bindParam(':code', $target_code);
-
-        $result = $query->execute();
-
-        return $result;
-    }
-
     public function update(IAttribute $target_entity, IAttribute $suggestion_entity): bool
     {
         $target_code = $target_entity->getCode();

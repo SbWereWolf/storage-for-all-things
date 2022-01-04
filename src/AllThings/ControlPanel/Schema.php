@@ -2,11 +2,10 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 03.01.2022, 6:20
+ * 05.01.2022, 2:51
  */
 
 namespace AllThings\ControlPanel;
-
 
 use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Essence\Essence;
@@ -87,10 +86,12 @@ class Schema
         $essence = (Essence::GetDefaultEssence());
         $essence->setCode($this->essence);
         $manager = new EssenceManager(
-            $essence,
-            $this->db
+            $this->essence,
+            'essence',
+            $this->db,
         );
 
+        $manager->setSubject($essence);
         $isSuccess = $manager->browse();
         $data = [];
         if ($isSuccess && $manager->has()) {
@@ -145,9 +146,12 @@ class Schema
         $essence = $payload[0];
         $essence->setStorageKind($storageKind);
         $handler = new EssenceManager(
-            $essence,
+            $essence->getCode(),
+            'essence',
             $this->db
         );
+        $handler->setSubject($essence);
+
         /** @noinspection PhpUnusedLocalVariableInspection */
         $isSuccess = $handler->correct();
 

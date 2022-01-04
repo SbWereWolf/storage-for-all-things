@@ -1,55 +1,34 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 05.01.2022, 2:51
  */
 
 namespace AllThings\Blueprint\Essence;
 
-
-use AllThings\DataAccess\Nameable\Hideable;
 use AllThings\DataAccess\Nameable\Valuable;
 use AllThings\DataAccess\Retrievable;
-use PDO;
+use AllThings\DataAccess\Uniquable\UniqueHandler;
+use Exception;
 
-class EssenceRecordHandler implements Valuable, Hideable, Retrievable
+class EssenceRecordHandler extends UniqueHandler implements Valuable, Retrievable
 {
-
-    private $storageLocation = 'essence';
-    private $dataSource = 'essence';
-    private $dataPath;
-    private $essence = null;
-
-    public function __construct(IEssence $essence, PDO $dataPath)
-    {
-        $this->essence = $essence;
-        $this->dataPath = $dataPath;
-    }
-
-    public function add(): bool
-    {
-        $essence = $this->essence->GetEssenceCopy();
-
-        $result = ($this->getEssenceLocation())->insert($essence);
-
-        $this->setEssence($result, $essence);
-
-        return $result;
-    }
+    private string $dataSource = 'essence';
+    private ?IEssence $essence;
 
     private function getEssenceLocation(): EssenceLocation
     {
-        $storageLocation = new EssenceLocation($this->storageLocation, $this->dataPath);
+        $storageLocation = new EssenceLocation($this->location, $this->dataPath);
 
         return $storageLocation;
     }
 
     /**
-     * @param $result
-     * @param $essence
+     * @param bool $result
+     * @param IEssence $essence
      */
-    private function setEssence(bool $result, IEssence $essence): void
+    private function assignEssence(bool $result, IEssence $essence): void
     {
         if ($result) {
             $this->essence = $essence;
@@ -57,17 +36,6 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
         if (!$result) {
             $this->essence = null;
         }
-    }
-
-    public function hide(): bool
-    {
-        $essence = $this->essence->GetEssenceCopy();
-
-        $result = ($this->getEssenceLocation())->setIsHidden($essence);
-
-        $this->setEssence($result, $essence);
-
-        return $result;
     }
 
     public function write(string $code): bool
@@ -81,7 +49,7 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
 
         $result = ($this->getEssenceLocation())->update($target, $essence);
 
-        $this->setEssence($result, $essence);
+        $this->assignEssence($result, $essence);
 
         return $result;
     }
@@ -89,6 +57,7 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
     /**
      * @param string $code
      * @return IEssence
+     * @throws Exception
      */
     private function setEssenceByCode(string $code): IEssence
     {
@@ -104,7 +73,7 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
 
         $result = ($this->getEssenceSource())->select($essence);
 
-        $this->setEssence($result, $essence);
+        $this->assignEssence($result, $essence);
 
         return $result;
     }
@@ -125,5 +94,13 @@ class EssenceRecordHandler implements Valuable, Hideable, Retrievable
     public function has(): bool
     {
         return !is_null($this->essence);
+    }
+
+    /**
+     * @param IEssence $essence
+     */
+    public function setEssence(IEssence $essence): void
+    {
+        $this->essence = $essence;
     }
 }

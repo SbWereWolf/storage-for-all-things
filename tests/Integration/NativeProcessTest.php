@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 04.01.2022, 10:06
+ * 05.01.2022, 2:51
  */
 
 namespace Integration;
@@ -80,8 +80,9 @@ class NativeProcessTest extends TestCase
 
         $linkToData = $context['PDO'];
         $handler = new EssenceManager(
-            $essence,
-            $linkToData
+            'cake',
+            'essence',
+            $linkToData,
         );
 
         $isSuccess = $handler->create();
@@ -116,9 +117,11 @@ class NativeProcessTest extends TestCase
 
         $linkToData = $context['PDO'];
         $handler = new EssenceManager(
-            $value,
-            $linkToData
+            $code,
+            'essence',
+            $linkToData,
         );
+        $handler->setSubject($value);
 
 
         $isSuccess = $handler->correct($code);
@@ -178,9 +181,12 @@ class NativeProcessTest extends TestCase
 
         $linkToData = $context['PDO'];
         $handler = new AttributeManager(
-            $attribute,
-            $linkToData
+            $code,
+            'attribute',
+            $linkToData,
         );
+
+        $handler->setSubject($attribute);
 
         $isSuccess = $handler->create();
         $this->assertTrue(
@@ -226,9 +232,11 @@ class NativeProcessTest extends TestCase
                 ->setDataType($settings['DataType'])
                 ->setRangeType($settings['RangeType']);
             $handler = new AttributeManager(
-                $value,
-                $linkToData
+                $code,
+                'attribute',
+                $linkToData,
             );
+            $handler->setSubject($value);
 
             $isSuccess = $handler->correct($code);
             $this->assertTrue(
@@ -363,7 +371,12 @@ class NativeProcessTest extends TestCase
     private function createThing(string $code, $linkToData): void
     {
         $nameable = (new NamedEntity())->setCode($code);
-        $handler = new NamedEntityManager($nameable, 'thing', $linkToData);
+        $handler = new NamedEntityManager(
+            $code,
+            'thing',
+            $linkToData,
+        );
+        $handler->setSubject($nameable);
 
         $isSuccess = $handler->create();
         $this->assertTrue(
@@ -462,7 +475,12 @@ class NativeProcessTest extends TestCase
         $subject = (new NamedEntity())
             ->setCode($code)
             ->setTitle($title);
-        $handler = new NamedEntityManager($subject, 'thing', $linkToData);
+        $handler = new NamedEntityManager(
+            $code,
+            'thing',
+            $linkToData,
+        );
+        $handler->setSubject($subject);
 
         $isSuccess = $handler->correct($code);
         $this->assertTrue(
@@ -1170,9 +1188,12 @@ class NativeProcessTest extends TestCase
         $value->setDataType('word');
         $value->setRangeType('discrete');
         $handler = new AttributeManager(
-            $value,
-            $linkToData
+            $code,
+            'attribute',
+            $linkToData,
         );
+        $handler->setSubject($value);
+
         /** @noinspection PhpUnusedLocalVariableInspection */
         $isSuccess = $handler->correct($code);
 

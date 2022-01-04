@@ -2,61 +2,16 @@
 
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 05.01.2022, 2:51
  */
 
 namespace AllThings\Blueprint\Essence;
 
+use AllThings\DataAccess\Uniquable\UniqueLocation;
 
-use PDO;
-
-class EssenceLocation implements EssenceWriter
+class EssenceLocation extends UniqueLocation implements EssenceWriter
 {
-
-    private string $tableName;
-    /**
-     * @var PDO
-     */
-    private PDO $storageLocation;
-
-    public function __construct(string $table, PDO $storageLocation)
-    {
-        $this->tableName = $table;
-        $this->storageLocation = $storageLocation;
-    }
-
-    public function insert(IEssence $entity): bool
-    {
-        $suggestion_code = $entity->getCode();
-
-        $sqlText = 'insert into ' . $this->tableName . ' (code)values(:code)';
-        $connection = $this->storageLocation;
-
-
-        $query = $connection->prepare($sqlText);
-        $query->bindParam(':code', $suggestion_code);
-        /** @noinspection PhpUnnecessaryLocalVariableInspection */
-        $result = $query->execute();
-
-        return $result;
-    }
-
-    public function setIsHidden(IEssence $entity): bool
-    {
-        $target_code = $entity->getCode();
-
-        $sqlText = 'update ' . $this->tableName . ' set is_hidden = 1 where code = :code';
-        $connection = $this->storageLocation;
-
-        $query = $connection->prepare($sqlText);
-        $query->bindParam(':code', $target_code);
-        /** @noinspection PhpUnnecessaryLocalVariableInspection */
-        $result = $query->execute();
-
-        return $result;
-    }
-
     public function update(
         IEssence $target_entity,
         IEssence $suggestion_entity

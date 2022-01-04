@@ -2,11 +2,10 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 03.01.2022, 6:20
+ * 05.01.2022, 2:51
  */
 
 namespace AllThings\StorageEngine;
-
 
 use AllThings\Blueprint\Attribute\Attribute;
 use AllThings\Blueprint\Attribute\AttributeManager;
@@ -261,9 +260,11 @@ WHERE thing_id = (
             $subject = Attribute::GetDefaultAttribute();
             $subject->setCode($code);
             $attributeManager = new AttributeManager(
-                $subject,
+                $code,
+                'attribute',
                 $linkToData
             );
+            $attributeManager->setSubject($subject);
 
             $isSuccess = $attributeManager->browse();
             if ($isSuccess) {
