@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 03.01.2022, 6:25
+ * 04.01.2022, 10:06
  */
 
 namespace Integration;
@@ -26,7 +26,7 @@ use AllThings\StorageEngine\DirectReading;
 use AllThings\StorageEngine\Installation;
 use AllThings\StorageEngine\RapidObtainment;
 use AllThings\StorageEngine\RapidRecording;
-use Environment\Database\DbConnection;
+use Environment\Database\PdoConnection;
 use Exception;
 use PDO;
 use PHPUnit\Framework\TestCase;
@@ -41,7 +41,15 @@ class NativeProcessTest extends TestCase
      */
     public function testInit(): array
     {
-        $linkToData = (new DbConnection())->getForRead();
+        $pathParts = [
+            __DIR__,
+            '..',
+            '..',
+            'configuration',
+            'pdo.env',
+        ];
+        $path = implode(DIRECTORY_SEPARATOR, $pathParts);
+        $linkToData = (new PdoConnection($path))->get();
 
         $isSuccess = static::SKIP;
         if (!static::SKIP) {

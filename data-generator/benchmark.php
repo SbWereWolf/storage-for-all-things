@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 03.01.2022, 6:23
+ * 04.01.2022, 14:01
  */
 
 declare(strict_types=1);
@@ -27,18 +27,16 @@ use AllThings\SearchEngine\Searchable;
 use AllThings\SearchEngine\Seeker;
 use AllThings\StorageEngine\RapidRecording;
 use AllThings\StorageEngine\Storable;
-use Environment\Database\DbConnection;
+use Environment\Database\PdoConnection;
 
-$path = [
-    __DIR__,
-    '..',
-    'vendor',
-    'autoload.php',
-];
-$autoloader = implode(DIRECTORY_SEPARATOR, $path);
-require_once($autoloader);
+$pathParts = [__DIR__, '..', 'vendor', 'autoload.php',];
+$path = implode(DIRECTORY_SEPARATOR, $pathParts);
+require_once($path);
 
-$linkToData = (new DbConnection())->getForWrite();
+$pathParts = [__DIR__, '..', 'configuration', 'pdo.env',];
+$path = implode(DIRECTORY_SEPARATOR, $pathParts);
+
+$linkToData = (new PdoConnection($path))->get();
 $browser = new Browser($linkToData);
 $operator = new Operator($linkToData);
 

@@ -190,25 +190,3 @@ create unique index time_interval_thing_id_attribute_id_uindex
 
 create index time_interval_attribute_id_content_thing_id_index
     on time_interval (attribute_id,content,thing_id);
-
-REVOKE USAGE ON SCHEMA public FROM tester;
-REVOKE ALL PRIVILEGES ON ALL TABLES IN SCHEMA public FROM tester;
-REVOKE ALL PRIVILEGES ON ALL SEQUENCES IN SCHEMA public FROM tester;
-REVOKE ALL PRIVILEGES ON ALL FUNCTIONS IN SCHEMA public FROM tester;
-DROP USER IF EXISTS tester;
-
-CREATE USER tester WITH
-    LOGIN
-    PASSWORD 'data_tester_password_to_test_db'
-    NOSUPERUSER
-    NOCREATEDB
-    NOCREATEROLE
-    NOINHERIT
-    NOREPLICATION;
-
-GRANT USAGE ON SCHEMA public TO tester;
-GRANT SELECT ON ALL TABLES IN SCHEMA public TO tester;
-GRANT INSERT ON ALL TABLES IN SCHEMA public TO tester;
-GRANT UPDATE ON ALL TABLES IN SCHEMA public TO tester;
-GRANT DELETE ON ALL TABLES IN SCHEMA public TO tester;
-GRANT USAGE ON ALL SEQUENCES IN SCHEMA public TO tester;

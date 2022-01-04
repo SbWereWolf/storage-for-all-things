@@ -1,9 +1,9 @@
 .htaccess
 .idea/
-configuration/*.php
 configuration/*.sql
 -configuration/*.example
 
 vendor/*
 build/**
 .phpunit.result.cache
+/configuration/pdo.env

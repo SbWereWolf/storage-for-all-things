@@ -1,8 +1,8 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 29.12.2021, 1:52
+ * Copyright © 2022 Volkhin Nikolay
+ * 04.01.2022, 14:01
  */
 
 declare(strict_types=1);
@@ -11,7 +11,7 @@ use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Essence\IEssence;
 use AllThings\ControlPanel\Operator;
 use AllThings\SearchEngine\Searchable;
-use Environment\Database\DbConnection;
+use Environment\Database\PdoConnection;
 
 $path = [
     __DIR__,
@@ -31,7 +31,11 @@ const MULTIPLIER = 3;
 
 $namesNumber = count($names);
 $attributeLimit = $namesNumber * MULTIPLIER;
-$conn = (new DbConnection())->getForWrite();
+
+$pathParts = [__DIR__, '..', 'configuration', 'pdo.env',];
+$path = implode(DIRECTORY_SEPARATOR, $pathParts);
+
+$conn = (new PdoConnection($path))->get();
 $conn->beginTransaction();
 
 $operator = new Operator($conn);
