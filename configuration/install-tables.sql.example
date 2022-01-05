@@ -1,3 +1,5 @@
+/* Purge base tables of EAV */
+
 DELETE FROM word WHERE TRUE;
 DELETE FROM number WHERE TRUE;
 DELETE FROM time_moment WHERE TRUE;
@@ -8,6 +10,7 @@ DELETE FROM essence_attribute WHERE TRUE;
 DELETE FROM attribute WHERE TRUE;
 DELETE FROM essence WHERE TRUE;
 
+/* Re-install EAV */
 
 DROP TABLE IF EXISTS word;
 DROP TABLE IF EXISTS number;
@@ -27,15 +30,11 @@ create table essence
     code text not null,
     title text,
     remark text,
-    is_hidden int not null DEFAULT 0,
     store_at text
 );
 
 create unique index essence_code_uindex
     on essence (code);
-
-create index essence_is_hidden_id_index
-    on essence (is_hidden, id);
 
 create table attribute
 (
@@ -45,16 +44,12 @@ create table attribute
     code text not null,
     title text,
     remark text,
-    is_hidden int not null default 0,
     data_type text,
     range_type text
 );
 
 create unique index attribute_code_uindex
     on attribute (code);
-
-create index attribute_is_hidden_id_index
-    on attribute (is_hidden, id);
 
 create table essence_attribute
 (
@@ -82,15 +77,11 @@ create table thing
             primary key,
     code text not null,
     title text,
-    remark text,
-    is_hidden int default 0 not null
+    remark text
 );
 
 create unique index thing_code_uindex
     on thing (code);
-
-create index thing_is_hidden_id_index
-    on thing (is_hidden, id);
 
 create table essence_thing
 (
@@ -142,7 +133,7 @@ create table number
     attribute_id int not null
         constraint number_attribute_id_fk
             references attribute,
-    content decimal(10,4)
+    content decimal(14,4)
 );
 
 create unique index number_thing_id_attribute_id_uindex
