@@ -1,3 +1,9 @@
+/*
+ * storage-for-all-things
+ * Copyright © 2022 Volkhin Nikolay
+ * 07.01.2022, 3:56
+ */
+
 /* purge db after auto testing */
 DELETE
 FROM essence_thing
