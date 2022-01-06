@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 07.01.2022, 2:41
  */
 
 declare(strict_types=1);
@@ -80,28 +80,28 @@ foreach ($essences as $category => $essence) {
     echo 'TAKE SOME FROM VIEW ' . $average . PHP_EOL;
 
     $average = setupSource($schema, 'handleWithRapidObtainment');
-    echo 'MAKE MATH VIEW ' . $average . PHP_EOL;
+    echo 'MAKE MAT VIEW ' . $average . PHP_EOL;
 
     try {
         [$dummy, $average] = getFilters($browser, $essence);
     } catch (Exception $e) {
         var_dump($e);
     }
-    echo 'GET FILTERS FROM MATH VIEW ' . $average . PHP_EOL;
+    echo 'GET FILTERS FROM MAT VIEW ' . $average . PHP_EOL;
 
     try {
         $average = filterData($browser, $essence, []);
     } catch (Exception $e) {
         var_dump($e);
     }
-    echo 'TAKE ALL FROM MATH VIEW ' . $average . PHP_EOL;
+    echo 'TAKE ALL FROM MAT VIEW ' . $average . PHP_EOL;
 
     try {
         $average = filterData($browser, $essence, $filters);
     } catch (Exception $e) {
         var_dump($e);
     }
-    echo 'TAKE SOME FROM MATH VIEW ' . $average . PHP_EOL;
+    echo 'TAKE SOME FROM MAT VIEW ' . $average . PHP_EOL;
 
     $average = setupSource($schema, 'handleWithRapidRecording');
     echo 'MAKE TABLE ' . $average . PHP_EOL;
@@ -153,7 +153,7 @@ foreach ($essences as $category => $essence) {
     $finish = microtime(true);
     $duration = $finish - $start;
 
-    echo 'ADD NEW ITEM TO MATH VIEW ' . $duration . PHP_EOL;
+    echo 'ADD NEW ITEM TO MAT VIEW ' . $duration . PHP_EOL;
 
     $essenceEntity->setStorageKind(Storable::RAPID_RECORDING);
 
@@ -233,7 +233,7 @@ foreach ($essences as $category => $essence) {
         $schema,
     );
 
-    echo 'SETUP NEW ITEM FOR MATH VIEW ' . $average . PHP_EOL;
+    echo 'SETUP NEW ITEM FOR MAT VIEW ' . $average . PHP_EOL;
 
     $essenceEntity->setStorageKind(Storable::RAPID_RECORDING);
 
@@ -304,7 +304,7 @@ foreach ($essences as $category => $essence) {
     $finish = microtime(true);
     $duration = $finish - $start;
 
-    echo 'ADD NEW KIND FOR MATH VIEW ' . $duration . PHP_EOL;
+    echo 'ADD NEW KIND FOR MAT VIEW ' . $duration . PHP_EOL;
 
     $essenceEntity->setStorageKind(Storable::RAPID_RECORDING);
 
