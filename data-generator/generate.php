@@ -35,6 +35,7 @@ $attributeLimit = $namesNumber * MULTIPLIER;
 $pathParts = [__DIR__, '..', 'configuration', 'pdo.env',];
 $path = implode(DIRECTORY_SEPARATOR, $pathParts);
 
+/** @var PDO $conn */
 $conn = (new PdoConnection($path))->get();
 $conn->beginTransaction();
 

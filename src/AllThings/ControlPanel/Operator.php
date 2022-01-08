@@ -39,9 +39,9 @@ class Operator
      */
     public function createBlueprint(
         string $code,
-        string $storageKind = Storable::DIRECT_READING,
         string $title = '',
-        string $description = ''
+        string $description = '',
+        string $storageKind = Storable::DIRECT_READING
     ): IEssence {
         $essence = Essence::GetDefaultEssence();
         $essence->setCode($code);

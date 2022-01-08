@@ -68,9 +68,9 @@ class AutomatedProcessTest extends TestCase
         /* ## S001A1S01 создать сущность для предметов типа "пирожок" */
         $essence = $operator->createBlueprint(
             'cake',
-            Storable::DIRECT_READING,
             'The Cakes',
-            'Cakes  of all kinds'
+            'Cakes  of all kinds',
+            Storable::DIRECT_READING
         );
         $this->assertNotEmpty(
             $essence,

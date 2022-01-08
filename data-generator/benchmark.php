@@ -7,12 +7,6 @@
 
 declare(strict_types=1);
 
-/*
- * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 20.11.2021, 3:41
- */
-
 use AllThings\Blueprint\Attribute\AttributeManager;
 use AllThings\Blueprint\Essence\Essence;
 use AllThings\Blueprint\Essence\EssenceManager;
@@ -35,8 +29,8 @@ require_once($path);
 
 $pathParts = [__DIR__, '..', 'configuration', 'pdo.env',];
 $path = implode(DIRECTORY_SEPARATOR, $pathParts);
-
 $linkToData = (new PdoConnection($path))->get();
+
 $browser = new Browser($linkToData);
 $operator = new Operator($linkToData);
 
