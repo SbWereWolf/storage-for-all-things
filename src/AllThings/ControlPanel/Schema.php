@@ -51,7 +51,7 @@ class Schema
      */
     public function getInstallation(): Installation
     {
-        $essence = $this->readEssence();
+        $essence = $this->reloadEssence();
         if (!$essence) {
             throw new Exception('Essence must be find with success');
         }
@@ -76,7 +76,7 @@ class Schema
         return $source;
     }
 
-    private function readEssence(): ?IEssence
+    private function reloadEssence(): ?IEssence
     {
         $essence = (Essence::GetDefaultEssence());
         $essence->setCode($this->essence);
@@ -134,7 +134,7 @@ class Schema
      */
     public function changeStorage(string $storageKind): bool
     {
-        $essence = $this->readEssence();
+        $essence = $this->reloadEssence();
         if (!$essence) {
             throw new Exception('Essence must be find with success');
         }
