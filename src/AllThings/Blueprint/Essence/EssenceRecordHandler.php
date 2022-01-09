@@ -10,61 +10,42 @@ namespace AllThings\Blueprint\Essence;
 use AllThings\DataAccess\Nameable\Valuable;
 use AllThings\DataAccess\Retrievable;
 use AllThings\DataAccess\Uniquable\UniqueHandler;
-use Exception;
+use PDO;
 
-class EssenceRecordHandler extends UniqueHandler implements Valuable, Retrievable
+class EssenceRecordHandler
+    extends UniqueHandler
+    implements Valuable,
+               Retrievable
 {
-    private string $dataSource = 'essence';
+    private string $dataSource;
     private ?IEssence $essence;
+
+    public function __construct(
+        string $uniqueness,
+        string $locationName,
+        PDO $pdo,
+    ) {
+        parent::__construct($uniqueness, $locationName, $pdo);
+
+        $this->dataSource = $locationName;
+    }
 
     private function getEssenceLocation(): EssenceLocation
     {
-        $storageLocation = new EssenceLocation($this->location, $this->dataPath);
+        $storageLocation = new EssenceLocation(
+            $this->location,
+            $this->dataPath,
+        );
 
         return $storageLocation;
     }
 
-    /**
-     * @param bool $result
-     * @param IEssence $essence
-     */
-    private function assignEssence(bool $result, IEssence $essence): void
-    {
-        if ($result) {
-            $this->essence = $essence;
-        }
-        if (!$result) {
-            $this->essence = null;
-        }
-    }
-
     public function write(string $code): bool
     {
-        $essence = $this->essence->GetEssenceCopy();
-
-        $target = $essence;
-        if ($code) {
-            $target = $this->setEssenceByCode($code);
-        }
-
-        $result = ($this->getEssenceLocation())->update($target, $essence);
-
-        $this->assignEssence($result, $essence);
+        $result = $this->getEssenceLocation()
+            ->update($this->essence, $code);
 
         return $result;
-    }
-
-    /**
-     * @param string $code
-     * @return IEssence
-     * @throws Exception
-     */
-    private function setEssenceByCode(string $code): IEssence
-    {
-        $essence = Essence::GetDefaultEssence();
-        $essence->setCode($code);
-
-        return $essence;
     }
 
     public function read(): bool
@@ -73,14 +54,19 @@ class EssenceRecordHandler extends UniqueHandler implements Valuable, Retrievabl
 
         $result = ($this->getEssenceSource())->select($essence);
 
-        $this->assignEssence($result, $essence);
+        if ($result) {
+            $this->essence = $essence;
+        }
 
         return $result;
     }
 
     private function getEssenceSource(): EssenceSource
     {
-        $repository = new EssenceSource($this->dataSource, $this->dataPath);
+        $repository = new EssenceSource(
+            $this->dataSource,
+            $this->dataPath,
+        );
         return $repository;
     }
 
@@ -99,8 +85,10 @@ class EssenceRecordHandler extends UniqueHandler implements Valuable, Retrievabl
     /**
      * @param IEssence $essence
      */
-    public function setEssence(IEssence $essence): void
+    public function setEssence(IEssence $essence): bool
     {
         $this->essence = $essence;
+
+        return true;
     }
 }

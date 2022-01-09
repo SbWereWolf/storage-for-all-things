@@ -8,8 +8,6 @@
 declare(strict_types=1);
 
 use AllThings\Blueprint\Attribute\AttributeManager;
-use AllThings\Blueprint\Essence\Essence;
-use AllThings\Blueprint\Essence\EssenceManager;
 use AllThings\ControlPanel\Browser;
 use AllThings\ControlPanel\Operator;
 use AllThings\ControlPanel\Schema;
@@ -126,19 +124,7 @@ foreach ($essences as $category => $essence) {
     [$average, $thing] = addNewItem($operator, $essence);
     echo 'ADD NEW ITEM ' . $average . PHP_EOL;
 
-
-    $essenceEntity = (Essence::GetDefaultEssence());
-    $essenceEntity->setCode($essence);
-    $essenceEntity->setStorageKind(Storable::RAPID_OBTAINMENT);
-
-    $manager = new EssenceManager(
-        $essenceEntity->getCode(),
-        'essence',
-        $linkToData,
-    );
-    $manager->setSubject($essenceEntity);
-
-    $manager->correct($essenceEntity->getCode());
+    $schema->changeStorage(Storable::RAPID_OBTAINMENT);
 
     $start = microtime(true);
 
@@ -149,16 +135,7 @@ foreach ($essences as $category => $essence) {
 
     echo 'ADD NEW ITEM TO MAT VIEW ' . $duration . PHP_EOL;
 
-    $essenceEntity->setStorageKind(Storable::RAPID_RECORDING);
-
-    $manager = new EssenceManager(
-        $essenceEntity->getCode(),
-        'essence',
-        $linkToData,
-    );
-    $manager->setSubject($essenceEntity);
-
-    $manager->correct($essenceEntity->getCode());
+    $schema->changeStorage(Storable::RAPID_RECORDING);
 
     $start = microtime(true);
 
@@ -189,16 +166,7 @@ foreach ($essences as $category => $essence) {
         $kinds[$key] = $manager->retrieveData();
     }
 
-    $essenceEntity->setStorageKind(Storable::DIRECT_READING);
-
-    $manager = new EssenceManager(
-        $essenceEntity->getCode(),
-        'essence',
-        $linkToData,
-    );
-    $manager->setSubject($essenceEntity);
-
-    $manager->correct($essenceEntity->getCode());
+    $schema->changeStorage(Storable::DIRECT_READING);
 
     $average = setupThing(
         $kinds,
@@ -209,16 +177,7 @@ foreach ($essences as $category => $essence) {
 
     echo 'SETUP NEW ITEM FOR VIEW ' . $average . PHP_EOL;
 
-    $essenceEntity->setStorageKind(Storable::RAPID_OBTAINMENT);
-
-    $manager = new EssenceManager(
-        $essenceEntity->getCode(),
-        'essence',
-        $linkToData,
-    );
-    $manager->setSubject($essenceEntity);
-
-    $manager->correct($essenceEntity->getCode());
+    $schema->changeStorage(Storable::RAPID_OBTAINMENT);
 
     $average = setupThing(
         $kinds,
@@ -229,16 +188,7 @@ foreach ($essences as $category => $essence) {
 
     echo 'SETUP NEW ITEM FOR MAT VIEW ' . $average . PHP_EOL;
 
-    $essenceEntity->setStorageKind(Storable::RAPID_RECORDING);
-
-    $manager = new EssenceManager(
-        $essenceEntity->getCode(),
-        'essence',
-        $linkToData,
-    );
-    $manager->setSubject($essenceEntity);
-
-    $manager->correct($essenceEntity->getCode());
+    $schema->changeStorage(Storable::RAPID_RECORDING);
 
     $average = setupThing(
         $kinds,
@@ -260,16 +210,7 @@ foreach ($essences as $category => $essence) {
         $attribute->getCode()
     );
 
-    $essenceEntity->setStorageKind(Storable::DIRECT_READING);
-
-    $manager = new EssenceManager(
-        $essenceEntity->getCode(),
-        'essence',
-        $linkToData,
-    );
-    $manager->setSubject($essenceEntity);
-
-    $manager->correct($essenceEntity->getCode());
+    $schema->changeStorage(Storable::DIRECT_READING);
 
     $start = microtime(true);
 
@@ -280,16 +221,7 @@ foreach ($essences as $category => $essence) {
 
     echo 'ADD NEW KIND FOR VIEW ' . $duration . PHP_EOL;
 
-    $essenceEntity->setStorageKind(Storable::RAPID_OBTAINMENT);
-
-    $manager = new EssenceManager(
-        $essenceEntity->getCode(),
-        'essence',
-        $linkToData,
-    );
-    $manager->setSubject($essenceEntity);
-
-    $manager->correct($essenceEntity->getCode());
+    $schema->changeStorage(Storable::RAPID_OBTAINMENT);
 
     $start = microtime(true);
 
@@ -300,16 +232,7 @@ foreach ($essences as $category => $essence) {
 
     echo 'ADD NEW KIND FOR MAT VIEW ' . $duration . PHP_EOL;
 
-    $essenceEntity->setStorageKind(Storable::RAPID_RECORDING);
-
-    $manager = new EssenceManager(
-        $essenceEntity->getCode(),
-        'essence',
-        $linkToData,
-    );
-    $manager->setSubject($essenceEntity);
-
-    $manager->correct($essenceEntity->getCode());
+    $schema->changeStorage(Storable::RAPID_RECORDING);
 
     $start = microtime(true);
 

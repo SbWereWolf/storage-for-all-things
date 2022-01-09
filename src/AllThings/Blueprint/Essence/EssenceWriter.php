@@ -11,5 +11,8 @@ use AllThings\DataAccess\Uniquable\UniquableWriter;
 
 interface EssenceWriter extends UniquableWriter
 {
-    public function update(IEssence $target_entity, IEssence $suggestion_entity): bool;
+    public function update(
+        IEssence $suggestion,
+        string $target = '',
+    ): bool;
 }

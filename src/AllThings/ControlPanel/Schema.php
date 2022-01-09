@@ -51,11 +51,10 @@ class Schema
      */
     public function getInstallation(): Installation
     {
-        $payload = $this->readEssence();
-        if (count($payload) === 0) {
+        $essence = $this->readEssence();
+        if (!$essence) {
             throw new Exception('Essence must be find with success');
         }
-        $essence = $payload[0];
 
         $storageKind = $essence->getStorageKind();
         switch ($storageKind) {
@@ -77,29 +76,25 @@ class Schema
         return $source;
     }
 
-    /**
-     * @return IEssence[]
-     * @throws Exception
-     */
-    private function readEssence(): array
+    private function readEssence(): ?IEssence
     {
         $essence = (Essence::GetDefaultEssence());
         $essence->setCode($this->essence);
+
         $manager = new EssenceManager(
             $this->essence,
             'essence',
             $this->db,
         );
-
         $manager->setSubject($essence);
+
         $isSuccess = $manager->browse();
-        $data = [];
+        $result = null;
         if ($isSuccess && $manager->has()) {
-            $essence = $manager->retrieveData();
-            $data[] = $essence;
+            $result = $manager->retrieveData();
         }
 
-        return $data;
+        return $result;
     }
 
     public function setup(?IAttribute $attribute = null): Schema
@@ -137,13 +132,13 @@ class Schema
     /**
      * @throws Exception
      */
-    public function changeStorage(string $storageKind): Schema
+    public function changeStorage(string $storageKind): bool
     {
-        $payload = $this->readEssence();
-        if (count($payload) === 0) {
+        $essence = $this->readEssence();
+        if (!$essence) {
             throw new Exception('Essence must be find with success');
         }
-        $essence = $payload[0];
+
         $essence->setStorageKind($storageKind);
         $handler = new EssenceManager(
             $essence->getCode(),
@@ -152,10 +147,14 @@ class Schema
         );
         $handler->setSubject($essence);
 
-        /** @noinspection PhpUnusedLocalVariableInspection */
         $isSuccess = $handler->correct();
+        if (!$isSuccess) {
+            throw new Exception(
+                'Essence must be corrected with success'
+            );
+        }
 
-        return $this;
+        return $isSuccess;
     }
 
     /**

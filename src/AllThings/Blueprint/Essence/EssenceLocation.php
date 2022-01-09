@@ -13,42 +13,48 @@ use AllThings\DataAccess\Uniquable\UniqueLocation;
 class EssenceLocation extends UniqueLocation implements EssenceWriter
 {
     public function update(
-        IEssence $target_entity,
-        IEssence $suggestion_entity
+        IEssence $suggestion,
+        string $target = ''
     ): bool {
-        $target_code = $target_entity->getCode();
-        $suggestion_code = $suggestion_entity->getCode();
-        $suggestion_title = $suggestion_entity->getTitle();
-        $suggestion_remark = $suggestion_entity->getRemark();
-        $suggestion_storage = $suggestion_entity->getStorageKind();
+        if ($target) {
+            $target_code = $target;
+        }
+        if (!$target) {
+            $target_code = $suggestion->getCode();
+        }
+
+        $suggestion_code = $suggestion->getCode();
+        $suggestion_title = $suggestion->getTitle();
+        $suggestion_remark = $suggestion->getRemark();
+        $suggestion_storage = $suggestion->getStorageKind();
 
         $sqlText = 'update '
             . $this->tableName
             . '
 set 
-    code=:suggestion_code,
-    title=:suggestion_title,
-    remark=:suggestion_remark,
-    store_at=:suggestion_store_at 
+    code=:code,
+    title=:title,
+    remark=:remark,
+    store_at=:store_at 
 where 
     code=:target_code';
         $connection = $this->storageLocation;
 
         $query = $connection->prepare($sqlText);
         $query->bindParam(
-            ':suggestion_code',
+            ':code',
             $suggestion_code
         );
         $query->bindParam(
-            ':suggestion_title',
+            ':title',
             $suggestion_title
         );
         $query->bindParam(
-            ':suggestion_remark',
+            ':remark',
             $suggestion_remark
         );
         $query->bindParam(
-            ':suggestion_store_at',
+            ':store_at',
             $suggestion_storage
         );
         $query->bindParam(':target_code', $target_code);

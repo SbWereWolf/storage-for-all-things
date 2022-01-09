@@ -23,16 +23,10 @@ class EssenceManager extends UniqueManager implements IEssenceManager
             $this->storageLocation,
             $this->dataPath,
         );
-        $handler->setEssence($this->subject);
+        $data = $this->subject->GetEssenceCopy();
+        $handler->setEssence($data);
 
         return $handler;
-    }
-
-    private function loadSubject(EssenceRecordHandler $handler)
-    {
-        $this->subject = $handler->has()
-            ? $handler->retrieveData()
-            : null;
     }
 
     public function correct(string $targetIdentity = ''): bool
@@ -40,8 +34,6 @@ class EssenceManager extends UniqueManager implements IEssenceManager
         $handler = $this->getEssenceHandler();
 
         $result = $handler->write($targetIdentity);
-
-        $this->loadSubject($handler);
 
         return $result;
     }
@@ -52,7 +44,9 @@ class EssenceManager extends UniqueManager implements IEssenceManager
 
         $result = $handler->read();
 
-        $this->loadSubject($handler);
+        if ($result) {
+            $this->subject = $handler->retrieveData();
+        }
 
         return $result;
     }
@@ -75,8 +69,10 @@ class EssenceManager extends UniqueManager implements IEssenceManager
     /**
      * @param IEssence|null $subject
      */
-    public function setSubject(IEssence $subject): void
+    public function setSubject(IEssence $subject): bool
     {
         $this->subject = $subject;
+
+        return true;
     }
 }
