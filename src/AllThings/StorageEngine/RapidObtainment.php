@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 03.01.2022, 6:20
+ * 10.01.2022, 6:49
  */
 
 namespace AllThings\StorageEngine;
@@ -10,7 +10,10 @@ namespace AllThings\StorageEngine;
 
 use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Specification\SpecificationManager;
-use AllThings\DataAccess\Crossover\Crossover;
+use AllThings\DataAccess\Linkage\ForeignKey;
+use AllThings\DataAccess\Linkage\Linkage;
+use AllThings\DataAccess\Linkage\LinkageManager;
+use AllThings\DataAccess\Linkage\LinkageTable;
 use PDO;
 
 class RapidObtainment implements Installation
@@ -53,7 +56,7 @@ class RapidObtainment implements Installation
 
     public function setup(?IAttribute $attribute = null): bool
     {
-        $linkToData = $this->getLinkToData();
+        $linkToData = $this->getDb();
 
         $name = $this->name();
         $ddl = "DROP MATERIALIZED VIEW IF EXISTS $name";
@@ -61,9 +64,31 @@ class RapidObtainment implements Installation
         $isSuccess = $affected !== false;
 
         if ($isSuccess) {
+            $essenceKey = new ForeignKey(
+                'essence',
+                'id',
+                'code'
+            );
+            $attributeKey = new ForeignKey(
+                'attribute',
+                'id',
+                'code'
+            );
+            $specification = new LinkageTable(
+                'essence_attribute',
+                'essence_id',
+                'attribute_id',
+            );
+            $manager = new LinkageManager(
+                $this->linkToData,
+                $specification,
+                $essenceKey,
+                $attributeKey,
+            );
+
             $essence = $this->getEssence();
-            $manager = new SpecificationManager($linkToData);
-            $linkage = (new Crossover())->setLeftValue($essence);
+            $linkage = (new Linkage())->setLeftValue($essence);
+
             $isSuccess = $manager->getAssociated($linkage);
         }
         if ($isSuccess) {
@@ -132,7 +157,7 @@ WHERE
     /**
      * @return PDO
      */
-    public function getLinkToData(): PDO
+    public function getDb(): PDO
     {
         return $this->linkToData;
     }
@@ -157,10 +182,15 @@ WHERE
         $ddl = "
 REFRESH MATERIALIZED VIEW {$this->name()}
 ";
-        $linkToData = $this->getLinkToData();
+        $linkToData = $this->getDb();
         $affected = $linkToData->exec($ddl);
         $result = $affected !== false;
 
         return $result;
+    }
+
+    public function prune(string $attribute): bool
+    {
+        return $this->setup();
     }
 }

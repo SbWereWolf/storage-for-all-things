@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 10.01.2022, 6:49
  */
 
 namespace AllThings\StorageEngine;
@@ -11,10 +11,12 @@ use AllThings\Blueprint\Attribute\Attribute;
 use AllThings\Blueprint\Attribute\AttributeManager;
 use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Specification\SpecificationManager;
-use AllThings\Content\ContentManager;
-use AllThings\DataAccess\Crossover\Crossover;
-use AllThings\DataAccess\Crossover\CrossoverTable;
+use AllThings\DataAccess\Crossover\CrossoverManager;
 use AllThings\DataAccess\Crossover\ICrossover;
+use AllThings\DataAccess\Linkage\ForeignKey;
+use AllThings\DataAccess\Linkage\Linkage;
+use AllThings\DataAccess\Linkage\LinkageManager;
+use AllThings\DataAccess\Linkage\LinkageTable;
 use AllThings\SearchEngine\Searchable;
 use Exception;
 use PDO;
@@ -28,11 +30,11 @@ class RapidRecording implements Installation
     /**
      * @var PDO
      */
-    private $linkToData;
+    private $db;
 
     public function __construct(string $essence, PDO $linkToData)
     {
-        $this->setEssence($essence)->setLinkToData($linkToData);
+        $this->setEssence($essence)->setDb($linkToData);
     }
 
     /**
@@ -40,9 +42,9 @@ class RapidRecording implements Installation
      *
      * @return self
      */
-    private function setLinkToData(PDO $linkToData): self
+    private function setDb(PDO $linkToData): static
     {
-        $this->linkToData = $linkToData;
+        $this->db = $linkToData;
         return $this;
     }
 
@@ -51,7 +53,7 @@ class RapidRecording implements Installation
      *
      * @return self
      */
-    private function setEssence(string $essence): self
+    private function setEssence(string $essence): static
     {
         $this->essence = $essence;
         return $this;
@@ -63,7 +65,7 @@ class RapidRecording implements Installation
      */
     private function executeSql(string $dml): bool
     {
-        $affected = $this->linkToData->exec($dml);
+        $affected = $this->db->exec($dml);
         $result = $affected !== false;
 
         return $result;
@@ -85,9 +87,9 @@ class RapidRecording implements Installation
     /**
      * @return PDO
      */
-    public function getLinkToData(): PDO
+    public function getDb(): PDO
     {
-        return $this->linkToData;
+        return $this->db;
     }
 
     public function name(): string
@@ -107,15 +109,35 @@ class RapidRecording implements Installation
 
     public function refresh(array $values = []): bool
     {
-        $linkToData = $this->getLinkToData();
+        $linkToData = $this->getDb();
 
         $isSuccess = false;
         if (!$values) {
-            $essenceManager = new SpecificationManager(
-                $linkToData
+            $essenceKey = new ForeignKey(
+                'essence',
+                'id',
+                'code'
             );
-            $linkage = (new Crossover())
+            $attributeKey = new ForeignKey(
+                'attribute',
+                'id',
+                'code'
+            );
+            $specification = new LinkageTable(
+                'essence_attribute',
+                'essence_id',
+                'attribute_id',
+            );
+            $essenceManager = new LinkageManager(
+                $this->db,
+                $specification,
+                $essenceKey,
+                $attributeKey,
+            );
+
+            $linkage = (new Linkage())
                 ->setLeftValue($this->getEssence());
+
             $isSuccess = $essenceManager->getAssociated($linkage);
         }
 
@@ -139,7 +161,7 @@ class RapidRecording implements Installation
 
             $view = new DirectReading(
                 $this->getEssence(),
-                $this->getLinkToData()
+                $this->getDb()
             );
             /* Удаляем из таблицы записи, которых нет в представлении */
             /** @noinspection SqlInsertValues */
@@ -176,26 +198,40 @@ WHERE t.thing_id IS NULL
         foreach ($values as $index => $value) {
             /* @var ICrossover $value */
             $attribute = $value->getRightValue();
+
             $table = SpecificationManager::getLocation(
                 $attribute,
-                $this->linkToData,
+                $this->db,
             );
-
-            $contentTable = new CrossoverTable(
+            $thingKey = new ForeignKey(
+                'thing',
+                'id',
+                'code'
+            );
+            $attributeKey = new ForeignKey(
+                'attribute',
+                'id',
+                'code'
+            );
+            $contentTable = new LinkageTable(
                 $table,
                 'thing_id',
-                'attribute_id'
+                'attribute_id',
             );
-            $handler = new ContentManager(
-                $value,
-                $linkToData,
-                $contentTable
+
+            $manager = new CrossoverManager(
+                $this->db,
+                $contentTable,
+                $thingKey,
+                $attributeKey,
             );
-            $handler->store($value);
+
+            $manager->setSubject($value);
+            $manager->store($value);
 
             $format = SpecificationManager::getFormat(
                 $attribute,
-                $this->linkToData,
+                $this->db,
             );
 
             $pieces[":new_value$index"] = $value->getContent();
@@ -231,7 +267,7 @@ WHERE thing_id = (
 
     private function setupTable(): bool
     {
-        $linkToData = $this->getLinkToData();
+        $linkToData = $this->getDb();
 
         $ddl = "DROP TABLE IF EXISTS {$this->name()}";
         $affected = $linkToData->exec($ddl);
@@ -240,10 +276,29 @@ WHERE thing_id = (
         $essence = $this->getEssence();
         $isSuccess = false;
         if ($result) {
-            $essenceManager = new SpecificationManager(
-                $linkToData
+            $essenceKey = new ForeignKey(
+                'essence',
+                'id',
+                'code'
             );
-            $linkage = (new Crossover())->setLeftValue($essence);
+            $attributeKey = new ForeignKey(
+                'attribute',
+                'id',
+                'code'
+            );
+            $specification = new LinkageTable(
+                'essence_attribute',
+                'essence_id',
+                'attribute_id',
+            );
+            $essenceManager = new LinkageManager(
+                $this->db,
+                $specification,
+                $essenceKey,
+                $attributeKey,
+            );
+
+            $linkage = (new Linkage())->setLeftValue($essence);
             $isSuccess = $essenceManager->getAssociated($linkage);
         }
 
@@ -332,7 +387,7 @@ CREATE TABLE {$this->name()}
         if ($result) {
             $view = new DirectReading(
                 $this->getEssence(),
-                $this->getLinkToData()
+                $this->getDb()
             );
             /** @noinspection SqlInsertValues */
             $dml = "
@@ -382,12 +437,10 @@ FROM {$view->name()}
         $code = $attribute->getCode();
         $name = "\"{$code}\"";
 
-        $essence = $this->getEssence();
-
         $ddl = "
 ALTER TABLE {$this->name()} ADD COLUMN {$name} $sqlType
 ";
-        $linkToData = $this->getLinkToData();
+        $linkToData = $this->getDb();
 
         $affected = $linkToData->exec($ddl);
         $result = $affected !== false;
@@ -396,6 +449,19 @@ ALTER TABLE {$this->name()} ADD COLUMN {$name} $sqlType
         $columnIndex = "CREATE INDEX {$this->name()}_{$stripped}_ix"
             . " on {$this->name()}($name);";
         $affected = $linkToData->exec($columnIndex);
+
+        return $result;
+    }
+
+    public function prune(string $attribute): bool
+    {
+        $name = "\"{$attribute}\"";
+        $ddl = "
+ALTER TABLE {$this->name()} DROP COLUMN {$name}
+";
+
+        $affected = $this->getDb()->exec($ddl);
+        $result = $affected !== false;
 
         return $result;
     }

@@ -1,18 +1,17 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 26.12.2021, 1:56
+ * Copyright © 2022 Volkhin Nikolay
+ * 10.01.2022, 6:49
  */
 
-namespace AllThings\DataAccess\Crossover;
+namespace AllThings\DataAccess\Linkage;
 
-
-class CrossoverTable implements ICrossoverTable
+class LinkageTable implements ILinkageTable
 {
-    private $tableName = '';
-    private $leftColumn = '';
-    private $rightColumn = '';
+    private string $tableName;
+    private string $leftColumn;
+    private string $rightColumn;
 
     public function __construct(
         string $tableName,
@@ -45,5 +44,4 @@ class CrossoverTable implements ICrossoverTable
 
         return $result;
     }
-
 }

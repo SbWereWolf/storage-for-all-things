@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 10.01.2022, 6:49
  */
 
 namespace AllThings\Blueprint\Specification;
@@ -10,30 +10,14 @@ namespace AllThings\Blueprint\Specification;
 use AllThings\Blueprint\Attribute\Attribute;
 use AllThings\Blueprint\Attribute\AttributeManager;
 use AllThings\Blueprint\Attribute\IAttribute;
-use AllThings\DataAccess\Crossover\ForeignKey;
-use AllThings\DataAccess\Crossover\ICrossover;
-use AllThings\DataAccess\Crossover\LinkageManager;
-use AllThings\DataAccess\Retrievable;
+use Exception;
 use PDO;
 
-class SpecificationManager implements LinkageManager, Retrievable
+class SpecificationManager
 {
-    private $dataSet = [];
-    private SpecificationHandler $handler;
-
-    public function __construct(PDO $dataPath)
-    {
-        $essenceForeignKey = new ForeignKey('essence', 'id', 'code');
-        $attributeForeignKey = new ForeignKey('attribute', 'id', 'code');
-        $this->handler = new SpecificationHandler(
-            $dataPath,
-            $essenceForeignKey,
-            $attributeForeignKey
-        );
-    }
-
     /**
      * @param string $attribute
+     *
      * @return IAttribute
      */
     private static function getDefault(string $attribute): IAttribute
@@ -60,60 +44,17 @@ class SpecificationManager implements LinkageManager, Retrievable
         return $manager;
     }
 
-    public function linkUp(ICrossover $linkage): bool
-    {
-        $handler = $this->getHandler();
-
-        $result = $handler->add($linkage);
-
-        return $result;
-    }
-
     /**
-     * @return SpecificationHandler
+     * @param string $attribute
+     * @param PDO    $dataPath
+     *
+     * @return string
+     * @throws Exception
      */
-    private function getHandler(): SpecificationHandler
-    {
-        return $this->handler;
-    }
-
-    public function breakDown(ICrossover $linkage): bool
-    {
-        $handler = $this->getHandler();
-        $result = $handler->remove($linkage);
-
-        return $result;
-    }
-
-    public function getAssociated(ICrossover $linkage): bool
-    {
-        $handler = $this->getHandler();
-        $result = $handler->getRelated($linkage);
-
-        $isSuccess = $result === true;
-        if ($isSuccess) {
-            $this->dataSet = $handler->retrieveData();
-        }
-
-        return $result;
-    }
-
-    public function retrieveData()
-    {
-        $result = $this->dataSet;
-
-        return $result;
-    }
-
-    public function has(): bool
-    {
-        return !is_null($this->dataSet);
-    }
-
     public static function getLocation(
         string $attribute,
         PDO $dataPath
-    ) {
+    ): string {
         $manager = static::setupAttributeManager(
             $attribute,
             $dataPath,

@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 10.01.2022, 6:49
  */
 
 namespace AllThings\ControlPanel;
@@ -39,7 +39,9 @@ class Schema
 
         $isSuccess = $installation->refresh($values);
         if (!$isSuccess) {
-            throw new Exception('Installation MUST BE refreshed with success');
+            throw new Exception(
+                'Installation MUST BE refreshed with success'
+            );
         }
 
         return $this;
@@ -103,10 +105,26 @@ class Schema
 
         $isSuccess = $installation->setup($attribute);
         if (!$isSuccess) {
-            throw new Exception('Installation MUST BE defined with success');
+            throw new Exception(
+                'Installation MUST BE defined with success'
+            );
         }
 
         return $this;
+    }
+
+    public function prune(string $attribute): bool
+    {
+        $installation = $this->getInstallation();
+
+        $isSuccess = $installation->prune($attribute);
+        if (!$isSuccess) {
+            throw new Exception(
+                'Installation MUST BE defined with success'
+            );
+        }
+
+        return $isSuccess;
     }
 
     /**

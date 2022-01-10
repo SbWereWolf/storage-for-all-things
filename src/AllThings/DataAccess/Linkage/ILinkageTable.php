@@ -1,14 +1,14 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 10.01.2022, 6:49
  */
 
-namespace AllThings\DataAccess\Crossover;
+namespace AllThings\DataAccess\Linkage;
 
 
-interface ICrossoverTable
+interface ILinkageTable
 {
     public function getTableName(): string;
 

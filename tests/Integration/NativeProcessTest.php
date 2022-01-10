@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 10.01.2022, 6:49
  */
 
 namespace Integration;
@@ -12,11 +12,12 @@ use AllThings\Blueprint\Attribute\AttributeManager;
 use AllThings\Blueprint\Essence\Essence;
 use AllThings\Blueprint\Essence\EssenceManager;
 use AllThings\Blueprint\Specification\SpecificationManager;
-use AllThings\Catalog\CatalogManager;
-use AllThings\Content\ContentManager;
 use AllThings\DataAccess\Crossover\Crossover;
-use AllThings\DataAccess\Crossover\CrossoverTable;
+use AllThings\DataAccess\Crossover\CrossoverManager;
 use AllThings\DataAccess\Crossover\ICrossover;
+use AllThings\DataAccess\Linkage\ForeignKey;
+use AllThings\DataAccess\Linkage\Linkage;
+use AllThings\DataAccess\Linkage\LinkageTable;
 use AllThings\DataAccess\Nameable\NamedEntity;
 use AllThings\DataAccess\Nameable\NamedEntityManager;
 use AllThings\SearchEngine\ContinuousFilter;
@@ -283,14 +284,33 @@ class NativeProcessTest extends TestCase
         $attribute,
         $linkToData
     ): void {
-        $manager = new SpecificationManager(
-            $linkToData
+        $essenceKey = new ForeignKey(
+            'essence',
+            'id',
+            'code'
+        );
+        $attributeKey = new ForeignKey(
+            'attribute',
+            'id',
+            'code'
+        );
+        $specification = new LinkageTable(
+            'essence_attribute',
+            'essence_id',
+            'attribute_id',
+        );
+        $manager = new CrossoverManager(
+            $linkToData,
+            $specification,
+            $essenceKey,
+            $attributeKey,
         );
 
         $linkage = (new Crossover())
             ->setLeftValue($essence)
             ->setRightValue($attribute);
-        $isSuccess = $manager->linkUp($linkage);
+
+        $isSuccess = $manager->attach($linkage);
         $this->assertTrue(
             $isSuccess,
             "Attribute `$attribute` must be linked to"
@@ -341,8 +361,30 @@ class NativeProcessTest extends TestCase
         string $essence,
         PDO $linkToData
     ): array {
-        $manager = new SpecificationManager($linkToData);
-        $linkage = (new Crossover())->setLeftValue($essence);
+        $essenceKey = new ForeignKey(
+            'essence',
+            'id',
+            'code'
+        );
+        $attributeKey = new ForeignKey(
+            'attribute',
+            'id',
+            'code'
+        );
+        $specification = new LinkageTable(
+            'essence_attribute',
+            'essence_id',
+            'attribute_id',
+        );
+        $manager = new CrossoverManager(
+            $linkToData,
+            $specification,
+            $essenceKey,
+            $attributeKey,
+        );
+
+        $linkage = (new Linkage())->setLeftValue($essence);
+
         $isSuccess = $manager->getAssociated($linkage);
         $this->assertTrue(
             $isSuccess,
@@ -392,21 +434,38 @@ class NativeProcessTest extends TestCase
      */
     private function defineThing($thing, $attribute, $linkToData)
     {
-        $content = (new Crossover())->setLeftValue($thing)
-            ->setRightValue($attribute);
-
         $table = SpecificationManager::getLocation(
             $attribute,
-            $linkToData
+            $linkToData,
         );
-        $contentTable = new CrossoverTable(
+        $thingKey = new ForeignKey(
+            'thing',
+            'id',
+            'code'
+        );
+        $attributeKey = new ForeignKey(
+            'attribute',
+            'id',
+            'code'
+        );
+        $contentTable = new LinkageTable(
             $table,
             'thing_id',
-            'attribute_id'
+            'attribute_id',
         );
-        $handler = new ContentManager($content, $linkToData, $contentTable);
 
-        $isSuccess = $handler->attach();
+        $manager = new CrossoverManager(
+            $linkToData,
+            $contentTable,
+            $thingKey,
+            $attributeKey,
+        );
+
+        $content = (new Linkage())
+            ->setLeftValue($thing)
+            ->setRightValue($attribute);
+
+        $isSuccess = $manager->attach($content);
         $this->assertTrue(
             $isSuccess,
             "Attribute `$attribute` must be defined"
@@ -427,15 +486,34 @@ class NativeProcessTest extends TestCase
         $linkToData
     ): void
     {
-        $manager = new CatalogManager(
-            $essence,
-            $code,
-            $linkToData
+        $essenceKey = new ForeignKey(
+            'essence',
+            'id',
+            'code'
         );
-        $linkage = (new Crossover())
+        $thingKey = new ForeignKey(
+            'thing',
+            'id',
+            'code'
+        );
+        $catalog = new LinkageTable(
+            'essence_thing',
+            'essence_id',
+            'thing_id',
+        );
+
+        $manager = new CrossoverManager(
+            $linkToData,
+            $catalog,
+            $essenceKey,
+            $thingKey,
+        );
+
+        $linkage = (new Linkage())
             ->setLeftValue($essence)
             ->setRightValue($code);
-        $isSuccess = $manager->linkUp($linkage);
+
+        $isSuccess = $manager->attach($linkage);
         $this->assertTrue(
             $isSuccess,
             "Thing `$code` must be linked"
@@ -551,16 +629,33 @@ class NativeProcessTest extends TestCase
     {
         $table = SpecificationManager::getLocation(
             $attribute,
-            $linkToData
+            $linkToData,
         );
-
-        $contentTable = new CrossoverTable(
+        $thingKey = new ForeignKey(
+            'thing',
+            'id',
+            'code'
+        );
+        $attributeKey = new ForeignKey(
+            'attribute',
+            'id',
+            'code'
+        );
+        $contentTable = new LinkageTable(
             $table,
             'thing_id',
-            'attribute_id'
+            'attribute_id',
         );
-        $handler = new ContentManager($value, $linkToData, $contentTable);
-        $isSuccess = $handler->store($value);
+
+        $manager = new CrossoverManager(
+            $linkToData,
+            $contentTable,
+            $thingKey,
+            $attributeKey,
+        );
+        $manager->setSubject($value);
+
+        $isSuccess = $manager->store($value);
         $this->assertTrue(
             $isSuccess,
             "Attribute `$attribute` of thing `$thing`"
@@ -1161,8 +1256,8 @@ class NativeProcessTest extends TestCase
         string $content,
         $linkToData
     ) {
-        $value = (new Crossover())->setContent($content)
-            ->setLeftValue($thing)->setRightValue($attribute);
+        $value = (new Crossover())->setContent($content);
+        $value->setLeftValue($thing)->setRightValue($attribute);
         $this->defineContent($thing, $attribute, $value, $linkToData);
     }
 

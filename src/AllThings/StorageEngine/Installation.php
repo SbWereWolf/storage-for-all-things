@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 03.01.2022, 6:20
+ * 10.01.2022, 6:49
  */
 
 namespace AllThings\StorageEngine;
@@ -14,8 +14,10 @@ use PDO;
 interface Installation
 {
     /**
-     * Настроить и установить источник
+     * Создать структуру для записи данных
+     *
      * @param IAttribute|null $attribute
+     *
      * @return bool
      */
     public function setup(?IAttribute $attribute = null): bool;
@@ -34,11 +36,20 @@ interface Installation
     /**
      * @return PDO
      */
-    public function getLinkToData(): PDO;
+    public function getDb(): PDO;
 
     /**
      * Освежить данные в источнике
+     *
      * @return bool
      */
     public function refresh(array $values = []): bool;
+
+    /**
+     *
+     * @param string $attribute
+     *
+     * @return bool
+     */
+    public function prune(string $attribute): bool;
 }

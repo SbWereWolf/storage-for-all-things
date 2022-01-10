@@ -1,18 +1,19 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 10.01.2022, 6:49
  */
 
 namespace AllThings\DataAccess\Crossover;
 
+use AllThings\DataAccess\Linkage\ILinkageHandler;
 
-interface ICrossoverHandler
+interface ICrossoverHandler extends ILinkageHandler
 {
-    public function combine(): bool;
+    public function put(ICrossover $crossover): bool;
 
-    public function push(ICrossover $crossover): bool;
-
-    public function pull(ICrossover $crossover): bool;
+    public function setSubject(
+        ICrossover $crossover
+    ): ICrossoverHandler;
 }

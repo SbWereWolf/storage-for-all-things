@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 04.01.2022, 10:06
+ * 10.01.2022, 6:49
  */
 
 namespace Integration;
@@ -69,8 +69,7 @@ class AutomatedProcessTest extends TestCase
         $essence = $operator->createBlueprint(
             'cake',
             'The Cakes',
-            'Cakes  of all kinds',
-            Storable::DIRECT_READING
+            'Cakes  of all kinds'
         );
         $this->assertNotEmpty(
             $essence,
@@ -970,16 +969,16 @@ class AutomatedProcessTest extends TestCase
         $schema = new Schema($context['PDO'], $context['essence']);
         $schema->changeStorage(Storable::RAPID_RECORDING);
 
-        $content = (new Crossover())->
-        setLeftValue($context['new-thing'])
-            ->setRightValue($context['package'])
-            ->setContent('коробка');
+        $content = (new Crossover())->setContent('коробка');
+        $content->setLeftValue($context['new-thing'])
+            ->setRightValue($context['package']);
         $schema->refresh([$content]);
 
         $browser = new Browser($context['PDO']);
         $data = $browser->filterData($context['essence'], []);
         $this->checkShowAll(
-            $context, $data,
+            $context,
+            $data,
             true,
             true,
             true

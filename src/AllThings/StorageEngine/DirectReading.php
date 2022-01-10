@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 03.01.2022, 6:20
+ * 10.01.2022, 6:49
  */
 
 namespace AllThings\StorageEngine;
@@ -10,7 +10,10 @@ namespace AllThings\StorageEngine;
 
 use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Specification\SpecificationManager;
-use AllThings\DataAccess\Crossover\Crossover;
+use AllThings\DataAccess\Linkage\ForeignKey;
+use AllThings\DataAccess\Linkage\Linkage;
+use AllThings\DataAccess\Linkage\LinkageManager;
+use AllThings\DataAccess\Linkage\LinkageTable;
 use PDO;
 
 class DirectReading implements Installation
@@ -52,7 +55,7 @@ class DirectReading implements Installation
 
     public function setup(?IAttribute $attribute = null): bool
     {
-        $linkToData = $this->getLinkToData();
+        $linkToData = $this->getDb();
 
         $ddl = "DROP VIEW IF EXISTS {$this->name()}";
         $affected = $linkToData->exec($ddl);
@@ -60,16 +63,37 @@ class DirectReading implements Installation
 
         $essence = $this->getEssence();
         if ($isSuccess) {
-            $manager = new SpecificationManager($linkToData);
-            $linkage = (new Crossover())->setLeftValue($essence);
-            $isSuccess = $manager->getAssociated($linkage);
+            $essenceKey = new ForeignKey(
+                'essence',
+                'id',
+                'code'
+            );
+            $attributeKey = new ForeignKey(
+                'attribute',
+                'id',
+                'code'
+            );
+            $specification = new LinkageTable(
+                'essence_attribute',
+                'essence_id',
+                'attribute_id',
+            );
+            $specificationManager = new LinkageManager(
+                $this->linkToData,
+                $specification,
+                $essenceKey,
+                $attributeKey,
+            );
+
+            $linkage = (new Linkage())->setLeftValue($essence);
+            $isSuccess = $specificationManager->getAssociated($linkage);
         }
         if ($isSuccess) {
-            $isSuccess = $manager->has();
+            $isSuccess = $specificationManager->has();
         }
         $attributes = [];
         if ($isSuccess) {
-            $attributes = $manager->retrieveData();
+            $attributes = $specificationManager->retrieveData();
         }
 
         $columns = [];
@@ -118,7 +142,7 @@ WHERE
     /**
      * @return PDO
      */
-    public function getLinkToData(): PDO
+    public function getDb(): PDO
     {
         return $this->linkToData;
     }
@@ -141,5 +165,10 @@ WHERE
     public function refresh(array $values = []): bool
     {
         return true;
+    }
+
+    public function prune(string $attribute): bool
+    {
+        return $this->setup();
     }
 }

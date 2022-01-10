@@ -1,15 +1,18 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 31.12.2021, 13:37
+ * Copyright © 2022 Volkhin Nikolay
+ * 10.01.2022, 6:49
  */
 
 namespace AllThings\SearchEngine;
 
 
 use AllThings\Blueprint\Specification\SpecificationManager;
-use AllThings\DataAccess\Crossover\Crossover;
+use AllThings\DataAccess\Linkage\ForeignKey;
+use AllThings\DataAccess\Linkage\Linkage;
+use AllThings\DataAccess\Linkage\LinkageManager;
+use AllThings\DataAccess\Linkage\LinkageTable;
 use AllThings\StorageEngine\Installation;
 use PDO;
 
@@ -44,7 +47,7 @@ class Seeker implements Searching
     {
         $cursor = $this
             ->getSource()
-            ->getLinkToData()
+            ->getDb()
             ->query($sql, PDO::FETCH_ASSOC);
 
         $isSuccess = $cursor !== false;
@@ -73,7 +76,7 @@ class Seeker implements Searching
                     $attribute,
                     $this
                         ->getSource()
-                        ->getLinkToData()
+                        ->getDb()
                 );
 
 
@@ -132,18 +135,38 @@ class Seeker implements Searching
 
     public function getPossibleParameters(): array
     {
-        $essence = $this->getSource()->getEssence();
-        $linkToData = $this->getSource()->getLinkToData();
+        $essenceKey = new ForeignKey(
+            'essence',
+            'id',
+            'code'
+        );
+        $attributeKey = new ForeignKey(
+            'attribute',
+            'id',
+            'code'
+        );
+        $specification = new LinkageTable(
+            'essence_attribute',
+            'essence_id',
+            'attribute_id',
+        );
+        $specificationManager = new LinkageManager(
+            $this->getSource()->getDb(),
+            $specification,
+            $essenceKey,
+            $attributeKey,
+        );
 
-        $manager = new SpecificationManager($linkToData);
-        $linkage = (new Crossover())->setLeftValue($essence);
-        $isSuccess = $manager->getAssociated($linkage);
+        $essence = $this->getSource()->getEssence();
+        $linkage = (new Linkage())->setLeftValue($essence);
+
+        $isSuccess = $specificationManager->getAssociated($linkage);
         if ($isSuccess) {
-            $isSuccess = $manager->has();
+            $isSuccess = $specificationManager->has();
         }
         $attributes = [];
         if ($isSuccess) {
-            $attributes = $manager->retrieveData();
+            $attributes = $specificationManager->retrieveData();
         }
 
         return $attributes;

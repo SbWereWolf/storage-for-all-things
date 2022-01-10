@@ -1,68 +1,18 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 10.01.2022, 6:49
  */
 
 namespace AllThings\DataAccess\Crossover;
 
+use AllThings\DataAccess\Linkage\LinkageLocation;
 
-use PDO;
-
-class CrossoverLocation implements CrossoverWriter
+class CrossoverLocation
+    extends LinkageLocation
+    implements CrossoverWriter
 {
-
-    private $tableStructure;
-    private $dataPath;
-    private $rightKey;
-    private $leftKey;
-
-    public function __construct(
-        IForeignKey $leftKey,
-        IForeignKey $rightKey,
-        ICrossoverTable $tableStructure,
-        PDO $dataPath
-    ) {
-        $this->tableStructure = $tableStructure;
-        $this->dataPath = $dataPath;
-        $this->rightKey = $rightKey;
-        $this->leftKey = $leftKey;
-    }
-
-    public function insert(ICrossover $entity): bool
-    {
-        $proposalRightValue = $entity->getRightValue();
-        $proposalLeftValue = $entity->getLeftValue();
-
-        $leftKeyTable = $this->leftKey->getTable();
-        $leftKeyColumn = $this->leftKey->getColumn();
-        $leftKeyIndex = $this->leftKey->getIndex();
-
-        $rightKeyTable = $this->rightKey->getTable();
-        $rightKeyColumn = $this->rightKey->getColumn();
-        $rightKeyIndex = $this->rightKey->getIndex();
-
-        $tableName = $this->tableStructure->getTableName();
-        $leftColumn = $this->tableStructure->getLeftColumn();
-        $rightColumn = $this->tableStructure->getRightColumn();
-
-        $sqlText = "
-insert into $tableName ($leftColumn,$rightColumn)
-values((
-select $leftKeyColumn from $leftKeyTable where $leftKeyIndex = :left_value
-),(
-select $rightKeyColumn from $rightKeyTable where $rightKeyIndex = :right_value
-))";
-        $connection = $this->dataPath;
-        $query = $connection->prepare($sqlText);
-        $query->bindParam(':left_value', $proposalLeftValue);
-        $query->bindParam(':right_value', $proposalRightValue);
-        $result = $query->execute();
-
-        return $result;
-    }
-
     public function update(
         ICrossover $targetEntity,
         ICrossover $suggestionEntity
@@ -115,7 +65,7 @@ AND $rightColumn =
 (select $rightKeyColumn from $rightKeyTable 
 where $rightKeyIndex = :target_right)
 ";
-        $connection = $this->dataPath;
+        $connection = $this->db;
         $query = $connection->prepare($sqlText);
         $query->bindParam(':content', $proposalContent);
         if ($updateLeftKey) {

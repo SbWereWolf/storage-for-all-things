@@ -1,19 +1,57 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 10.01.2022, 6:49
  */
-
 
 namespace AllThings\DataAccess\Crossover;
 
+use AllThings\DataAccess\Linkage\ForeignKey;
+use AllThings\DataAccess\Linkage\ILinkageTable;
+use AllThings\DataAccess\Linkage\LinkageManager;
+use PDO;
 
-interface CrossoverManager
+class CrossoverManager
+    extends LinkageManager
+    implements ICrossoverManager
 {
-    public function attach(): bool;
+    private ICrossoverHandler $crossoverHandler;
 
-    public function store(ICrossover $crossover): bool;
+    /**
+     * @param PDO           $db
+     * @param ILinkageTable $location
+     * @param ForeignKey    $leftKey
+     * @param ForeignKey    $rightKey
+     */
+    public function __construct(
+        PDO $db,
+        ILinkageTable $location,
+        ForeignKey $leftKey,
+        ForeignKey $rightKey
+    ) {
+        parent::__construct($db, $location, $leftKey, $rightKey);
 
-    public function take(ICrossover $crossover): bool;
+        $this->crossoverHandler = new CrossoverHandler(
+            $leftKey,
+            $rightKey,
+            $location,
+            $db,
+        );
+    }
+
+    public function setSubject(
+        ICrossover $crossover
+    ): ICrossoverManager {
+        $this->crossoverHandler->setSubject($crossover);
+
+        return $this;
+    }
+
+    public function store(ICrossover $crossover): bool
+    {
+        $result = $this->crossoverHandler->put($crossover);
+
+        return $result;
+    }
 }

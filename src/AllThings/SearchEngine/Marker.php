@@ -1,8 +1,8 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 26.12.2021, 5:51
+ * Copyright © 2022 Volkhin Nikolay
+ * 10.01.2022, 6:49
  */
 
 namespace AllThings\SearchEngine;
@@ -52,7 +52,7 @@ class Marker
                 $attribute,
                 $this
                     ->getSource()
-                    ->getLinkToData()
+                    ->getDb()
             );
 
 
@@ -166,7 +166,7 @@ ORDER BY code
     {
         $cursor = $this
             ->getSource()
-            ->getLinkToData()
+            ->getDb()
             ->query($sql, PDO::FETCH_ASSOC);
 
         $isSuccess = $cursor !== false;
@@ -202,7 +202,7 @@ ORDER BY code
                 $attribute,
                 $this
                     ->getSource()
-                    ->getLinkToData()
+                    ->getDb()
             );
 
             $column = "

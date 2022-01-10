@@ -1,13 +1,11 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:46
+ * Copyright © 2022 Volkhin Nikolay
+ * 10.01.2022, 6:49
  */
 
-
-namespace AllThings\DataAccess\Crossover;
-
+namespace AllThings\DataAccess\Linkage;
 
 interface IForeignKey
 {
@@ -16,5 +14,4 @@ interface IForeignKey
     public function getColumn(): string;
 
     public function getIndex(): string;
-
 }

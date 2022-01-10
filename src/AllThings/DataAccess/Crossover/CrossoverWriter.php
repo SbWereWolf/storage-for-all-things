@@ -1,17 +1,18 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 10.01.2022, 6:49
  */
 
 namespace AllThings\DataAccess\Crossover;
 
+use AllThings\DataAccess\Linkage\LinkageWriter;
 
-interface CrossoverWriter
+interface CrossoverWriter extends LinkageWriter
 {
-
-    public function insert(ICrossover $entity): bool;
-
-    public function update(ICrossover $targetEntity, ICrossover $suggestionEntity): bool;
+    public function update(
+        ICrossover $targetEntity,
+        ICrossover $suggestionEntity
+    ): bool;
 }
