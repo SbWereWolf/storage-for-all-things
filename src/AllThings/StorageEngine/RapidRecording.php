@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 10.01.2022, 6:49
+ * 11.01.2022, 3:36
  */
 
 namespace AllThings\StorageEngine;
@@ -203,6 +203,12 @@ WHERE t.thing_id IS NULL
                 $attribute,
                 $this->db,
             );
+            $contentTable = new LinkageTable(
+                $table,
+                'thing_id',
+                'attribute_id',
+            );
+
             $thingKey = new ForeignKey(
                 'thing',
                 'id',
@@ -212,11 +218,6 @@ WHERE t.thing_id IS NULL
                 'attribute',
                 'id',
                 'code'
-            );
-            $contentTable = new LinkageTable(
-                $table,
-                'thing_id',
-                'attribute_id',
             );
 
             $manager = new CrossoverManager(
@@ -291,7 +292,7 @@ WHERE thing_id = (
                 'essence_id',
                 'attribute_id',
             );
-            $essenceManager = new LinkageManager(
+            $specificationManager = new LinkageManager(
                 $this->db,
                 $specification,
                 $essenceKey,
@@ -299,15 +300,15 @@ WHERE thing_id = (
             );
 
             $linkage = (new Linkage())->setLeftValue($essence);
-            $isSuccess = $essenceManager->getAssociated($linkage);
+            $isSuccess = $specificationManager->getAssociated($linkage);
         }
 
         if ($isSuccess) {
-            $isSuccess = $essenceManager->has();
+            $isSuccess = $specificationManager->has();
         }
         $attributeCodes = [];
         if ($isSuccess) {
-            $attributeCodes = $essenceManager->retrieveData();
+            $attributeCodes = $specificationManager->retrieveData();
         }
 
         $attributes = [];
@@ -374,9 +375,8 @@ WHERE thing_id = (
 
         $ddl = "
 CREATE TABLE {$this->name()}
-(
-    thing_id integer REFERENCES thing (id), 
-    constraint $tablePrimaryKey primary key (thing_id),
+(    
+	thing_id integer constraint $tablePrimaryKey primary key,    
     code VARCHAR(255) NOT NULL,
     $columnsPhase
 )

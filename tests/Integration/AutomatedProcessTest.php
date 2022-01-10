@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 10.01.2022, 6:49
+ * 11.01.2022, 3:36
  */
 
 namespace Integration;
@@ -322,6 +322,14 @@ class AutomatedProcessTest extends TestCase
                         && $thing[$context['place-of-production']]
                         === 'Екатеринбург';
 
+                    if ($isProper && !$withExtended) {
+                        $isProper = $isProper &&
+                            !key_exists(
+                                $context['package'] ?? '',
+                                $thing,
+                            );
+                    }
+
                     if ($isProper && $withExtended) {
                         $isProper = $thing[$context['package']]
                             === 'без упаковки';
@@ -346,6 +354,14 @@ class AutomatedProcessTest extends TestCase
                         && $thing[$context['place-of-production']]
                         === 'Екатеринбург';
 
+                    if ($isProper && !$withExtended) {
+                        $isProper = $isProper &&
+                            !key_exists(
+                                $context['package'] ?? '',
+                                $thing,
+                            );
+                    }
+
                     if ($isProper && $withExtended) {
                         $isProper = $thing[$context['package']]
                             === 'без упаковки';
@@ -369,6 +385,14 @@ class AutomatedProcessTest extends TestCase
                     $isProper = $isProper
                         && $thing[$context['place-of-production']]
                         === 'Челябинск';
+
+                    if ($isProper && !$withExtended) {
+                        $isProper = $isProper &&
+                            !key_exists(
+                                $context['package'] ?? '',
+                                $thing,
+                            );
+                    }
 
                     if ($isProper && $withExtended) {
                         $isProper = $thing[$context['package']]
@@ -847,7 +871,7 @@ class AutomatedProcessTest extends TestCase
 
         $browser = new Browser($context['PDO']);
         $data = $browser->filterData($context['essence'], []);
-        $this->checkShowAll($context, $data, true);
+        $this->checkShowAll($context, $data, true, true);
     }
 
     /**
@@ -866,7 +890,7 @@ class AutomatedProcessTest extends TestCase
 
         $browser = new Browser($context['PDO']);
         $data = $browser->filterData($context['essence'], []);
-        $this->checkShowAll($context, $data, true);
+        $this->checkShowAll($context, $data, true, true);
     }
 
     /**
@@ -884,7 +908,7 @@ class AutomatedProcessTest extends TestCase
 
         $browser = new Browser($context['PDO']);
         $data = $browser->filterData($context['essence'], []);
-        $this->checkShowAll($context, $data, true);
+        $this->checkShowAll($context, $data, true, true);
     }
 
     /**
@@ -986,7 +1010,186 @@ class AutomatedProcessTest extends TestCase
     }
 
     /**
+     * Удаляем характеристику
+     *
+     * @depends testAddNewKind
+     *
+     * @param array $context
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function testUnlinkKind(array $context): array
+    {
+        $linkToData = $context['PDO'];
+        $operator = new Operator($linkToData);
+
+        /* Удалим у сущности cake характеристику package */
+        $essence = $context['essence'];
+        $operator->detachKind(
+            $essence,
+            'package',
+        );
+
+        $this->assertTrue(true);
+
+        return $context;
+    }
+
+    /**
+     * Пересоздадим представление и проверим, что удалённая
+     * характеристика отсутствует
+     *
+     * @depends testUnlinkKind
+     *
+     * @param array $context
+     *
+     * @throws Exception
+     */
+    public function testUnlinkKindWithView(array $context)
+    {
+        $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->changeStorage(Storable::DIRECT_READING);
+        $schema->prune('package');
+
+        $browser = new Browser($context['PDO']);
+        $data = $browser->filterData($context['essence'], []);
+        $this->checkShowAll($context, $data, true);
+    }
+
+    /**
+     * Пересоздадим материализованное представление и проверим,
+     * что удалённая характеристика отсутствует
+     *
+     * @depends testUnlinkKind
+     *
+     * @param array $context
+     *
+     * @throws Exception
+     */
+    public function testUnlinkKindWithMathView(array $context)
+    {
+        $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->changeStorage(Storable::RAPID_OBTAINMENT);
+        $schema->prune('package');
+
+        $browser = new Browser($context['PDO']);
+        $data = $browser->filterData($context['essence'], []);
+        $this->checkShowAll($context, $data, true,);
+    }
+
+    /**
+     * Удалим характеристику из таблицы и проверим,
+     * что удалённая характеристика отсутствует
+     *
+     * @depends testUnlinkKind
+     *
+     * @param array $context
+     *
+     * @throws Exception
+     */
+    public function testUnlinkKindWithTable(array $context)
+    {
+        $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->changeStorage(Storable::RAPID_RECORDING);
+        $schema->prune('package');
+
+        $browser = new Browser($context['PDO']);
+        $data = $browser->filterData($context['essence'], []);
+        $this->checkShowAll($context, $data, true,);
+    }
+
+    /**
+     * Удаляем модель
+     *
+     * @depends testAddNewItem
+     *
+     * @param array $context
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function testRemoveItem(array $context): array
+    {
+        $linkToData = $context['PDO'];
+        /* Удаляем модель */
+        $operator = new Operator($linkToData);
+        $isSuccess = $operator->removeItem(
+            $context['essence'],
+            $context['new-thing'],
+        );
+        $this->assertTrue(
+            $isSuccess,
+            'Item must be created with success',
+        );
+
+        return $context;
+    }
+
+    /**
+     * Проверяем, что модель отсутствует в представление
+     *
+     * @depends testAddNewItem
+     *
+     * @param array $context
+     *
+     * @throws Exception
+     */
+    public function testRemoveItemWithView(array $context)
+    {
+        $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->changeStorage(Storable::DIRECT_READING);
+        $schema->refresh();
+
+        $browser = new Browser($context['PDO']);
+        $data = $browser->filterData($context['essence'], []);
+        $this->checkShowAll($context, $data,);
+    }
+
+    /**
+     * Проверяем, что модель
+     * отсутствует в материализованном представлении
+     *
+     * @depends testAddNewItem
+     *
+     * @param array $context
+     *
+     * @throws Exception
+     */
+    public function testRemoveItemWithMathView(array $context)
+    {
+        $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->changeStorage(Storable::RAPID_OBTAINMENT);
+        $schema->refresh();
+
+        $browser = new Browser($context['PDO']);
+        $data = $browser->filterData($context['essence'], []);
+        $this->checkShowAll($context, $data,);
+    }
+
+    /**
+     * Проверяем, что модель отсутствует в таблице
+     *
+     * @depends testAddNewItem
+     *
+     * @param array $context
+     *
+     * @throws Exception
+     */
+    public function testRemoveItemWithTable(array $context)
+    {
+        $schema = new Schema($context['PDO'], $context['essence']);
+        $schema->changeStorage(Storable::RAPID_RECORDING);
+        $schema->refresh();
+
+        $browser = new Browser($context['PDO']);
+        $data = $browser->filterData($context['essence'], []);
+        $this->checkShowAll($context, $data,);
+    }
+
+    /**
      * Заключительные действия, откатываем транзакцию
+     *
      * @depends testInit
      *
      * @param array $context
