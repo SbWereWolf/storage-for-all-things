@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 11.01.2022, 3:36
+ * 11.01.2022, 4:51
  */
 
 namespace Integration;
@@ -1127,7 +1127,7 @@ class AutomatedProcessTest extends TestCase
     }
 
     /**
-     * Проверяем, что модель отсутствует в представление
+     * Проверяем, что модель отсутствует в представлении
      *
      * @depends testAddNewItem
      *
