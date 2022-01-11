@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 11.01.2022, 6:09
+ * 12.01.2022, 2:57
  */
 
 namespace AllThings\ControlPanel;
@@ -115,6 +115,31 @@ class Redactor
     }
 
     /**
+     * @param string   $essence
+     * @param Operator $this
+     *
+     * @return Operator
+     * @throws Exception
+     */
+    public function detach(string $essence,): static
+    {
+        $manager = $this->getSpecificationManager();
+        $linkage = (new Crossover())
+            ->setLeftValue($essence)
+            ->setRightValue($this->attribute);
+
+        $isSuccess = $manager->detach($linkage);
+
+        if (!$isSuccess) {
+            throw new Exception(
+                'Attribute must be detached with success'
+            );
+        }
+
+        return $this;
+    }
+
+    /**
      * @return LinkageManager
      */
     private function getSpecificationManager(): LinkageManager
@@ -142,30 +167,5 @@ class Redactor
         );
 
         return $manager;
-    }
-
-    /**
-     * @param string   $essence
-     * @param Operator $this
-     *
-     * @return Operator
-     * @throws Exception
-     */
-    public function detach(string $essence,): static
-    {
-        $manager = $this->getSpecificationManager();
-        $linkage = (new Crossover())
-            ->setLeftValue($essence)
-            ->setRightValue($this->attribute);
-
-        $isSuccess = $manager->detach($linkage);
-
-        if (!$isSuccess) {
-            throw new Exception(
-                'Attribute must be detached with success'
-            );
-        }
-
-        return $this;
     }
 }
