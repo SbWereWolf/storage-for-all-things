@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 10.01.2022, 6:49
+ * 11.01.2022, 6:09
  */
 
 namespace AllThings\ControlPanel;
@@ -24,10 +24,64 @@ class Schema
     private PDO $db;
     private string $essence;
 
+    /**
+     * @param PDO    $connection
+     * @param string $essence
+     */
     public function __construct(PDO $connection, string $essence)
     {
         $this->db = $connection;
         $this->essence = $essence;
+    }
+
+    /**
+     * @param string   $code
+     * @param string   $title
+     * @param string   $description
+     * @param string   $storageKind
+     * @param Operator $instance
+     *
+     * @return IEssence
+     * @throws Exception
+     */
+    public function createBlueprint(
+        string $title = '',
+        string $description = '',
+        string $storageKind = Storable::DIRECT_READING
+    ): IEssence {
+        $essence = Essence::GetDefaultEssence();
+        $code = $this->essence;
+        $essence->setCode($code);
+
+        $handler = new EssenceManager(
+            $code,
+            'essence',
+            $this->db,
+        );
+        $isSuccess = $handler->create();
+        if (!$isSuccess) {
+            throw new Exception('Essence must be created with success');
+        }
+
+        if ($storageKind) {
+            $essence->setStorageKind($storageKind);
+        }
+        if ($title) {
+            $essence->setTitle($title);
+        }
+        if ($description) {
+            $essence->setRemark($description);
+        }
+        $handler->setSubject($essence);
+
+        if ($storageKind || $title || $description) {
+            $isSuccess = $handler->correct();
+        }
+        if (!$isSuccess) {
+            throw new Exception('Essence must be updated with success');
+        }
+
+        return $essence;
     }
 
     /**

@@ -2,17 +2,11 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 10.01.2022, 6:49
+ * 11.01.2022, 6:09
  */
 
 namespace AllThings\ControlPanel;
 
-use AllThings\Blueprint\Attribute\Attribute;
-use AllThings\Blueprint\Attribute\AttributeManager;
-use AllThings\Blueprint\Attribute\IAttribute;
-use AllThings\Blueprint\Essence\Essence;
-use AllThings\Blueprint\Essence\EssenceManager;
-use AllThings\Blueprint\Essence\IEssence;
 use AllThings\Blueprint\Specification\SpecificationManager;
 use AllThings\DataAccess\Crossover\Crossover;
 use AllThings\DataAccess\Crossover\CrossoverManager;
@@ -24,212 +18,49 @@ use AllThings\DataAccess\Nameable\Nameable;
 use AllThings\DataAccess\Nameable\NamedEntity;
 use AllThings\DataAccess\Nameable\NamedEntityManager;
 use AllThings\SearchEngine\Searchable;
-use AllThings\StorageEngine\Storable;
 use Exception;
 use PDO;
 
 class Operator
 {
     private PDO $db;
+    private string $thing;
 
-    public function __construct(PDO $connection)
+    /**
+     * @param PDO    $connection
+     * @param string $thing
+     */
+    public function __construct(PDO $connection, string $thing)
     {
         $this->db = $connection;
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function createBlueprint(
-        string $code,
-        string $title = '',
-        string $description = '',
-        string $storageKind = Storable::DIRECT_READING
-    ): IEssence {
-        $essence = Essence::GetDefaultEssence();
-        $essence->setCode($code);
-
-        $handler = new EssenceManager(
-            $code,
-            'essence',
-            $this->db,
-        );
-        $isSuccess = $handler->create();
-        if (!$isSuccess) {
-            throw new Exception('Essence must be created with success');
-        }
-
-        if ($storageKind) {
-            $essence->setStorageKind($storageKind);
-        }
-        if ($title) {
-            $essence->setTitle($title);
-        }
-        if ($description) {
-            $essence->setRemark($description);
-        }
-        $handler->setSubject($essence);
-
-        if ($storageKind || $title || $description) {
-            $isSuccess = $handler->correct();
-        }
-        if (!$isSuccess) {
-            throw new Exception('Essence must be updated with success');
-        }
-
-        return $essence;
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function createKind(
-        string $code,
-        string $dataType,
-        string $rangeType,
-        string $title = '',
-        string $description = ''
-    ): IAttribute {
-        $attribute = Attribute::GetDefaultAttribute();
-        /** @noinspection PhpPossiblePolymorphicInvocationInspection */
-        $attribute->setCode($code)
-            ->setDataType($dataType)
-            ->setRangeType($rangeType);
-
-        $handler = new AttributeManager(
-            $code,
-            'attribute',
-            $this->db
-        );
-
-        $isSuccess = $handler->create();
-        if (!$isSuccess) {
-            throw new Exception('Attribute must be created with success');
-        }
-
-        $attribute->setDataType($dataType)
-            ->setRangeType($rangeType);
-
-        if ($title) {
-            $attribute->setTitle($title);
-        }
-        if ($description) {
-            $attribute->setRemark($description);
-        }
-        $handler->setSubject($attribute);
-
-        $isSuccess = $handler->correct();
-        if (!$isSuccess) {
-            throw new Exception('Attribute must be updated with success');
-        }
-
-        return $attribute;
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function attachKind(string $essence, string $kind): Operator
-    {
-        $essenceKey = new ForeignKey(
-            'essence',
-            'id',
-            'code'
-        );
-        $attributeKey = new ForeignKey(
-            'attribute',
-            'id',
-            'code'
-        );
-        $specification = new LinkageTable(
-            'essence_attribute',
-            'essence_id',
-            'attribute_id',
-        );
-
-        $manager = new LinkageManager(
-            $this->db,
-            $specification,
-            $essenceKey,
-            $attributeKey,
-        );
-        $linkage = (new Linkage())
-            ->setLeftValue($essence)
-            ->setRightValue($kind);
-        $isSuccess = $manager->attach($linkage);
-
-        if (!$isSuccess) {
-            throw new Exception(
-                'Attribute must be attached with success'
-            );
-        }
-
-        return $this;
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function detachKind(string $essence, string $kind): Operator
-    {
-        $essenceKey = new ForeignKey(
-            'essence',
-            'id',
-            'code'
-        );
-        $attributeKey = new ForeignKey(
-            'attribute',
-            'id',
-            'code'
-        );
-        $specification = new LinkageTable(
-            'essence_attribute',
-            'essence_id',
-            'attribute_id',
-        );
-
-        $manager = new LinkageManager(
-            $this->db,
-            $specification,
-            $essenceKey,
-            $attributeKey,
-        );
-        $linkage = (new Crossover())
-            ->setLeftValue($essence)
-            ->setRightValue($kind);
-        $isSuccess = $manager->detach($linkage);
-
-        if (!$isSuccess) {
-            throw new Exception(
-                'Attribute must be detached with success'
-            );
-        }
-
-        return $this;
+        $this->thing = $thing;
     }
 
     /**
      * @param string $essence
-     * @param string $code
      * @param string $title
      * @param string $description
      *
      * @return Nameable
      * @throws Exception
      */
-    public function createItem(
+    public function create(
         string $essence,
-        string $code,
         string $title = '',
         string $description = '',
-    ): Nameable
-    {
-        $nameable = (new NamedEntity())->setCode($code);
-        $thingManager = new NamedEntityManager($code, 'thing', $this->db);
+    ): Nameable {
+        $nameable = (new NamedEntity())->setCode($this->thing);
+        $thingManager = new NamedEntityManager(
+            $this->thing,
+            'thing',
+            $this->db
+        );
 
         $isSuccess = $thingManager->create();
         if (!$isSuccess) {
-            throw new Exception("Thing must be created with success");
+            throw new Exception(
+                'Thing must be created with success'
+            );
         }
 
         if ($title) {
@@ -243,31 +74,12 @@ class Operator
             $isSuccess = $thingManager->correct();
         }
         if (!$isSuccess) {
-            throw new Exception("Thing must be updated with success");
+            throw new Exception(
+                'Thing must be updated with success'
+            );
         }
 
-        $essenceKey = new ForeignKey(
-            'essence',
-            'id',
-            'code'
-        );
-        $attributeKey = new ForeignKey(
-            'attribute',
-            'id',
-            'code'
-        );
-        $specification = new LinkageTable(
-            'essence_attribute',
-            'essence_id',
-            'attribute_id',
-        );
-
-        $specificationManager = new LinkageManager(
-            $this->db,
-            $specification,
-            $essenceKey,
-            $attributeKey,
-        );
+        $specificationManager = $this->getSpecificationManager();
         $linkage = (new Linkage())->setLeftValue($essence);
 
         $isSuccess = $specificationManager->getAssociated($linkage);
@@ -279,40 +91,21 @@ class Operator
         }
         $isSuccess = $specificationManager->has();
         if (!$isSuccess) {
-            throw new Exception("Essence must be linked to some attributes");
+            throw new Exception(
+                'Essence must be linked to some attributes'
+            );
         }
         $attributes = $specificationManager->retrieveData();
         foreach ($attributes as $attribute) {
             $content = (new Linkage())
-                ->setLeftValue($code)
+                ->setLeftValue($this->thing)
                 ->setRightValue($attribute);
 
             $table = SpecificationManager::getLocation(
                 $attribute,
                 $this->db,
             );
-            $thingKey = new ForeignKey(
-                'thing',
-                'id',
-                'code'
-            );
-            $attributeKey = new ForeignKey(
-                'attribute',
-                'id',
-                'code'
-            );
-            $contentTable = new LinkageTable(
-                $table,
-                'thing_id',
-                'attribute_id',
-            );
-
-            $contentManager = new CrossoverManager(
-                $this->db,
-                $contentTable,
-                $thingKey,
-                $attributeKey,
-            );
+            $contentManager = $this->getContentManager($table);
 
             $isSuccess = $contentManager->attach($content);
             if (!$isSuccess) {
@@ -323,36 +116,15 @@ class Operator
             }
         }
 
-        $essenceKey = new ForeignKey(
-            'essence',
-            'id',
-            'code'
-        );
-        $thingKey = new ForeignKey(
-            'thing',
-            'id',
-            'code'
-        );
-        $catalogTable = new LinkageTable(
-            'essence_thing',
-            'essence_id',
-            'thing_id',
-        );
-
-        $specificationManager = new LinkageManager(
-            $this->db,
-            $catalogTable,
-            $essenceKey,
-            $thingKey,
-        );
+        $specificationManager = $this->getCatalogManager();
 
         $linkage = (new Linkage())
             ->setLeftValue($essence)
-            ->setRightValue($code);
+            ->setRightValue($this->thing);
         $isSuccess = $specificationManager->attach($linkage);
         if (!$isSuccess) {
             throw new Exception(
-                "Thing `$code` must be linked"
+                "Thing `$this->thing` must be linked"
                 . " to essence `$essence` with success"
             );
         }
@@ -360,56 +132,30 @@ class Operator
         return $nameable;
     }
 
-    public function removeItem(
+    public function remove(
         string $essence,
-        string $thing,
     ): bool {
         foreach (Searchable::DATA_LOCATION as $table) {
-            $thingKey = new ForeignKey('thing', 'id', 'code');
-            $attributeKey = new ForeignKey('attribute', 'id', 'code');
-            $contentTable = new LinkageTable(
-                $table,
-                'thing_id',
-                'attribute_id',
-            );
+            $contentManager = $this->getContentManager($table);
+            $content = (new Linkage())->setLeftValue($this->thing);
 
-            $contentManager = new CrossoverManager(
-                $this->db,
-                $contentTable,
-                $thingKey,
-                $attributeKey,
-            );
-
-            $content = (new Linkage())->setLeftValue($thing);
             $contentManager->detach($content);
         }
 
-        $essenceKey = new ForeignKey('essence', 'id', 'code');
-        $thingKey = new ForeignKey('thing', 'id', 'code');
-        $catalogTable = new LinkageTable(
-            'essence_thing',
-            'essence_id',
-            'thing_id',
-        );
-        $catalogManager = new LinkageManager(
-            $this->db,
-            $catalogTable,
-            $essenceKey,
-            $thingKey,
-        );
+        $catalogManager = $this->getCatalogManager();
 
         $linkage = (new Linkage())
             ->setLeftValue($essence)
-            ->setRightValue($thing);
+            ->setRightValue($this->thing);
         $isSuccess = $catalogManager->detach($linkage);
         if (!$isSuccess) {
             throw new Exception(
-                "Thing `$thing` and essence `$essence`"
+                "Thing `$this->thing` and essence `$essence`"
                 . ' must be detached with success'
             );
         }
 
-        $handler = new NamedEntityManager($thing, 'thing', $this->db);
+        $handler = new NamedEntityManager($this->thing, 'thing', $this->db);
 
         $isSuccess = $handler->remove();
         if (!$isSuccess) {
@@ -422,43 +168,20 @@ class Operator
     /**
      * @throws Exception
      */
-    public function changeContent(
-        string $thing,
+    public function define(
         string $attribute,
         string $content
     ) {
-        $value = (new Crossover())
-            ->setContent($content);
-        $value->setLeftValue($thing)
-            ->setRightValue($attribute);
-
         $table = SpecificationManager::getLocation(
             $attribute,
             $this->db,
         );
-        $thingKey = new ForeignKey(
-            'thing',
-            'id',
-            'code'
-        );
-        $attributeKey = new ForeignKey(
-            'attribute',
-            'id',
-            'code'
-        );
-        $contentTable = new LinkageTable(
-            $table,
-            'thing_id',
-            'attribute_id',
-        );
+        $contentManager = $this->getContentManager($table);
 
-        $contentManager = new CrossoverManager(
-            $this->db,
-            $contentTable,
-            $thingKey,
-            $attributeKey,
-        );
-
+        $value = (new Crossover())
+            ->setContent($content);
+        $value->setLeftValue($this->thing)
+            ->setRightValue($attribute);
         $contentManager->setSubject($value);
 
         $isSuccess = $contentManager->store($value);
@@ -473,8 +196,7 @@ class Operator
     /**
      * @throws Exception
      */
-    public function expandItem(
-        string $thing,
+    public function expand(
         string $attribute,
         string $value
     ): Operator {
@@ -482,31 +204,9 @@ class Operator
             $attribute,
             $this->db,
         );
-        $thingKey = new ForeignKey(
-            'thing',
-            'id',
-            'code'
-        );
-        $attributeKey = new ForeignKey(
-            'attribute',
-            'id',
-            'code'
-        );
-        $contentTable = new LinkageTable(
-            $table,
-            'thing_id',
-            'attribute_id',
-        );
-
-        $manager = new CrossoverManager(
-            $this->db,
-            $contentTable,
-            $thingKey,
-            $attributeKey,
-        );
-
+        $manager = $this->getContentManager($table);
         $content = (new Crossover());
-        $content->setLeftValue($thing)
+        $content->setLeftValue($this->thing)
             ->setRightValue($attribute);
 
         $isSuccess = $manager->attach($content);
@@ -529,5 +229,86 @@ class Operator
         }
 
         return $this;
+    }
+
+    /**
+     * @return LinkageManager
+     */
+    private function getCatalogManager(): LinkageManager
+    {
+        $essenceKey = new ForeignKey('essence', 'id', 'code');
+        $thingKey = new ForeignKey('thing', 'id', 'code');
+        $catalogTable = new LinkageTable(
+            'essence_thing',
+            'essence_id',
+            'thing_id',
+        );
+        $catalogManager = new LinkageManager(
+            $this->db,
+            $catalogTable,
+            $essenceKey,
+            $thingKey,
+        );
+        return $catalogManager;
+    }
+
+    /**
+     * @param string $table
+     *
+     * @return CrossoverManager
+     */
+    private function getContentManager(string $table): CrossoverManager
+    {
+        $thingKey = new ForeignKey(
+            'thing',
+            'id',
+            'code'
+        );
+        $attributeKey = new ForeignKey(
+            'attribute',
+            'id',
+            'code'
+        );
+        $contentTable = new LinkageTable(
+            $table,
+            'thing_id',
+            'attribute_id',
+        );
+        $contentManager = new CrossoverManager(
+            $this->db,
+            $contentTable,
+            $thingKey,
+            $attributeKey,
+        );
+        return $contentManager;
+    }
+
+    /**
+     * @return LinkageManager
+     */
+    private function getSpecificationManager(): LinkageManager
+    {
+        $essenceKey = new ForeignKey(
+            'essence',
+            'id',
+            'code'
+        );
+        $attributeKey = new ForeignKey(
+            'attribute',
+            'id',
+            'code'
+        );
+        $specification = new LinkageTable(
+            'essence_attribute',
+            'essence_id',
+            'attribute_id',
+        );
+        $catalogManager = new LinkageManager(
+            $this->db,
+            $specification,
+            $essenceKey,
+            $attributeKey,
+        );
+        return $catalogManager;
     }
 }

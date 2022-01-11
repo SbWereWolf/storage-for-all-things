@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 07.01.2022, 2:41
+ * 11.01.2022, 6:09
  */
 
 declare(strict_types=1);
@@ -10,6 +10,7 @@ declare(strict_types=1);
 use AllThings\Blueprint\Attribute\AttributeManager;
 use AllThings\ControlPanel\Browser;
 use AllThings\ControlPanel\Operator;
+use AllThings\ControlPanel\Redactor;
 use AllThings\ControlPanel\Schema;
 use AllThings\DataAccess\Crossover\Crossover;
 use AllThings\DataAccess\Nameable\Nameable;
@@ -30,7 +31,6 @@ $path = implode(DIRECTORY_SEPARATOR, $pathParts);
 $linkToData = (new PdoConnection($path))->get();
 
 $browser = new Browser($linkToData);
-$operator = new Operator($linkToData);
 
 $essences = [
     'MANY' => 'underclothes',
@@ -121,7 +121,7 @@ foreach ($essences as $category => $essence) {
 
     /* @var Nameable $thing */
 
-    [$average, $thing] = addNewItem($operator, $essence);
+    [$average, $thing] = addNewItem($linkToData, $essence);
     echo 'ADD NEW ITEM ' . $average . PHP_EOL;
 
     $schema->changeStorage(Storable::RAPID_OBTAINMENT);
@@ -168,6 +168,7 @@ foreach ($essences as $category => $essence) {
 
     $schema->changeStorage(Storable::DIRECT_READING);
 
+    $operator = new Operator($linkToData, $thing->getCode());
     $average = setupThing(
         $kinds,
         $operator,
@@ -200,15 +201,12 @@ foreach ($essences as $category => $essence) {
     echo 'SETUP NEW ITEM FOR TABLE ' . $average . PHP_EOL;
 
     $adjective = 'test-' . time() . uniqid();
-    $attribute = $operator->createKind(
-        $adjective,
+    $redactor = new Redactor($linkToData, $adjective);
+    $attribute = $redactor->create(
         Searchable::SYMBOLS,
-        Searchable::DISCRETE
+        Searchable::DISCRETE,
     );
-    $operator->attachKind(
-        $essence,
-        $attribute->getCode()
-    );
+    $redactor->attach($essence,);
 
     $schema->changeStorage(Storable::DIRECT_READING);
 
@@ -419,7 +417,7 @@ function reduceFilters(mixed $filters): array
     return $filters;
 }
 
-function addNewItem(Operator $operator, $essence): array
+function addNewItem(PDO $db, $essence): array
 {
     $maxVal = PHP_FLOAT_MIN;
     $minVal = PHP_FLOAT_MAX;
@@ -430,9 +428,9 @@ function addNewItem(Operator $operator, $essence): array
         $start = microtime(true);
 
         $suffix = $start;
-        $thing = $operator->createItem(
+        $operator = new Operator($db, 'new-thing-' . $suffix);
+        $thing = $operator->create(
             $essence,
-            'new-thing-' . $suffix,
             'новая модель' . $suffix,
         );
 
@@ -486,8 +484,7 @@ function defineThing(
             $value = (string)roll(1111, 9999);
         }
         if (!$isTable) {
-            $operator->changeContent(
-                $thing->getCode(),
+            $operator->define(
                 $kind->getCode(),
                 $value,
             );

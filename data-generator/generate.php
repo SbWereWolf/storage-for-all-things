@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 04.01.2022, 14:01
+ * 11.01.2022, 6:09
  */
 
 declare(strict_types=1);
@@ -10,6 +10,8 @@ declare(strict_types=1);
 use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Essence\IEssence;
 use AllThings\ControlPanel\Operator;
+use AllThings\ControlPanel\Redactor;
+use AllThings\ControlPanel\Schema;
 use AllThings\SearchEngine\Searchable;
 use Environment\Database\PdoConnection;
 
@@ -39,25 +41,23 @@ $path = implode(DIRECTORY_SEPARATOR, $pathParts);
 $conn = (new PdoConnection($path))->get();
 $conn->beginTransaction();
 
-$operator = new Operator($conn);
 $attributes = [];
 echo date('H:i:s') . ': Starting generating of kinds' . PHP_EOL;
 for ($cycle = 0; $cycle < MULTIPLIER; $cycle++) {
     foreach ($names as $key => $adjective) {
         $isDiscrete = roll(0, 1) === 0;
         $adjective = "$adjective$cycle";
+        $redactor = new Redactor($conn, $adjective);
         if ($isDiscrete) {
-            $attribute = $operator->createKind(
-                $adjective,
+            $attribute = $redactor->create(
                 Searchable::SYMBOLS,
-                Searchable::DISCRETE
+                Searchable::DISCRETE,
             );
         }
         if (!$isDiscrete) {
-            $attribute = $operator->createKind(
-                $adjective,
+            $attribute = $redactor->create(
                 Searchable::DECIMAL,
-                Searchable::CONTINUOUS
+                Searchable::CONTINUOUS,
             );
         }
 
@@ -130,13 +130,13 @@ for ($i = 0; $i < $entityLimit; $i++) {
         } while ($exists);
     }
 
-    $essence = $operator->createBlueprint($nouns[$i]);
+    $schema = new Schema($conn, $nouns[$i]);
+    $essence = $schema->createBlueprint($nouns[$i],);
     $allKinds[$essence->getCode()] = $kinds;
     $allEssences[] = $essence;
     foreach ($kinds as $kind) {
-        $operator->attachKind(
+        $redactor->attach(
             $essence->getCode(),
-            $kind->getCode()
         );
     }
 }
@@ -164,10 +164,9 @@ foreach ($allEssences as $essence) {
     $kinds = $allKinds[$essence->getCode()];
     for ($n = 0; $n < $numbers; $n++) {
         $item = $essence->getCode() . $n;
-        $operator->createItem(
-            $essence->getCode(),
-            $item
-        );
+        $operator = new Operator($conn, $item);
+
+        $operator->create($essence->getCode());
         foreach ($kinds as $kind) {
             $isDiscrete =
                 $kind->getRangeType() === Searchable::DISCRETE;
@@ -180,7 +179,7 @@ foreach ($allEssences as $essence) {
                 $index = roll(1111, 9999);
                 $val = (string)$index;
             }
-            $operator->changeContent($item, $kind->getCode(), $val);
+            $operator->define($kind->getCode(), $val);
         }
     }
     $conn->commit();

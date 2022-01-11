@@ -2,13 +2,14 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 11.01.2022, 4:51
+ * 11.01.2022, 6:09
  */
 
 namespace Integration;
 
 use AllThings\ControlPanel\Browser;
 use AllThings\ControlPanel\Operator;
+use AllThings\ControlPanel\Redactor;
 use AllThings\ControlPanel\Schema;
 use AllThings\DataAccess\Crossover\Crossover;
 use AllThings\SearchEngine\ContinuousFilter;
@@ -63,13 +64,12 @@ class AutomatedProcessTest extends TestCase
     {
         $linkToData = $context['PDO'];
 
-        $operator = new Operator($linkToData);
-
         /* ## S001A1S01 создать сущность для предметов типа "пирожок" */
-        $essence = $operator->createBlueprint(
-            'cake',
+
+        $schema = new Schema($linkToData, 'cake');
+        $essence = $schema->createBlueprint(
             'The Cakes',
-            'Cakes  of all kinds'
+            'Cakes  of all kinds',
         );
         $this->assertNotEmpty(
             $essence,
@@ -113,10 +113,9 @@ class AutomatedProcessTest extends TestCase
             ],
         ];
 
-        $operator = new Operator($context['PDO']);
         foreach ($codes as $code => $settings) {
-            $attribute = $operator->createKind(
-                $code,
+            $redactor = new Redactor($context['PDO'], $code);
+            $attribute = $redactor->create(
                 $settings['DataType'],
                 $settings['RangeType'],
                 $settings['Title'],
@@ -148,12 +147,9 @@ class AutomatedProcessTest extends TestCase
         $essence = $context['essence'];
 
         $attributes = ['price', 'production-date', 'place-of-production'];
-        $operator = new Operator($context['PDO']);
         foreach ($attributes as $attribute) {
-            $operator->attachKind(
-                $essence,
-                $attribute,
-            );
+            $redactor = new Redactor($context['PDO'], $attribute);
+            $redactor->attach($essence,);
         }
 
         $this->assertTrue(
@@ -183,13 +179,12 @@ class AutomatedProcessTest extends TestCase
         $titles['bun-with-raisins'] = 'Булочка с изюмом';
         $titles['cinnamon-bun'] = 'Булочка с корицей';
 
-        $operator = new Operator($context['PDO']);
         foreach ($titles as $code => $title) {
             $context[$code] = $code;
 
-            $operator->createItem(
+            $operator = new Operator($context['PDO'], $code);
+            $operator->create(
                 $context['essence'],
-                $code,
                 $title,
             );
         }
@@ -233,11 +228,11 @@ class AutomatedProcessTest extends TestCase
             ],
         ];
 
-        $operator = new Operator($linkToData);
         foreach ($codes as $code => $settings) {
+            $operator = new Operator($linkToData, $code);
+
             foreach ($settings as $attribute => $value) {
-                $operator->changeContent(
-                    $code,
+                $operator->define(
                     $attribute,
                     $value,
                 );
@@ -712,26 +707,22 @@ class AutomatedProcessTest extends TestCase
         $context['new-thing'] = 'new-thing';
         /* добавляем модель, задаём для неё атрибуты */
         /* даём модели название */
-        $operator = new Operator($linkToData);
-        $operator->createItem(
+        $operator = new Operator($linkToData, $context['new-thing']);
+        $operator->create(
             $context['essence'],
-            $context['new-thing'],
             'новая модель',
         );
 
         /* задаём характеристики модели */
-        $operator->changeContent(
-            $context['new-thing'],
+        $operator->define(
             $context['price'],
             '11.11',
         );
-        $operator->changeContent(
-            $context['new-thing'],
+        $operator->define(
             $context['production-date'],
             '20210531T0306',
         );
-        $operator->changeContent(
-            $context['new-thing'],
+        $operator->define(
             $context['place-of-production'],
             'Екатеринбург',
         );
@@ -817,13 +808,13 @@ class AutomatedProcessTest extends TestCase
         ];
 
         $linkToData = $context['PDO'];
-        $operator = new Operator($linkToData);
         foreach ($codes as $code => $settings) {
-            $attribute = $operator->createKind(
-                $code,
+            $redactor = new Redactor($linkToData, $code);
+            $attribute = $redactor->create(
                 $settings['DataType'],
                 $settings['RangeType'],
                 $settings['Title'],
+                '',
             );
 
             $this->assertNotEmpty(
@@ -831,14 +822,11 @@ class AutomatedProcessTest extends TestCase
                 'Attribute must be created with success'
             );
             $context[$code] = $code;
-        }
 
-        /* Добавим сущности cake новую характеристику package */
-        $essence = $context['essence'];
-        $operator->attachKind(
-            $essence,
-            $code,
-        );
+            /* Добавим сущности cake новую характеристику package */
+            $essence = $context['essence'];
+            $redactor->attach($essence,);
+        }
 
         /* Добавим существующим моделям новую характеристику. */
         /* Зададим значения новой характеристики для всех моделей. */
@@ -850,7 +838,9 @@ class AutomatedProcessTest extends TestCase
         ];
         foreach ($thingList as $thing => $value) {
             $context[$thing] = $thing;
-            $operator->expandItem($thing, $code, $value);
+
+            $operator = new Operator($linkToData, $thing);
+            $operator->expand($code, $value);
         }
 
         return $context;
@@ -922,15 +912,20 @@ class AutomatedProcessTest extends TestCase
      */
     public function testChangeContent(array $context): array
     {
-        $operator = new Operator($context['PDO']);
-        $operator->changeContent(
+        $operator = new Operator(
+            $context['PDO'],
             $context['new-thing'],
+        );
+        $operator->define(
             $context['package'],
             'коробка',
         );
 
-        $this->assertTrue(true, 'Content'
-            . ' must be changed with success');
+        $this->assertTrue(
+            true,
+            'Content'
+            . ' must be changed with success'
+        );
 
         return $context;
     }
@@ -1022,13 +1017,12 @@ class AutomatedProcessTest extends TestCase
     public function testUnlinkKind(array $context): array
     {
         $linkToData = $context['PDO'];
-        $operator = new Operator($linkToData);
+        $redactor = new Redactor($linkToData, 'package');
 
         /* Удалим у сущности cake характеристику package */
         $essence = $context['essence'];
-        $operator->detachKind(
+        $redactor->detach(
             $essence,
-            'package',
         );
 
         $this->assertTrue(true);
@@ -1113,10 +1107,9 @@ class AutomatedProcessTest extends TestCase
     {
         $linkToData = $context['PDO'];
         /* Удаляем модель */
-        $operator = new Operator($linkToData);
-        $isSuccess = $operator->removeItem(
+        $operator = new Operator($linkToData, $context['new-thing']);
+        $isSuccess = $operator->remove(
             $context['essence'],
-            $context['new-thing'],
         );
         $this->assertTrue(
             $isSuccess,
