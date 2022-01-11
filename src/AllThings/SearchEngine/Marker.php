@@ -2,12 +2,12 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 10.01.2022, 6:49
+ * 11.01.2022, 6:21
  */
 
 namespace AllThings\SearchEngine;
 
-use AllThings\Blueprint\Specification\SpecificationManager;
+use AllThings\Blueprint\Attribute\AttributeHelper;
 use AllThings\StorageEngine\Installation;
 use PDO;
 
@@ -48,7 +48,7 @@ class Marker
             $min = "min@$attribute";
             $filters[$attribute] = ['max' => $max, 'min' => $min];
 
-            $table = SpecificationManager::getLocation(
+            $table = AttributeHelper::getLocation(
                 $attribute,
                 $this
                     ->getSource()
@@ -198,7 +198,7 @@ ORDER BY code
         $essence = $this->getSource()->getEssence();
         $discrete = [];
         foreach ($params as $attribute) {
-            $table = SpecificationManager::getLocation(
+            $table = AttributeHelper::getLocation(
                 $attribute,
                 $this
                     ->getSource()

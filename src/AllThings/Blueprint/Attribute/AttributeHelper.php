@@ -2,18 +2,15 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 10.01.2022, 6:49
+ * 11.01.2022, 6:21
  */
 
-namespace AllThings\Blueprint\Specification;
+namespace AllThings\Blueprint\Attribute;
 
-use AllThings\Blueprint\Attribute\Attribute;
-use AllThings\Blueprint\Attribute\AttributeManager;
-use AllThings\Blueprint\Attribute\IAttribute;
 use Exception;
 use PDO;
 
-class SpecificationManager
+class AttributeHelper
 {
     /**
      * @param string $attribute

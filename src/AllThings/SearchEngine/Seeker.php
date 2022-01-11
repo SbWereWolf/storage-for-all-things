@@ -2,13 +2,13 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 10.01.2022, 6:49
+ * 11.01.2022, 6:21
  */
 
 namespace AllThings\SearchEngine;
 
 
-use AllThings\Blueprint\Specification\SpecificationManager;
+use AllThings\Blueprint\Attribute\AttributeHelper;
 use AllThings\DataAccess\Linkage\ForeignKey;
 use AllThings\DataAccess\Linkage\Linkage;
 use AllThings\DataAccess\Linkage\LinkageManager;
@@ -72,7 +72,7 @@ class Seeker implements Searching
             foreach ($filters as $filter) {
                 /* @var Filter $filter */
                 $attribute = $filter->getAttribute();
-                $format = SpecificationManager::getFormat(
+                $format = AttributeHelper::getFormat(
                     $attribute,
                     $this
                         ->getSource()

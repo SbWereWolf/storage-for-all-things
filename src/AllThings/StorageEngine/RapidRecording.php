@@ -2,15 +2,15 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 11.01.2022, 3:36
+ * 11.01.2022, 6:21
  */
 
 namespace AllThings\StorageEngine;
 
 use AllThings\Blueprint\Attribute\Attribute;
+use AllThings\Blueprint\Attribute\AttributeHelper;
 use AllThings\Blueprint\Attribute\AttributeManager;
 use AllThings\Blueprint\Attribute\IAttribute;
-use AllThings\Blueprint\Specification\SpecificationManager;
 use AllThings\DataAccess\Crossover\CrossoverManager;
 use AllThings\DataAccess\Crossover\ICrossover;
 use AllThings\DataAccess\Linkage\ForeignKey;
@@ -199,7 +199,7 @@ WHERE t.thing_id IS NULL
             /* @var ICrossover $value */
             $attribute = $value->getRightValue();
 
-            $table = SpecificationManager::getLocation(
+            $table = AttributeHelper::getLocation(
                 $attribute,
                 $this->db,
             );
@@ -230,7 +230,7 @@ WHERE t.thing_id IS NULL
             $manager->setSubject($value);
             $manager->store($value);
 
-            $format = SpecificationManager::getFormat(
+            $format = AttributeHelper::getFormat(
                 $attribute,
                 $this->db,
             );

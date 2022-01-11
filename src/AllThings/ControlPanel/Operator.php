@@ -2,12 +2,12 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 11.01.2022, 6:09
+ * 11.01.2022, 6:21
  */
 
 namespace AllThings\ControlPanel;
 
-use AllThings\Blueprint\Specification\SpecificationManager;
+use AllThings\Blueprint\Attribute\AttributeHelper;
 use AllThings\DataAccess\Crossover\Crossover;
 use AllThings\DataAccess\Crossover\CrossoverManager;
 use AllThings\DataAccess\Linkage\ForeignKey;
@@ -101,7 +101,7 @@ class Operator
                 ->setLeftValue($this->thing)
                 ->setRightValue($attribute);
 
-            $table = SpecificationManager::getLocation(
+            $table = AttributeHelper::getLocation(
                 $attribute,
                 $this->db,
             );
@@ -172,7 +172,7 @@ class Operator
         string $attribute,
         string $content
     ) {
-        $table = SpecificationManager::getLocation(
+        $table = AttributeHelper::getLocation(
             $attribute,
             $this->db,
         );
@@ -200,7 +200,7 @@ class Operator
         string $attribute,
         string $value
     ): Operator {
-        $table = SpecificationManager::getLocation(
+        $table = AttributeHelper::getLocation(
             $attribute,
             $this->db,
         );

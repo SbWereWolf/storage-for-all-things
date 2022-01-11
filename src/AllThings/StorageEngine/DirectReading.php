@@ -2,14 +2,14 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 10.01.2022, 6:49
+ * 11.01.2022, 6:21
  */
 
 namespace AllThings\StorageEngine;
 
 
+use AllThings\Blueprint\Attribute\AttributeHelper;
 use AllThings\Blueprint\Attribute\IAttribute;
-use AllThings\Blueprint\Specification\SpecificationManager;
 use AllThings\DataAccess\Linkage\ForeignKey;
 use AllThings\DataAccess\Linkage\Linkage;
 use AllThings\DataAccess\Linkage\LinkageManager;
@@ -98,7 +98,7 @@ class DirectReading implements Installation
 
         $columns = [];
         foreach ($attributes as $attribute) {
-            $table = SpecificationManager::getLocation(
+            $table = AttributeHelper::getLocation(
                 $attribute,
                 $this->linkToData
             );
