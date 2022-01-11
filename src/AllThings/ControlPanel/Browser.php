@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 3:09
+ * 12.01.2022, 3:54
  */
 
 namespace AllThings\ControlPanel;
@@ -24,28 +24,30 @@ class Browser
     /**
      * @throws Exception
      */
-    public function filterData(string $code, $filters = []): array
+    public function filters(string $essence): array
     {
-        $schema = new Category($this->db, $code);
-        $installation = $schema->getInstance();
-        $seeker = new Seeker($installation);
-        /** @noinspection PhpUnnecessaryLocalVariableInspection */
-        $data = $seeker->data($filters);
+        $category = new Category($this->db, $essence);
+        $dataHandler = $category->getHandler();
 
-        return $data;
+        $seeker = new Seeker($dataHandler);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $filters = $seeker->limits();
+
+        return $filters;
     }
 
     /**
      * @throws Exception
      */
-    public function filters(string $code): array
+    public function find(string $essence, $filters = []): array
     {
-        $schema = new Category($this->db, $code);
-        $source = $schema->getInstance();
-        $seeker = new Seeker($source);
-        /** @noinspection PhpUnnecessaryLocalVariableInspection */
-        $filters = $seeker->filters();
+        $category = new Category($this->db, $essence);
+        $dataHandler = $category->getHandler();
 
-        return $filters;
+        $seeker = new Seeker($dataHandler);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $data = $seeker->seek($filters);
+
+        return $data;
     }
 }
