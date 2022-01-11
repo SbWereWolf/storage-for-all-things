@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 2:04
+ * 12.01.2022, 3:09
  */
 
 namespace AllThings\ControlPanel;
@@ -26,7 +26,7 @@ class Browser
      */
     public function filterData(string $code, $filters = []): array
     {
-        $schema = new Schema($this->db, $code);
+        $schema = new Category($this->db, $code);
         $installation = $schema->getInstance();
         $seeker = new Seeker($installation);
         /** @noinspection PhpUnnecessaryLocalVariableInspection */
@@ -40,7 +40,7 @@ class Browser
      */
     public function filters(string $code): array
     {
-        $schema = new Schema($this->db, $code);
+        $schema = new Category($this->db, $code);
         $source = $schema->getInstance();
         $seeker = new Seeker($source);
         /** @noinspection PhpUnnecessaryLocalVariableInspection */

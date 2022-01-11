@@ -2,16 +2,16 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 3:07
+ * 12.01.2022, 3:09
  */
 
 declare(strict_types=1);
 
 use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Essence\IEssence;
+use AllThings\ControlPanel\Category;
 use AllThings\ControlPanel\Product;
 use AllThings\ControlPanel\Redactor;
-use AllThings\ControlPanel\Schema;
 use AllThings\SearchEngine\Searchable;
 use Environment\Database\PdoConnection;
 
@@ -130,7 +130,7 @@ for ($i = 0; $i < $entityLimit; $i++) {
         } while ($exists);
     }
 
-    $schema = new Schema($conn, $nouns[$i]);
+    $schema = new Category($conn, $nouns[$i]);
     $essence = $schema->create($nouns[$i],);
     $allKinds[$essence->getCode()] = $kinds;
     $allEssences[] = $essence;

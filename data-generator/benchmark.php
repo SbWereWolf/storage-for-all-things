@@ -2,16 +2,16 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 3:07
+ * 12.01.2022, 3:09
  */
 
 declare(strict_types=1);
 
 use AllThings\Blueprint\Attribute\AttributeManager;
 use AllThings\ControlPanel\Browser;
+use AllThings\ControlPanel\Category;
 use AllThings\ControlPanel\Product;
 use AllThings\ControlPanel\Redactor;
-use AllThings\ControlPanel\Schema;
 use AllThings\DataAccess\Crossover\Crossover;
 use AllThings\DataAccess\Nameable\Nameable;
 use AllThings\SearchEngine\ContinuousFilter;
@@ -44,7 +44,7 @@ foreach ($essences as $category => $essence) {
         $essence .
         "($category)" .
         PHP_EOL;
-    $schema = new Schema($linkToData, $essence);
+    $schema = new Category($linkToData, $essence);
     $average = setupSource($schema, 'handleWithDirectReading');
     echo 'MAKE VIEW ' . $average . PHP_EOL;
 
@@ -243,11 +243,12 @@ foreach ($essences as $category => $essence) {
 }
 
 /**
- * @param Schema $schema
- * @param string $fn
+ * @param Category $schema
+ * @param string   $fn
+ *
  * @return float
  */
-function setupSource(Schema $schema, string $fn): float
+function setupSource(Category $schema, string $fn): float
 {
     $maxVal = PHP_FLOAT_MIN;
     $minVal = PHP_FLOAT_MAX;
@@ -461,7 +462,7 @@ function addNewItem(PDO $db, $essence): array
  * @param array    $kinds
  * @param Product  $operator
  * @param Nameable $thing
- * @param Schema   $schema
+ * @param Category $schema
  *
  * @return array
  * @throws Exception
@@ -470,7 +471,7 @@ function defineThing(
     array $kinds,
     Product $operator,
     Nameable $thing,
-    Schema $schema,
+    Category $schema,
 ): array {
     $isTable = $schema->getInstance() instanceof RapidRecording;
     $definition = [];
@@ -503,7 +504,7 @@ function setupThing(
     array $kinds,
     Product $operator,
     Nameable $thing,
-    Schema $schema,
+    Category $schema,
 ): float {
     $maxVal = PHP_FLOAT_MIN;
     $minVal = PHP_FLOAT_MAX;

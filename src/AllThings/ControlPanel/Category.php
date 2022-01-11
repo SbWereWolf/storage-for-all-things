@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 2:04
+ * 12.01.2022, 3:09
  */
 
 namespace AllThings\ControlPanel;
@@ -19,7 +19,7 @@ use AllThings\StorageEngine\Storable;
 use Exception;
 use PDO;
 
-class Schema
+class Category
 {
     private PDO $db;
     private string $essence;
@@ -37,7 +37,7 @@ class Schema
     /**
      * @throws Exception
      */
-    public function handleWithDirectReading(): Schema
+    public function handleWithDirectReading(): Category
     {
         $this->change(Storable::DIRECT_READING);
         $handler = new DirectReading(
@@ -59,7 +59,7 @@ class Schema
     /**
      * @throws Exception
      */
-    public function handleWithRapidObtainment(): Schema
+    public function handleWithRapidObtainment(): Category
     {
         $this->change(Storable::RAPID_OBTAINMENT);
         $handler = new RapidObtainment(
@@ -81,7 +81,7 @@ class Schema
     /**
      * @throws Exception
      */
-    public function handleWithRapidRecording(): Schema
+    public function handleWithRapidRecording(): Category
     {
         $this->change(Storable::RAPID_RECORDING);
         $handler = new RapidRecording(
@@ -100,16 +100,6 @@ class Schema
         return $this;
     }
 
-    /**
-     * @param string   $code
-     * @param string   $title
-     * @param string   $description
-     * @param string   $storageKind
-     * @param Operator $instance
-     *
-     * @return IEssence
-     * @throws Exception
-     */
     public function create(
         string $title = '',
         string $description = '',
@@ -150,7 +140,7 @@ class Schema
         return $essence;
     }
 
-    public function setup(?IAttribute $attribute = null): Schema
+    public function setup(?IAttribute $attribute = null): Category
     {
         $installation = $this->getInstance();
 
@@ -181,7 +171,7 @@ class Schema
     /**
      * @throws Exception
      */
-    public function refresh(array $values = []): Schema
+    public function refresh(array $values = []): Category
     {
         $installation = $this->getInstance();
 
