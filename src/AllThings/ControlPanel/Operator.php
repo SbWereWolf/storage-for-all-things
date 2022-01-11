@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 2:31
+ * 12.01.2022, 3:00
  */
 
 namespace AllThings\ControlPanel;
@@ -116,12 +116,12 @@ class Operator
             }
         }
 
-        $specificationManager = $this->getCatalogManager();
+        $catalogManager = $this->getCatalogManager();
 
         $linkage = (new Linkage())
             ->setLeftValue($essence)
             ->setRightValue($this->thing);
-        $isSuccess = $specificationManager->attach($linkage);
+        $isSuccess = $catalogManager->attach($linkage);
         if (!$isSuccess) {
             throw new Exception(
                 "Thing `$this->thing` must be linked"
@@ -168,11 +168,13 @@ class Operator
     /**
      * @throws Exception
      */
-    public function define(array $definition)
+    public function define(array $definition): static
     {
         foreach ($definition as $attribute => $content) {
             $this->defineOne($attribute, $content);
         }
+
+        return $this;
     }
 
     /**
@@ -219,7 +221,7 @@ class Operator
     private function defineOne(
         string $attribute,
         string $content
-    ) {
+    ): static {
         $table = AttributeHelper::getLocation(
             $attribute,
             $this->db,
@@ -239,6 +241,8 @@ class Operator
                 . ' must be defined with success'
             );
         }
+
+        return $this;
     }
 
     /**
