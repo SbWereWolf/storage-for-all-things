@@ -1,0 +1,34 @@
+/*
+ * storage-for-all-things
+ * Copyright © 2022 Volkhin Nikolay
+ * 07.01.2022, 3:56
+ */
+
+/* purge base tables of EAV */
+DELETE
+FROM word
+where true;
+DELETE
+FROM number
+where true;
+DELETE
+FROM time_interval
+where true;
+DELETE
+FROM time_moment
+where true;
+DELETE
+FROM essence_thing
+where true;
+DELETE
+FROM essence_attribute
+where true;
+DELETE
+FROM thing
+where true;
+DELETE
+FROM attribute
+where true;
+DELETE
+FROM essence
+where true;
