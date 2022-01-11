@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 11.01.2022, 6:09
+ * 12.01.2022, 2:04
  */
 
 namespace Integration;
@@ -67,7 +67,7 @@ class AutomatedProcessTest extends TestCase
         /* ## S001A1S01 создать сущность для предметов типа "пирожок" */
 
         $schema = new Schema($linkToData, 'cake');
-        $essence = $schema->createBlueprint(
+        $essence = $schema->create(
             'The Cakes',
             'Cakes  of all kinds',
         );
@@ -741,7 +741,7 @@ class AutomatedProcessTest extends TestCase
     public function testAddNewItemToView(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->changeStorage(Storable::DIRECT_READING);
+        $schema->change(Storable::DIRECT_READING);
         $schema->refresh();
 
         $browser = new Browser($context['PDO']);
@@ -759,7 +759,7 @@ class AutomatedProcessTest extends TestCase
     public function testAddNewItemToMathView(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->changeStorage(Storable::RAPID_OBTAINMENT);
+        $schema->change(Storable::RAPID_OBTAINMENT);
         $schema->refresh();
 
         $browser = new Browser($context['PDO']);
@@ -777,7 +777,7 @@ class AutomatedProcessTest extends TestCase
     public function testAddNewItemToTable(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->changeStorage(Storable::RAPID_RECORDING);
+        $schema->change(Storable::RAPID_RECORDING);
         $schema->refresh();
 
         $browser = new Browser($context['PDO']);
@@ -856,7 +856,7 @@ class AutomatedProcessTest extends TestCase
     public function testAddNewKindToView(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->changeStorage(Storable::DIRECT_READING);
+        $schema->change(Storable::DIRECT_READING);
         $schema->setup();
 
         $browser = new Browser($context['PDO']);
@@ -875,7 +875,7 @@ class AutomatedProcessTest extends TestCase
     public function testAddNewKindToMathView(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->changeStorage(Storable::RAPID_OBTAINMENT);
+        $schema->change(Storable::RAPID_OBTAINMENT);
         $schema->setup();
 
         $browser = new Browser($context['PDO']);
@@ -893,7 +893,7 @@ class AutomatedProcessTest extends TestCase
     public function testAddNewKindToTable(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->changeStorage(Storable::RAPID_RECORDING);
+        $schema->change(Storable::RAPID_RECORDING);
         $schema->setup();
 
         $browser = new Browser($context['PDO']);
@@ -940,7 +940,7 @@ class AutomatedProcessTest extends TestCase
     public function testChangeContentWithinView(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->changeStorage(Storable::DIRECT_READING);
+        $schema->change(Storable::DIRECT_READING);
         $schema->refresh();
 
         $browser = new Browser($context['PDO']);
@@ -963,7 +963,7 @@ class AutomatedProcessTest extends TestCase
     public function testChangeContentWithinMathView(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->changeStorage(Storable::RAPID_OBTAINMENT);
+        $schema->change(Storable::RAPID_OBTAINMENT);
         $schema->refresh();
 
         $browser = new Browser($context['PDO']);
@@ -986,7 +986,7 @@ class AutomatedProcessTest extends TestCase
     public function testChangeContentWithinTable(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->changeStorage(Storable::RAPID_RECORDING);
+        $schema->change(Storable::RAPID_RECORDING);
 
         $content = (new Crossover())->setContent('коробка');
         $content->setLeftValue($context['new-thing'])
@@ -1043,7 +1043,7 @@ class AutomatedProcessTest extends TestCase
     public function testUnlinkKindWithView(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->changeStorage(Storable::DIRECT_READING);
+        $schema->change(Storable::DIRECT_READING);
         $schema->prune('package');
 
         $browser = new Browser($context['PDO']);
@@ -1064,7 +1064,7 @@ class AutomatedProcessTest extends TestCase
     public function testUnlinkKindWithMathView(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->changeStorage(Storable::RAPID_OBTAINMENT);
+        $schema->change(Storable::RAPID_OBTAINMENT);
         $schema->prune('package');
 
         $browser = new Browser($context['PDO']);
@@ -1085,7 +1085,7 @@ class AutomatedProcessTest extends TestCase
     public function testUnlinkKindWithTable(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->changeStorage(Storable::RAPID_RECORDING);
+        $schema->change(Storable::RAPID_RECORDING);
         $schema->prune('package');
 
         $browser = new Browser($context['PDO']);
@@ -1131,7 +1131,7 @@ class AutomatedProcessTest extends TestCase
     public function testRemoveItemWithView(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->changeStorage(Storable::DIRECT_READING);
+        $schema->change(Storable::DIRECT_READING);
         $schema->refresh();
 
         $browser = new Browser($context['PDO']);
@@ -1152,7 +1152,7 @@ class AutomatedProcessTest extends TestCase
     public function testRemoveItemWithMathView(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->changeStorage(Storable::RAPID_OBTAINMENT);
+        $schema->change(Storable::RAPID_OBTAINMENT);
         $schema->refresh();
 
         $browser = new Browser($context['PDO']);
@@ -1172,7 +1172,7 @@ class AutomatedProcessTest extends TestCase
     public function testRemoveItemWithTable(array $context)
     {
         $schema = new Schema($context['PDO'], $context['essence']);
-        $schema->changeStorage(Storable::RAPID_RECORDING);
+        $schema->change(Storable::RAPID_RECORDING);
         $schema->refresh();
 
         $browser = new Browser($context['PDO']);

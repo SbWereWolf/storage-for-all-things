@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 11.01.2022, 6:09
+ * 12.01.2022, 2:04
  */
 
 declare(strict_types=1);
@@ -131,7 +131,7 @@ for ($i = 0; $i < $entityLimit; $i++) {
     }
 
     $schema = new Schema($conn, $nouns[$i]);
-    $essence = $schema->createBlueprint($nouns[$i],);
+    $essence = $schema->create($nouns[$i],);
     $allKinds[$essence->getCode()] = $kinds;
     $allEssences[] = $essence;
     foreach ($kinds as $kind) {

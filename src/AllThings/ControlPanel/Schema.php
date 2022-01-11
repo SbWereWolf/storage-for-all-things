@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 11.01.2022, 6:09
+ * 12.01.2022, 2:04
  */
 
 namespace AllThings\ControlPanel;
@@ -35,6 +35,72 @@ class Schema
     }
 
     /**
+     * @throws Exception
+     */
+    public function handleWithDirectReading(): Schema
+    {
+        $this->change(Storable::DIRECT_READING);
+        $handler = new DirectReading(
+            $this->essence,
+            $this->db
+        );
+
+        $isSuccess = $handler->setup();
+        if (!$isSuccess) {
+            throw new Exception(
+                'DB source'
+                . ' must be created with success'
+            );
+        }
+
+        return $this;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function handleWithRapidObtainment(): Schema
+    {
+        $this->change(Storable::RAPID_OBTAINMENT);
+        $handler = new RapidObtainment(
+            $this->essence,
+            $this->db
+        );
+
+        $isSuccess = $handler->setup();
+        if (!$isSuccess) {
+            throw new Exception(
+                'DB source'
+                . ' must be created with success'
+            );
+        }
+
+        return $this;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function handleWithRapidRecording(): Schema
+    {
+        $this->change(Storable::RAPID_RECORDING);
+        $handler = new RapidRecording(
+            $this->essence,
+            $this->db
+        );
+
+        $isSuccess = $handler->setup();
+        if (!$isSuccess) {
+            throw new Exception(
+                'DB source'
+                . ' must be created with success'
+            );
+        }
+
+        return $this;
+    }
+
+    /**
      * @param string   $code
      * @param string   $title
      * @param string   $description
@@ -44,7 +110,7 @@ class Schema
      * @return IEssence
      * @throws Exception
      */
-    public function createBlueprint(
+    public function create(
         string $title = '',
         string $description = '',
         string $storageKind = Storable::DIRECT_READING
@@ -84,12 +150,40 @@ class Schema
         return $essence;
     }
 
+    public function setup(?IAttribute $attribute = null): Schema
+    {
+        $installation = $this->getInstance();
+
+        $isSuccess = $installation->setup($attribute);
+        if (!$isSuccess) {
+            throw new Exception(
+                'Installation MUST BE defined with success'
+            );
+        }
+
+        return $this;
+    }
+
+    public function prune(string $attribute): bool
+    {
+        $installation = $this->getInstance();
+
+        $isSuccess = $installation->prune($attribute);
+        if (!$isSuccess) {
+            throw new Exception(
+                'Installation MUST BE defined with success'
+            );
+        }
+
+        return $isSuccess;
+    }
+
     /**
      * @throws Exception
      */
     public function refresh(array $values = []): Schema
     {
-        $installation = $this->getInstallation();
+        $installation = $this->getInstance();
 
         $isSuccess = $installation->refresh($values);
         if (!$isSuccess) {
@@ -105,9 +199,9 @@ class Schema
      * @return Installation
      * @throws Exception
      */
-    public function getInstallation(): Installation
+    public function getInstance(): Installation
     {
-        $essence = $this->reloadEssence();
+        $essence = $this->reload();
         if (!$essence) {
             throw new Exception('Essence must be find with success');
         }
@@ -124,89 +218,22 @@ class Schema
                 $source = new RapidRecording($this->essence, $this->db);
                 break;
             default:
-                throw new Exception('Storage kind'
+                throw new Exception(
+                    'Storage kind'
                     . ' MUST be one of :'
                     . ' view | materialized view | table'
-                    . ", `$storageKind` given");
+                    . ", `$storageKind` given"
+                );
         }
         return $source;
     }
 
-    private function reloadEssence(): ?IEssence
-    {
-        $essence = (Essence::GetDefaultEssence());
-        $essence->setCode($this->essence);
-
-        $manager = new EssenceManager(
-            $this->essence,
-            'essence',
-            $this->db,
-        );
-        $manager->setSubject($essence);
-
-        $isSuccess = $manager->browse();
-        $result = null;
-        if ($isSuccess && $manager->has()) {
-            $result = $manager->retrieveData();
-        }
-
-        return $result;
-    }
-
-    public function setup(?IAttribute $attribute = null): Schema
-    {
-        $installation = $this->getInstallation();
-
-        $isSuccess = $installation->setup($attribute);
-        if (!$isSuccess) {
-            throw new Exception(
-                'Installation MUST BE defined with success'
-            );
-        }
-
-        return $this;
-    }
-
-    public function prune(string $attribute): bool
-    {
-        $installation = $this->getInstallation();
-
-        $isSuccess = $installation->prune($attribute);
-        if (!$isSuccess) {
-            throw new Exception(
-                'Installation MUST BE defined with success'
-            );
-        }
-
-        return $isSuccess;
-    }
-
     /**
      * @throws Exception
      */
-    public function handleWithDirectReading(): Schema
+    public function change(string $storageKind): bool
     {
-        $this->changeStorage(Storable::DIRECT_READING);
-        $handler = new DirectReading(
-            $this->essence,
-            $this->db
-        );
-
-        $isSuccess = $handler->setup();
-        if (!$isSuccess) {
-            throw new Exception('DB source'
-                . ' must be created with success');
-        }
-
-        return $this;
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function changeStorage(string $storageKind): bool
-    {
-        $essence = $this->reloadEssence();
+        $essence = $this->reload();
         if (!$essence) {
             throw new Exception('Essence must be find with success');
         }
@@ -229,43 +256,24 @@ class Schema
         return $isSuccess;
     }
 
-    /**
-     * @throws Exception
-     */
-    public function handleWithRapidObtainment(): Schema
+    private function reload(): ?IEssence
     {
-        $this->changeStorage(Storable::RAPID_OBTAINMENT);
-        $handler = new RapidObtainment(
-            $this->essence,
-            $this->db
-        );
+        $essence = (Essence::GetDefaultEssence());
+        $essence->setCode($this->essence);
 
-        $isSuccess = $handler->setup();
-        if (!$isSuccess) {
-            throw new Exception('DB source'
-                . ' must be created with success');
+        $manager = new EssenceManager(
+            $this->essence,
+            'essence',
+            $this->db,
+        );
+        $manager->setSubject($essence);
+
+        $isSuccess = $manager->browse();
+        $result = null;
+        if ($isSuccess && $manager->has()) {
+            $result = $manager->retrieveData();
         }
 
-        return $this;
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function handleWithRapidRecording(): Schema
-    {
-        $this->changeStorage(Storable::RAPID_RECORDING);
-        $handler = new RapidRecording(
-            $this->essence,
-            $this->db
-        );
-
-        $isSuccess = $handler->setup();
-        if (!$isSuccess) {
-            throw new Exception('DB source'
-                . ' must be created with success');
-        }
-
-        return $this;
+        return $result;
     }
 }

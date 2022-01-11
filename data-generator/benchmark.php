@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 11.01.2022, 6:09
+ * 12.01.2022, 2:04
  */
 
 declare(strict_types=1);
@@ -124,7 +124,7 @@ foreach ($essences as $category => $essence) {
     [$average, $thing] = addNewItem($linkToData, $essence);
     echo 'ADD NEW ITEM ' . $average . PHP_EOL;
 
-    $schema->changeStorage(Storable::RAPID_OBTAINMENT);
+    $schema->change(Storable::RAPID_OBTAINMENT);
 
     $start = microtime(true);
 
@@ -135,7 +135,7 @@ foreach ($essences as $category => $essence) {
 
     echo 'ADD NEW ITEM TO MAT VIEW ' . $duration . PHP_EOL;
 
-    $schema->changeStorage(Storable::RAPID_RECORDING);
+    $schema->change(Storable::RAPID_RECORDING);
 
     $start = microtime(true);
 
@@ -146,7 +146,7 @@ foreach ($essences as $category => $essence) {
 
     echo 'ADD NEW ITEM TO TABLE ' . $duration . PHP_EOL;
 
-    $source = $schema->getInstallation();
+    $source = $schema->getInstance();
     $seeker = new Seeker($source);
     $kinds = $seeker->getPossibleParameters();
 
@@ -166,7 +166,7 @@ foreach ($essences as $category => $essence) {
         $kinds[$key] = $manager->retrieveData();
     }
 
-    $schema->changeStorage(Storable::DIRECT_READING);
+    $schema->change(Storable::DIRECT_READING);
 
     $operator = new Operator($linkToData, $thing->getCode());
     $average = setupThing(
@@ -178,7 +178,7 @@ foreach ($essences as $category => $essence) {
 
     echo 'SETUP NEW ITEM FOR VIEW ' . $average . PHP_EOL;
 
-    $schema->changeStorage(Storable::RAPID_OBTAINMENT);
+    $schema->change(Storable::RAPID_OBTAINMENT);
 
     $average = setupThing(
         $kinds,
@@ -189,7 +189,7 @@ foreach ($essences as $category => $essence) {
 
     echo 'SETUP NEW ITEM FOR MAT VIEW ' . $average . PHP_EOL;
 
-    $schema->changeStorage(Storable::RAPID_RECORDING);
+    $schema->change(Storable::RAPID_RECORDING);
 
     $average = setupThing(
         $kinds,
@@ -208,7 +208,7 @@ foreach ($essences as $category => $essence) {
     );
     $redactor->attach($essence,);
 
-    $schema->changeStorage(Storable::DIRECT_READING);
+    $schema->change(Storable::DIRECT_READING);
 
     $start = microtime(true);
 
@@ -219,7 +219,7 @@ foreach ($essences as $category => $essence) {
 
     echo 'ADD NEW KIND FOR VIEW ' . $duration . PHP_EOL;
 
-    $schema->changeStorage(Storable::RAPID_OBTAINMENT);
+    $schema->change(Storable::RAPID_OBTAINMENT);
 
     $start = microtime(true);
 
@@ -230,7 +230,7 @@ foreach ($essences as $category => $essence) {
 
     echo 'ADD NEW KIND FOR MAT VIEW ' . $duration . PHP_EOL;
 
-    $schema->changeStorage(Storable::RAPID_RECORDING);
+    $schema->change(Storable::RAPID_RECORDING);
 
     $start = microtime(true);
 
@@ -472,7 +472,7 @@ function defineThing(
     Schema $schema,
 ): array {
     $result = [];
-    $isTable = $schema->getInstallation() instanceof RapidRecording;
+    $isTable = $schema->getInstance() instanceof RapidRecording;
     foreach ($kinds as $kind) {
         $value = '';
         if ($kind->getDataType() === Searchable::SYMBOLS
