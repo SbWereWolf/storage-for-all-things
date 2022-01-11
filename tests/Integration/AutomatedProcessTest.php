@@ -2,13 +2,13 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 2:31
+ * 12.01.2022, 3:07
  */
 
 namespace Integration;
 
 use AllThings\ControlPanel\Browser;
-use AllThings\ControlPanel\Operator;
+use AllThings\ControlPanel\Product;
 use AllThings\ControlPanel\Redactor;
 use AllThings\ControlPanel\Schema;
 use AllThings\DataAccess\Crossover\Crossover;
@@ -182,7 +182,7 @@ class AutomatedProcessTest extends TestCase
         foreach ($titles as $code => $title) {
             $context[$code] = $code;
 
-            $operator = new Operator($context['PDO'], $code);
+            $operator = new Product($context['PDO'], $code);
             $operator->create(
                 $context['essence'],
                 $title,
@@ -229,7 +229,7 @@ class AutomatedProcessTest extends TestCase
         ];
 
         foreach ($codes as $code => $settings) {
-            $operator = new Operator($linkToData, $code);
+            $operator = new Product($linkToData, $code);
             $operator->define($settings);
         }
         $this->assertTrue(true, 'Content must be created with success');
@@ -701,7 +701,7 @@ class AutomatedProcessTest extends TestCase
         $context['new-thing'] = 'new-thing';
         /* добавляем модель, задаём для неё атрибуты */
         /* даём модели название */
-        $operator = new Operator($linkToData, $context['new-thing']);
+        $operator = new Product($linkToData, $context['new-thing']);
         $operator->create(
             $context['essence'],
             'новая модель',
@@ -828,7 +828,7 @@ class AutomatedProcessTest extends TestCase
         foreach ($thingList as $thing => $value) {
             $context[$thing] = $thing;
 
-            $operator = new Operator($linkToData, $thing);
+            $operator = new Product($linkToData, $thing);
             $operator->expand($code, $value);
         }
 
@@ -901,7 +901,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testChangeContent(array $context): array
     {
-        $operator = new Operator(
+        $operator = new Product(
             $context['PDO'],
             $context['new-thing'],
         );
@@ -1093,7 +1093,7 @@ class AutomatedProcessTest extends TestCase
     {
         $linkToData = $context['PDO'];
         /* Удаляем модель */
-        $operator = new Operator($linkToData, $context['new-thing']);
+        $operator = new Product($linkToData, $context['new-thing']);
         $isSuccess = $operator->remove(
             $context['essence'],
         );

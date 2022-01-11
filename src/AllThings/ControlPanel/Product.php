@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 3:00
+ * 12.01.2022, 3:07
  */
 
 namespace AllThings\ControlPanel;
@@ -21,7 +21,7 @@ use AllThings\SearchEngine\Searchable;
 use Exception;
 use PDO;
 
-class Operator
+class Product
 {
     private PDO $db;
     private string $thing;
@@ -183,7 +183,7 @@ class Operator
     public function expand(
         string $attribute,
         string $value
-    ): Operator {
+    ): Product {
         $table = AttributeHelper::getLocation(
             $attribute,
             $this->db,

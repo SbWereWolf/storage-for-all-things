@@ -2,14 +2,14 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 2:31
+ * 12.01.2022, 3:07
  */
 
 declare(strict_types=1);
 
 use AllThings\Blueprint\Attribute\AttributeManager;
 use AllThings\ControlPanel\Browser;
-use AllThings\ControlPanel\Operator;
+use AllThings\ControlPanel\Product;
 use AllThings\ControlPanel\Redactor;
 use AllThings\ControlPanel\Schema;
 use AllThings\DataAccess\Crossover\Crossover;
@@ -168,7 +168,7 @@ foreach ($essences as $category => $essence) {
 
     $schema->change(Storable::DIRECT_READING);
 
-    $operator = new Operator($linkToData, $thing->getCode());
+    $operator = new Product($linkToData, $thing->getCode());
     $average = setupThing(
         $kinds,
         $operator,
@@ -428,7 +428,7 @@ function addNewItem(PDO $db, $essence): array
         $start = microtime(true);
 
         $suffix = $start;
-        $operator = new Operator($db, 'new-thing-' . $suffix);
+        $operator = new Product($db, 'new-thing-' . $suffix);
         $thing = $operator->create(
             $essence,
             'новая модель' . $suffix,
@@ -458,16 +458,17 @@ function addNewItem(PDO $db, $essence): array
 }
 
 /**
- * @param array $kinds
- * @param Operator $operator
+ * @param array    $kinds
+ * @param Product  $operator
  * @param Nameable $thing
- * @param Schema $schema
+ * @param Schema   $schema
+ *
  * @return array
  * @throws Exception
  */
 function defineThing(
     array $kinds,
-    Operator $operator,
+    Product $operator,
     Nameable $thing,
     Schema $schema,
 ): array {
@@ -500,7 +501,7 @@ function defineThing(
 
 function setupThing(
     array $kinds,
-    Operator $operator,
+    Product $operator,
     Nameable $thing,
     Schema $schema,
 ): float {

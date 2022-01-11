@@ -2,14 +2,14 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 2:31
+ * 12.01.2022, 3:07
  */
 
 declare(strict_types=1);
 
 use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Essence\IEssence;
-use AllThings\ControlPanel\Operator;
+use AllThings\ControlPanel\Product;
 use AllThings\ControlPanel\Redactor;
 use AllThings\ControlPanel\Schema;
 use AllThings\SearchEngine\Searchable;
@@ -164,7 +164,7 @@ foreach ($allEssences as $essence) {
     $kinds = $allKinds[$essence->getCode()];
     for ($n = 0; $n < $numbers; $n++) {
         $item = $essence->getCode() . $n;
-        $operator = new Operator($conn, $item);
+        $operator = new Product($conn, $item);
 
         $operator->create($essence->getCode());
         $definition = [];
