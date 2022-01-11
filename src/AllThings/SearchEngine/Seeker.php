@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 11.01.2022, 6:21
+ * 12.01.2022, 3:54
  */
 
 namespace AllThings\SearchEngine;
@@ -28,48 +28,28 @@ class Seeker implements Searching
         $this->setSource($source);
     }
 
-    /**
-     * @param Installation $source
-     *
-     * @return self
-     */
-    private function setSource(Installation $source): self
+    public function limits(): array
     {
-        $this->source = $source;
-        return $this;
+        $marker = new Marker($this->getSource());
+        $parameters = $this->getParams();
+        $filters = $marker->getBoundaries($parameters);
+        $result = $marker->getEnumerations($parameters);
+
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = array_merge($result, $filters);
+
+        return $result;
     }
 
-    /**
-     * @param mixed $sql
-     * @return array
-     */
-    private function readData(string $sql): array
-    {
-        $cursor = $this
-            ->getSource()
-            ->getDb()
-            ->query($sql, PDO::FETCH_ASSOC);
-
-        $isSuccess = $cursor !== false;
-        if ($isSuccess) {
-            $data = $cursor->fetchAll();
-        }
-        if (!$isSuccess || $data === false) {
-            $data = [];
-        }
-
-        return $data;
-    }
-
-    public function data(array $filters = []): array
+    public function seek(array $limits = []): array
     {
         $name = $this->getSource()->name();
         $obtain = "SELECT * from $name";
 
-        $isExists = !empty($filters);
+        $isExists = !empty($limits);
         $where = [];
         if ($isExists) {
-            foreach ($filters as $filter) {
+            foreach ($limits as $filter) {
                 /* @var Filter $filter */
                 $attribute = $filter->getAttribute();
                 $format = AttributeHelper::getFormat(
@@ -112,6 +92,25 @@ class Seeker implements Searching
         return $data;
     }
 
+    public function getParams(): array
+    {
+        $specificationManager = $this->getSpecificationManager();
+
+        $essence = $this->getSource()->getEssence();
+        $linkage = (new Linkage())->setLeftValue($essence);
+
+        $isSuccess = $specificationManager->getAssociated($linkage);
+        if ($isSuccess) {
+            $isSuccess = $specificationManager->has();
+        }
+        $attributes = [];
+        if ($isSuccess) {
+            $attributes = $specificationManager->retrieveData();
+        }
+
+        return $attributes;
+    }
+
     /**
      * @return Installation
      */
@@ -120,20 +119,40 @@ class Seeker implements Searching
         return $this->source;
     }
 
-    public function filters(): array
+    /**
+     * @param Installation $source
+     *
+     * @return static
+     */
+    private function setSource(Installation $source): static
     {
-        $marker = new Marker($this->getSource());
-        $parameters = $this->getPossibleParameters();
-        $filters = $marker->getBoundaries($parameters);
-        $result = $marker->getEnumerations($parameters);
+        $this->source = $source;
 
-        /** @noinspection PhpUnnecessaryLocalVariableInspection */
-        $result = array_merge($result, $filters);
-
-        return $result;
+        return $this;
     }
 
-    public function getPossibleParameters(): array
+    private function readData(string $sql): array
+    {
+        $cursor = $this
+            ->getSource()
+            ->getDb()
+            ->query($sql, PDO::FETCH_ASSOC);
+
+        $isSuccess = $cursor !== false;
+        if ($isSuccess) {
+            $data = $cursor->fetchAll();
+        }
+        if (!$isSuccess || $data === false) {
+            $data = [];
+        }
+
+        return $data;
+    }
+
+    /**
+     * @return LinkageManager
+     */
+    private function getSpecificationManager(): LinkageManager
     {
         $essenceKey = new ForeignKey(
             'essence',
@@ -157,18 +176,6 @@ class Seeker implements Searching
             $attributeKey,
         );
 
-        $essence = $this->getSource()->getEssence();
-        $linkage = (new Linkage())->setLeftValue($essence);
-
-        $isSuccess = $specificationManager->getAssociated($linkage);
-        if ($isSuccess) {
-            $isSuccess = $specificationManager->has();
-        }
-        $attributes = [];
-        if ($isSuccess) {
-            $attributes = $specificationManager->retrieveData();
-        }
-
-        return $attributes;
+        return $specificationManager;
     }
 }

@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 3:11
+ * 12.01.2022, 3:54
  */
 
 namespace Integration;
@@ -265,7 +265,7 @@ class AutomatedProcessTest extends TestCase
         /* ## S001A4S04 получить данные из представления
         (без фильтрации) */
         $browser = new Browser($context['PDO']);
-        $data = $browser->filterData($context['essence'], []);
+        $data = $browser->find($context['essence'], []);
         $this->checkShowAll($context, $data);
     }
 
@@ -503,13 +503,13 @@ class AutomatedProcessTest extends TestCase
         );
         $browser = new Browser($context['PDO']);
 
-        $data = $browser->filterData($context['essence'], [$continuous]);
+        $data = $browser->find($context['essence'], [$continuous]);
         $this->assertNotEmpty($data);
 
-        $data = $browser->filterData($context['essence'], [$discrete]);
+        $data = $browser->find($context['essence'], [$discrete]);
         $this->assertNotEmpty($data);
 
-        $data = $browser->filterData(
+        $data = $browser->find(
             $context['essence'],
             [$discrete, $continuous]
         );
@@ -549,7 +549,7 @@ class AutomatedProcessTest extends TestCase
         /* ## S001A4S04 получить данные из представления
         (без фильтрации) */
         $browser = new Browser($context['PDO']);
-        $data = $browser->filterData($context['essence'], []);
+        $data = $browser->find($context['essence'], []);
         $this->checkShowAll($context, $data);
     }
 
@@ -591,13 +591,13 @@ class AutomatedProcessTest extends TestCase
         );
         $browser = new Browser($context['PDO']);
 
-        $data = $browser->filterData($context['essence'], [$continuous]);
+        $data = $browser->find($context['essence'], [$continuous]);
         $this->assertNotEmpty($data);
 
-        $data = $browser->filterData($context['essence'], [$discrete]);
+        $data = $browser->find($context['essence'], [$discrete]);
         $this->assertNotEmpty($data);
 
-        $data = $browser->filterData(
+        $data = $browser->find(
             $context['essence'],
             [$discrete, $continuous]
         );
@@ -632,7 +632,7 @@ class AutomatedProcessTest extends TestCase
         /* ## S001A4S04 получить данные из представления
         (без фильтрации) */
         $browser = new Browser($context['PDO']);
-        $data = $browser->filterData($context['essence'], []);
+        $data = $browser->find($context['essence'], []);
         $this->checkShowAll($context, $data);
     }
 
@@ -674,13 +674,13 @@ class AutomatedProcessTest extends TestCase
         );
         $browser = new Browser($context['PDO']);
 
-        $data = $browser->filterData($context['essence'], [$continuous]);
+        $data = $browser->find($context['essence'], [$continuous]);
         $this->assertNotEmpty($data);
 
-        $data = $browser->filterData($context['essence'], [$discrete]);
+        $data = $browser->find($context['essence'], [$discrete]);
         $this->assertNotEmpty($data);
 
-        $data = $browser->filterData(
+        $data = $browser->find(
             $context['essence'],
             [$discrete, $continuous]
         );
@@ -734,7 +734,7 @@ class AutomatedProcessTest extends TestCase
         $schema->refresh();
 
         $browser = new Browser($context['PDO']);
-        $data = $browser->filterData($context['essence'], []);
+        $data = $browser->find($context['essence'], []);
         $this->checkShowAll($context, $data, true);
     }
 
@@ -752,7 +752,7 @@ class AutomatedProcessTest extends TestCase
         $schema->refresh();
 
         $browser = new Browser($context['PDO']);
-        $data = $browser->filterData($context['essence'], []);
+        $data = $browser->find($context['essence'], []);
         $this->checkShowAll($context, $data, true);
     }
 
@@ -770,7 +770,7 @@ class AutomatedProcessTest extends TestCase
         $schema->refresh();
 
         $browser = new Browser($context['PDO']);
-        $data = $browser->filterData($context['essence'], []);
+        $data = $browser->find($context['essence'], []);
         $this->checkShowAll($context, $data, true);
     }
 
@@ -849,7 +849,7 @@ class AutomatedProcessTest extends TestCase
         $schema->setup();
 
         $browser = new Browser($context['PDO']);
-        $data = $browser->filterData($context['essence'], []);
+        $data = $browser->find($context['essence'], []);
         $this->checkShowAll($context, $data, true, true);
     }
 
@@ -868,7 +868,7 @@ class AutomatedProcessTest extends TestCase
         $schema->setup();
 
         $browser = new Browser($context['PDO']);
-        $data = $browser->filterData($context['essence'], []);
+        $data = $browser->find($context['essence'], []);
         $this->checkShowAll($context, $data, true, true);
     }
 
@@ -886,7 +886,7 @@ class AutomatedProcessTest extends TestCase
         $schema->setup();
 
         $browser = new Browser($context['PDO']);
-        $data = $browser->filterData($context['essence'], []);
+        $data = $browser->find($context['essence'], []);
         $this->checkShowAll($context, $data, true, true);
     }
 
@@ -930,9 +930,10 @@ class AutomatedProcessTest extends TestCase
         $schema->refresh();
 
         $browser = new Browser($context['PDO']);
-        $data = $browser->filterData($context['essence'], []);
+        $data = $browser->find($context['essence'], []);
         $this->checkShowAll(
-            $context, $data,
+            $context,
+            $data,
             true,
             true,
             true
@@ -953,9 +954,10 @@ class AutomatedProcessTest extends TestCase
         $schema->refresh();
 
         $browser = new Browser($context['PDO']);
-        $data = $browser->filterData($context['essence'], []);
+        $data = $browser->find($context['essence'], []);
         $this->checkShowAll(
-            $context, $data,
+            $context,
+            $data,
             true,
             true,
             true
@@ -980,7 +982,7 @@ class AutomatedProcessTest extends TestCase
         $schema->refresh([$content]);
 
         $browser = new Browser($context['PDO']);
-        $data = $browser->filterData($context['essence'], []);
+        $data = $browser->find($context['essence'], []);
         $this->checkShowAll(
             $context,
             $data,
@@ -1033,7 +1035,7 @@ class AutomatedProcessTest extends TestCase
         $schema->prune('package');
 
         $browser = new Browser($context['PDO']);
-        $data = $browser->filterData($context['essence'], []);
+        $data = $browser->find($context['essence'], []);
         $this->checkShowAll($context, $data, true);
     }
 
@@ -1054,7 +1056,7 @@ class AutomatedProcessTest extends TestCase
         $schema->prune('package');
 
         $browser = new Browser($context['PDO']);
-        $data = $browser->filterData($context['essence'], []);
+        $data = $browser->find($context['essence'], []);
         $this->checkShowAll($context, $data, true,);
     }
 
@@ -1075,7 +1077,7 @@ class AutomatedProcessTest extends TestCase
         $schema->prune('package');
 
         $browser = new Browser($context['PDO']);
-        $data = $browser->filterData($context['essence'], []);
+        $data = $browser->find($context['essence'], []);
         $this->checkShowAll($context, $data, true,);
     }
 
@@ -1121,7 +1123,7 @@ class AutomatedProcessTest extends TestCase
         $schema->refresh();
 
         $browser = new Browser($context['PDO']);
-        $data = $browser->filterData($context['essence'], []);
+        $data = $browser->find($context['essence'], []);
         $this->checkShowAll($context, $data,);
     }
 
@@ -1142,7 +1144,7 @@ class AutomatedProcessTest extends TestCase
         $schema->refresh();
 
         $browser = new Browser($context['PDO']);
-        $data = $browser->filterData($context['essence'], []);
+        $data = $browser->find($context['essence'], []);
         $this->checkShowAll($context, $data,);
     }
 
@@ -1162,7 +1164,7 @@ class AutomatedProcessTest extends TestCase
         $schema->refresh();
 
         $browser = new Browser($context['PDO']);
-        $data = $browser->filterData($context['essence'], []);
+        $data = $browser->find($context['essence'], []);
         $this->checkShowAll($context, $data,);
     }
 

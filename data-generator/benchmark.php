@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 3:11
+ * 12.01.2022, 3:54
  */
 
 declare(strict_types=1);
@@ -146,9 +146,9 @@ foreach ($essences as $category => $essence) {
 
     echo 'ADD NEW ITEM TO TABLE ' . $duration . PHP_EOL;
 
-    $source = $schema->getInstance();
+    $source = $schema->getHandler();
     $seeker = new Seeker($source);
-    $kinds = $seeker->getPossibleParameters();
+    $kinds = $seeker->getParams();
 
     foreach ($kinds as $key => $code) {
         $attribute = \AllThings\Blueprint\Attribute\Attribute
@@ -337,7 +337,7 @@ function filterData(Browser $browser, string $essence, array $filters): float
     $runs = [];
     for ($i = 0; $i < 5; $i++) {
         $start = microtime(true);
-        $browser->filterData($essence, $filters);
+        $browser->find($essence, $filters);
         $finish = microtime(true);
         $duration = $finish - $start;
         $runs[$i] = $duration;
@@ -473,7 +473,7 @@ function defineThing(
     Nameable $thing,
     Category $schema,
 ): array {
-    $isTable = $schema->getInstance() instanceof RapidRecording;
+    $isTable = $schema->getHandler() instanceof RapidRecording;
     $definition = [];
     $result = [];
     foreach ($kinds as $kind) {

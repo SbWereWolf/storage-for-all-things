@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 3:09
+ * 12.01.2022, 3:54
  */
 
 namespace AllThings\ControlPanel;
@@ -140,84 +140,6 @@ class Category
         return $essence;
     }
 
-    public function setup(?IAttribute $attribute = null): Category
-    {
-        $installation = $this->getInstance();
-
-        $isSuccess = $installation->setup($attribute);
-        if (!$isSuccess) {
-            throw new Exception(
-                'Installation MUST BE defined with success'
-            );
-        }
-
-        return $this;
-    }
-
-    public function prune(string $attribute): bool
-    {
-        $installation = $this->getInstance();
-
-        $isSuccess = $installation->prune($attribute);
-        if (!$isSuccess) {
-            throw new Exception(
-                'Installation MUST BE defined with success'
-            );
-        }
-
-        return $isSuccess;
-    }
-
-    /**
-     * @throws Exception
-     */
-    public function refresh(array $values = []): Category
-    {
-        $installation = $this->getInstance();
-
-        $isSuccess = $installation->refresh($values);
-        if (!$isSuccess) {
-            throw new Exception(
-                'Installation MUST BE refreshed with success'
-            );
-        }
-
-        return $this;
-    }
-
-    /**
-     * @return Installation
-     * @throws Exception
-     */
-    public function getInstance(): Installation
-    {
-        $essence = $this->reload();
-        if (!$essence) {
-            throw new Exception('Essence must be find with success');
-        }
-
-        $storageKind = $essence->getStorageKind();
-        switch ($storageKind) {
-            case Storable::DIRECT_READING:
-                $source = new DirectReading($this->essence, $this->db);
-                break;
-            case Storable::RAPID_OBTAINMENT:
-                $source = new RapidObtainment($this->essence, $this->db);
-                break;
-            case Storable::RAPID_RECORDING:
-                $source = new RapidRecording($this->essence, $this->db);
-                break;
-            default:
-                throw new Exception(
-                    'Storage kind'
-                    . ' MUST be one of :'
-                    . ' view | materialized view | table'
-                    . ", `$storageKind` given"
-                );
-        }
-        return $source;
-    }
-
     /**
      * @throws Exception
      */
@@ -244,6 +166,84 @@ class Category
         }
 
         return $isSuccess;
+    }
+
+    public function setup(?IAttribute $attribute = null): Category
+    {
+        $dataHandler = $this->getHandler();
+
+        $isSuccess = $dataHandler->setup($attribute);
+        if (!$isSuccess) {
+            throw new Exception(
+                'Installation MUST BE defined with success'
+            );
+        }
+
+        return $this;
+    }
+
+    public function prune(string $attribute): bool
+    {
+        $dataHandler = $this->getHandler();
+
+        $isSuccess = $dataHandler->prune($attribute);
+        if (!$isSuccess) {
+            throw new Exception(
+                'Installation MUST BE defined with success'
+            );
+        }
+
+        return $isSuccess;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function refresh(array $values = []): Category
+    {
+        $dataHandler = $this->getHandler();
+
+        $isSuccess = $dataHandler->refresh($values);
+        if (!$isSuccess) {
+            throw new Exception(
+                'Installation MUST BE refreshed with success'
+            );
+        }
+
+        return $this;
+    }
+
+    /**
+     * @return Installation
+     * @throws Exception
+     */
+    public function getHandler(): Installation
+    {
+        $essence = $this->reload();
+        if (!$essence) {
+            throw new Exception('Essence must be find with success');
+        }
+
+        $storageKind = $essence->getStorageKind();
+        switch ($storageKind) {
+            case Storable::DIRECT_READING:
+                $source = new DirectReading($this->essence, $this->db);
+                break;
+            case Storable::RAPID_OBTAINMENT:
+                $source = new RapidObtainment($this->essence, $this->db);
+                break;
+            case Storable::RAPID_RECORDING:
+                $source = new RapidRecording($this->essence, $this->db);
+                break;
+            default:
+                throw new Exception(
+                    'Storage kind'
+                    . ' MUST be one of :'
+                    . ' view | materialized view | table'
+                    . ", `$storageKind` given"
+                );
+        }
+        return $source;
     }
 
     private function reload(): ?IEssence

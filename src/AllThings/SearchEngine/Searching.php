@@ -1,8 +1,8 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 12.01.2022, 3:54
  */
 
 namespace AllThings\SearchEngine;
@@ -12,16 +12,18 @@ interface Searching
 {
 
     /**
-     * Получить данные
-     * @param array $filters
+     * Выполнить поиск
+     *
+     * @param array $limits
      *
      * @return array
      */
-    public function data(array $filters): array;
+    public function seek(array $limits): array;
 
     /**
-     * Получить возможные условия отбора
+     * Получить границы поиска (возможные значения фильтров)
+     *
      * @return array
      */
-    public function filters(): array;
+    public function limits(): array;
 }
