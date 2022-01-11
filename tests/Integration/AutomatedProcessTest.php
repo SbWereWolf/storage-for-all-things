@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 2:04
+ * 12.01.2022, 2:31
  */
 
 namespace Integration;
@@ -230,13 +230,7 @@ class AutomatedProcessTest extends TestCase
 
         foreach ($codes as $code => $settings) {
             $operator = new Operator($linkToData, $code);
-
-            foreach ($settings as $attribute => $value) {
-                $operator->define(
-                    $attribute,
-                    $value,
-                );
-            }
+            $operator->define($settings);
         }
         $this->assertTrue(true, 'Content must be created with success');
 
@@ -714,18 +708,13 @@ class AutomatedProcessTest extends TestCase
         );
 
         /* задаём характеристики модели */
-        $operator->define(
-            $context['price'],
-            '11.11',
-        );
-        $operator->define(
-            $context['production-date'],
-            '20210531T0306',
-        );
-        $operator->define(
-            $context['place-of-production'],
-            'Екатеринбург',
-        );
+        $definition = [
+            $context['price'] => '11.11',
+            $context['production-date'] => '20210531T0306',
+            $context['place-of-production'] => 'Екатеринбург',
+        ];
+        $operator->define($definition);
+
         $this->assertTrue(true, 'Item must be created with success');
 
         return $context;
@@ -916,10 +905,7 @@ class AutomatedProcessTest extends TestCase
             $context['PDO'],
             $context['new-thing'],
         );
-        $operator->define(
-            $context['package'],
-            'коробка',
-        );
+        $operator->define([$context['package'] => 'коробка',]);
 
         $this->assertTrue(
             true,

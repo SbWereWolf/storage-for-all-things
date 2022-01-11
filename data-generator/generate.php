@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 2:04
+ * 12.01.2022, 2:31
  */
 
 declare(strict_types=1);
@@ -167,20 +167,22 @@ foreach ($allEssences as $essence) {
         $operator = new Operator($conn, $item);
 
         $operator->create($essence->getCode());
+        $definition = [];
         foreach ($kinds as $kind) {
             $isDiscrete =
                 $kind->getRangeType() === Searchable::DISCRETE;
-            $val = '' . PHP_EOL;
+            $value = '' . PHP_EOL;
             if ($isDiscrete) {
                 $index = roll(0, $attributeLimit - 1);
-                $val = $attributes[$index]->getCode();
+                $value = $attributes[$index]->getCode();
             }
             if (!$isDiscrete) {
                 $index = roll(1111, 9999);
-                $val = (string)$index;
+                $value = (string)$index;
             }
-            $operator->define($kind->getCode(), $val);
+            $definition[$kind->getCode()] = $value;
         }
+        $operator->define($definition);
     }
     $conn->commit();
     echo date('H:i:s') .

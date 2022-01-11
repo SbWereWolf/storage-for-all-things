@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 11.01.2022, 6:21
+ * 12.01.2022, 2:31
  */
 
 namespace AllThings\ControlPanel;
@@ -168,28 +168,10 @@ class Operator
     /**
      * @throws Exception
      */
-    public function define(
-        string $attribute,
-        string $content
-    ) {
-        $table = AttributeHelper::getLocation(
-            $attribute,
-            $this->db,
-        );
-        $contentManager = $this->getContentManager($table);
-
-        $value = (new Crossover())
-            ->setContent($content);
-        $value->setLeftValue($this->thing)
-            ->setRightValue($attribute);
-        $contentManager->setSubject($value);
-
-        $isSuccess = $contentManager->store($value);
-        if (!$isSuccess) {
-            throw new Exception(
-                'Attribute of thing'
-                . ' must be defined with success'
-            );
+    public function define(array $definition)
+    {
+        foreach ($definition as $attribute => $content) {
+            $this->defineOne($attribute, $content);
         }
     }
 
@@ -229,6 +211,34 @@ class Operator
         }
 
         return $this;
+    }
+
+    /**
+     * @throws Exception
+     */
+    private function defineOne(
+        string $attribute,
+        string $content
+    ) {
+        $table = AttributeHelper::getLocation(
+            $attribute,
+            $this->db,
+        );
+        $contentManager = $this->getContentManager($table);
+
+        $value = (new Crossover())
+            ->setContent($content);
+        $value->setLeftValue($this->thing)
+            ->setRightValue($attribute);
+        $contentManager->setSubject($value);
+
+        $isSuccess = $contentManager->store($value);
+        if (!$isSuccess) {
+            throw new Exception(
+                'Attribute of thing'
+                . ' must be defined with success'
+            );
+        }
     }
 
     /**

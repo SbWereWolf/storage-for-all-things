@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 2:04
+ * 12.01.2022, 2:31
  */
 
 declare(strict_types=1);
@@ -471,8 +471,9 @@ function defineThing(
     Nameable $thing,
     Schema $schema,
 ): array {
-    $result = [];
     $isTable = $schema->getInstance() instanceof RapidRecording;
+    $definition = [];
+    $result = [];
     foreach ($kinds as $kind) {
         $value = '';
         if ($kind->getDataType() === Searchable::SYMBOLS
@@ -484,10 +485,7 @@ function defineThing(
             $value = (string)roll(1111, 9999);
         }
         if (!$isTable) {
-            $operator->define(
-                $kind->getCode(),
-                $value,
-            );
+            $definition[$kind->getCode()] = $value;
         }
 
         $result[] = (new Crossover())
@@ -495,6 +493,7 @@ function defineThing(
             ->setRightValue($kind->getCode())
             ->setContent($value);
     }
+    $operator->define($definition);
 
     return $result;
 }
