@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 3:09
+ * 12.01.2022, 3:11
  */
 
 declare(strict_types=1);
@@ -11,7 +11,7 @@ use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Essence\IEssence;
 use AllThings\ControlPanel\Category;
 use AllThings\ControlPanel\Product;
-use AllThings\ControlPanel\Redactor;
+use AllThings\ControlPanel\Specification;
 use AllThings\SearchEngine\Searchable;
 use Environment\Database\PdoConnection;
 
@@ -47,7 +47,7 @@ for ($cycle = 0; $cycle < MULTIPLIER; $cycle++) {
     foreach ($names as $key => $adjective) {
         $isDiscrete = roll(0, 1) === 0;
         $adjective = "$adjective$cycle";
-        $redactor = new Redactor($conn, $adjective);
+        $redactor = new Specification($conn, $adjective);
         if ($isDiscrete) {
             $attribute = $redactor->create(
                 Searchable::SYMBOLS,

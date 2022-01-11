@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 2:57
+ * 12.01.2022, 3:11
  */
 
 namespace AllThings\ControlPanel;
@@ -18,7 +18,7 @@ use AllThings\DataAccess\Linkage\LinkageTable;
 use Exception;
 use PDO;
 
-class Redactor
+class Specification
 {
     private PDO $db;
     private string $attribute;
@@ -33,16 +33,6 @@ class Redactor
         $this->attribute = $attribute;
     }
 
-    /**
-     * @param string   $dataType
-     * @param string   $rangeType
-     * @param string   $title
-     * @param string   $description
-     * @param Operator $this
-     *
-     * @return IAttribute
-     * @throws Exception
-     */
     public function create(
         string $dataType,
         string $rangeType,
@@ -89,13 +79,6 @@ class Redactor
         return $attribute;
     }
 
-    /**
-     * @param string   $essence
-     * @param Operator $this
-     *
-     * @return Operator
-     * @throws Exception
-     */
     public function attach(string $essence,): static
     {
         $manager = $this->getSpecificationManager();
@@ -114,13 +97,6 @@ class Redactor
         return $this;
     }
 
-    /**
-     * @param string   $essence
-     * @param Operator $this
-     *
-     * @return Operator
-     * @throws Exception
-     */
     public function detach(string $essence,): static
     {
         $manager = $this->getSpecificationManager();

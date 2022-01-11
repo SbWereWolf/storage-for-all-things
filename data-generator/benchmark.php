@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 3:09
+ * 12.01.2022, 3:11
  */
 
 declare(strict_types=1);
@@ -11,7 +11,7 @@ use AllThings\Blueprint\Attribute\AttributeManager;
 use AllThings\ControlPanel\Browser;
 use AllThings\ControlPanel\Category;
 use AllThings\ControlPanel\Product;
-use AllThings\ControlPanel\Redactor;
+use AllThings\ControlPanel\Specification;
 use AllThings\DataAccess\Crossover\Crossover;
 use AllThings\DataAccess\Nameable\Nameable;
 use AllThings\SearchEngine\ContinuousFilter;
@@ -201,7 +201,7 @@ foreach ($essences as $category => $essence) {
     echo 'SETUP NEW ITEM FOR TABLE ' . $average . PHP_EOL;
 
     $adjective = 'test-' . time() . uniqid();
-    $redactor = new Redactor($linkToData, $adjective);
+    $redactor = new Specification($linkToData, $adjective);
     $attribute = $redactor->create(
         Searchable::SYMBOLS,
         Searchable::DISCRETE,

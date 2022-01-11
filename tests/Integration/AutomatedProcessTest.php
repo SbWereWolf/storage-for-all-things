@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 3:09
+ * 12.01.2022, 3:11
  */
 
 namespace Integration;
@@ -10,7 +10,7 @@ namespace Integration;
 use AllThings\ControlPanel\Browser;
 use AllThings\ControlPanel\Category;
 use AllThings\ControlPanel\Product;
-use AllThings\ControlPanel\Redactor;
+use AllThings\ControlPanel\Specification;
 use AllThings\DataAccess\Crossover\Crossover;
 use AllThings\SearchEngine\ContinuousFilter;
 use AllThings\SearchEngine\DiscreteFilter;
@@ -114,7 +114,7 @@ class AutomatedProcessTest extends TestCase
         ];
 
         foreach ($codes as $code => $settings) {
-            $redactor = new Redactor($context['PDO'], $code);
+            $redactor = new Specification($context['PDO'], $code);
             $attribute = $redactor->create(
                 $settings['DataType'],
                 $settings['RangeType'],
@@ -148,7 +148,7 @@ class AutomatedProcessTest extends TestCase
 
         $attributes = ['price', 'production-date', 'place-of-production'];
         foreach ($attributes as $attribute) {
-            $redactor = new Redactor($context['PDO'], $attribute);
+            $redactor = new Specification($context['PDO'], $attribute);
             $redactor->attach($essence,);
         }
 
@@ -798,7 +798,7 @@ class AutomatedProcessTest extends TestCase
 
         $linkToData = $context['PDO'];
         foreach ($codes as $code => $settings) {
-            $redactor = new Redactor($linkToData, $code);
+            $redactor = new Specification($linkToData, $code);
             $attribute = $redactor->create(
                 $settings['DataType'],
                 $settings['RangeType'],
@@ -1003,7 +1003,7 @@ class AutomatedProcessTest extends TestCase
     public function testUnlinkKind(array $context): array
     {
         $linkToData = $context['PDO'];
-        $redactor = new Redactor($linkToData, 'package');
+        $redactor = new Specification($linkToData, 'package');
 
         /* Удалим у сущности cake характеристику package */
         $essence = $context['essence'];
