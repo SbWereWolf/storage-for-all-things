@@ -2,16 +2,16 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 3:54
+ * 12.01.2022, 13:33
  */
 
 declare(strict_types=1);
 
 use AllThings\Blueprint\Attribute\AttributeManager;
 use AllThings\ControlPanel\Browser;
-use AllThings\ControlPanel\Category;
+use AllThings\ControlPanel\CategorySpecification;
+use AllThings\ControlPanel\Lots;
 use AllThings\ControlPanel\Product;
-use AllThings\ControlPanel\Specification;
 use AllThings\DataAccess\Crossover\Crossover;
 use AllThings\DataAccess\Nameable\Nameable;
 use AllThings\SearchEngine\ContinuousFilter;
@@ -44,7 +44,7 @@ foreach ($essences as $category => $essence) {
         $essence .
         "($category)" .
         PHP_EOL;
-    $schema = new Category($linkToData, $essence);
+    $schema = new Lots($linkToData, $essence);
     $average = setupSource($schema, 'handleWithDirectReading');
     echo 'MAKE VIEW ' . $average . PHP_EOL;
 
@@ -201,7 +201,7 @@ foreach ($essences as $category => $essence) {
     echo 'SETUP NEW ITEM FOR TABLE ' . $average . PHP_EOL;
 
     $adjective = 'test-' . time() . uniqid();
-    $redactor = new Specification($linkToData, $adjective);
+    $redactor = new CategorySpecification($linkToData, $adjective);
     $attribute = $redactor->create(
         Searchable::SYMBOLS,
         Searchable::DISCRETE,
@@ -243,12 +243,12 @@ foreach ($essences as $category => $essence) {
 }
 
 /**
- * @param Category $schema
- * @param string   $fn
+ * @param Lots   $schema
+ * @param string $fn
  *
  * @return float
  */
-function setupSource(Category $schema, string $fn): float
+function setupSource(Lots $schema, string $fn): float
 {
     $maxVal = PHP_FLOAT_MIN;
     $minVal = PHP_FLOAT_MAX;
@@ -462,7 +462,7 @@ function addNewItem(PDO $db, $essence): array
  * @param array    $kinds
  * @param Product  $operator
  * @param Nameable $thing
- * @param Category $schema
+ * @param Lots     $schema
  *
  * @return array
  * @throws Exception
@@ -471,7 +471,7 @@ function defineThing(
     array $kinds,
     Product $operator,
     Nameable $thing,
-    Category $schema,
+    Lots $schema,
 ): array {
     $isTable = $schema->getHandler() instanceof RapidRecording;
     $definition = [];
@@ -504,7 +504,7 @@ function setupThing(
     array $kinds,
     Product $operator,
     Nameable $thing,
-    Category $schema,
+    Lots $schema,
 ): float {
     $maxVal = PHP_FLOAT_MIN;
     $minVal = PHP_FLOAT_MAX;

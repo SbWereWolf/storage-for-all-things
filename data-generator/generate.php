@@ -2,16 +2,16 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 3:11
+ * 12.01.2022, 13:33
  */
 
 declare(strict_types=1);
 
 use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Essence\IEssence;
-use AllThings\ControlPanel\Category;
+use AllThings\ControlPanel\CategorySpecification;
+use AllThings\ControlPanel\Lots;
 use AllThings\ControlPanel\Product;
-use AllThings\ControlPanel\Specification;
 use AllThings\SearchEngine\Searchable;
 use Environment\Database\PdoConnection;
 
@@ -47,7 +47,7 @@ for ($cycle = 0; $cycle < MULTIPLIER; $cycle++) {
     foreach ($names as $key => $adjective) {
         $isDiscrete = roll(0, 1) === 0;
         $adjective = "$adjective$cycle";
-        $redactor = new Specification($conn, $adjective);
+        $redactor = new CategorySpecification($conn, $adjective);
         if ($isDiscrete) {
             $attribute = $redactor->create(
                 Searchable::SYMBOLS,
@@ -130,7 +130,7 @@ for ($i = 0; $i < $entityLimit; $i++) {
         } while ($exists);
     }
 
-    $schema = new Category($conn, $nouns[$i]);
+    $schema = new Lots($conn, $nouns[$i]);
     $essence = $schema->create($nouns[$i],);
     $allKinds[$essence->getCode()] = $kinds;
     $allEssences[] = $essence;

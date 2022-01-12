@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 3:54
+ * 12.01.2022, 13:33
  */
 
 namespace AllThings\ControlPanel;
@@ -19,7 +19,7 @@ use AllThings\StorageEngine\Storable;
 use Exception;
 use PDO;
 
-class Category
+class Lots
 {
     private PDO $db;
     private string $essence;
@@ -37,7 +37,7 @@ class Category
     /**
      * @throws Exception
      */
-    public function handleWithDirectReading(): Category
+    public function handleWithDirectReading(): Lots
     {
         $this->change(Storable::DIRECT_READING);
         $handler = new DirectReading(
@@ -59,7 +59,7 @@ class Category
     /**
      * @throws Exception
      */
-    public function handleWithRapidObtainment(): Category
+    public function handleWithRapidObtainment(): Lots
     {
         $this->change(Storable::RAPID_OBTAINMENT);
         $handler = new RapidObtainment(
@@ -81,7 +81,7 @@ class Category
     /**
      * @throws Exception
      */
-    public function handleWithRapidRecording(): Category
+    public function handleWithRapidRecording(): Lots
     {
         $this->change(Storable::RAPID_RECORDING);
         $handler = new RapidRecording(
@@ -168,7 +168,7 @@ class Category
         return $isSuccess;
     }
 
-    public function setup(?IAttribute $attribute = null): Category
+    public function setup(?IAttribute $attribute = null): Lots
     {
         $dataHandler = $this->getHandler();
 
@@ -199,7 +199,7 @@ class Category
     /**
      * @throws Exception
      */
-    public function refresh(array $values = []): Category
+    public function refresh(array $values = []): Lots
     {
         $dataHandler = $this->getHandler();
 

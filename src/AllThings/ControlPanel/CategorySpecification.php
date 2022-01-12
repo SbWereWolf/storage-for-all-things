@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 3:11
+ * 12.01.2022, 13:33
  */
 
 namespace AllThings\ControlPanel;
@@ -18,7 +18,7 @@ use AllThings\DataAccess\Linkage\LinkageTable;
 use Exception;
 use PDO;
 
-class Specification
+class CategorySpecification
 {
     private PDO $db;
     private string $attribute;
