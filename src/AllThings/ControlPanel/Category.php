@@ -2,42 +2,40 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 14:22
+ * 12.01.2022, 17:50
  */
 
 namespace AllThings\ControlPanel;
 
 use AllThings\DataAccess\Crossover\Crossover;
-use AllThings\DataAccess\Linkage\ForeignKey;
 use AllThings\DataAccess\Linkage\Linkage;
 use AllThings\DataAccess\Linkage\LinkageManager;
-use AllThings\DataAccess\Linkage\LinkageTable;
 use Exception;
-use PDO;
 
 class Category
 {
-    private PDO $db;
     private string $essence;
+    private LinkageManager $category;
 
     /**
-     * @param PDO    $connection
-     * @param string $essence
+     * @param string         $essence
+     * @param LinkageManager $category
      */
-    public function __construct(PDO $connection, string $essence)
-    {
-        $this->db = $connection;
+    public function __construct(
+        string $essence,
+        LinkageManager $category,
+    ) {
         $this->essence = $essence;
+        $this->category = $category;
     }
 
     public function attach(string $attribute): static
     {
-        $manager = $this->getSpecificationManager();
         $linkage = (new Linkage())
-            ->setRightValue($attribute)
-            ->setLeftValue($this->essence);
+            ->setLeftValue($this->essence)
+            ->setRightValue($attribute);
 
-        $isSuccess = $manager->attach($linkage);
+        $isSuccess = $this->category->attach($linkage);
 
         if (!$isSuccess) {
             throw new Exception(
@@ -50,12 +48,11 @@ class Category
 
     public function detach(string $attribute): static
     {
-        $manager = $this->getSpecificationManager();
         $linkage = (new Crossover())
-            ->setRightValue($attribute)
-            ->setLeftValue($this->essence);
+            ->setLeftValue($this->essence)
+            ->setRightValue($attribute);
 
-        $isSuccess = $manager->detach($linkage);
+        $isSuccess = $this->category->detach($linkage);
 
         if (!$isSuccess) {
             throw new Exception(
@@ -66,33 +63,29 @@ class Category
         return $this;
     }
 
-    /**
-     * @return LinkageManager
-     */
-    private function getSpecificationManager(): LinkageManager
+    public function purge(): static
     {
-        $essenceKey = new ForeignKey(
-            'essence',
-            'id',
-            'code'
-        );
-        $attributeKey = new ForeignKey(
-            'attribute',
-            'id',
-            'code'
-        );
-        $specification = new LinkageTable(
-            'essence_attribute',
-            'essence_id',
-            'attribute_id',
-        );
-        $manager = new LinkageManager(
-            $this->db,
-            $specification,
-            $essenceKey,
-            $attributeKey,
-        );
+        $linkage = (new Crossover())
+            ->setLeftValue($this->essence);
 
-        return $manager;
+        $isSuccess = $this->category->detach($linkage);
+
+        if (!$isSuccess) {
+            throw new Exception(
+                'All Attribute must be detached with success'
+            );
+        }
+
+        return $this;
+    }
+
+    public function list(): array
+    {
+        $linkage = (new Crossover())
+            ->setLeftValue($this->essence);
+
+        $result = $this->category->getAssociated($linkage);
+
+        return $result;
     }
 }

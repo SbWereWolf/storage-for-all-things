@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 3:54
+ * 12.01.2022, 17:50
  */
 
 namespace AllThings\SearchEngine;
@@ -99,14 +99,7 @@ class Seeker implements Searching
         $essence = $this->getSource()->getEssence();
         $linkage = (new Linkage())->setLeftValue($essence);
 
-        $isSuccess = $specificationManager->getAssociated($linkage);
-        if ($isSuccess) {
-            $isSuccess = $specificationManager->has();
-        }
-        $attributes = [];
-        if ($isSuccess) {
-            $attributes = $specificationManager->retrieveData();
-        }
+        $attributes = $specificationManager->getAssociated($linkage);
 
         return $attributes;
     }

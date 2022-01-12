@@ -2,16 +2,21 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 12.01.2022, 17:50
  */
 
 namespace AllThings\Blueprint\Attribute;
 
+use AllThings\DataAccess\Haves;
 use AllThings\DataAccess\Nameable\Valuable;
 use AllThings\DataAccess\Retrievable;
 use AllThings\DataAccess\Uniquable\UniqueHandler;
 
-class AttributeRecordHandler extends UniqueHandler implements Valuable, Retrievable
+class AttributeRecordHandler
+    extends UniqueHandler
+    implements Valuable,
+               Retrievable,
+               Haves
 {
     private string $dataSource = 'attribute';
     private ?IAttribute $attribute = null;
@@ -23,7 +28,7 @@ class AttributeRecordHandler extends UniqueHandler implements Valuable, Retrieva
     }
 
     /**
-     * @param bool $result
+     * @param bool       $result
      * @param IAttribute $attribute
      */
     public function assignAttribute(bool $result, IAttribute $attribute): void
@@ -79,7 +84,7 @@ class AttributeRecordHandler extends UniqueHandler implements Valuable, Retrieva
         return $repository;
     }
 
-    public function retrieveData(): IAttribute
+    public function retrieve(): IAttribute
     {
         $essence = $this->attribute->GetAttributeCopy();
 

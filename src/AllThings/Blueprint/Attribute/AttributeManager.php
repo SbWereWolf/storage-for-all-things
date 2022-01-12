@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 12.01.2022, 17:50
  */
 
 namespace AllThings\Blueprint\Attribute;
@@ -39,7 +39,7 @@ class AttributeManager
     public function loadSubject(bool $isSuccess, AttributeRecordHandler $handler): void
     {
         if ($isSuccess) {
-            $this->subject = $handler->retrieveData();
+            $this->subject = $handler->retrieve();
         }
     }
 
@@ -65,7 +65,7 @@ class AttributeManager
         return $result;
     }
 
-    public function retrieveData(): IAttribute
+    public function retrieve(): IAttribute
     {
         $data = $this->subject->GetAttributeCopy();
 
@@ -125,7 +125,7 @@ class AttributeManager
     private function getDataType(): string
     {
         $this->browse();
-        $dataType = $this->retrieveData()->getDataType();
+        $dataType = $this->retrieve()->getDataType();
 
         return $dataType;
     }

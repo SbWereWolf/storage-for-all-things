@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 11.01.2022, 6:21
+ * 12.01.2022, 17:50
  */
 
 namespace AllThings\StorageEngine;
@@ -62,6 +62,7 @@ class DirectReading implements Installation
         $isSuccess = $affected !== false;
 
         $essence = $this->getEssence();
+        $attributes = [];
         if ($isSuccess) {
             $essenceKey = new ForeignKey(
                 'essence',
@@ -86,14 +87,8 @@ class DirectReading implements Installation
             );
 
             $linkage = (new Linkage())->setLeftValue($essence);
-            $isSuccess = $specificationManager->getAssociated($linkage);
-        }
-        if ($isSuccess) {
-            $isSuccess = $specificationManager->has();
-        }
-        $attributes = [];
-        if ($isSuccess) {
-            $attributes = $specificationManager->retrieveData();
+            $attributes = $specificationManager
+                ->getAssociated($linkage);
         }
 
         $columns = [];

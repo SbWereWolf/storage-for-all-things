@@ -2,30 +2,30 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 10.01.2022, 6:49
+ * 12.01.2022, 17:50
  */
 
 namespace AllThings\DataAccess\Linkage;
 
 use PDO;
 
-class LinkageHandler implements ILinkageHandler
+class LinkageHandler
+    implements ILinkageHandler
 
 {
     protected PDO $db;
-    protected ILinkageTable $tableStructure;
+    protected ILinkageTable $table;
     protected IForeignKey $leftKey;
     protected IForeignKey $rightKey;
-    private array $dataSet = [];
 
     public function __construct(
         IForeignKey $leftKey,
         IForeignKey $rightKey,
-        ILinkageTable $tableStructure,
+        ILinkageTable $table,
         PDO $db
     ) {
         $this->db = $db;
-        $this->tableStructure = $tableStructure;
+        $this->table = $table;
         $this->leftKey = $leftKey;
         $this->rightKey = $rightKey;
     }
@@ -47,7 +47,7 @@ class LinkageHandler implements ILinkageHandler
         $location = new LinkageLocation(
             $this->leftKey,
             $this->rightKey,
-            $this->tableStructure,
+            $this->table,
             $this->db
         );
 
@@ -65,34 +65,21 @@ class LinkageHandler implements ILinkageHandler
         return $result;
     }
 
-    public function getRelated(ILinkage $linkage): bool
+    public function getRelated(ILinkage $linkage): array
     {
         $dataSource = new LinkageSource(
             $this->leftKey,
             $this->rightKey,
-            $this->tableStructure,
+            $this->table,
             $this->db,
         );
+        $isSuccess = $dataSource->getForeignColumn($linkage);
 
-        $result = $dataSource->getForeignColumn($linkage);
-
-        $this->dataSet = [];
-        if ($result && $dataSource->has()) {
-            $this->dataSet = $dataSource->retrieveData();
+        $result = [];
+        if ($isSuccess && $dataSource->has()) {
+            $result = $dataSource->extract();
         }
 
         return $result;
-    }
-
-    public function retrieveData(): array
-    {
-        $result = $this->dataSet;
-
-        return $result;
-    }
-
-    public function has(): bool
-    {
-        return !is_null($this->dataSet);
     }
 }

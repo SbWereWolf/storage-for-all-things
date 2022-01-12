@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 12.01.2022, 17:50
  */
 
 namespace AllThings\Blueprint\Essence;
@@ -45,13 +45,13 @@ class EssenceManager extends UniqueManager implements IEssenceManager
         $result = $handler->read();
 
         if ($result) {
-            $this->subject = $handler->retrieveData();
+            $this->subject = $handler->retrieve();
         }
 
         return $result;
     }
 
-    public function retrieveData(): IEssence
+    public function retrieve(): IEssence
     {
         $nameable = $this->subject->getNameableCopy();
         $storable = $this->subject->getStorableCopy();

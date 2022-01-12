@@ -2,17 +2,17 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 15:01
+ * 12.01.2022, 17:50
  */
 
 namespace Integration;
 
 use AllThings\ControlPanel\Browser;
-use AllThings\ControlPanel\Category;
 use AllThings\ControlPanel\Lots;
-use AllThings\ControlPanel\Product;
 use AllThings\ControlPanel\Redactor;
+use AllThings\ControlPanel\Specification;
 use AllThings\DataAccess\Crossover\Crossover;
+use AllThings\Interaction\System;
 use AllThings\SearchEngine\ContinuousFilter;
 use AllThings\SearchEngine\DiscreteFilter;
 use AllThings\StorageEngine\Storable;
@@ -67,7 +67,7 @@ class AutomatedProcessTest extends TestCase
 
         /* ## S001A1S01 создать сущность для предметов типа "пирожок" */
         $redactor = new Redactor($linkToData);
-        $essence = $redactor->create(
+        $essence = $redactor->essence(
             'cake',
             'The Cakes',
             'Cakes  of all kinds',
@@ -148,16 +148,18 @@ class AutomatedProcessTest extends TestCase
          характеристики для предметов этого типа) */
         $essence = $context['essence'];
 
-        $attributes = ['price', 'production-date', 'place-of-production'];
+        $category = (new System($context['PDO']))
+            ->getCategory($essence);
+        $attributes = [
+            'price',
+            'production-date',
+            'place-of-production'
+        ];
         foreach ($attributes as $attribute) {
-            $redactor = new Category($context['PDO'], $essence);
-            $redactor->attach($attribute);
+            $category->attach($attribute);
         }
 
-        $this->assertTrue(
-            true,
-            'Blueprint must be defined with success'
-        );
+        $this->assertTrue(true);
 
         return $context;
     }
@@ -184,7 +186,7 @@ class AutomatedProcessTest extends TestCase
         foreach ($titles as $code => $title) {
             $context[$code] = $code;
 
-            $operator = new Product($context['PDO'], $code);
+            $operator = new Specification($context['PDO'], $code);
             $operator->create(
                 $context['essence'],
                 $title,
@@ -231,7 +233,7 @@ class AutomatedProcessTest extends TestCase
         ];
 
         foreach ($codes as $code => $settings) {
-            $operator = new Product($linkToData, $code);
+            $operator = new Specification($linkToData, $code);
             $operator->define($settings);
         }
         $this->assertTrue(true, 'Content must be created with success');
@@ -700,7 +702,7 @@ class AutomatedProcessTest extends TestCase
         $context['new-thing'] = 'new-thing';
         /* добавляем модель, задаём для неё атрибуты */
         /* даём модели название */
-        $operator = new Product($linkToData, $context['new-thing']);
+        $operator = new Specification($linkToData, $context['new-thing']);
         $operator->create(
             $context['essence'],
             'новая модель',
@@ -796,6 +798,10 @@ class AutomatedProcessTest extends TestCase
         ];
 
         $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+
+        $category = (new System($context['PDO']))
+            ->getCategory($essence);
         foreach ($codes as $code => $settings) {
             $redactor = new Redactor($linkToData);
             $attribute = $redactor->attribute(
@@ -812,8 +818,6 @@ class AutomatedProcessTest extends TestCase
             $context[$code] = $code;
 
             /* Добавим сущности cake новую характеристику package */
-            $essence = $context['essence'];
-            $category = new Category($context['PDO'], $essence);
             $category->attach($code);
         }
 
@@ -828,7 +832,7 @@ class AutomatedProcessTest extends TestCase
         foreach ($thingList as $thing => $value) {
             $context[$thing] = $thing;
 
-            $operator = new Product($linkToData, $thing);
+            $operator = new Specification($linkToData, $thing);
             $operator->expand($code, $value);
         }
 
@@ -901,7 +905,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testChangeContent(array $context): array
     {
-        $operator = new Product(
+        $operator = new Specification(
             $context['PDO'],
             $context['new-thing'],
         );
@@ -1006,10 +1010,12 @@ class AutomatedProcessTest extends TestCase
     {
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
-        $redactor = new Category($linkToData, $essence);
+
+        $category = (new System($linkToData))
+            ->getCategory($essence);
 
         /* Удалим у сущности cake характеристику package */
-        $redactor->detach(
+        $category->detach(
             'package',
         );
 
@@ -1095,7 +1101,7 @@ class AutomatedProcessTest extends TestCase
     {
         $linkToData = $context['PDO'];
         /* Удаляем модель */
-        $operator = new Product($linkToData, $context['new-thing']);
+        $operator = new Specification($linkToData, $context['new-thing']);
         $isSuccess = $operator->remove(
             $context['essence'],
         );

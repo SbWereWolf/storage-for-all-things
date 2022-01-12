@@ -2,11 +2,12 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 12.01.2022, 17:50
  */
 
 namespace AllThings\Blueprint\Essence;
 
+use AllThings\DataAccess\Haves;
 use AllThings\DataAccess\Nameable\Valuable;
 use AllThings\DataAccess\Retrievable;
 use AllThings\DataAccess\Uniquable\UniqueHandler;
@@ -15,7 +16,8 @@ use PDO;
 class EssenceRecordHandler
     extends UniqueHandler
     implements Valuable,
-               Retrievable
+               Retrievable,
+               Haves
 {
     private string $dataSource;
     private ?IEssence $essence;
@@ -70,7 +72,7 @@ class EssenceRecordHandler
         return $repository;
     }
 
-    public function retrieveData(): IEssence
+    public function retrieve(): IEssence
     {
         $essence = $this->essence->GetEssenceCopy();
 

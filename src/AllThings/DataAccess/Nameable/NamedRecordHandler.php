@@ -2,17 +2,22 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 12.01.2022, 17:50
  */
 
 namespace AllThings\DataAccess\Nameable;
 
 
+use AllThings\DataAccess\Haves;
 use AllThings\DataAccess\Retrievable;
 use AllThings\DataAccess\Uniquable\UniqueHandler;
 use PDO;
 
-class NamedRecordHandler extends UniqueHandler implements Valuable, Retrievable
+class NamedRecordHandler
+    extends UniqueHandler
+    implements Valuable,
+               Retrievable,
+               Haves
 {
     private string $source;
     private ?Nameable $container;
@@ -70,7 +75,7 @@ class NamedRecordHandler extends UniqueHandler implements Valuable, Retrievable
         return $repository;
     }
 
-    public function retrieveData(): Nameable
+    public function retrieve(): Nameable
     {
         $data = $this->container->getNameableCopy();
 
@@ -88,13 +93,5 @@ class NamedRecordHandler extends UniqueHandler implements Valuable, Retrievable
     public function setContainer(?Nameable $container): void
     {
         $this->container = $container;
-    }
-
-    /**
-     * @param string $source
-     */
-    public function setSource(string $source): void
-    {
-        $this->source = $source;
     }
 }

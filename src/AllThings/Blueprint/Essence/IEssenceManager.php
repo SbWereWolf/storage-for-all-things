@@ -1,19 +1,23 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 12.01.2022, 17:50
  */
 
 namespace AllThings\Blueprint\Essence;
 
 
+use AllThings\DataAccess\Haves;
 use AllThings\DataAccess\Nameable\DataManager;
 use AllThings\DataAccess\Retrievable;
 
-interface IEssenceManager extends DataManager, Retrievable
+interface IEssenceManager
+    extends DataManager,
+            Retrievable,
+            Haves
 {
 
-    public function retrieveData(): IEssence;
+    public function retrieve(): IEssence;
 
 }

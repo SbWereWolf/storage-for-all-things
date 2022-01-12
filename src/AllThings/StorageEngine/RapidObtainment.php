@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 11.01.2022, 6:21
+ * 12.01.2022, 17:50
  */
 
 namespace AllThings\StorageEngine;
@@ -63,6 +63,7 @@ class RapidObtainment implements Installation
         $affected = $linkToData->exec($ddl);
         $isSuccess = $affected !== false;
 
+        $attributes = [];
         if ($isSuccess) {
             $essenceKey = new ForeignKey(
                 'essence',
@@ -89,14 +90,7 @@ class RapidObtainment implements Installation
             $essence = $this->getEssence();
             $linkage = (new Linkage())->setLeftValue($essence);
 
-            $isSuccess = $manager->getAssociated($linkage);
-        }
-        if ($isSuccess) {
-            $isSuccess = $manager->has();
-        }
-        $attributes = [];
-        if ($isSuccess) {
-            $attributes = $manager->retrieveData();
+            $attributes = $manager->getAssociated($linkage);
         }
 
         $columns = [];

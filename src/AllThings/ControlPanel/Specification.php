@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 3:07
+ * 12.01.2022, 17:50
  */
 
 namespace AllThings\ControlPanel;
@@ -21,7 +21,7 @@ use AllThings\SearchEngine\Searchable;
 use Exception;
 use PDO;
 
-class Product
+class Specification
 {
     private PDO $db;
     private string $thing;
@@ -82,20 +82,7 @@ class Product
         $specificationManager = $this->getSpecificationManager();
         $linkage = (new Linkage())->setLeftValue($essence);
 
-        $isSuccess = $specificationManager->getAssociated($linkage);
-        if (!$isSuccess) {
-            throw new Exception(
-                'Attributes of essence'
-                . ' must be fetched with success'
-            );
-        }
-        $isSuccess = $specificationManager->has();
-        if (!$isSuccess) {
-            throw new Exception(
-                'Essence must be linked to some attributes'
-            );
-        }
-        $attributes = $specificationManager->retrieveData();
+        $attributes = $specificationManager->getAssociated($linkage);
         foreach ($attributes as $attribute) {
             $content = (new Linkage())
                 ->setLeftValue($this->thing)
@@ -183,7 +170,7 @@ class Product
     public function expand(
         string $attribute,
         string $value
-    ): Product {
+    ): Specification {
         $table = AttributeHelper::getLocation(
             $attribute,
             $this->db,

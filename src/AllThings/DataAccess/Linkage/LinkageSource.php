@@ -2,15 +2,19 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 10.01.2022, 6:49
+ * 12.01.2022, 17:50
  */
 
 namespace AllThings\DataAccess\Linkage;
 
-use AllThings\DataAccess\Retrievable;
+use AllThings\DataAccess\Extractable;
+use AllThings\DataAccess\Haves;
 use PDO;
 
-class LinkageSource implements ColumnReader, Retrievable
+class LinkageSource
+    implements ColumnReader,
+               Extractable,
+               Haves
 {
     protected $tableStructure;
     protected $db;
@@ -81,7 +85,7 @@ where L.{$lIndex}=:l_value";
         return $has;
     }
 
-    public function retrieveData(): array
+    public function extract(): array
     {
         $result = $this->dataSet;
 

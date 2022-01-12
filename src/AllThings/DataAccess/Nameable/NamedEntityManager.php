@@ -2,17 +2,19 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 12.01.2022, 17:50
  */
 
 namespace AllThings\DataAccess\Nameable;
 
 
+use AllThings\DataAccess\Haves;
 use AllThings\DataAccess\Uniquable\UniqueManager;
 
 class NamedEntityManager
     extends UniqueManager
-    implements INamedEntityManager
+    implements INamedEntityManager,
+               Haves
 {
     private ?Nameable $subject;
 
@@ -38,7 +40,7 @@ class NamedEntityManager
      */
     private function loadSubject(NamedRecordHandler $handler): void
     {
-        $this->subject = $handler->retrieveData();
+        $this->subject = $handler->retrieve();
     }
 
     public function correct(string $targetIdentity = ''): bool
@@ -63,7 +65,7 @@ class NamedEntityManager
         return $result;
     }
 
-    public function retrieveData(): Nameable
+    public function retrieve(): Nameable
     {
         $nameable = $this->subject->getNameableCopy();
 

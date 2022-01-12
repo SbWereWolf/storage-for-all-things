@@ -2,14 +2,12 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 10.01.2022, 6:49
+ * 12.01.2022, 17:50
  */
 
 namespace AllThings\DataAccess\Linkage;
 
-use AllThings\DataAccess\Retrievable;
-
-interface ILinkageManager extends Retrievable
+interface ILinkageManager
 {
     public function attach(ILinkage $linkage): bool;
 
@@ -18,7 +16,7 @@ interface ILinkageManager extends Retrievable
     /**
      * @param ILinkage $linkage
      *
-     * @return bool
+     * @return array
      */
-    public function getAssociated(ILinkage $linkage): bool;
+    public function getAssociated(ILinkage $linkage): array;
 }

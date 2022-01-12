@@ -2,16 +2,13 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 10.01.2022, 6:49
+ * 12.01.2022, 17:50
  */
 
 namespace AllThings\DataAccess\Linkage;
 
-use AllThings\DataAccess\Retrievable;
-
 interface ILinkageHandler
-    extends RelationReader,
-            Retrievable
+    extends RelationReader
 {
     public function combine(ILinkage $linkage): bool;
 

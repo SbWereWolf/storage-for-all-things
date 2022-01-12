@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 11.01.2022, 6:21
+ * 12.01.2022, 17:50
  */
 
 namespace AllThings\StorageEngine;
@@ -111,7 +111,7 @@ class RapidRecording implements Installation
     {
         $linkToData = $this->getDb();
 
-        $isSuccess = false;
+        $attributes = [];
         if (!$values) {
             $essenceKey = new ForeignKey(
                 'essence',
@@ -138,15 +138,7 @@ class RapidRecording implements Installation
             $linkage = (new Linkage())
                 ->setLeftValue($this->getEssence());
 
-            $isSuccess = $essenceManager->getAssociated($linkage);
-        }
-
-        if ($isSuccess) {
-            $isSuccess = $essenceManager->has();
-        }
-        $attributes = [];
-        if ($isSuccess) {
-            $attributes = $essenceManager->retrieveData();
+            $attributes = $essenceManager->getAssociated($linkage);
         }
         $columnNames = [];
         foreach ($attributes as $code) {
@@ -275,7 +267,7 @@ WHERE thing_id = (
         $result = $affected !== false;
 
         $essence = $this->getEssence();
-        $isSuccess = false;
+        $attributeCodes = [];
         if ($result) {
             $essenceKey = new ForeignKey(
                 'essence',
@@ -300,15 +292,8 @@ WHERE thing_id = (
             );
 
             $linkage = (new Linkage())->setLeftValue($essence);
-            $isSuccess = $specificationManager->getAssociated($linkage);
-        }
-
-        if ($isSuccess) {
-            $isSuccess = $specificationManager->has();
-        }
-        $attributeCodes = [];
-        if ($isSuccess) {
-            $attributeCodes = $specificationManager->retrieveData();
+            $attributeCodes = $specificationManager
+                ->getAssociated($linkage);
         }
 
         $attributes = [];
@@ -327,7 +312,7 @@ WHERE thing_id = (
                 $isSuccess = $attributeManager->has();
             }
             if ($isSuccess) {
-                $attributes[] = $attributeManager->retrieveData();
+                $attributes[] = $attributeManager->retrieve();
             }
         }
         $columns = [];

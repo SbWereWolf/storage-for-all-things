@@ -8,11 +8,12 @@
 namespace AllThings\DataAccess;
 
 
-interface Retrievable
+interface Haves
 {
-    /**
-     * Получить данные
-     * @return mixed
+    /** Данные имеются ?
+     *
+     * @return bool
      */
-    public function retrieve(): object;
+    public function has(): bool;
+
 }

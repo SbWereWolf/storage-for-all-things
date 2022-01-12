@@ -8,11 +8,12 @@
 namespace AllThings\DataAccess;
 
 
-interface Retrievable
+interface Extractable
 {
     /**
      * Получить данные
+     *
      * @return mixed
      */
-    public function retrieve(): object;
+    public function extract(): array;
 }

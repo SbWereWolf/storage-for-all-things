@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 15:01
+ * 12.01.2022, 17:50
  */
 
 namespace AllThings\ControlPanel;
@@ -221,7 +221,7 @@ class Lots
         $isSuccess = $manager->browse();
         $result = null;
         if ($isSuccess && $manager->has()) {
-            $result = $manager->retrieveData();
+            $result = $manager->retrieve();
         }
 
         return $result;
