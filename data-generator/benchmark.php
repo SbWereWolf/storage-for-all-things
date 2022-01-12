@@ -2,14 +2,14 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 13:33
+ * 12.01.2022, 13:35
  */
 
 declare(strict_types=1);
 
 use AllThings\Blueprint\Attribute\AttributeManager;
 use AllThings\ControlPanel\Browser;
-use AllThings\ControlPanel\CategorySpecification;
+use AllThings\ControlPanel\Category;
 use AllThings\ControlPanel\Lots;
 use AllThings\ControlPanel\Product;
 use AllThings\DataAccess\Crossover\Crossover;
@@ -201,7 +201,7 @@ foreach ($essences as $category => $essence) {
     echo 'SETUP NEW ITEM FOR TABLE ' . $average . PHP_EOL;
 
     $adjective = 'test-' . time() . uniqid();
-    $redactor = new CategorySpecification($linkToData, $adjective);
+    $redactor = new Category($linkToData, $adjective);
     $attribute = $redactor->create(
         Searchable::SYMBOLS,
         Searchable::DISCRETE,

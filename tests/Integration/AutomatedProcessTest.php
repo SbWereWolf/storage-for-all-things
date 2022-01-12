@@ -2,13 +2,13 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 13:33
+ * 12.01.2022, 13:35
  */
 
 namespace Integration;
 
 use AllThings\ControlPanel\Browser;
-use AllThings\ControlPanel\CategorySpecification;
+use AllThings\ControlPanel\Category;
 use AllThings\ControlPanel\Lots;
 use AllThings\ControlPanel\Product;
 use AllThings\DataAccess\Crossover\Crossover;
@@ -114,7 +114,7 @@ class AutomatedProcessTest extends TestCase
         ];
 
         foreach ($codes as $code => $settings) {
-            $redactor = new CategorySpecification($context['PDO'], $code);
+            $redactor = new Category($context['PDO'], $code);
             $attribute = $redactor->create(
                 $settings['DataType'],
                 $settings['RangeType'],
@@ -148,7 +148,7 @@ class AutomatedProcessTest extends TestCase
 
         $attributes = ['price', 'production-date', 'place-of-production'];
         foreach ($attributes as $attribute) {
-            $redactor = new CategorySpecification($context['PDO'], $attribute);
+            $redactor = new Category($context['PDO'], $attribute);
             $redactor->attach($essence,);
         }
 
@@ -798,7 +798,7 @@ class AutomatedProcessTest extends TestCase
 
         $linkToData = $context['PDO'];
         foreach ($codes as $code => $settings) {
-            $redactor = new CategorySpecification($linkToData, $code);
+            $redactor = new Category($linkToData, $code);
             $attribute = $redactor->create(
                 $settings['DataType'],
                 $settings['RangeType'],
@@ -1005,7 +1005,7 @@ class AutomatedProcessTest extends TestCase
     public function testUnlinkKind(array $context): array
     {
         $linkToData = $context['PDO'];
-        $redactor = new CategorySpecification($linkToData, 'package');
+        $redactor = new Category($linkToData, 'package');
 
         /* Удалим у сущности cake характеристику package */
         $essence = $context['essence'];

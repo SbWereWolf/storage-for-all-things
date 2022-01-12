@@ -2,14 +2,14 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 13:33
+ * 12.01.2022, 13:35
  */
 
 declare(strict_types=1);
 
 use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Essence\IEssence;
-use AllThings\ControlPanel\CategorySpecification;
+use AllThings\ControlPanel\Category;
 use AllThings\ControlPanel\Lots;
 use AllThings\ControlPanel\Product;
 use AllThings\SearchEngine\Searchable;
@@ -47,7 +47,7 @@ for ($cycle = 0; $cycle < MULTIPLIER; $cycle++) {
     foreach ($names as $key => $adjective) {
         $isDiscrete = roll(0, 1) === 0;
         $adjective = "$adjective$cycle";
-        $redactor = new CategorySpecification($conn, $adjective);
+        $redactor = new Category($conn, $adjective);
         if ($isDiscrete) {
             $attribute = $redactor->create(
                 Searchable::SYMBOLS,
