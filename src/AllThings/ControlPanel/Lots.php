@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 13:33
+ * 12.01.2022, 15:01
  */
 
 namespace AllThings\ControlPanel;
@@ -98,46 +98,6 @@ class Lots
         }
 
         return $this;
-    }
-
-    public function create(
-        string $title = '',
-        string $description = '',
-        string $storageKind = Storable::DIRECT_READING
-    ): IEssence {
-        $essence = Essence::GetDefaultEssence();
-        $code = $this->essence;
-        $essence->setCode($code);
-
-        $handler = new EssenceManager(
-            $code,
-            'essence',
-            $this->db,
-        );
-        $isSuccess = $handler->create();
-        if (!$isSuccess) {
-            throw new Exception('Essence must be created with success');
-        }
-
-        if ($storageKind) {
-            $essence->setStorageKind($storageKind);
-        }
-        if ($title) {
-            $essence->setTitle($title);
-        }
-        if ($description) {
-            $essence->setRemark($description);
-        }
-        $handler->setSubject($essence);
-
-        if ($storageKind || $title || $description) {
-            $isSuccess = $handler->correct();
-        }
-        if (!$isSuccess) {
-            throw new Exception('Essence must be updated with success');
-        }
-
-        return $essence;
     }
 
     /**

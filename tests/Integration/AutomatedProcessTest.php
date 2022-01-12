@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 14:22
+ * 12.01.2022, 15:01
  */
 
 namespace Integration;
@@ -66,9 +66,9 @@ class AutomatedProcessTest extends TestCase
         $linkToData = $context['PDO'];
 
         /* ## S001A1S01 создать сущность для предметов типа "пирожок" */
-
-        $schema = new Lots($linkToData, 'cake');
-        $essence = $schema->create(
+        $redactor = new Redactor($linkToData);
+        $essence = $redactor->create(
+            'cake',
             'The Cakes',
             'Cakes  of all kinds',
         );
@@ -77,7 +77,7 @@ class AutomatedProcessTest extends TestCase
             'Essence must be created with success'
         );
 
-        $context['essence'] = 'cake';
+        $context['essence'] = $essence->getCode();
 
         return $context;
     }
@@ -116,7 +116,7 @@ class AutomatedProcessTest extends TestCase
 
         foreach ($codes as $code => $settings) {
             $redactor = new Redactor($context['PDO']);
-            $attribute = $redactor->create(
+            $attribute = $redactor->attribute(
                 $code,
                 $settings['DataType'],
                 $settings['RangeType'],
@@ -798,7 +798,7 @@ class AutomatedProcessTest extends TestCase
         $linkToData = $context['PDO'];
         foreach ($codes as $code => $settings) {
             $redactor = new Redactor($linkToData);
-            $attribute = $redactor->create(
+            $attribute = $redactor->attribute(
                 $code,
                 $settings['DataType'],
                 $settings['RangeType'],
