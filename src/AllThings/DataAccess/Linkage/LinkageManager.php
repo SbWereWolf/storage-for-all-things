@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 10.01.2022, 6:49
+ * 12.01.2022, 14:22
  */
 
 namespace AllThings\DataAccess\Linkage;
@@ -13,16 +13,22 @@ class LinkageManager implements ILinkageManager
 {
     protected ILinkageHandler $linkageHandler;
 
+    /**
+     * @param PDO           $db
+     * @param ILinkageTable $table
+     * @param ForeignKey    $leftKey
+     * @param ForeignKey    $rightKey
+     */
     public function __construct(
         PDO $db,
-        ILinkageTable $location,
+        ILinkageTable $table,
         ForeignKey $leftKey,
         ForeignKey $rightKey
     ) {
         $this->linkageHandler = new LinkageHandler(
             $leftKey,
             $rightKey,
-            $location,
+            $table,
             $db,
         );
     }

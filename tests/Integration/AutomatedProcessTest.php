@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 13:35
+ * 12.01.2022, 14:22
  */
 
 namespace Integration;
@@ -11,6 +11,7 @@ use AllThings\ControlPanel\Browser;
 use AllThings\ControlPanel\Category;
 use AllThings\ControlPanel\Lots;
 use AllThings\ControlPanel\Product;
+use AllThings\ControlPanel\Redactor;
 use AllThings\DataAccess\Crossover\Crossover;
 use AllThings\SearchEngine\ContinuousFilter;
 use AllThings\SearchEngine\DiscreteFilter;
@@ -114,8 +115,9 @@ class AutomatedProcessTest extends TestCase
         ];
 
         foreach ($codes as $code => $settings) {
-            $redactor = new Category($context['PDO'], $code);
+            $redactor = new Redactor($context['PDO']);
             $attribute = $redactor->create(
+                $code,
                 $settings['DataType'],
                 $settings['RangeType'],
                 $settings['Title'],
@@ -148,8 +150,8 @@ class AutomatedProcessTest extends TestCase
 
         $attributes = ['price', 'production-date', 'place-of-production'];
         foreach ($attributes as $attribute) {
-            $redactor = new Category($context['PDO'], $attribute);
-            $redactor->attach($essence,);
+            $redactor = new Category($context['PDO'], $essence);
+            $redactor->attach($attribute);
         }
 
         $this->assertTrue(
@@ -312,11 +314,10 @@ class AutomatedProcessTest extends TestCase
                         === 'Екатеринбург';
 
                     if ($isProper && !$withExtended) {
-                        $isProper = $isProper &&
-                            !key_exists(
-                                $context['package'] ?? '',
-                                $thing,
-                            );
+                        $isProper = !key_exists(
+                            $context['package'] ?? '',
+                            $thing,
+                        );
                     }
 
                     if ($isProper && $withExtended) {
@@ -344,11 +345,10 @@ class AutomatedProcessTest extends TestCase
                         === 'Екатеринбург';
 
                     if ($isProper && !$withExtended) {
-                        $isProper = $isProper &&
-                            !key_exists(
-                                $context['package'] ?? '',
-                                $thing,
-                            );
+                        $isProper = !key_exists(
+                            $context['package'] ?? '',
+                            $thing,
+                        );
                     }
 
                     if ($isProper && $withExtended) {
@@ -376,11 +376,10 @@ class AutomatedProcessTest extends TestCase
                         === 'Челябинск';
 
                     if ($isProper && !$withExtended) {
-                        $isProper = $isProper &&
-                            !key_exists(
-                                $context['package'] ?? '',
-                                $thing,
-                            );
+                        $isProper = !key_exists(
+                            $context['package'] ?? '',
+                            $thing,
+                        );
                     }
 
                     if ($isProper && $withExtended) {
@@ -798,12 +797,12 @@ class AutomatedProcessTest extends TestCase
 
         $linkToData = $context['PDO'];
         foreach ($codes as $code => $settings) {
-            $redactor = new Category($linkToData, $code);
+            $redactor = new Redactor($linkToData);
             $attribute = $redactor->create(
+                $code,
                 $settings['DataType'],
                 $settings['RangeType'],
                 $settings['Title'],
-                '',
             );
 
             $this->assertNotEmpty(
@@ -814,7 +813,8 @@ class AutomatedProcessTest extends TestCase
 
             /* Добавим сущности cake новую характеристику package */
             $essence = $context['essence'];
-            $redactor->attach($essence,);
+            $category = new Category($context['PDO'], $essence);
+            $category->attach($code);
         }
 
         /* Добавим существующим моделям новую характеристику. */
@@ -1005,12 +1005,12 @@ class AutomatedProcessTest extends TestCase
     public function testUnlinkKind(array $context): array
     {
         $linkToData = $context['PDO'];
-        $redactor = new Category($linkToData, 'package');
+        $essence = $context['essence'];
+        $redactor = new Category($linkToData, $essence);
 
         /* Удалим у сущности cake характеристику package */
-        $essence = $context['essence'];
         $redactor->detach(
-            $essence,
+            'package',
         );
 
         $this->assertTrue(true);
