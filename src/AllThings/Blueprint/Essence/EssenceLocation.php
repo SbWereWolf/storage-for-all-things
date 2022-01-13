@@ -3,7 +3,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 13.01.2022, 9:02
  */
 
 namespace AllThings\Blueprint\Essence;
@@ -16,48 +16,41 @@ class EssenceLocation extends UniqueLocation implements EssenceWriter
         IEssence $suggestion,
         string $target = ''
     ): bool {
-        if ($target) {
-            $target_code = $target;
-        }
         if (!$target) {
-            $target_code = $suggestion->getCode();
+            $target = $suggestion->getCode();
         }
 
-        $suggestion_code = $suggestion->getCode();
-        $suggestion_title = $suggestion->getTitle();
-        $suggestion_remark = $suggestion->getRemark();
-        $suggestion_storage = $suggestion->getStorageKind();
+        $code = $suggestion->getCode();
+        $title = $suggestion->getTitle();
+        $remark = $suggestion->getRemark();
+        $storageKind = $suggestion->getStorageKind();
 
-        $sqlText = 'update '
-            . $this->tableName
-            . '
-set 
-    code=:code,
+        $letUpdateCode = $target !== $code;
+        $updateCode = '';
+        if ($letUpdateCode) {
+            $updateCode = 'code = :code,';
+        }
+
+        $sqlText = "
+update $this->tableName
+set
+    $updateCode
     title=:title,
     remark=:remark,
     store_at=:store_at 
 where 
-    code=:target_code';
-        $connection = $this->storageLocation;
+    code=:target
+";
+        $query = $this->db->prepare($sqlText);
 
-        $query = $connection->prepare($sqlText);
-        $query->bindParam(
-            ':code',
-            $suggestion_code
-        );
-        $query->bindParam(
-            ':title',
-            $suggestion_title
-        );
-        $query->bindParam(
-            ':remark',
-            $suggestion_remark
-        );
-        $query->bindParam(
-            ':store_at',
-            $suggestion_storage
-        );
-        $query->bindParam(':target_code', $target_code);
+        if ($letUpdateCode) {
+            $query->bindParam(':code', $code);
+        }
+        $query->bindParam(':title', $title);
+        $query->bindParam(':remark', $remark);
+        $query->bindParam(':store_at', $storageKind);
+        $query->bindParam(':target', $target);
+
         /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $query->execute();
 

@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 17:50
+ * 13.01.2022, 9:02
  */
 
 namespace AllThings\Blueprint\Attribute;
@@ -15,7 +15,7 @@ class AttributeManager
     extends UniqueManager
     implements IAttributeManager
 {
-    private ?IAttribute $subject;
+    private ?IAttribute $stuff;
 
     /**
      * @return AttributeRecordHandler
@@ -23,23 +23,25 @@ class AttributeManager
     private function getAttributeHandler(): AttributeRecordHandler
     {
         $handler = new AttributeRecordHandler(
-            $this->subject->getCode(),
+            $this->stuff->getCode(),
             $this->storageLocation,
             $this->dataPath,
         );
-        $handler->setSubject($this->subject);
+        $handler->setAttribute($this->stuff);
 
         return $handler;
     }
 
     /**
-     * @param bool $isSuccess
+     * @param bool                   $isSuccess
      * @param AttributeRecordHandler $handler
      */
-    public function loadSubject(bool $isSuccess, AttributeRecordHandler $handler): void
-    {
+    public function loadSubject(
+        bool $isSuccess,
+        AttributeRecordHandler $handler
+    ): void {
         if ($isSuccess) {
-            $this->subject = $handler->retrieve();
+            $this->stuff = $handler->retrieve();
         }
     }
 
@@ -67,14 +69,14 @@ class AttributeManager
 
     public function retrieve(): IAttribute
     {
-        $data = $this->subject->GetAttributeCopy();
+        $data = $this->stuff->GetAttributeCopy();
 
         return $data;
     }
 
     public function has(): bool
     {
-        return !is_null($this->subject);
+        return !is_null($this->stuff);
     }
 
     public function getLocation(): string
@@ -131,11 +133,11 @@ class AttributeManager
     }
 
     /**
-     * @param IAttribute|null $subject
+     * @param IAttribute|null $stuff
      */
-    public function setSubject(IAttribute $subject): static
+    public function setSubject(IAttribute $stuff): static
     {
-        $this->subject = $subject;
+        $this->stuff = $stuff;
 
         return $this;
     }

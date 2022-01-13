@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 13.01.2022, 9:02
  */
 
 namespace AllThings\DataAccess\Nameable;
@@ -15,39 +15,40 @@ class StorageLocation
     implements ValuableWriter,
                UniquableWriter
 {
-    public function update(
-        Nameable $target_entity,
-        Nameable $suggestion_entity,
-    ): bool {
-        $targetCode = $target_entity->getCode();
-        $proposalCode = $suggestion_entity->getCode();
-        $proposalTitle = $suggestion_entity->getTitle();
-        $proposalRemark = $suggestion_entity->getRemark();
+    public function update(Nameable $suggestion, string $target,): bool
+    {
+        if ($target) {
+            $target = $suggestion->getCode();
+        }
+        $code = $suggestion->getCode();
+        $title = $suggestion->getTitle();
+        $remark = $suggestion->getRemark();
 
-        $letUpdateCode = $targetCode !== $proposalCode;
+        $letUpdateCode = $target !== $code;
         $updateCode = '';
         if ($letUpdateCode) {
-            $updateCode = 'code = :proposalCode,';
+            $updateCode = 'code = :code,';
         }
 
         $sqlText = "
 update {$this->tableName} 
 set 
     $updateCode
-    title = :proposalTitle,
-    remark=:proposalRemark
-where code=:targetCode
+    title=:title,
+    remark=:remark
+where
+      code=:target
 ";
-        $connection = $this->storageLocation;
-        $query = $connection->prepare($sqlText);
+        $query = $this->db->prepare($sqlText);
 
         if ($letUpdateCode) {
-            $query->bindParam(':proposalCode', $proposalCode);
+            $query->bindParam(':code', $code);
         }
-        $query->bindParam(':proposalTitle', $proposalTitle);
-        $query->bindParam(':proposalRemark', $proposalRemark);
-        $query->bindParam(':targetCode', $targetCode);
+        $query->bindParam(':title', $title);
+        $query->bindParam(':remark', $remark);
+        $query->bindParam(':target', $targetCode);
 
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $query->execute();
 
         return $result;

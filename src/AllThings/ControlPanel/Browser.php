@@ -2,13 +2,14 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 13:33
+ * 13.01.2022, 9:02
  */
 
 namespace AllThings\ControlPanel;
 
 
 use AllThings\SearchEngine\Seeker;
+use AllThings\StorageEngine\StorageManager;
 use Exception;
 use PDO;
 
@@ -26,7 +27,7 @@ class Browser
      */
     public function filters(string $essence): array
     {
-        $category = new Lots($this->db, $essence);
+        $category = new StorageManager($this->db, $essence);
         $dataHandler = $category->getHandler();
 
         $seeker = new Seeker($dataHandler);
@@ -41,7 +42,7 @@ class Browser
      */
     public function find(string $essence, $filters = []): array
     {
-        $category = new Lots($this->db, $essence);
+        $category = new StorageManager($this->db, $essence);
         $dataHandler = $category->getHandler();
 
         $seeker = new Seeker($dataHandler);

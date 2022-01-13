@@ -2,13 +2,12 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 17:50
+ * 13.01.2022, 9:02
  */
 
 namespace Integration;
 
 use AllThings\ControlPanel\Browser;
-use AllThings\ControlPanel\Lots;
 use AllThings\ControlPanel\Redactor;
 use AllThings\ControlPanel\Specification;
 use AllThings\DataAccess\Crossover\Crossover;
@@ -16,6 +15,7 @@ use AllThings\Interaction\System;
 use AllThings\SearchEngine\ContinuousFilter;
 use AllThings\SearchEngine\DiscreteFilter;
 use AllThings\StorageEngine\Storable;
+use AllThings\StorageEngine\StorageManager;
 use Environment\Database\PdoConnection;
 use Exception;
 use PHPUnit\Framework\TestCase;
@@ -251,7 +251,7 @@ class AutomatedProcessTest extends TestCase
     public function testCreateView(array $context)
     {
         /* S001A4S02 создать представление */
-        $schema = new Lots($context['PDO'], $context['essence']);
+        $schema = new StorageManager($context['PDO'], $context['essence']);
         $schema->handleWithDirectReading();
 
         $this->assertTrue(true, 'View must be created with success');
@@ -528,7 +528,7 @@ class AutomatedProcessTest extends TestCase
     public function testCreateMathView(array $context)
     {
         /* S001A4S02 создать материализованное представление */
-        $schema = new Lots($context['PDO'], $context['essence']);
+        $schema = new StorageManager($context['PDO'], $context['essence']);
         $schema->handleWithRapidObtainment();
 
         $this->assertTrue(
@@ -615,7 +615,7 @@ class AutomatedProcessTest extends TestCase
     public function testCreateTable(array $context)
     {
         /* S001A4S02 создать представление */
-        $schema = new Lots($context['PDO'], $context['essence']);
+        $schema = new StorageManager($context['PDO'], $context['essence']);
         $schema->handleWithRapidRecording();
 
         $this->assertTrue(true, 'Table must be created with success');
@@ -730,7 +730,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testAddNewItemToView(array $context)
     {
-        $schema = new Lots($context['PDO'], $context['essence']);
+        $schema = new StorageManager($context['PDO'], $context['essence']);
         $schema->change(Storable::DIRECT_READING);
         $schema->refresh();
 
@@ -748,7 +748,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testAddNewItemToMathView(array $context)
     {
-        $schema = new Lots($context['PDO'], $context['essence']);
+        $schema = new StorageManager($context['PDO'], $context['essence']);
         $schema->change(Storable::RAPID_OBTAINMENT);
         $schema->refresh();
 
@@ -766,7 +766,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testAddNewItemToTable(array $context)
     {
-        $schema = new Lots($context['PDO'], $context['essence']);
+        $schema = new StorageManager($context['PDO'], $context['essence']);
         $schema->change(Storable::RAPID_RECORDING);
         $schema->refresh();
 
@@ -848,7 +848,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testAddNewKindToView(array $context)
     {
-        $schema = new Lots($context['PDO'], $context['essence']);
+        $schema = new StorageManager($context['PDO'], $context['essence']);
         $schema->change(Storable::DIRECT_READING);
         $schema->setup();
 
@@ -867,7 +867,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testAddNewKindToMathView(array $context)
     {
-        $schema = new Lots($context['PDO'], $context['essence']);
+        $schema = new StorageManager($context['PDO'], $context['essence']);
         $schema->change(Storable::RAPID_OBTAINMENT);
         $schema->setup();
 
@@ -885,7 +885,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testAddNewKindToTable(array $context)
     {
-        $schema = new Lots($context['PDO'], $context['essence']);
+        $schema = new StorageManager($context['PDO'], $context['essence']);
         $schema->change(Storable::RAPID_RECORDING);
         $schema->setup();
 
@@ -929,7 +929,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testChangeContentWithinView(array $context)
     {
-        $schema = new Lots($context['PDO'], $context['essence']);
+        $schema = new StorageManager($context['PDO'], $context['essence']);
         $schema->change(Storable::DIRECT_READING);
         $schema->refresh();
 
@@ -953,7 +953,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testChangeContentWithinMathView(array $context)
     {
-        $schema = new Lots($context['PDO'], $context['essence']);
+        $schema = new StorageManager($context['PDO'], $context['essence']);
         $schema->change(Storable::RAPID_OBTAINMENT);
         $schema->refresh();
 
@@ -977,7 +977,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testChangeContentWithinTable(array $context)
     {
-        $schema = new Lots($context['PDO'], $context['essence']);
+        $schema = new StorageManager($context['PDO'], $context['essence']);
         $schema->change(Storable::RAPID_RECORDING);
 
         $content = (new Crossover())->setContent('коробка');
@@ -1036,7 +1036,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testUnlinkKindWithView(array $context)
     {
-        $schema = new Lots($context['PDO'], $context['essence']);
+        $schema = new StorageManager($context['PDO'], $context['essence']);
         $schema->change(Storable::DIRECT_READING);
         $schema->prune('package');
 
@@ -1057,7 +1057,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testUnlinkKindWithMathView(array $context)
     {
-        $schema = new Lots($context['PDO'], $context['essence']);
+        $schema = new StorageManager($context['PDO'], $context['essence']);
         $schema->change(Storable::RAPID_OBTAINMENT);
         $schema->prune('package');
 
@@ -1078,7 +1078,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testUnlinkKindWithTable(array $context)
     {
-        $schema = new Lots($context['PDO'], $context['essence']);
+        $schema = new StorageManager($context['PDO'], $context['essence']);
         $schema->change(Storable::RAPID_RECORDING);
         $schema->prune('package');
 
@@ -1124,7 +1124,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testRemoveItemWithView(array $context)
     {
-        $schema = new Lots($context['PDO'], $context['essence']);
+        $schema = new StorageManager($context['PDO'], $context['essence']);
         $schema->change(Storable::DIRECT_READING);
         $schema->refresh();
 
@@ -1145,7 +1145,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testRemoveItemWithMathView(array $context)
     {
-        $schema = new Lots($context['PDO'], $context['essence']);
+        $schema = new StorageManager($context['PDO'], $context['essence']);
         $schema->change(Storable::RAPID_OBTAINMENT);
         $schema->refresh();
 
@@ -1165,7 +1165,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testRemoveItemWithTable(array $context)
     {
-        $schema = new Lots($context['PDO'], $context['essence']);
+        $schema = new StorageManager($context['PDO'], $context['essence']);
         $schema->change(Storable::RAPID_RECORDING);
         $schema->refresh();
 

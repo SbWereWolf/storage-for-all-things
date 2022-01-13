@@ -2,43 +2,42 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 17:50
+ * 13.01.2022, 9:02
  */
 
 namespace AllThings\DataAccess\Nameable;
 
-
-use AllThings\DataAccess\Haves;
+use AllThings\DataAccess\DataTransfer\Haves;
 use AllThings\DataAccess\Uniquable\UniqueManager;
 
-class NamedEntityManager
+class NamedManager
     extends UniqueManager
-    implements INamedEntityManager,
+    implements NameableManager,
                Haves
 {
     private ?Nameable $subject;
 
     /**
-     * @return NamedRecordHandler
+     * @return NamedHandler
      */
-    private function getNameableHandler(): NamedRecordHandler
+    private function getNameableHandler(): NamedHandler
     {
         $subject = $this->subject;
         $dataPath = $this->dataPath;
-        $handler = new NamedRecordHandler(
+        $handler = new NamedHandler(
             $subject->getCode(),
             $this->storageLocation,
             $dataPath,
         );
-        $handler->setContainer($subject);
+        $handler->setNamed($subject);
 
         return $handler;
     }
 
     /**
-     * @param NamedRecordHandler $handler
+     * @param NamedHandler $handler
      */
-    private function loadSubject(NamedRecordHandler $handler): void
+    private function loadSubject(NamedHandler $handler): void
     {
         $this->subject = $handler->retrieve();
     }

@@ -5,16 +5,22 @@
  * 13.01.2022, 9:02
  */
 
-namespace AllThings\Blueprint\Attribute;
+namespace AllThings\Blueprint\Essence;
 
+use AllThings\DataAccess\DataTransfer\Haves;
+use AllThings\DataAccess\DataTransfer\Retrievable;
+use AllThings\DataAccess\Nameable\Valuable;
 use AllThings\DataAccess\Uniquable\UniqueHandler;
 use PDO;
 
-class AttributeRecordHandler
+class EssenceHandler
     extends UniqueHandler
-    implements IAttributeHandler
+    implements Valuable,
+               Retrievable,
+               Haves
 {
-    private ?IAttribute $stuff = null;
+    private string $dataSource;
+    private ?IEssence $stuff;
 
     public function __construct(
         string $uniqueness,
@@ -26,10 +32,12 @@ class AttributeRecordHandler
         $this->dataSource = $locationName;
     }
 
-    public function setAttribute(
-        IAttribute $stuff
-    ): IAttributeHandler {
-        $this->stuff = $stuff;
+    /**
+     * @param IEssence $essence
+     */
+    public function setEssence(IEssence $essence): static
+    {
+        $this->stuff = $essence;
 
         return $this;
     }
@@ -58,11 +66,11 @@ class AttributeRecordHandler
         return $result;
     }
 
-    public function retrieve(): IAttribute
+    public function retrieve(): IEssence
     {
-        $result = $this->stuff->GetAttributeCopy();
+        $essence = $this->stuff->GetEssenceCopy();
 
-        return $result;
+        return $essence;
     }
 
     public function has(): bool
@@ -70,22 +78,22 @@ class AttributeRecordHandler
         return !is_null($this->stuff);
     }
 
-    private function getSource(): AttributeSource
+    private function getSource(): EssenceSource
     {
-        $repository = new AttributeSource(
+        $repository = new EssenceSource(
             $this->dataSource,
-            $this->db
+            $this->db,
         );
-
         return $repository;
     }
 
-    private function getLocation(): AttributeLocation
+    private function getLocation(): EssenceLocation
     {
-        $repository = new AttributeLocation(
+        $storageLocation = new EssenceLocation(
             $this->storageLocation,
-            $this->db
+            $this->db,
         );
-        return $repository;
+
+        return $storageLocation;
     }
 }

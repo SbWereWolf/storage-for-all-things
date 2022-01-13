@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 13.01.2022, 9:02
  */
 
 namespace AllThings\DataAccess\Uniquable;
@@ -11,28 +11,28 @@ use PDO;
 
 class UniqueHandler implements Uniquable
 {
-    protected PDO $dataPath;
-    protected string $location;
+    protected PDO $db;
+    protected string $storageLocation;
     private string $uniqueness;
     private UniqueLocation $driver;
 
     /**
      * @param string $uniqueness
      * @param string $locationName
-     * @param PDO $pdo
+     * @param PDO    $db
      */
     public function __construct(
         string $uniqueness,
         string $locationName,
-        PDO $pdo,
+        PDO $db,
     ) {
         $this->uniqueness = $uniqueness;
-        $this->dataPath = $pdo;
-        $this->location = $locationName;
+        $this->db = $db;
+        $this->storageLocation = $locationName;
 
         $this->driver = new UniqueLocation(
-            $this->location,
-            $this->dataPath,
+            $this->storageLocation,
+            $this->db,
         );
     }
 

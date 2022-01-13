@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 17:50
+ * 13.01.2022, 9:02
  */
 
 namespace AllThings\Blueprint\Essence;
@@ -14,11 +14,11 @@ class EssenceManager extends UniqueManager implements IEssenceManager
     private ?IEssence $subject = null;
 
     /**
-     * @return EssenceRecordHandler
+     * @return EssenceHandler
      */
-    private function getEssenceHandler(): EssenceRecordHandler
+    private function getEssenceHandler(): EssenceHandler
     {
-        $handler = new EssenceRecordHandler(
+        $handler = new EssenceHandler(
             $this->subject->getCode(),
             $this->storageLocation,
             $this->dataPath,

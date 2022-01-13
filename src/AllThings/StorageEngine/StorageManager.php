@@ -2,24 +2,19 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 17:50
+ * 13.01.2022, 9:02
  */
 
-namespace AllThings\ControlPanel;
+namespace AllThings\StorageEngine;
 
 use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Essence\Essence;
 use AllThings\Blueprint\Essence\EssenceManager;
 use AllThings\Blueprint\Essence\IEssence;
-use AllThings\StorageEngine\DirectReading;
-use AllThings\StorageEngine\Installation;
-use AllThings\StorageEngine\RapidObtainment;
-use AllThings\StorageEngine\RapidRecording;
-use AllThings\StorageEngine\Storable;
 use Exception;
 use PDO;
 
-class Lots
+class StorageManager
 {
     private PDO $db;
     private string $essence;
@@ -37,7 +32,7 @@ class Lots
     /**
      * @throws Exception
      */
-    public function handleWithDirectReading(): Lots
+    public function handleWithDirectReading(): StorageManager
     {
         $this->change(Storable::DIRECT_READING);
         $handler = new DirectReading(
@@ -59,7 +54,7 @@ class Lots
     /**
      * @throws Exception
      */
-    public function handleWithRapidObtainment(): Lots
+    public function handleWithRapidObtainment(): StorageManager
     {
         $this->change(Storable::RAPID_OBTAINMENT);
         $handler = new RapidObtainment(
@@ -81,7 +76,7 @@ class Lots
     /**
      * @throws Exception
      */
-    public function handleWithRapidRecording(): Lots
+    public function handleWithRapidRecording(): StorageManager
     {
         $this->change(Storable::RAPID_RECORDING);
         $handler = new RapidRecording(
@@ -128,7 +123,7 @@ class Lots
         return $isSuccess;
     }
 
-    public function setup(?IAttribute $attribute = null): Lots
+    public function setup(?IAttribute $attribute = null): StorageManager
     {
         $dataHandler = $this->getHandler();
 
@@ -159,7 +154,7 @@ class Lots
     /**
      * @throws Exception
      */
-    public function refresh(array $values = []): Lots
+    public function refresh(array $values = []): StorageManager
     {
         $dataHandler = $this->getHandler();
 

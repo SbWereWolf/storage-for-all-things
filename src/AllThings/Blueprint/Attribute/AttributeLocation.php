@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 13.01.2022, 9:02
  */
 
 namespace AllThings\Blueprint\Attribute;
@@ -11,30 +11,50 @@ use AllThings\DataAccess\Uniquable\UniqueLocation;
 
 class AttributeLocation extends UniqueLocation implements AttributeWriter
 {
-    public function update(IAttribute $target_entity, IAttribute $suggestion_entity): bool
-    {
-        $target_code = $target_entity->getCode();
-        $suggestionCode = $suggestion_entity->getCode();
-        $suggestionTitle = $suggestion_entity->getTitle();
-        $suggestionRemark = $suggestion_entity->getRemark();
-        $suggestionDataType = $suggestion_entity->getDataType();
-        $suggestionRangeType = $suggestion_entity->getRangeType();
+    public function update(
+        IAttribute $suggestion,
+        string $target
+    ): bool {
+        if (!$target) {
+            $target = $suggestion->getCode();
+        }
 
-        $sqlText = 'update '
-            . $this->tableName
-            . ' set code=:suggestion_code,title=:suggestion_title,remark=:suggestion_remark,'
-            . ' data_type=:suggestion_data_type,range_type=:suggestion_range_type '
-            . ' where code=:target_code';
-        $connection = $this->storageLocation;
+        $code = $suggestion->getCode();
+        $title = $suggestion->getTitle();
+        $remark = $suggestion->getRemark();
+        $dataType = $suggestion->getDataType();
+        $rangeType = $suggestion->getRangeType();
 
-        $query = $connection->prepare($sqlText);
-        $query->bindParam(':suggestion_code', $suggestionCode);
-        $query->bindParam(':suggestion_title', $suggestionTitle);
-        $query->bindParam(':suggestion_remark', $suggestionRemark);
-        $query->bindParam(':suggestion_data_type', $suggestionDataType);
-        $query->bindParam(':suggestion_range_type', $suggestionRangeType);
-        $query->bindParam(':target_code', $target_code);
+        $letUpdateCode = $target !== $code;
+        $updateCode = '';
+        if ($letUpdateCode) {
+            $updateCode = 'code = :code,';
+        }
 
+        $sqlText = "
+update $this->tableName 
+set
+    $updateCode
+    title=:title,
+    remark=:remark,
+    data_type=:data_type,
+    range_type=:range_type
+where 
+      code=:target
+";
+
+        $query = $this->db->prepare($sqlText);
+
+        if ($letUpdateCode) {
+            $query->bindParam(':code', $code);
+        }
+        $query->bindParam(':title', $title);
+        $query->bindParam(':remark', $remark);
+        $query->bindParam(':data_type', $dataType);
+        $query->bindParam(':range_type', $rangeType);
+        $query->bindParam(':target', $target);
+
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $query->execute();
 
         return $result;

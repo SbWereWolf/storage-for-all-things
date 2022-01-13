@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 13.01.2022, 9:02
  */
 
 namespace AllThings\DataAccess\Nameable;
@@ -10,8 +10,5 @@ namespace AllThings\DataAccess\Nameable;
 
 interface ValuableWriter
 {
-    public function update(
-        Nameable $target_entity,
-        Nameable $suggestion_entity,
-    ): bool;
+    public function update(Nameable $suggestion, string $target,): bool;
 }

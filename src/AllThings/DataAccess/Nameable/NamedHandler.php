@@ -5,16 +5,21 @@
  * 13.01.2022, 9:02
  */
 
-namespace AllThings\Blueprint\Attribute;
+namespace AllThings\DataAccess\Nameable;
 
+use AllThings\DataAccess\DataTransfer\Haves;
+use AllThings\DataAccess\DataTransfer\Retrievable;
 use AllThings\DataAccess\Uniquable\UniqueHandler;
 use PDO;
 
-class AttributeRecordHandler
+class NamedHandler
     extends UniqueHandler
-    implements IAttributeHandler
+    implements Valuable,
+               Retrievable,
+               Haves
 {
-    private ?IAttribute $stuff = null;
+    private string $dataSource;
+    private ?Nameable $stuff;
 
     public function __construct(
         string $uniqueness,
@@ -22,14 +27,15 @@ class AttributeRecordHandler
         PDO $db,
     ) {
         parent::__construct($uniqueness, $locationName, $db);
-
         $this->dataSource = $locationName;
     }
 
-    public function setAttribute(
-        IAttribute $stuff
-    ): IAttributeHandler {
-        $this->stuff = $stuff;
+    /**
+     * @param Nameable $named
+     */
+    public function setNamed(Nameable $named): static
+    {
+        $this->stuff = $named;
 
         return $this;
     }
@@ -58,11 +64,11 @@ class AttributeRecordHandler
         return $result;
     }
 
-    public function retrieve(): IAttribute
+    public function retrieve(): Nameable
     {
-        $result = $this->stuff->GetAttributeCopy();
+        $data = $this->stuff->getNameableCopy();
 
-        return $result;
+        return $data;
     }
 
     public function has(): bool
@@ -70,22 +76,18 @@ class AttributeRecordHandler
         return !is_null($this->stuff);
     }
 
-    private function getSource(): AttributeSource
+    private function getLocation(): StorageLocation
     {
-        $repository = new AttributeSource(
-            $this->dataSource,
-            $this->db
+        $repository = new StorageLocation(
+            $this->storageLocation,
+            $this->db,
         );
-
         return $repository;
     }
 
-    private function getLocation(): AttributeLocation
+    private function getSource(): DataSource
     {
-        $repository = new AttributeLocation(
-            $this->storageLocation,
-            $this->db
-        );
+        $repository = new DataSource($this->dataSource, $this->db);
         return $repository;
     }
 }

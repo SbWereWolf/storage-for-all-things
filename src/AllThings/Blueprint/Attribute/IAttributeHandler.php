@@ -7,21 +7,18 @@
 
 namespace AllThings\Blueprint\Attribute;
 
-
 use AllThings\DataAccess\DataTransfer\Haves;
 use AllThings\DataAccess\DataTransfer\Retrievable;
-use AllThings\DataAccess\Nameable\DataManager;
+use AllThings\DataAccess\Nameable\Valuable;
 
-interface IAttributeManager
-    extends DataManager,
+interface IAttributeHandler
+    extends Valuable,
             Retrievable,
             Haves
 {
-
     public function retrieve(): IAttribute;
 
-    public function getLocation(): string;
-
-    public function getFormat(): string;
-
+    public function setAttribute(
+        IAttribute $stuff
+    ): IAttributeHandler;
 }

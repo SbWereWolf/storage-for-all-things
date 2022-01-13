@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 17:50
+ * 13.01.2022, 9:02
  */
 
 namespace AllThings\ControlPanel;
@@ -16,7 +16,7 @@ use AllThings\DataAccess\Linkage\LinkageManager;
 use AllThings\DataAccess\Linkage\LinkageTable;
 use AllThings\DataAccess\Nameable\Nameable;
 use AllThings\DataAccess\Nameable\NamedEntity;
-use AllThings\DataAccess\Nameable\NamedEntityManager;
+use AllThings\DataAccess\Nameable\NamedManager;
 use AllThings\SearchEngine\Searchable;
 use Exception;
 use PDO;
@@ -50,7 +50,7 @@ class Specification
         string $description = '',
     ): Nameable {
         $nameable = (new NamedEntity())->setCode($this->thing);
-        $thingManager = new NamedEntityManager(
+        $thingManager = new NamedManager(
             $this->thing,
             'thing',
             $this->db
@@ -142,7 +142,7 @@ class Specification
             );
         }
 
-        $handler = new NamedEntityManager($this->thing, 'thing', $this->db);
+        $handler = new NamedManager($this->thing, 'thing', $this->db);
 
         $isSuccess = $handler->remove();
         if (!$isSuccess) {
