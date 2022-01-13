@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 9:02
+ * 13.01.2022, 9:03
  */
 
 namespace AllThings\Blueprint\Attribute;
@@ -18,11 +18,11 @@ class AttributeManager
     private ?IAttribute $stuff;
 
     /**
-     * @return AttributeRecordHandler
+     * @return AttributeHandler
      */
-    private function getAttributeHandler(): AttributeRecordHandler
+    private function getAttributeHandler(): AttributeHandler
     {
-        $handler = new AttributeRecordHandler(
+        $handler = new AttributeHandler(
             $this->stuff->getCode(),
             $this->storageLocation,
             $this->dataPath,
@@ -33,12 +33,12 @@ class AttributeManager
     }
 
     /**
-     * @param bool                   $isSuccess
-     * @param AttributeRecordHandler $handler
+     * @param bool             $isSuccess
+     * @param AttributeHandler $handler
      */
     public function loadSubject(
         bool $isSuccess,
-        AttributeRecordHandler $handler
+        AttributeHandler $handler
     ): void {
         if ($isSuccess) {
             $this->stuff = $handler->retrieve();

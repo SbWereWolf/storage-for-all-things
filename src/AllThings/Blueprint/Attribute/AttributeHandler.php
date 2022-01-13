@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 9:02
+ * 13.01.2022, 9:03
  */
 
 namespace AllThings\Blueprint\Attribute;
@@ -10,7 +10,7 @@ namespace AllThings\Blueprint\Attribute;
 use AllThings\DataAccess\Uniquable\UniqueHandler;
 use PDO;
 
-class AttributeRecordHandler
+class AttributeHandler
     extends UniqueHandler
     implements IAttributeHandler
 {
