@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 13:52
+ * 14.01.2022, 3:25
  */
 
 namespace AllThings\ControlPanel;
@@ -12,7 +12,7 @@ use AllThings\DataAccess\Crossover\ICrossoverManager;
 use AllThings\DataAccess\Linkage\Linkage;
 use Exception;
 
-class Product
+class Specification
 {
     private string $thing;
     private ContentAccessFactory $factory;

@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 3:02
+ * 14.01.2022, 3:25
  */
 
 namespace AllThings\ControlPanel;
@@ -17,7 +17,7 @@ use AllThings\StorageEngine\Storable;
 use Exception;
 use PDO;
 
-class Redactor
+class Blueprint
 {
     private PDO $db;
 

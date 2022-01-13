@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 9:02
+ * 14.01.2022, 3:25
  */
 
 namespace AllThings\ControlPanel;
@@ -27,8 +27,8 @@ class Browser
      */
     public function filters(string $essence): array
     {
-        $category = new StorageManager($this->db, $essence);
-        $dataHandler = $category->getHandler();
+        $manager = new StorageManager($this->db, $essence);
+        $dataHandler = $manager->getHandler();
 
         $seeker = new Seeker($dataHandler);
         /** @noinspection PhpUnnecessaryLocalVariableInspection */
@@ -42,8 +42,8 @@ class Browser
      */
     public function find(string $essence, $filters = []): array
     {
-        $category = new StorageManager($this->db, $essence);
-        $dataHandler = $category->getHandler();
+        $manager = new StorageManager($this->db, $essence);
+        $dataHandler = $manager->getHandler();
 
         $seeker = new Seeker($dataHandler);
         /** @noinspection PhpUnnecessaryLocalVariableInspection */

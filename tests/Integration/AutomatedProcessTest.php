@@ -2,17 +2,17 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 3:02
+ * 14.01.2022, 3:25
  */
 
 namespace Integration;
 
+use AllThings\ControlPanel\Blueprint;
 use AllThings\ControlPanel\Browser;
 use AllThings\ControlPanel\Operator;
-use AllThings\ControlPanel\Redactor;
 use AllThings\ControlPanel\Relation\CatalogFactory;
 use AllThings\ControlPanel\Relation\CategoryFactory;
-use AllThings\ControlPanel\Relation\ProductFactory;
+use AllThings\ControlPanel\Relation\SpecificationFactory;
 use AllThings\DataAccess\Crossover\Crossover;
 use AllThings\DataAccess\Nameable\NamedEntity;
 use AllThings\DataAccess\Nameable\NamedManager;
@@ -70,7 +70,7 @@ class AutomatedProcessTest extends TestCase
         $linkToData = $context['PDO'];
 
         /* ## S001A1S01 создать сущность для предметов типа "пирожок" */
-        $redactor = new Redactor($linkToData);
+        $redactor = new Blueprint($linkToData);
         $essence = $redactor->essence(
             'cake',
             'The Cakes',
@@ -119,7 +119,7 @@ class AutomatedProcessTest extends TestCase
         ];
 
         foreach ($codes as $code => $settings) {
-            $redactor = new Redactor($context['PDO']);
+            $redactor = new Blueprint($context['PDO']);
             $attribute = $redactor->attribute(
                 $code,
                 $settings['DataType'],
@@ -138,7 +138,7 @@ class AutomatedProcessTest extends TestCase
     }
 
     /**
-     * Настраиваем категорию
+     * Формируем категорию из атрибутов
      *
      * @depends testKindCreate
      *
@@ -169,7 +169,8 @@ class AutomatedProcessTest extends TestCase
         return $context;
     }
 
-    /** Создаём модели на основе сущности
+    /** Создаём модели на основе категории, формируем каталог
+     *
      * @depends testDefineBlueprint
      *
      * @param array $context
@@ -201,7 +202,7 @@ class AutomatedProcessTest extends TestCase
             $thing = $operator->create($code, $title,);
             $context[$code] = $code;
 
-            $product = (new ProductFactory($context['PDO']))
+            $product = (new SpecificationFactory($context['PDO']))
                 ->make($thing->getCode());
             $product->attach($attributes);
             $catalog->attach($thing->getCode());
@@ -249,7 +250,7 @@ class AutomatedProcessTest extends TestCase
 
         $linkToData = $context['PDO'];
         foreach ($codes as $code => $settings) {
-            $product = (new ProductFactory($linkToData))
+            $product = (new SpecificationFactory($linkToData))
                 ->make($code);
             $product->define($settings);
         }
@@ -682,7 +683,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testGetFiltersForTable(array $context)
     {
-        /* ## S002A4S03 определить возможные условия для поиска
+        /* ## S002A4S03 определить границы поиска в характеристиках
         (параметры фильтрации) */
         $browser = new Browser($context['PDO']);
         $filters = $browser->filters($context['essence']);
@@ -737,7 +738,7 @@ class AutomatedProcessTest extends TestCase
         $context['new-thing'] = 'new-thing';
         $essence = $context['essence'];
 
-        /* добавляем модель, задаём для неё атрибуты */
+        /* добавляем модель, задаём для неё значения атрибутов */
         /* даём модели название */
         $operator = new Operator($linkToData);
         $thing = $operator->create(
@@ -745,7 +746,7 @@ class AutomatedProcessTest extends TestCase
             'новая модель',
         );
 
-        $product = (new ProductFactory($context['PDO']))
+        $product = (new SpecificationFactory($context['PDO']))
             ->make($thing->getCode());
         $category = (new CategoryFactory($context['PDO']))
             ->make($essence);
@@ -756,7 +757,7 @@ class AutomatedProcessTest extends TestCase
         $catalog = (new CatalogFactory($linkToData))->make($essence);
         $catalog->attach($thing->getCode());
 
-        /* задаём характеристики модели */
+        /* устанавливаем значения для характеристик модели */
         $definition = [
             $context['price'] => '11.11',
             $context['production-date'] => '20210531T0306',
@@ -859,7 +860,7 @@ class AutomatedProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $redactor = new Redactor($linkToData);
+        $redactor = new Blueprint($linkToData);
         foreach ($codes as $code => $settings) {
             $attribute = $redactor->attribute(
                 $code,
@@ -891,7 +892,7 @@ class AutomatedProcessTest extends TestCase
         foreach ($thingList as $thing => $value) {
             $context[$thing] = $thing;
 
-            $product = (new ProductFactory($context['PDO']))
+            $product = (new SpecificationFactory($context['PDO']))
                 ->make($thing);
             $product->attach([$code]);
             $product->define([$code => $value]);
@@ -975,22 +976,21 @@ class AutomatedProcessTest extends TestCase
      */
     public function testChangeContent(array $context): array
     {
-        $product = (new ProductFactory($context['PDO']))
+        $product = (new SpecificationFactory($context['PDO']))
             ->make($context['new-thing']);
 
         $product->define([$context['package'] => 'коробка',]);
 
         $this->assertTrue(
             true,
-            'Content'
-            . ' must be changed with success'
+            'Content must be changed with success'
         );
 
         return $context;
     }
 
     /**
-     * Добавляем новую модель в представление
+     * Проверим, что значение изменилось в представление
      * @depends testAddNewKind
      *
      * @param array $context
@@ -1017,10 +1017,13 @@ class AutomatedProcessTest extends TestCase
     }
 
     /**
-     * Добавляем новую модель в материализованное представление
+     * Проверим, что значение изменилось в
+     * материализованном представлении
+     *
      * @depends testAddNewKind
      *
      * @param array $context
+     *
      * @throws Exception
      */
     public function testChangeContentWithinMathView(array $context)
@@ -1044,7 +1047,7 @@ class AutomatedProcessTest extends TestCase
     }
 
     /**
-     * Добавляем новую модель в таблицу
+     * Проверим, что значение изменилось в таблице
      * @depends testAddNewKind
      *
      * @param array $context
@@ -1095,7 +1098,7 @@ class AutomatedProcessTest extends TestCase
 
         foreach ($products as $productCode) {
             /** @var string $productCode */
-            $product = (new ProductFactory($context['PDO']))
+            $product = (new SpecificationFactory($context['PDO']))
                 ->make($productCode);
             $product->detach(['package']);
         }
@@ -1197,7 +1200,7 @@ class AutomatedProcessTest extends TestCase
         $essence = $context['essence'];
         $item = $context['new-thing'];
         /* Удаляем модель */
-        $product = (new ProductFactory($linkToData))
+        $product = (new SpecificationFactory($linkToData))
             ->make($item);
         $category = (new CategoryFactory($context['PDO']))
             ->make($essence);

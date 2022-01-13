@@ -2,17 +2,17 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 3:02
+ * 14.01.2022, 3:25
  */
 
 namespace AllThings\ControlPanel\Relation;
 
 use AllThings\ControlPanel\ContentAccessFactory;
-use AllThings\ControlPanel\Product;
+use AllThings\ControlPanel\Specification;
 use AllThings\SearchEngine\Searchable;
 use PDO;
 
-class ProductFactory
+class SpecificationFactory
 {
     private PDO $db;
 
@@ -21,13 +21,13 @@ class ProductFactory
         $this->db = $connection;
     }
 
-    public function make(string $code): Product
+    public function make(string $code): Specification
     {
         $factory = new ContentAccessFactory(
             $this->db,
             Searchable::DATA_LOCATION
         );
-        $product = new Product($code, $factory,);
+        $product = new Specification($code, $factory,);
 
         return $product;
     }
