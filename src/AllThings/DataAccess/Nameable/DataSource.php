@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 14.01.2022, 3:02
  */
 
 namespace AllThings\DataAccess\Nameable;
@@ -30,25 +30,18 @@ class DataSource implements ValuableReader
 
     public function select(Nameable $entity): bool
     {
-        $target_code = $entity->getCode();
+        $target = $entity->getCode();
 
-        $sqlText = 'select code,title,remark from '
-            . $this->tableName
-            . ' where code=:target_code';
+        $sqlText = "
+select code,title,remark 
+from $this->tableName
+where code=:target
+";
         $connection = $this->dataSource;
 
-        $connection->beginTransaction();
         $query = $connection->prepare($sqlText);
-        $query->bindParam(':target_code', $target_code);
+        $query->bindParam(':target', $target);
         $result = $query->execute();
-
-        $isSuccess = $result === true;
-        if ($isSuccess) {
-            $result = $connection->commit();
-        }
-        if (!$isSuccess) {
-            $connection->rollBack();
-        }
 
         $data = null;
         $isSuccess = $result === true;

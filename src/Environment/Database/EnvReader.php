@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 04.01.2022, 10:06
+ * 14.01.2022, 3:02
  */
 
 namespace Environment\Database;
@@ -17,18 +17,12 @@ class EnvReader implements EnvReading
     {
         if (!file_exists($path)) {
             throw new InvalidArgumentException(
-                sprintf(
-                    '%s does not exist',
-                    $path
-                )
+                "The file `$path` does not exist"
             );
         }
         if (!is_readable($path)) {
             throw new RuntimeException(
-                sprintf(
-                    '%s file is not readable',
-                    $path
-                )
+                "The file `$path` is not readable"
             );
         }
         $this->path = $path;

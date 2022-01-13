@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 14.01.2022, 3:02
  */
 
 namespace AllThings\DataAccess\Uniquable;
@@ -37,7 +37,7 @@ class UniqueManager implements UniquableManager
         return $result;
     }
 
-    private function getUniquableHandler(): Uniquable
+    private function getUniquableHandler(): UniquableHandler
     {
         $handler = new UniqueHandler(
             $this->uniqueness,

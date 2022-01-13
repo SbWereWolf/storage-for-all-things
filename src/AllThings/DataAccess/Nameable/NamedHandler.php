@@ -2,21 +2,17 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 9:02
+ * 14.01.2022, 3:02
  */
 
 namespace AllThings\DataAccess\Nameable;
 
-use AllThings\DataAccess\DataTransfer\Haves;
-use AllThings\DataAccess\DataTransfer\Retrievable;
 use AllThings\DataAccess\Uniquable\UniqueHandler;
 use PDO;
 
 class NamedHandler
     extends UniqueHandler
-    implements Valuable,
-               Retrievable,
-               Haves
+    implements NameableHandler
 {
     private string $dataSource;
     private ?Nameable $stuff;
@@ -33,7 +29,7 @@ class NamedHandler
     /**
      * @param Nameable $named
      */
-    public function setNamed(Nameable $named): static
+    public function setNamed(Nameable $named): NameableHandler
     {
         $this->stuff = $named;
 

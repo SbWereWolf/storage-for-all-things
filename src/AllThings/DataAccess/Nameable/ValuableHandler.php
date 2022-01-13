@@ -2,12 +2,12 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 14.01.2022, 3:02
  */
 
 namespace AllThings\DataAccess\Nameable;
 
-interface Valuable
+interface ValuableHandler
 {
     public function write(string $code): bool;
 

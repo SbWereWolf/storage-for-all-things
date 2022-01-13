@@ -2,18 +2,14 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 13:52
+ * 14.01.2022, 3:02
  */
 
 namespace AllThings\ControlPanel;
 
-use AllThings\DataAccess\Linkage\ForeignKey;
-use AllThings\DataAccess\Linkage\LinkageManager;
-use AllThings\DataAccess\Linkage\LinkageTable;
 use AllThings\DataAccess\Nameable\Nameable;
 use AllThings\DataAccess\Nameable\NamedEntity;
 use AllThings\DataAccess\Nameable\NamedManager;
-use AllThings\SearchEngine\Searchable;
 use Exception;
 use PDO;
 
@@ -21,52 +17,12 @@ class Operator
 {
     private PDO $db;
 
-
-    private const DATA_LOCATION = [
-        Searchable::SYMBOLS => 'word',
-        Searchable::DECIMAL => 'number',
-        Searchable::TIMESTAMP => 'time_moment',
-        Searchable::INTERVAL => 'time_interval',
-    ];
-
     /**
      * @param PDO $connection
      */
     public function __construct(PDO $connection)
     {
         $this->db = $connection;
-    }
-
-    public function makeCatalog(string $essence): EssenceRelated
-    {
-        $essenceKey = new ForeignKey('essence', 'id', 'code');
-        $thingKey = new ForeignKey('thing', 'id', 'code');
-        $table = new LinkageTable(
-            'essence_thing',
-            'essence_id',
-            'thing_id',
-        );
-        $details = new LinkageManager(
-            $this->db,
-            $table,
-            $essenceKey,
-            $thingKey,
-        );
-
-        $catalog = new EssenceRelated($essence, $details,);
-
-        return $catalog;
-    }
-
-    public function makeProduct(string $code): Product
-    {
-        $factory = new ContentAccessFactory(
-            $this->db,
-            static::DATA_LOCATION
-        );
-        $product = new Product($code, $factory,);
-
-        return $product;
     }
 
     /**

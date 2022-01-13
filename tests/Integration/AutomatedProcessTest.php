@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 13:52
+ * 14.01.2022, 3:02
  */
 
 namespace Integration;
@@ -10,6 +10,9 @@ namespace Integration;
 use AllThings\ControlPanel\Browser;
 use AllThings\ControlPanel\Operator;
 use AllThings\ControlPanel\Redactor;
+use AllThings\ControlPanel\Relation\CatalogFactory;
+use AllThings\ControlPanel\Relation\CategoryFactory;
+use AllThings\ControlPanel\Relation\ProductFactory;
 use AllThings\DataAccess\Crossover\Crossover;
 use AllThings\DataAccess\Nameable\NamedEntity;
 use AllThings\DataAccess\Nameable\NamedManager;
@@ -41,7 +44,7 @@ class AutomatedProcessTest extends TestCase
         $path = implode(DIRECTORY_SEPARATOR, $pathParts);
         $linkToData = (new PdoConnection($path))->get();
 
-        $isSuccess = static::USE_TRANSACTION;
+        $isSuccess = true;
         if (static::USE_TRANSACTION) {
             $isSuccess = $linkToData->beginTransaction();
         }
@@ -135,7 +138,8 @@ class AutomatedProcessTest extends TestCase
     }
 
     /**
-     * Задаём характеристики для сущности
+     * Настраиваем категорию
+     *
      * @depends testKindCreate
      *
      * @param array $context
@@ -149,8 +153,8 @@ class AutomatedProcessTest extends TestCase
          характеристики для предметов этого типа) */
         $essence = $context['essence'];
 
-        $redactor = new Redactor($context['PDO']);
-        $category = $redactor->makeCategory($essence);
+        $category = (new CategoryFactory($context['PDO']))
+            ->make($essence);
         $attributes = [
             'price',
             'production-date',
@@ -184,24 +188,29 @@ class AutomatedProcessTest extends TestCase
         $titles['bun-with-raisins'] = 'Булочка с изюмом';
         $titles['cinnamon-bun'] = 'Булочка с корицей';
 
+        $linkToData = $context['PDO'];
         $essence = $context['essence'];
-        $redactor = new Redactor($context['PDO']);
 
-        $category = $redactor->makeCategory($essence);
+        $category = (new CategoryFactory($linkToData))
+            ->make($essence);
         $attributes = $category->list();
 
         $operator = new Operator($context['PDO']);
-        $catalog = $operator->makeCatalog($essence);
+        $catalog = (new CatalogFactory($linkToData))->make($essence);
         foreach ($titles as $code => $title) {
             $thing = $operator->create($code, $title,);
             $context[$code] = $code;
 
-            $product = $operator->makeProduct($thing->getCode());
+            $product = (new ProductFactory($context['PDO']))
+                ->make($thing->getCode());
             $product->attach($attributes);
             $catalog->attach($thing->getCode());
         }
 
-        $this->assertTrue(true, "Thing must be created with success");
+        $this->assertTrue(
+            true,
+            "Thing must be created with success"
+        );
 
         return $context;
     }
@@ -218,8 +227,6 @@ class AutomatedProcessTest extends TestCase
     public function testCreateContent(array $context): array
     {
         /* ## S001A2S03 задать значения для характеристики предмета */
-        $linkToData = $context['PDO'];
-
         $codes = [
             /* модель */
             $context['bun-with-jam'] => [
@@ -240,12 +247,16 @@ class AutomatedProcessTest extends TestCase
             ],
         ];
 
-        $operator = new Operator($linkToData);
+        $linkToData = $context['PDO'];
         foreach ($codes as $code => $settings) {
-            $product = $operator->makeProduct($code);
+            $product = (new ProductFactory($linkToData))
+                ->make($code);
             $product->define($settings);
         }
-        $this->assertTrue(true, 'Content must be created with success');
+        $this->assertTrue(
+            true,
+            'Content must be created with success'
+        );
 
         return $context;
     }
@@ -260,10 +271,16 @@ class AutomatedProcessTest extends TestCase
     public function testCreateView(array $context)
     {
         /* S001A4S02 создать представление */
-        $schema = new StorageManager($context['PDO'], $context['essence']);
+        $schema = new StorageManager(
+            $context['PDO'],
+            $context['essence']
+        );
         $schema->handleWithDirectReading();
 
-        $this->assertTrue(true, 'View must be created with success');
+        $this->assertTrue(
+            true,
+            'View must be created with success'
+        );
     }
 
     /**
@@ -537,7 +554,10 @@ class AutomatedProcessTest extends TestCase
     public function testCreateMathView(array $context)
     {
         /* S001A4S02 создать материализованное представление */
-        $schema = new StorageManager($context['PDO'], $context['essence']);
+        $schema = new StorageManager(
+            $context['PDO'],
+            $context['essence']
+        );
         $schema->handleWithRapidObtainment();
 
         $this->assertTrue(
@@ -624,10 +644,16 @@ class AutomatedProcessTest extends TestCase
     public function testCreateTable(array $context)
     {
         /* S001A4S02 создать представление */
-        $schema = new StorageManager($context['PDO'], $context['essence']);
+        $schema = new StorageManager(
+            $context['PDO'],
+            $context['essence']
+        );
         $schema->handleWithRapidRecording();
 
-        $this->assertTrue(true, 'Table must be created with success');
+        $this->assertTrue(
+            true,
+            'Table must be created with success'
+        );
     }
 
     /**
@@ -709,21 +735,25 @@ class AutomatedProcessTest extends TestCase
     {
         $linkToData = $context['PDO'];
         $context['new-thing'] = 'new-thing';
-        $operator = new Operator($linkToData);
         $essence = $context['essence'];
 
         /* добавляем модель, задаём для неё атрибуты */
         /* даём модели название */
-        $thing = $operator->create($context['new-thing'], 'новая модель',);
+        $operator = new Operator($linkToData);
+        $thing = $operator->create(
+            $context['new-thing'],
+            'новая модель',
+        );
 
-        $redactor = new Redactor($linkToData);
-        $category = $redactor->makeCategory($essence);
+        $product = (new ProductFactory($context['PDO']))
+            ->make($thing->getCode());
+        $category = (new CategoryFactory($context['PDO']))
+            ->make($essence);
+
         $attributes = $category->list();
-
-        $product = $operator->makeProduct($thing->getCode());
         $product->attach($attributes);
 
-        $catalog = $operator->makeCatalog($essence);
+        $catalog = (new CatalogFactory($linkToData))->make($essence);
         $catalog->attach($thing->getCode());
 
         /* задаём характеристики модели */
@@ -734,7 +764,10 @@ class AutomatedProcessTest extends TestCase
         ];
         $product->define($definition);
 
-        $this->assertTrue(true, 'Item must be created with success');
+        $this->assertTrue(
+            true,
+            'Item must be created with success'
+        );
 
         return $context;
     }
@@ -748,7 +781,10 @@ class AutomatedProcessTest extends TestCase
      */
     public function testAddNewItemToView(array $context)
     {
-        $schema = new StorageManager($context['PDO'], $context['essence']);
+        $schema = new StorageManager(
+            $context['PDO'],
+            $context['essence']
+        );
         $schema->change(Storable::DIRECT_READING);
         $schema->refresh();
 
@@ -766,7 +802,10 @@ class AutomatedProcessTest extends TestCase
      */
     public function testAddNewItemToMathView(array $context)
     {
-        $schema = new StorageManager($context['PDO'], $context['essence']);
+        $schema = new StorageManager(
+            $context['PDO'],
+            $context['essence']
+        );
         $schema->change(Storable::RAPID_OBTAINMENT);
         $schema->refresh();
 
@@ -784,7 +823,10 @@ class AutomatedProcessTest extends TestCase
      */
     public function testAddNewItemToTable(array $context)
     {
-        $schema = new StorageManager($context['PDO'], $context['essence']);
+        $schema = new StorageManager(
+            $context['PDO'],
+            $context['essence']
+        );
         $schema->change(Storable::RAPID_RECORDING);
         $schema->refresh();
 
@@ -833,7 +875,8 @@ class AutomatedProcessTest extends TestCase
             $context[$code] = $code;
 
             /* Добавим сущности cake новую характеристику package */
-            $category = $redactor->makeCategory($essence);
+            $category = (new CategoryFactory($context['PDO']))
+                ->make($essence);
             $category->attach($code);
         }
 
@@ -845,11 +888,11 @@ class AutomatedProcessTest extends TestCase
             'cinnamon-bun' => 'пакет',
             'new-thing' => 'пакет',
         ];
-        $operator = new Operator($linkToData);
         foreach ($thingList as $thing => $value) {
             $context[$thing] = $thing;
 
-            $product = $operator->makeProduct($thing);
+            $product = (new ProductFactory($context['PDO']))
+                ->make($thing);
             $product->attach([$code]);
             $product->define([$code => $value]);
         }
@@ -866,7 +909,10 @@ class AutomatedProcessTest extends TestCase
      */
     public function testAddNewKindToView(array $context)
     {
-        $schema = new StorageManager($context['PDO'], $context['essence']);
+        $schema = new StorageManager(
+            $context['PDO'],
+            $context['essence']
+        );
         $schema->change(Storable::DIRECT_READING);
         $schema->setup();
 
@@ -885,7 +931,10 @@ class AutomatedProcessTest extends TestCase
      */
     public function testAddNewKindToMathView(array $context)
     {
-        $schema = new StorageManager($context['PDO'], $context['essence']);
+        $schema = new StorageManager(
+            $context['PDO'],
+            $context['essence']
+        );
         $schema->change(Storable::RAPID_OBTAINMENT);
         $schema->setup();
 
@@ -903,7 +952,10 @@ class AutomatedProcessTest extends TestCase
      */
     public function testAddNewKindToTable(array $context)
     {
-        $schema = new StorageManager($context['PDO'], $context['essence']);
+        $schema = new StorageManager(
+            $context['PDO'],
+            $context['essence']
+        );
         $schema->change(Storable::RAPID_RECORDING);
         $schema->setup();
 
@@ -923,8 +975,8 @@ class AutomatedProcessTest extends TestCase
      */
     public function testChangeContent(array $context): array
     {
-        $operator = new Operator($context['PDO']);
-        $product = $operator->makeProduct($context['new-thing']);
+        $product = (new ProductFactory($context['PDO']))
+            ->make($context['new-thing']);
 
         $product->define([$context['package'] => 'коробка',]);
 
@@ -946,7 +998,10 @@ class AutomatedProcessTest extends TestCase
      */
     public function testChangeContentWithinView(array $context)
     {
-        $schema = new StorageManager($context['PDO'], $context['essence']);
+        $schema = new StorageManager(
+            $context['PDO'],
+            $context['essence']
+        );
         $schema->change(Storable::DIRECT_READING);
         $schema->refresh();
 
@@ -970,7 +1025,10 @@ class AutomatedProcessTest extends TestCase
      */
     public function testChangeContentWithinMathView(array $context)
     {
-        $schema = new StorageManager($context['PDO'], $context['essence']);
+        $schema = new StorageManager(
+            $context['PDO'],
+            $context['essence']
+        );
         $schema->change(Storable::RAPID_OBTAINMENT);
         $schema->refresh();
 
@@ -994,7 +1052,10 @@ class AutomatedProcessTest extends TestCase
      */
     public function testChangeContentWithinTable(array $context)
     {
-        $schema = new StorageManager($context['PDO'], $context['essence']);
+        $schema = new StorageManager(
+            $context['PDO'],
+            $context['essence']
+        );
         $schema->change(Storable::RAPID_RECORDING);
 
         $content = (new Crossover())->setContent('коробка');
@@ -1029,18 +1090,18 @@ class AutomatedProcessTest extends TestCase
         $essence = $context['essence'];
 
         /* Удалим у сущности cake характеристику package */
-        $operator = new Operator($linkToData);
-        $catalog = $operator->makeCatalog($essence);
+        $catalog = (new CatalogFactory($linkToData))->make($essence);
         $products = $catalog->list();
 
         foreach ($products as $productCode) {
             /** @var string $productCode */
-            $product = $operator->makeProduct($productCode);
+            $product = (new ProductFactory($context['PDO']))
+                ->make($productCode);
             $product->detach(['package']);
         }
 
-        $redactor = new Redactor($linkToData);
-        $category = $redactor->makeCategory($essence);
+        $category = (new CategoryFactory($context['PDO']))
+            ->make($essence);
         $category->detach('package');
 
         $this->assertTrue(true);
@@ -1060,7 +1121,10 @@ class AutomatedProcessTest extends TestCase
      */
     public function testUnlinkKindWithView(array $context)
     {
-        $schema = new StorageManager($context['PDO'], $context['essence']);
+        $schema = new StorageManager(
+            $context['PDO'],
+            $context['essence']
+        );
         $schema->change(Storable::DIRECT_READING);
         $schema->prune('package');
 
@@ -1081,7 +1145,10 @@ class AutomatedProcessTest extends TestCase
      */
     public function testUnlinkKindWithMathView(array $context)
     {
-        $schema = new StorageManager($context['PDO'], $context['essence']);
+        $schema = new StorageManager(
+            $context['PDO'],
+            $context['essence']
+        );
         $schema->change(Storable::RAPID_OBTAINMENT);
         $schema->prune('package');
 
@@ -1102,7 +1169,10 @@ class AutomatedProcessTest extends TestCase
      */
     public function testUnlinkKindWithTable(array $context)
     {
-        $schema = new StorageManager($context['PDO'], $context['essence']);
+        $schema = new StorageManager(
+            $context['PDO'],
+            $context['essence']
+        );
         $schema->change(Storable::RAPID_RECORDING);
         $schema->prune('package');
 
@@ -1127,17 +1197,15 @@ class AutomatedProcessTest extends TestCase
         $essence = $context['essence'];
         $item = $context['new-thing'];
         /* Удаляем модель */
-        $redactor = new Redactor($linkToData);
+        $product = (new ProductFactory($linkToData))
+            ->make($item);
+        $category = (new CategoryFactory($context['PDO']))
+            ->make($essence);
 
-        $category = $redactor->makeCategory($essence);
         $attributes = $category->list();
-
-        $operator = new Operator($linkToData);
-        $product = $operator->makeProduct($item);
-
         $product->purge($attributes);
 
-        $catalog = $operator->makeCatalog($essence);
+        $catalog = (new CatalogFactory($linkToData))->make($essence);
         $catalog->detach($item);
 
         $default = (new NamedEntity())->setCode($item);
@@ -1164,7 +1232,10 @@ class AutomatedProcessTest extends TestCase
      */
     public function testRemoveItemWithView(array $context)
     {
-        $schema = new StorageManager($context['PDO'], $context['essence']);
+        $schema = new StorageManager(
+            $context['PDO'],
+            $context['essence']
+        );
         $schema->change(Storable::DIRECT_READING);
         $schema->refresh();
 
@@ -1185,7 +1256,10 @@ class AutomatedProcessTest extends TestCase
      */
     public function testRemoveItemWithMathView(array $context)
     {
-        $schema = new StorageManager($context['PDO'], $context['essence']);
+        $schema = new StorageManager(
+            $context['PDO'],
+            $context['essence']
+        );
         $schema->change(Storable::RAPID_OBTAINMENT);
         $schema->refresh();
 
@@ -1205,7 +1279,10 @@ class AutomatedProcessTest extends TestCase
      */
     public function testRemoveItemWithTable(array $context)
     {
-        $schema = new StorageManager($context['PDO'], $context['essence']);
+        $schema = new StorageManager(
+            $context['PDO'],
+            $context['essence']
+        );
         $schema->change(Storable::RAPID_RECORDING);
         $schema->refresh();
 
