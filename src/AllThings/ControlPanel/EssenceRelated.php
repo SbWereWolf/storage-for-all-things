@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 17:50
+ * 13.01.2022, 13:52
  */
 
 namespace AllThings\ControlPanel;
@@ -12,51 +12,51 @@ use AllThings\DataAccess\Linkage\Linkage;
 use AllThings\DataAccess\Linkage\LinkageManager;
 use Exception;
 
-class Category
+class EssenceRelated
 {
     private string $essence;
-    private LinkageManager $category;
+    private LinkageManager $relation;
 
     /**
      * @param string         $essence
-     * @param LinkageManager $category
+     * @param LinkageManager $relation
      */
     public function __construct(
         string $essence,
-        LinkageManager $category,
+        LinkageManager $relation,
     ) {
         $this->essence = $essence;
-        $this->category = $category;
+        $this->relation = $relation;
     }
 
-    public function attach(string $attribute): static
+    public function attach(string $related): static
     {
         $linkage = (new Linkage())
             ->setLeftValue($this->essence)
-            ->setRightValue($attribute);
+            ->setRightValue($related);
 
-        $isSuccess = $this->category->attach($linkage);
+        $isSuccess = $this->relation->attach($linkage);
 
         if (!$isSuccess) {
             throw new Exception(
-                'Attribute must be attached with success'
+                "Related `$related` must be attached with success"
             );
         }
 
         return $this;
     }
 
-    public function detach(string $attribute): static
+    public function detach(string $related): static
     {
         $linkage = (new Crossover())
             ->setLeftValue($this->essence)
-            ->setRightValue($attribute);
+            ->setRightValue($related);
 
-        $isSuccess = $this->category->detach($linkage);
+        $isSuccess = $this->relation->detach($linkage);
 
         if (!$isSuccess) {
             throw new Exception(
-                'Attribute must be detached with success'
+                "Related `$related` must be detached with success"
             );
         }
 
@@ -68,11 +68,11 @@ class Category
         $linkage = (new Crossover())
             ->setLeftValue($this->essence);
 
-        $isSuccess = $this->category->detach($linkage);
+        $isSuccess = $this->relation->detach($linkage);
 
         if (!$isSuccess) {
             throw new Exception(
-                'All Attribute must be detached with success'
+                'All Related must be detached with success'
             );
         }
 
@@ -84,7 +84,7 @@ class Category
         $linkage = (new Crossover())
             ->setLeftValue($this->essence);
 
-        $result = $this->category->getAssociated($linkage);
+        $result = $this->relation->getAssociated($linkage);
 
         return $result;
     }

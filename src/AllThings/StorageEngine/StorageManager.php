@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 9:02
+ * 13.01.2022, 13:52
  */
 
 namespace AllThings\StorageEngine;
@@ -111,7 +111,7 @@ class StorageManager
             'essence',
             $this->db
         );
-        $handler->setSubject($essence);
+        $handler->setEssence($essence);
 
         $isSuccess = $handler->correct();
         if (!$isSuccess) {
@@ -211,7 +211,7 @@ class StorageManager
             'essence',
             $this->db,
         );
-        $manager->setSubject($essence);
+        $manager->setEssence($essence);
 
         $isSuccess = $manager->browse();
         $result = null;

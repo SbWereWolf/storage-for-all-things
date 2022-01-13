@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 17:50
+ * 13.01.2022, 13:52
  */
 
 namespace AllThings\StorageEngine;
@@ -305,7 +305,7 @@ WHERE thing_id = (
                 'attribute',
                 $linkToData
             );
-            $attributeManager->setSubject($subject);
+            $attributeManager->setAttribute($subject);
 
             $isSuccess = $attributeManager->browse();
             if ($isSuccess) {

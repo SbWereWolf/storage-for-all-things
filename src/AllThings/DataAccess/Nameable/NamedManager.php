@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 9:02
+ * 13.01.2022, 13:52
  */
 
 namespace AllThings\DataAccess\Nameable;
@@ -79,7 +79,7 @@ class NamedManager
     /**
      * @param Nameable $subject
      */
-    public function setSubject(Nameable $subject): void
+    public function setNamed(Nameable $subject): void
     {
         $this->subject = $subject;
     }

@@ -2,16 +2,17 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 9:02
+ * 13.01.2022, 13:52
  */
 
 namespace Integration;
 
 use AllThings\ControlPanel\Browser;
+use AllThings\ControlPanel\Operator;
 use AllThings\ControlPanel\Redactor;
-use AllThings\ControlPanel\Specification;
 use AllThings\DataAccess\Crossover\Crossover;
-use AllThings\Interaction\System;
+use AllThings\DataAccess\Nameable\NamedEntity;
+use AllThings\DataAccess\Nameable\NamedManager;
 use AllThings\SearchEngine\ContinuousFilter;
 use AllThings\SearchEngine\DiscreteFilter;
 use AllThings\StorageEngine\Storable;
@@ -148,8 +149,8 @@ class AutomatedProcessTest extends TestCase
          характеристики для предметов этого типа) */
         $essence = $context['essence'];
 
-        $category = (new System($context['PDO']))
-            ->getCategory($essence);
+        $redactor = new Redactor($context['PDO']);
+        $category = $redactor->makeCategory($essence);
         $attributes = [
             'price',
             'production-date',
@@ -183,14 +184,21 @@ class AutomatedProcessTest extends TestCase
         $titles['bun-with-raisins'] = 'Булочка с изюмом';
         $titles['cinnamon-bun'] = 'Булочка с корицей';
 
+        $essence = $context['essence'];
+        $redactor = new Redactor($context['PDO']);
+
+        $category = $redactor->makeCategory($essence);
+        $attributes = $category->list();
+
+        $operator = new Operator($context['PDO']);
+        $catalog = $operator->makeCatalog($essence);
         foreach ($titles as $code => $title) {
+            $thing = $operator->create($code, $title,);
             $context[$code] = $code;
 
-            $operator = new Specification($context['PDO'], $code);
-            $operator->create(
-                $context['essence'],
-                $title,
-            );
+            $product = $operator->makeProduct($thing->getCode());
+            $product->attach($attributes);
+            $catalog->attach($thing->getCode());
         }
 
         $this->assertTrue(true, "Thing must be created with success");
@@ -232,9 +240,10 @@ class AutomatedProcessTest extends TestCase
             ],
         ];
 
+        $operator = new Operator($linkToData);
         foreach ($codes as $code => $settings) {
-            $operator = new Specification($linkToData, $code);
-            $operator->define($settings);
+            $product = $operator->makeProduct($code);
+            $product->define($settings);
         }
         $this->assertTrue(true, 'Content must be created with success');
 
@@ -700,13 +709,22 @@ class AutomatedProcessTest extends TestCase
     {
         $linkToData = $context['PDO'];
         $context['new-thing'] = 'new-thing';
+        $operator = new Operator($linkToData);
+        $essence = $context['essence'];
+
         /* добавляем модель, задаём для неё атрибуты */
         /* даём модели название */
-        $operator = new Specification($linkToData, $context['new-thing']);
-        $operator->create(
-            $context['essence'],
-            'новая модель',
-        );
+        $thing = $operator->create($context['new-thing'], 'новая модель',);
+
+        $redactor = new Redactor($linkToData);
+        $category = $redactor->makeCategory($essence);
+        $attributes = $category->list();
+
+        $product = $operator->makeProduct($thing->getCode());
+        $product->attach($attributes);
+
+        $catalog = $operator->makeCatalog($essence);
+        $catalog->attach($thing->getCode());
 
         /* задаём характеристики модели */
         $definition = [
@@ -714,7 +732,7 @@ class AutomatedProcessTest extends TestCase
             $context['production-date'] => '20210531T0306',
             $context['place-of-production'] => 'Екатеринбург',
         ];
-        $operator->define($definition);
+        $product->define($definition);
 
         $this->assertTrue(true, 'Item must be created with success');
 
@@ -788,7 +806,6 @@ class AutomatedProcessTest extends TestCase
     {
         /* Добавляем новую характеристику package и задаём параметры
         этой характеристики */
-
         $codes = [
             'package' => [
                 'Title' => 'Упаковка',
@@ -800,10 +817,8 @@ class AutomatedProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $category = (new System($context['PDO']))
-            ->getCategory($essence);
+        $redactor = new Redactor($linkToData);
         foreach ($codes as $code => $settings) {
-            $redactor = new Redactor($linkToData);
             $attribute = $redactor->attribute(
                 $code,
                 $settings['DataType'],
@@ -818,6 +833,7 @@ class AutomatedProcessTest extends TestCase
             $context[$code] = $code;
 
             /* Добавим сущности cake новую характеристику package */
+            $category = $redactor->makeCategory($essence);
             $category->attach($code);
         }
 
@@ -829,11 +845,13 @@ class AutomatedProcessTest extends TestCase
             'cinnamon-bun' => 'пакет',
             'new-thing' => 'пакет',
         ];
+        $operator = new Operator($linkToData);
         foreach ($thingList as $thing => $value) {
             $context[$thing] = $thing;
 
-            $operator = new Specification($linkToData, $thing);
-            $operator->expand($code, $value);
+            $product = $operator->makeProduct($thing);
+            $product->attach([$code]);
+            $product->define([$code => $value]);
         }
 
         return $context;
@@ -905,11 +923,10 @@ class AutomatedProcessTest extends TestCase
      */
     public function testChangeContent(array $context): array
     {
-        $operator = new Specification(
-            $context['PDO'],
-            $context['new-thing'],
-        );
-        $operator->define([$context['package'] => 'коробка',]);
+        $operator = new Operator($context['PDO']);
+        $product = $operator->makeProduct($context['new-thing']);
+
+        $product->define([$context['package'] => 'коробка',]);
 
         $this->assertTrue(
             true,
@@ -1011,13 +1028,20 @@ class AutomatedProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $category = (new System($linkToData))
-            ->getCategory($essence);
-
         /* Удалим у сущности cake характеристику package */
-        $category->detach(
-            'package',
-        );
+        $operator = new Operator($linkToData);
+        $catalog = $operator->makeCatalog($essence);
+        $products = $catalog->list();
+
+        foreach ($products as $productCode) {
+            /** @var string $productCode */
+            $product = $operator->makeProduct($productCode);
+            $product->detach(['package']);
+        }
+
+        $redactor = new Redactor($linkToData);
+        $category = $redactor->makeCategory($essence);
+        $category->detach('package');
 
         $this->assertTrue(true);
 
@@ -1100,11 +1124,27 @@ class AutomatedProcessTest extends TestCase
     public function testRemoveItem(array $context): array
     {
         $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+        $item = $context['new-thing'];
         /* Удаляем модель */
-        $operator = new Specification($linkToData, $context['new-thing']);
-        $isSuccess = $operator->remove(
-            $context['essence'],
-        );
+        $redactor = new Redactor($linkToData);
+
+        $category = $redactor->makeCategory($essence);
+        $attributes = $category->list();
+
+        $operator = new Operator($linkToData);
+        $product = $operator->makeProduct($item);
+
+        $product->purge($attributes);
+
+        $catalog = $operator->makeCatalog($essence);
+        $catalog->detach($item);
+
+        $default = (new NamedEntity())->setCode($item);
+        $named = new NamedManager($item, 'thing', $linkToData);
+        $named->setNamed($default);
+
+        $isSuccess = $named->remove();
         $this->assertTrue(
             $isSuccess,
             'Item must be created with success',

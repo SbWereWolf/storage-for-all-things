@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 9:03
+ * 13.01.2022, 13:52
  */
 
 namespace AllThings\Blueprint\Attribute;
@@ -135,7 +135,7 @@ class AttributeManager
     /**
      * @param IAttribute|null $stuff
      */
-    public function setSubject(IAttribute $stuff): static
+    public function setAttribute(IAttribute $stuff): static
     {
         $this->stuff = $stuff;
 

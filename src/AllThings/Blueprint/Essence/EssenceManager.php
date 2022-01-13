@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 9:02
+ * 13.01.2022, 13:52
  */
 
 namespace AllThings\Blueprint\Essence;
@@ -69,7 +69,7 @@ class EssenceManager extends UniqueManager implements IEssenceManager
     /**
      * @param IEssence|null $subject
      */
-    public function setSubject(IEssence $subject): bool
+    public function setEssence(IEssence $subject): bool
     {
         $this->subject = $subject;
 

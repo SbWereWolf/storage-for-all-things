@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 11.01.2022, 6:21
+ * 13.01.2022, 13:52
  */
 
 namespace AllThings\Blueprint\Attribute;
@@ -37,7 +37,7 @@ class AttributeHelper
             'attribute',
             $dataPath,
         );
-        $manager->setSubject($default);
+        $manager->setAttribute($default);
         return $manager;
     }
 
