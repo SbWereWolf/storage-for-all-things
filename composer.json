@@ -1,6 +1,16 @@
 {
+    "name": "sbwerewolf/eav-manager",
+    "description": "Library for manage EAV structure and data",
+    "type": "library",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Nikolay Volkhin",
+            "email": "ulfnew@gmail.com"
+        }
+    ],
     "require": {
-        "php": "~8",
+        "php": ">=8",
         "ext-pdo": "*",
         "ext-json": "*",
         "ext-mbstring": "*"
