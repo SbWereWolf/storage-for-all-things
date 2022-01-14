@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 6:42
+ * 14.01.2022, 6:43
  */
 
 namespace AllThings\ControlPanel;
@@ -50,44 +50,6 @@ class Manager
         if ($values) {
             $specification->define($values);
         }
-    }
-
-    /**
-     * @param string $product
-     *
-     * @return string
-     */
-    private function getCategoryOfProduct(string $product): string
-    {
-        $leftKey = new ForeignKey('thing', 'id', 'code',);
-        $rightKey = new ForeignKey('essence', 'id', 'code',);
-        $table = new LinkageTable(
-            'essence_thing',
-            $leftKey,
-            $rightKey,
-        );
-        $manager = new LinkageManager($this->db, $table);
-
-        $linkage = (new Linkage())->setLeftValue($product);
-        $essence = $manager->getAssociated($linkage)[0];
-
-        return $essence;
-    }
-
-    /**
-     * @param string $product
-     *
-     * @return Specification
-     */
-    private function makeSpecification(string $product): Specification
-    {
-        $access = new ContentAccessFactory(
-            $this->db,
-            Searchable::DATA_LOCATION,
-        );
-        $specification = new Specification($product, $access);
-
-        return $specification;
     }
 
     public function updateProduct(string $product, array $values)
@@ -188,5 +150,43 @@ class Manager
         $result = $manager->remove();
 
         return $result;
+    }
+
+    /**
+     * @param string $product
+     *
+     * @return string
+     */
+    private function getCategoryOfProduct(string $product): string
+    {
+        $leftKey = new ForeignKey('thing', 'id', 'code',);
+        $rightKey = new ForeignKey('essence', 'id', 'code',);
+        $table = new LinkageTable(
+            'essence_thing',
+            $leftKey,
+            $rightKey,
+        );
+        $manager = new LinkageManager($this->db, $table);
+
+        $linkage = (new Linkage())->setLeftValue($product);
+        $essence = $manager->getAssociated($linkage)[0];
+
+        return $essence;
+    }
+
+    /**
+     * @param string $product
+     *
+     * @return Specification
+     */
+    private function makeSpecification(string $product): Specification
+    {
+        $access = new ContentAccessFactory(
+            $this->db,
+            Searchable::DATA_LOCATION,
+        );
+        $specification = new Specification($product, $access);
+
+        return $specification;
     }
 }
