@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 6:20
+ * 14.01.2022, 6:42
  */
 
 namespace AllThings\ControlPanel;
@@ -157,7 +157,7 @@ class Manager
         $features = $blueprint->list();
 
         $specification = $this->makeSpecification($product);
-        $specification->detach($features);
+        $specification->purge($features);
 
         $manager = new NamedManager($product, 'thing', $this->db);
         $result = $manager->remove();
@@ -169,22 +169,23 @@ class Manager
     {
         $blueprint = (new BlueprintFactory($this->db))->make($category);
         $features = $blueprint->list();
+        $blueprint->purge();
 
         $catalog = (new CatalogFactory($this->db))->make($category);
         $products = $catalog->list();
         foreach ($products as $product) {
             $specification = $this->makeSpecification($product);
-            $specification->detach($features);
+            $specification->purge($features);
+        }
 
-            $catalog->detach($product);
-
+        $catalog->purge();
+        foreach ($products as $product) {
             $thing = new NamedManager($product, 'thing', $this->db);
             $thing->remove();
         }
 
         $manager = new NamedManager($category, 'essence', $this->db);
         $result = $manager->remove();
-
 
         return $result;
     }

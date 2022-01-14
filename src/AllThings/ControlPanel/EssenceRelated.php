@@ -2,12 +2,11 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 13:52
+ * 14.01.2022, 6:42
  */
 
 namespace AllThings\ControlPanel;
 
-use AllThings\DataAccess\Crossover\Crossover;
 use AllThings\DataAccess\Linkage\Linkage;
 use AllThings\DataAccess\Linkage\LinkageManager;
 use Exception;
@@ -48,7 +47,7 @@ class EssenceRelated
 
     public function detach(string $related): static
     {
-        $linkage = (new Crossover())
+        $linkage = (new Linkage())
             ->setLeftValue($this->essence)
             ->setRightValue($related);
 
@@ -65,7 +64,7 @@ class EssenceRelated
 
     public function purge(): static
     {
-        $linkage = (new Crossover())
+        $linkage = (new Linkage())
             ->setLeftValue($this->essence);
 
         $isSuccess = $this->relation->detach($linkage);
@@ -81,7 +80,7 @@ class EssenceRelated
 
     public function list(): array
     {
-        $linkage = (new Crossover())
+        $linkage = (new Linkage())
             ->setLeftValue($this->essence);
 
         $result = $this->relation->getAssociated($linkage);
