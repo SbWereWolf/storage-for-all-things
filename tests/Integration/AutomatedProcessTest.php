@@ -2,16 +2,16 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 3:25
+ * 14.01.2022, 6:19
  */
 
 namespace Integration;
 
-use AllThings\ControlPanel\Blueprint;
 use AllThings\ControlPanel\Browser;
-use AllThings\ControlPanel\Operator;
+use AllThings\ControlPanel\Designer;
+use AllThings\ControlPanel\ProductionLine;
+use AllThings\ControlPanel\Relation\BlueprintFactory;
 use AllThings\ControlPanel\Relation\CatalogFactory;
-use AllThings\ControlPanel\Relation\CategoryFactory;
 use AllThings\ControlPanel\Relation\SpecificationFactory;
 use AllThings\DataAccess\Crossover\Crossover;
 use AllThings\DataAccess\Nameable\NamedEntity;
@@ -70,8 +70,8 @@ class AutomatedProcessTest extends TestCase
         $linkToData = $context['PDO'];
 
         /* ## S001A1S01 создать сущность для предметов типа "пирожок" */
-        $redactor = new Blueprint($linkToData);
-        $essence = $redactor->essence(
+        $designer = new Designer($linkToData);
+        $essence = $designer->essence(
             'cake',
             'The Cakes',
             'Cakes  of all kinds',
@@ -119,8 +119,8 @@ class AutomatedProcessTest extends TestCase
         ];
 
         foreach ($codes as $code => $settings) {
-            $redactor = new Blueprint($context['PDO']);
-            $attribute = $redactor->attribute(
+            $designer = new Designer($context['PDO']);
+            $attribute = $designer->attribute(
                 $code,
                 $settings['DataType'],
                 $settings['RangeType'],
@@ -153,7 +153,7 @@ class AutomatedProcessTest extends TestCase
          характеристики для предметов этого типа) */
         $essence = $context['essence'];
 
-        $category = (new CategoryFactory($context['PDO']))
+        $blueprint = (new BlueprintFactory($context['PDO']))
             ->make($essence);
         $attributes = [
             'price',
@@ -161,7 +161,7 @@ class AutomatedProcessTest extends TestCase
             'place-of-production'
         ];
         foreach ($attributes as $attribute) {
-            $category->attach($attribute);
+            $blueprint->attach($attribute);
         }
 
         $this->assertTrue(true);
@@ -192,25 +192,26 @@ class AutomatedProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $category = (new CategoryFactory($linkToData))
+        $blueprint = (new BlueprintFactory($linkToData))
             ->make($essence);
-        $attributes = $category->list();
+        $attributes = $blueprint->list();
 
-        $operator = new Operator($context['PDO']);
+        $productionLine = new ProductionLine($linkToData);
         $catalog = (new CatalogFactory($linkToData))->make($essence);
         foreach ($titles as $code => $title) {
-            $thing = $operator->create($code, $title,);
-            $context[$code] = $code;
+            $product = $productionLine->create($code, $title,);
+            $specification = (new SpecificationFactory($linkToData))
+                ->make($product->getCode());
 
-            $product = (new SpecificationFactory($context['PDO']))
-                ->make($thing->getCode());
-            $product->attach($attributes);
-            $catalog->attach($thing->getCode());
+            $specification->attach($attributes);
+            $catalog->attach($product->getCode());
+
+            $context[$code] = $code;
         }
 
         $this->assertTrue(
             true,
-            "Thing must be created with success"
+            'Thing must be created with success'
         );
 
         return $context;
@@ -250,9 +251,9 @@ class AutomatedProcessTest extends TestCase
 
         $linkToData = $context['PDO'];
         foreach ($codes as $code => $settings) {
-            $product = (new SpecificationFactory($linkToData))
+            $specification = (new SpecificationFactory($linkToData))
                 ->make($code);
-            $product->define($settings);
+            $specification->define($settings);
         }
         $this->assertTrue(
             true,
@@ -297,6 +298,7 @@ class AutomatedProcessTest extends TestCase
         (без фильтрации) */
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
+
         $this->checkShowAll($context, $data);
     }
 
@@ -326,31 +328,31 @@ class AutomatedProcessTest extends TestCase
             "Essence `$essence` must have ($properNumbers) things"
         );
 
-        $thingTested = 0;
-        foreach ($data as $thing) {
-            $code = $thing['code'];
+        $productTested = 0;
+        foreach ($data as $product) {
+            $code = $product['code'];
             switch ($code) {
                 case $context['bun-with-jam']:
                     $isProper = true;
                     /** @noinspection PhpConditionAlreadyCheckedInspection */
                     $isProper = $isProper
-                        && $thing[$context['price']] === '15.5000';
+                        && $product[$context['price']] === '15.5000';
                     $isProper = $isProper
-                        && $thing[$context['production-date']]
+                        && $product[$context['production-date']]
                         === '2018-04-29 13:56:00+00';
                     $isProper = $isProper
-                        && $thing[$context['place-of-production']]
+                        && $product[$context['place-of-production']]
                         === 'Екатеринбург';
 
                     if ($isProper && !$withExtended) {
                         $isProper = !key_exists(
                             $context['package'] ?? '',
-                            $thing,
+                            $product,
                         );
                     }
 
                     if ($isProper && $withExtended) {
-                        $isProper = $thing[$context['package']]
+                        $isProper = $product[$context['package']]
                             === 'без упаковки';
                     }
 
@@ -359,29 +361,29 @@ class AutomatedProcessTest extends TestCase
                         "Thing `$code`"
                         . ' must have same content as defined'
                     );
-                    $thingTested++;
+                    $productTested++;
                     break;
                 case $context['bun-with-raisins']:
                     $isProper = true;
                     /** @noinspection PhpConditionAlreadyCheckedInspection */
                     $isProper = $isProper
-                        && $thing[$context['price']] === '9.5000';
+                        && $product[$context['price']] === '9.5000';
                     $isProper = $isProper
-                        && $thing[$context['production-date']]
+                        && $product[$context['production-date']]
                         === '2018-04-27 00:00:00+00';
                     $isProper = $isProper
-                        && $thing[$context['place-of-production']]
+                        && $product[$context['place-of-production']]
                         === 'Екатеринбург';
 
                     if ($isProper && !$withExtended) {
                         $isProper = !key_exists(
                             $context['package'] ?? '',
-                            $thing,
+                            $product,
                         );
                     }
 
                     if ($isProper && $withExtended) {
-                        $isProper = $thing[$context['package']]
+                        $isProper = $product[$context['package']]
                             === 'без упаковки';
                     }
 
@@ -390,29 +392,29 @@ class AutomatedProcessTest extends TestCase
                         "Thing `$code`"
                         . ' must have same content as defined'
                     );
-                    $thingTested++;
+                    $productTested++;
                     break;
                 case $context['cinnamon-bun']:
                     $isProper = true;
                     /** @noinspection PhpConditionAlreadyCheckedInspection */
                     $isProper = $isProper
-                        && $thing[$context['price']] === '4.5000';
+                        && $product[$context['price']] === '4.5000';
                     $isProper = $isProper
-                        && $thing[$context['production-date']]
+                        && $product[$context['production-date']]
                         === '2018-04-29 00:00:00+00';
                     $isProper = $isProper
-                        && $thing[$context['place-of-production']]
+                        && $product[$context['place-of-production']]
                         === 'Челябинск';
 
                     if ($isProper && !$withExtended) {
                         $isProper = !key_exists(
                             $context['package'] ?? '',
-                            $thing,
+                            $product,
                         );
                     }
 
                     if ($isProper && $withExtended) {
-                        $isProper = $thing[$context['package']]
+                        $isProper = $product[$context['package']]
                             === 'пакет';
                     }
 
@@ -421,26 +423,26 @@ class AutomatedProcessTest extends TestCase
                         "Thing `$code`"
                         . ' must have same content as defined'
                     );
-                    $thingTested++;
+                    $productTested++;
                     break;
                 case $context['new-thing']:
                     $isProper = true;
                     /** @noinspection PhpConditionAlreadyCheckedInspection */
                     $isProper = $isProper
-                        && $thing[$context['price']] === '11.1100';
+                        && $product[$context['price']] === '11.1100';
                     $isProper = $isProper
-                        && $thing[$context['production-date']]
+                        && $product[$context['production-date']]
                         === '2021-05-31 03:06:00+00';
                     $isProper = $isProper
-                        && $thing[$context['place-of-production']]
+                        && $product[$context['place-of-production']]
                         === 'Екатеринбург';
 
                     if ($isProper && $withExtended && !$withChanges) {
-                        $isProper = $thing[$context['package']]
+                        $isProper = $product[$context['package']]
                             === 'пакет';
                     }
                     if ($isProper && $withChanges) {
-                        $isProper = $thing[$context['package']]
+                        $isProper = $product[$context['package']]
                             === 'коробка';
                     }
 
@@ -449,13 +451,13 @@ class AutomatedProcessTest extends TestCase
                         "Thing `$code`"
                         . ' must have same content as defined'
                     );
-                    $thingTested++;
+                    $productTested++;
                     break;
             }
         }
 
-        $isEnough = ($thingTested === 3 && !$withAdditional)
-            || ($thingTested === 4 && $withAdditional);
+        $isEnough = ($productTested === 3 && !$withAdditional)
+            || ($productTested === 4 && $withAdditional);
         $this->assertTrue(
             $isEnough,
             "Each thing of essence `$essence`"
@@ -740,22 +742,22 @@ class AutomatedProcessTest extends TestCase
 
         /* добавляем модель, задаём для неё значения атрибутов */
         /* даём модели название */
-        $operator = new Operator($linkToData);
-        $thing = $operator->create(
+        $productionLine = new ProductionLine($linkToData);
+        $product = $productionLine->create(
             $context['new-thing'],
             'новая модель',
         );
 
-        $product = (new SpecificationFactory($context['PDO']))
-            ->make($thing->getCode());
-        $category = (new CategoryFactory($context['PDO']))
+        $specification = (new SpecificationFactory($context['PDO']))
+            ->make($product->getCode());
+        $blueprint = (new BlueprintFactory($context['PDO']))
             ->make($essence);
 
-        $attributes = $category->list();
-        $product->attach($attributes);
+        $attributes = $blueprint->list();
+        $specification->attach($attributes);
 
         $catalog = (new CatalogFactory($linkToData))->make($essence);
-        $catalog->attach($thing->getCode());
+        $catalog->attach($product->getCode());
 
         /* устанавливаем значения для характеристик модели */
         $definition = [
@@ -763,7 +765,7 @@ class AutomatedProcessTest extends TestCase
             $context['production-date'] => '20210531T0306',
             $context['place-of-production'] => 'Екатеринбург',
         ];
-        $product->define($definition);
+        $specification->define($definition);
 
         $this->assertTrue(
             true,
@@ -860,9 +862,9 @@ class AutomatedProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        $redactor = new Blueprint($linkToData);
+        $designer = new Designer($linkToData);
         foreach ($codes as $code => $settings) {
-            $attribute = $redactor->attribute(
+            $attribute = $designer->attribute(
                 $code,
                 $settings['DataType'],
                 $settings['RangeType'],
@@ -876,26 +878,26 @@ class AutomatedProcessTest extends TestCase
             $context[$code] = $code;
 
             /* Добавим сущности cake новую характеристику package */
-            $category = (new CategoryFactory($context['PDO']))
+            $blueprint = (new BlueprintFactory($linkToData))
                 ->make($essence);
-            $category->attach($code);
+            $blueprint->attach($code);
         }
 
         /* Добавим существующим моделям новую характеристику. */
         /* Зададим значения новой характеристики для всех моделей. */
-        $thingList = [
+        $productList = [
             'bun-with-jam' => 'без упаковки',
             'bun-with-raisins' => 'без упаковки',
             'cinnamon-bun' => 'пакет',
             'new-thing' => 'пакет',
         ];
-        foreach ($thingList as $thing => $value) {
-            $context[$thing] = $thing;
+        foreach ($productList as $product => $value) {
+            $context[$product] = $product;
 
-            $product = (new SpecificationFactory($context['PDO']))
-                ->make($thing);
-            $product->attach([$code]);
-            $product->define([$code => $value]);
+            $specification = (new SpecificationFactory($linkToData))
+                ->make($product);
+            $specification->attach([$code]);
+            $specification->define([$code => $value]);
         }
 
         return $context;
@@ -976,10 +978,9 @@ class AutomatedProcessTest extends TestCase
      */
     public function testChangeContent(array $context): array
     {
-        $product = (new SpecificationFactory($context['PDO']))
+        $specification = (new SpecificationFactory($context['PDO']))
             ->make($context['new-thing']);
-
-        $product->define([$context['package'] => 'коробка',]);
+        $specification->define([$context['package'] => 'коробка',]);
 
         $this->assertTrue(
             true,
@@ -1094,18 +1095,18 @@ class AutomatedProcessTest extends TestCase
 
         /* Удалим у сущности cake характеристику package */
         $catalog = (new CatalogFactory($linkToData))->make($essence);
-        $products = $catalog->list();
+        $attributes = $catalog->list();
 
-        foreach ($products as $productCode) {
-            /** @var string $productCode */
-            $product = (new SpecificationFactory($context['PDO']))
-                ->make($productCode);
-            $product->detach(['package']);
+        foreach ($attributes as $specificationCode) {
+            /** @var string $specificationCode */
+            $specification = (new SpecificationFactory($linkToData))
+                ->make($specificationCode);
+            $specification->detach(['package']);
         }
 
-        $category = (new CategoryFactory($context['PDO']))
+        $blueprint = (new BlueprintFactory($context['PDO']))
             ->make($essence);
-        $category->detach('package');
+        $blueprint->detach('package');
 
         $this->assertTrue(true);
 
@@ -1200,13 +1201,13 @@ class AutomatedProcessTest extends TestCase
         $essence = $context['essence'];
         $item = $context['new-thing'];
         /* Удаляем модель */
-        $product = (new SpecificationFactory($linkToData))
+        $specification = (new SpecificationFactory($linkToData))
             ->make($item);
-        $category = (new CategoryFactory($context['PDO']))
+        $blueprint = (new BlueprintFactory($context['PDO']))
             ->make($essence);
 
-        $attributes = $category->list();
-        $product->purge($attributes);
+        $attributes = $blueprint->list();
+        $specification->purge($attributes);
 
         $catalog = (new CatalogFactory($linkToData))->make($essence);
         $catalog->detach($item);

@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 10.01.2022, 6:49
+ * 14.01.2022, 6:19
  */
 
 namespace AllThings\DataAccess\Linkage;
@@ -14,6 +14,11 @@ class ForeignKey implements IForeignKey
     private string $column;
     private string $index;
 
+    /**
+     * @param string $table
+     * @param string $column
+     * @param string $index
+     */
     public function __construct(string $table, string $column, string $index)
     {
         $this->column = $column;

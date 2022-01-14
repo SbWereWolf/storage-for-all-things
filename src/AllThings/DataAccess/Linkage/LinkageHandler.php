@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 17:50
+ * 14.01.2022, 6:19
  */
 
 namespace AllThings\DataAccess\Linkage;
@@ -19,15 +19,13 @@ class LinkageHandler
     protected IForeignKey $rightKey;
 
     public function __construct(
-        IForeignKey $leftKey,
-        IForeignKey $rightKey,
-        ILinkageTable $table,
-        PDO $db
+        PDO $db,
+        ILinkageTable $table
     ) {
         $this->db = $db;
         $this->table = $table;
-        $this->leftKey = $leftKey;
-        $this->rightKey = $rightKey;
+        $this->leftKey = $table->getLeftKey();
+        $this->rightKey = $table->getRightKey();
     }
 
     public function combine(ILinkage $linkage): bool

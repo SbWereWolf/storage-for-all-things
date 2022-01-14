@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 17:50
+ * 14.01.2022, 6:19
  */
 
 namespace AllThings\DataAccess\Linkage;
@@ -16,25 +16,20 @@ class LinkageManager implements ILinkageManager
     /**
      * @param PDO           $db
      * @param ILinkageTable $table
-     * @param ForeignKey    $leftKey
-     * @param ForeignKey    $rightKey
      */
     public function __construct(
         PDO $db,
-        ILinkageTable $table,
-        ForeignKey $leftKey,
-        ForeignKey $rightKey
+        ILinkageTable $table
     ) {
         $this->linkageHandler = new LinkageHandler(
-            $leftKey,
-            $rightKey,
-            $table,
             $db,
+            $table,
         );
     }
 
     public function attach(ILinkage $linkage): bool
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $this->linkageHandler->combine($linkage);
 
         return $result;
@@ -42,6 +37,7 @@ class LinkageManager implements ILinkageManager
 
     public function detach(ILinkage $linkage): bool
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $this->linkageHandler->split($linkage);
 
         return $result;
@@ -49,6 +45,7 @@ class LinkageManager implements ILinkageManager
 
     public function getAssociated(ILinkage $linkage): array
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $this->linkageHandler->getRelated($linkage);
 
         return $result;

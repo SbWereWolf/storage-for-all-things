@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 3:02
+ * 14.01.2022, 6:19
  */
 
 namespace AllThings\ControlPanel\Relation;
@@ -27,15 +27,11 @@ class CatalogFactory
         $essenceKey = new ForeignKey('essence', 'id', 'code');
         $thingKey = new ForeignKey('thing', 'id', 'code');
         $table = new LinkageTable(
-            'essence_thing',
-            'essence_id',
-            'thing_id',
+            'essence_thing', $essenceKey, $thingKey,
         );
         $details = new LinkageManager(
             $this->db,
             $table,
-            $essenceKey,
-            $thingKey,
         );
 
         $catalog = new EssenceRelated($essence, $details,);

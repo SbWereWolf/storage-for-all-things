@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 17:50
+ * 14.01.2022, 6:19
  */
 
 namespace AllThings\StorageEngine;
@@ -76,15 +76,11 @@ class RapidObtainment implements Installation
                 'code'
             );
             $specification = new LinkageTable(
-                'essence_attribute',
-                'essence_id',
-                'attribute_id',
+                'essence_attribute', $essenceKey, $attributeKey,
             );
             $manager = new LinkageManager(
                 $this->linkToData,
                 $specification,
-                $essenceKey,
-                $attributeKey,
             );
 
             $essence = $this->getEssence();

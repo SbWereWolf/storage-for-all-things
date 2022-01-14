@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 13:52
+ * 14.01.2022, 6:19
  */
 
 namespace AllThings\StorageEngine;
@@ -124,15 +124,11 @@ class RapidRecording implements Installation
                 'code'
             );
             $specification = new LinkageTable(
-                'essence_attribute',
-                'essence_id',
-                'attribute_id',
+                'essence_attribute', $essenceKey, $attributeKey,
             );
             $essenceManager = new LinkageManager(
                 $this->db,
                 $specification,
-                $essenceKey,
-                $attributeKey,
             );
 
             $linkage = (new Linkage())
@@ -195,11 +191,6 @@ WHERE t.thing_id IS NULL
                 $attribute,
                 $this->db,
             );
-            $contentTable = new LinkageTable(
-                $table,
-                'thing_id',
-                'attribute_id',
-            );
 
             $thingKey = new ForeignKey(
                 'thing',
@@ -211,12 +202,13 @@ WHERE t.thing_id IS NULL
                 'id',
                 'code'
             );
+            $contentTable = new LinkageTable(
+                $table, $thingKey, $attributeKey,
+            );
 
             $manager = new CrossoverManager(
                 $this->db,
                 $contentTable,
-                $thingKey,
-                $attributeKey,
             );
 
             $manager->setSubject($value);
@@ -280,15 +272,11 @@ WHERE thing_id = (
                 'code'
             );
             $specification = new LinkageTable(
-                'essence_attribute',
-                'essence_id',
-                'attribute_id',
+                'essence_attribute', $essenceKey, $attributeKey,
             );
             $specificationManager = new LinkageManager(
                 $this->db,
                 $specification,
-                $essenceKey,
-                $attributeKey,
             );
 
             $linkage = (new Linkage())->setLeftValue($essence);

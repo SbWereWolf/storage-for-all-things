@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 13:52
+ * 14.01.2022, 6:19
  */
 
 namespace AllThings\ControlPanel;
@@ -79,15 +79,11 @@ class ContentAccessFactory
             'code'
         );
         $contentTable = new LinkageTable(
-            $table,
-            'thing_id',
-            'attribute_id',
+            $table, $thingKey, $attributeKey,
         );
         $contentManager = new CrossoverManager(
             $this->db,
             $contentTable,
-            $thingKey,
-            $attributeKey,
         );
 
         return $contentManager;

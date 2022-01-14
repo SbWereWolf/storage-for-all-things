@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 3:02
+ * 14.01.2022, 6:19
  */
 
 namespace AllThings\ControlPanel;
@@ -13,7 +13,7 @@ use AllThings\DataAccess\Nameable\NamedManager;
 use Exception;
 use PDO;
 
-class Operator
+class ProductionLine
 {
     private PDO $db;
 

@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 3:02
+ * 14.01.2022, 6:19
  */
 
 namespace AllThings\ControlPanel\Relation;
@@ -13,7 +13,7 @@ use AllThings\DataAccess\Linkage\LinkageManager;
 use AllThings\DataAccess\Linkage\LinkageTable;
 use PDO;
 
-class CategoryFactory
+class BlueprintFactory
 {
     private PDO $db;
 
@@ -36,15 +36,11 @@ class CategoryFactory
             'code'
         );
         $categoryTable = new LinkageTable(
-            'essence_attribute',
-            'essence_id',
-            'attribute_id',
+            'essence_attribute', $essenceKey, $attributeKey,
         );
         $details = new LinkageManager(
             $this->db,
             $categoryTable,
-            $essenceKey,
-            $attributeKey,
         );
 
         $category = new EssenceRelated($essence, $details,);

@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 17:50
+ * 14.01.2022, 6:19
  */
 
 namespace AllThings\SearchEngine;
@@ -158,15 +158,11 @@ class Seeker implements Searching
             'code'
         );
         $specification = new LinkageTable(
-            'essence_attribute',
-            'essence_id',
-            'attribute_id',
+            'essence_attribute', $essenceKey, $attributeKey,
         );
         $specificationManager = new LinkageManager(
             $this->getSource()->getDb(),
             $specification,
-            $essenceKey,
-            $attributeKey,
         );
 
         return $specificationManager;

@@ -2,12 +2,11 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 14:22
+ * 14.01.2022, 6:19
  */
 
 namespace AllThings\DataAccess\Crossover;
 
-use AllThings\DataAccess\Linkage\ForeignKey;
 use AllThings\DataAccess\Linkage\ILinkageTable;
 use AllThings\DataAccess\Linkage\LinkageManager;
 use PDO;
@@ -21,22 +20,16 @@ class CrossoverManager
     /**
      * @param PDO           $db
      * @param ILinkageTable $table
-     * @param ForeignKey    $leftKey
-     * @param ForeignKey    $rightKey
      */
     public function __construct(
         PDO $db,
-        ILinkageTable $table,
-        ForeignKey $leftKey,
-        ForeignKey $rightKey
+        ILinkageTable $table
     ) {
-        parent::__construct($db, $table, $leftKey, $rightKey);
+        parent::__construct($db, $table);
 
         $this->crossoverHandler = new CrossoverHandler(
-            $leftKey,
-            $rightKey,
-            $table,
             $db,
+            $table,
         );
     }
 
