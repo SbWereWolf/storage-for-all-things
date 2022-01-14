@@ -2,11 +2,12 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 6:19
+ * 14.01.2022, 8:09
  */
 
 namespace Integration;
 
+use AllThings\Blueprint\Attribute\Attribute;
 use AllThings\ControlPanel\Browser;
 use AllThings\ControlPanel\Designer;
 use AllThings\ControlPanel\ProductionLine;
@@ -18,6 +19,7 @@ use AllThings\DataAccess\Nameable\NamedEntity;
 use AllThings\DataAccess\Nameable\NamedManager;
 use AllThings\SearchEngine\ContinuousFilter;
 use AllThings\SearchEngine\DiscreteFilter;
+use AllThings\SearchEngine\SearchTerm;
 use AllThings\StorageEngine\Storable;
 use AllThings\StorageEngine\StorageManager;
 use Environment\Database\PdoConnection;
@@ -955,15 +957,33 @@ class AutomatedProcessTest extends TestCase
      */
     public function testAddNewKindToTable(array $context)
     {
-        $schema = new StorageManager(
-            $context['PDO'],
-            $context['essence']
-        );
-        $schema->change(Storable::RAPID_RECORDING);
-        $schema->setup();
+        $essence = $context['essence'];
+        $linkToData = $context['PDO'];
 
-        $browser = new Browser($context['PDO']);
-        $data = $browser->find($context['essence'], []);
+        $schema = new StorageManager($linkToData, $essence,);
+        $schema->change(Storable::RAPID_RECORDING);
+
+        $attribute = new Attribute(
+            (new NamedEntity())->setCode('package'),
+            (new SearchTerm())->setDataType('word')
+                ->setRangeType('discrete'),
+        );
+        $schema->setup($attribute);
+
+        $productList = [
+            'bun-with-jam' => 'без упаковки',
+            'bun-with-raisins' => 'без упаковки',
+            'cinnamon-bun' => 'пакет',
+            'new-thing' => 'пакет',
+        ];
+        foreach ($productList as $product => $content) {
+            $value = (new Crossover())->setContent($content);
+            $value->setLeftValue($product)->setRightValue('package');
+            $schema->refresh([$value]);
+        }
+
+        $browser = new Browser($linkToData);
+        $data = $browser->find($essence, []);
         $this->checkShowAll($context, $data, true, true);
     }
 

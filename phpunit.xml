@@ -1,35 +1,31 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <!--
   ~ storage-for-all-things
-  ~ Copyright © 2021 Volkhin Nikolay
-  ~ 30.07.2021, 5:45
+  ~ Copyright © 2022 Volkhin Nikolay
+  ~ 14.01.2022, 8:09
   -->
-
-<phpunit bootstrap="vendor/autoload.php"
-
-         backupStaticAttributes="false"
-
-         cacheTokens="false"
-         colors="true"
-
-         processIsolation="false"
-         stopOnError="false"
-         stopOnFailure="false"
-         stopOnIncomplete="false"
-         stopOnSkipped="false"
-
-         verbose="true"
-
-         forceCoversAnnotation="false"
+<phpunit
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+        bootstrap="vendor/autoload.php"
+        backupStaticAttributes="false"
+        colors="true"
+        processIsolation="false"
+        stopOnError="false"
+        stopOnFailure="false"
+        stopOnIncomplete="false"
+        stopOnSkipped="false"
+        verbose="true"
+        forceCoversAnnotation="false"
+        xsi:noNamespaceSchemaLocation="https://schema.phpunit.de/9.3/phpunit.xsd"
 >
-    <testsuites>
-        <testsuite name="integration">
-            <directory>tests/integration</directory>
-        </testsuite>
-    </testsuites>
-    <filter>
-        <whitelist>
-            <directory suffix=".php">src</directory>
-        </whitelist>
-    </filter>
+  <coverage>
+    <include>
+      <directory suffix=".php">src</directory>
+    </include>
+  </coverage>
+  <testsuites>
+    <testsuite name="integration">
+      <directory>tests/integration</directory>
+    </testsuite>
+  </testsuites>
 </phpunit>

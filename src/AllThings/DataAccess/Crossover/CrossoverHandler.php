@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 17:50
+ * 14.01.2022, 8:09
  */
 
 namespace AllThings\DataAccess\Crossover;
@@ -31,7 +31,8 @@ class CrossoverHandler
     public function setSubject(
         ICrossover $crossover
     ): ICrossoverHandler {
-        $this->container = $crossover;
+        $copy = $crossover->getCrossoverCopy();
+        $this->container = $copy;
 
         return $this;
     }
@@ -39,9 +40,13 @@ class CrossoverHandler
     public function put(ICrossover $crossover): bool
     {
         $writer = $this->getWriter();
+        $copy = $this->container->getCrossoverCopy();
 
         /** @noinspection PhpUnnecessaryLocalVariableInspection */
-        $result = $writer->update($this->container, $crossover);
+        $result = $writer->update($crossover, $copy);
+        if ($result) {
+            $this->container = $copy->getCrossoverCopy();
+        }
 
         return $result;
     }

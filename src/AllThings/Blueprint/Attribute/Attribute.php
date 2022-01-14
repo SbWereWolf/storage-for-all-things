@@ -1,8 +1,8 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:46
+ * Copyright © 2022 Volkhin Nikolay
+ * 14.01.2022, 8:09
  */
 
 namespace AllThings\Blueprint\Attribute;
@@ -15,9 +15,13 @@ use AllThings\SearchEngine\SearchTerm;
 
 class Attribute implements IAttribute
 {
-    private $nameable = null;
-    private $searchable = null;
+    private Nameable $nameable;
+    private Searchable $searchable;
 
+    /**
+     * @param Nameable   $nameable
+     * @param Searchable $searchable
+     */
     public function __construct(Nameable $nameable, Searchable $searchable)
     {
         $this->nameable = $nameable;
