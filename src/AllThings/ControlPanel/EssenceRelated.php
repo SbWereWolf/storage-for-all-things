@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 6:42
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\ControlPanel;
@@ -28,6 +28,9 @@ class EssenceRelated
         $this->relation = $relation;
     }
 
+    /**
+     * @throws Exception
+     */
     public function attach(string $related): static
     {
         $linkage = (new Linkage())
@@ -45,6 +48,9 @@ class EssenceRelated
         return $this;
     }
 
+    /**
+     * @throws Exception
+     */
     public function detach(string $related): static
     {
         $linkage = (new Linkage())
@@ -62,6 +68,9 @@ class EssenceRelated
         return $this;
     }
 
+    /**
+     * @throws Exception
+     */
     public function purge(): static
     {
         $linkage = (new Linkage())
@@ -78,12 +87,18 @@ class EssenceRelated
         return $this;
     }
 
-    public function list(): array
+    public function list(array $fields = []): array
     {
         $linkage = (new Linkage())
             ->setLeftValue($this->essence);
 
-        $result = $this->relation->getAssociated($linkage);
+        if (!$fields) {
+            $result = $this->relation->getAssociated($linkage);
+        }
+        if ($fields) {
+            $result =
+                $this->relation->getAssociatedData($linkage, $fields);
+        }
 
         return $result;
     }

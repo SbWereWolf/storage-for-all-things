@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 10.01.2022, 6:49
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\DataAccess\Linkage;
@@ -11,7 +11,7 @@ interface IForeignKey
 {
     public function getTable(): string;
 
-    public function getColumn(): string;
+    public function getPrimaryIndex(): string;
 
-    public function getIndex(): string;
+    public function getMatchColumn(): string;
 }

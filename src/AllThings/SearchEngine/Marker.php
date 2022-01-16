@@ -2,13 +2,13 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 11.01.2022, 6:21
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\SearchEngine;
 
-use AllThings\Blueprint\Attribute\AttributeHelper;
 use AllThings\StorageEngine\Installation;
+use Exception;
 use PDO;
 
 class Marker
@@ -20,79 +20,40 @@ class Marker
 
     public function __construct(Installation $source)
     {
-        $this->setSource($source);
-    }
-
-    /**
-     * @param Installation $source
-     *
-     * @return self
-     */
-    private function setSource(Installation $source): self
-    {
         $this->source = $source;
-        return $this;
     }
 
     /**
-     * @param array $parameters
+     * @param Filter[] $parameters
+     *
      * @return array
+     * @throws Exception
      */
     public function getBoundaries(array $parameters): array
     {
-        $params = $this->getSpecificParams('continuous', $parameters);
         $continuous = [];
         $filters = [];
-        foreach ($params as $attribute) {
+        foreach ($parameters as $filter) {
+            $attribute = $filter->getAttribute();
+            /** @var Filter $filter */
             $max = "max@$attribute";
             $min = "min@$attribute";
-            $filters[$attribute] = ['max' => $max, 'min' => $min];
+            $filters[$attribute] =
+                [
+                    'max' => $max,
+                    'min' => $min,
+                    'type' => $filter->getDataType(),
+                ];
 
-            $table = AttributeHelper::getLocation(
-                $attribute,
-                $this
-                    ->getSource()
-                    ->getDb()
-            );
-
-
-            $column = "
-SELECT max(C.content)
-FROM essence E
-        JOIN essence_thing ET
-             ON E.id = ET.essence_id
-        JOIN $table C
-             ON ET.thing_id = C.thing_id
-        JOIN attribute A
-             ON C.attribute_id = A.id
-WHERE E.id = EE.id
- and A.code = '$attribute'
-";
             $continuous[$max] =
-                "($column) AS \"$max\"";
-            $column = "
-SELECT min(C.content)
-FROM essence E
-        JOIN essence_thing ET
-             ON E.id = ET.essence_id
-        JOIN $table C
-             ON ET.thing_id = C.thing_id
-        JOIN attribute A
-             ON C.attribute_id = A.id
-WHERE E.id = EE.id
- and A.code = '$attribute'
-";
+                "MAX(\"$attribute\") AS \"$max\"";
             $continuous[$min] =
-                "($column) AS \"$min\"";
+                "MIN(\"$attribute\") AS \"$min\"";
         }
-
         $selectPhase = implode(",", $continuous);
-        $essence = $this->getSource()->getEssence();
-        $getBoundaries = "
-SELECT $selectPhase
-FROM essence EE
-where EE.code = '$essence';
-";
+        $table = $this->getSource()->name();
+
+        $getBoundaries = "SELECT $selectPhase FROM $table";
         $isSuccess = !empty($selectPhase);
         if ($isSuccess) {
             $data = $this->readData($getBoundaries);
@@ -115,47 +76,11 @@ where EE.code = '$essence';
                 }
             }
 
-            $filter = new ContinuousFilter($attribute, $min, $max);
+            $filter = new ContinuousFilter($attribute, $locality['type'], $min, $max);
             $confines[] = $filter;
         }
 
         return $confines;
-    }
-
-    /**
-     * @param string $rangeType
-     * @param array $parameters
-     * @return array
-     */
-    private function getSpecificParams(
-        string $rangeType,
-        array $parameters
-    ): array {
-        $match = '';
-        $isSuccess = count($parameters) !== 0;
-        if ($isSuccess) {
-            $match .= '\'';
-            $match .= implode("','", $parameters);
-            $match .= '\'';
-        }
-        $readParams = "
-SELECT
-    code
-FROM
-    attribute
-WHERE 
-    code IN ($match)
-    and range_type = '$rangeType'
-ORDER BY code
-";
-
-        $specific = $this->readData($readParams);
-        $params = [];
-        if ($specific) {
-            $params = array_column($specific, 'code');
-        }
-
-        return $params;
     }
 
     /**
@@ -190,45 +115,39 @@ ORDER BY code
 
     /**
      * @param array $parameters
+     *
      * @return array
+     * @throws Exception
      */
     public function getEnumerations(array $parameters): array
     {
-        $params = $this->getSpecificParams('discrete', $parameters);
-        $essence = $this->getSource()->getEssence();
         $discrete = [];
-        foreach ($params as $attribute) {
-            $table = AttributeHelper::getLocation(
-                $attribute,
-                $this
-                    ->getSource()
-                    ->getDb()
-            );
+        foreach ($parameters as $filter) {
+            /** @var Filter $filter $table */
+            $table = $this->getSource()->name();
 
-            $column = "
-SELECT
-    DISTINCT C.content
-FROM essence E
-        JOIN essence_thing ET
-             ON E.id = ET.essence_id
-        JOIN $table C
-             ON ET.thing_id = C.thing_id
-        JOIN attribute A
-             ON C.attribute_id = A.id
-WHERE E.code = '$essence'
- and A.code = '$attribute'
-ORDER BY C.content
+            $attribute = $filter->getAttribute();
+            $column =
+                "
+SELECT \"$attribute\" FROM $table GROUP BY \"$attribute\"
 ";
-            $discrete[$attribute] = $column;
+            $discrete[$attribute] = [];
+            $discrete[$attribute]['columns'] = $column;
+            $discrete[$attribute]['type'] = $filter->getDataType();
         }
 
         $enumerations = [];
-        foreach ($discrete as $attribute => $readValues) {
+        foreach ($discrete as $attribute => $settings) {
+            $readValues = $settings['columns'];
             $content = $this->readData($readValues);
-            $isSuccess = count($content) !== 0;
-            if ($isSuccess) {
-                $simplified = array_column($content, 'content');
-                $filter = new DiscreteFilter($attribute, $simplified);
+            $isContain = count($content) !== 0;
+            if ($isContain) {
+                $simplified = array_column($content, $attribute);
+                $filter = new DiscreteFilter(
+                    $attribute,
+                    $settings['type'],
+                    $simplified,
+                );
                 $enumerations[] = $filter;
             }
         }

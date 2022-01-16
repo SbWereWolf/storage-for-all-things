@@ -1,8 +1,8 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\Blueprint\Essence;
@@ -11,5 +11,5 @@ namespace AllThings\Blueprint\Essence;
 interface EssenceReader
 {
 
-    public function select(IEssence $entity): bool;
+    public function select(): IEssence;
 }

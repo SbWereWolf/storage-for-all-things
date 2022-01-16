@@ -2,98 +2,75 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 3:02
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\Blueprint\Essence;
 
-use AllThings\DataAccess\DataTransfer\Haves;
-use AllThings\DataAccess\DataTransfer\Retrievable;
-use AllThings\DataAccess\Nameable\ValuableHandler;
 use AllThings\DataAccess\Uniquable\UniqueHandler;
-use PDO;
+use Exception;
+use JetBrains\PhpStorm\Pure;
 
 class EssenceHandler
     extends UniqueHandler
-    implements ValuableHandler,
-               Retrievable,
-               Haves
+    implements IEssenceHandler
 {
-    private string $dataSource;
-    private ?IEssence $stuff;
+    /**
+     * @throws Exception
+     */
+    public function read(string $uniqueness): IEssence
+    {
+        $source = $this->getSource($uniqueness);
 
-    public function __construct(
-        string $uniqueness,
-        string $locationName,
-        PDO $db,
-    ) {
-        parent::__construct($uniqueness, $locationName, $db);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $source->select();
 
-        $this->dataSource = $locationName;
+        return $result;
     }
 
     /**
-     * @param IEssence $essence
+     * @param object $essence
+     *
+     * @return bool
+     * @throws Exception
      */
-    public function setEssence(IEssence $essence): static
+    public function write(object $essence): bool
     {
-        $this->stuff = $essence;
-
-        return $this;
-    }
-
-    public function read(): bool
-    {
-        $source = $this->getSource();
-
-        $result = $source->select($this->stuff);
-        if (!$result) {
-            $this->stuff = null;
+        if (!($essence instanceof IEssence)) {
+            $className = IEssence::class;
+            throw new Exception("Arg \$named MUST BE `$className`");
         }
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $this->getLocation($essence->getCode())->update($essence);
 
         return $result;
     }
 
-    public function write(string $code): bool
+    #[Pure]
+    private function getLocation(string $uniqueness): EssenceLocation
     {
-        $location = $this->getLocation();
-
-        $result = $location->update($this->stuff, $code);
-        if (!$result) {
-            $this->stuff = null;
-        }
-
-        return $result;
-    }
-
-    public function retrieve(): IEssence
-    {
-        $essence = $this->stuff->GetEssenceCopy();
-
-        return $essence;
-    }
-
-    public function has(): bool
-    {
-        return !is_null($this->stuff);
-    }
-
-    private function getSource(): EssenceSource
-    {
-        $repository = new EssenceSource(
-            $this->dataSource,
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $repository = new EssenceLocation(
             $this->db,
+            $this->storageLocation,
+            $uniqueness,
+            $this->uniqueIndex,
         );
+
         return $repository;
     }
 
-    private function getLocation(): EssenceLocation
+    #[Pure]
+    private function getSource(string $uniqueness): EssenceSource
     {
-        $storageLocation = new EssenceLocation(
-            $this->storageLocation,
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $repository = new EssenceSource(
             $this->db,
+            $this->dataSourceName,
+            $uniqueness,
+            $this->uniqueIndex,
         );
 
-        return $storageLocation;
+        return $repository;
     }
 }

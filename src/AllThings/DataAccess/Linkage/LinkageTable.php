@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 6:19
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\DataAccess\Linkage;
@@ -22,9 +22,9 @@ class LinkageTable implements ILinkageTable
     ) {
         $this->tableName = $tableName;
         $this->leftColumn =
-            "{$leftKey->getTable()}_{$leftKey->getColumn()}";
+            "{$leftKey->getTable()}_{$leftKey->getPrimaryIndex()}";
         $this->rightColumn =
-            "{$rightKey->getTable()}_{$rightKey->getColumn()}";
+            "{$rightKey->getTable()}_{$rightKey->getPrimaryIndex()}";
         $this->leftKey = $leftKey;
         $this->rightKey = $rightKey;
     }
@@ -32,20 +32,23 @@ class LinkageTable implements ILinkageTable
 
     public function getTableName(): string
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $this->tableName;
 
         return $result;
     }
 
-    public function getLeftColumn(): string
+    public function getLeftForeign(): string
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $this->leftColumn;
 
         return $result;
     }
 
-    public function getRightColumn(): string
+    public function getRightForeign(): string
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $this->rightColumn;
 
         return $result;

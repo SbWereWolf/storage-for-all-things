@@ -2,88 +2,74 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 3:02
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\DataAccess\Nameable;
 
+use AllThings\Blueprint\Essence\IEssence;
 use AllThings\DataAccess\Uniquable\UniqueHandler;
-use PDO;
+use Exception;
 
-class NamedHandler
-    extends UniqueHandler
-    implements NameableHandler
+class NamedHandler extends UniqueHandler implements ValuableHandler
 {
-    private string $dataSource;
-    private ?Nameable $stuff;
+    /**
+     * @throws Exception
+     */
+    public function read(string $uniqueness): Nameable
+    {
+        $source = $this->getSource($uniqueness);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $source->select();
 
-    public function __construct(
-        string $uniqueness,
-        string $locationName,
-        PDO $db,
-    ) {
-        parent::__construct($uniqueness, $locationName, $db);
-        $this->dataSource = $locationName;
+        return $result;
     }
 
     /**
-     * @param Nameable $named
+     * @param object $named
+     *
+     * @return bool
+     * @throws Exception
      */
-    public function setNamed(Nameable $named): NameableHandler
+    public function write(object $named): bool
     {
-        $this->stuff = $named;
-
-        return $this;
-    }
-
-    public function read(): bool
-    {
-        $source = $this->getSource();
-
-        $result = $source->select($this->stuff);
-        if (!$result) {
-            $this->stuff = null;
+        if (!($named instanceof Nameable)) {
+            $className = IEssence::class;
+            throw new Exception("Arg \$named MUST BE `$className`");
         }
+        $location = $this->getLocation($named->getCode());
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $location->update($named);
 
         return $result;
     }
 
-    public function write(string $code): bool
-    {
-        $location = $this->getLocation();
-
-        $result = $location->update($this->stuff, $code);
-        if (!$result) {
-            $this->stuff = null;
-        }
-
-        return $result;
-    }
-
-    public function retrieve(): Nameable
-    {
-        $data = $this->stuff->getNameableCopy();
-
-        return $data;
-    }
-
-    public function has(): bool
-    {
-        return !is_null($this->stuff);
-    }
-
-    private function getLocation(): StorageLocation
-    {
+    /** @noinspection PhpPureAttributeCanBeAddedInspection */
+    private function getLocation(
+        string $uniqueness,
+    ): StorageLocation {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $repository = new StorageLocation(
-            $this->storageLocation,
             $this->db,
+            $this->storageLocation,
+            $uniqueness,
+            $this->uniqueIndex,
         );
+
         return $repository;
     }
 
-    private function getSource(): DataSource
+    /** @noinspection PhpPureAttributeCanBeAddedInspection */
+    private function getSource(string $uniqueness): DataSource
     {
-        $repository = new DataSource($this->dataSource, $this->db);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $repository = new DataSource(
+            $this->db,
+            $this->dataSourceName,
+            $uniqueness,
+            $this->uniqueIndex,
+        );
+
         return $repository;
     }
 }

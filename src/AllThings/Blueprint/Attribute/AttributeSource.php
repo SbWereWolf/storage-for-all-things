@@ -1,70 +1,80 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 16.01.2022, 8:05
  */
 
 
 namespace AllThings\Blueprint\Attribute;
 
 
+use Exception;
 use PDO;
 
 class AttributeSource implements AttributeReader
 {
+    protected string $tableName;
+    protected PDO $db;
+    protected string $uniqueness;
+    protected string $uniqueIndex;
 
-    private $tableName = '';
-    /**
-     * @var PDO
-     */
-    private $dataSource;
-
-    public function __construct(string $table, PDO $dataSource)
-    {
+    public function __construct(
+        PDO $db,
+        string $table,
+        string $uniqueness,
+        string $uniqueIndex = 'code'
+    ) {
         $this->tableName = $table;
-        $this->dataSource = $dataSource;
+        $this->db = $db;
+        $this->uniqueness = $uniqueness;
+        $this->uniqueIndex = $uniqueIndex;
     }
 
-    public function select(IAttribute $entity): bool
+    /**
+     * @throws Exception
+     */
+    public function select(): IAttribute
     {
-        $targetCode = $entity->getCode();
+        $sqlText = "
+select \"$this->uniqueIndex\",title,remark,data_type,range_type 
+from $this->tableName 
+where \"$this->uniqueIndex\"=:target_code";
 
-        $sqlText = 'select code,title,remark,data_type,range_type from '
-            . $this->tableName
-            . ' where code=:target_code';
-        $connection = $this->dataSource;
-
-        $query = $connection->prepare($sqlText);
-        $query->bindParam(':target_code', $targetCode);
+        $query = $this->db->prepare($sqlText);
+        $query->bindParam(':target_code', $this->uniqueness);
         $result = $query->execute();
 
         $data = null;
         $isSuccess = $result === true;
         if ($isSuccess) {
-            $data = $query->fetchAll();
+            $data = $query->fetchAll(PDO::FETCH_ASSOC);
         }
 
-        $isSuccess = !empty($data);
+        $isSuccess = $data !== false;
         if (!$isSuccess) {
-            $result = false;
-        }
-        if ($isSuccess) {
-            $row = $data[0];
-
-            $code = $row['code'];
-            $title = $row['title'];
-            $remark = $row['remark'];
-            $dataType = $row['data_type'];
-            $rangeType = $row['range_type'];
-
-            $entity->setCode($code);
-            $entity->setTitle($title);
-            $entity->setRemark($remark);
-            $entity->setDataType($dataType);
-            $entity->setRangeType($rangeType);
+            throw new Exception(
+                "Fail read data for index `$this->uniqueness`"
+            );
         }
 
-        return $result;
+        $row = $data[0];
+
+        $code = $row[$this->uniqueIndex];
+        $title = $row['title'];
+        $remark = $row['remark'];
+        $dataType = $row['data_type'];
+        $rangeType = $row['range_type'];
+
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $entity = (new AttributeFactory())
+            ->setCode($code)
+            ->setTitle($title)
+            ->setRemark($remark)
+            ->setDataType($dataType)
+            ->setRangeType($rangeType)
+            ->makeAttribute();
+
+        return $entity;
     }
 }

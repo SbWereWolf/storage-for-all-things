@@ -2,59 +2,26 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 6:19
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\StorageEngine;
 
 
-use AllThings\Blueprint\Attribute\AttributeHelper;
-use AllThings\Blueprint\Attribute\IAttribute;
-use AllThings\DataAccess\Linkage\ForeignKey;
-use AllThings\DataAccess\Linkage\Linkage;
-use AllThings\DataAccess\Linkage\LinkageManager;
-use AllThings\DataAccess\Linkage\LinkageTable;
-use PDO;
+use AllThings\ControlPanel\Relation\BlueprintFactory;
+use AllThings\SearchEngine\Converter;
+use AllThings\SearchEngine\Searchable;
+use Exception;
 
-class RapidObtainment implements Installation
+class RapidObtainment extends DBObject implements Installation
 {
     public const STRUCTURE_PREFIX = 'auto_mv_';
     public const SEPARATORS = ['.', ':', '-', '+', '@', '#', '&',];
 
-    private $essence = '';
     /**
-     * @var PDO
+     * @throws Exception
      */
-    private $linkToData;
-
-    public function __construct(string $essence, PDO $linkToData)
-    {
-        $this->setEssence($essence)->setLinkToData($linkToData);
-    }
-
-    /**
-     * @param PDO $linkToData
-     *
-     * @return self
-     */
-    private function setLinkToData(PDO $linkToData): self
-    {
-        $this->linkToData = $linkToData;
-        return $this;
-    }
-
-    /**
-     * @param string $essence
-     *
-     * @return self
-     */
-    private function setEssence(string $essence): self
-    {
-        $this->essence = $essence;
-        return $this;
-    }
-
-    public function setup(?IAttribute $attribute = null): bool
+    public function setup(string $attribute = '', string $dataType = ''): bool
     {
         $linkToData = $this->getDb();
 
@@ -63,38 +30,21 @@ class RapidObtainment implements Installation
         $affected = $linkToData->exec($ddl);
         $isSuccess = $affected !== false;
 
+        $essence = $this->getEssence();
         $attributes = [];
         if ($isSuccess) {
-            $essenceKey = new ForeignKey(
-                'essence',
-                'id',
-                'code'
+            $blueprint = (new BlueprintFactory($linkToData))
+                ->make($essence);
+            $attributes = $blueprint->list(
+                [Searchable::DATA_TYPE_FIELD]
             );
-            $attributeKey = new ForeignKey(
-                'attribute',
-                'id',
-                'code'
-            );
-            $specification = new LinkageTable(
-                'essence_attribute', $essenceKey, $attributeKey,
-            );
-            $manager = new LinkageManager(
-                $this->linkToData,
-                $specification,
-            );
-
-            $essence = $this->getEssence();
-            $linkage = (new Linkage())->setLeftValue($essence);
-
-            $attributes = $manager->getAssociated($linkage);
         }
 
         $columns = [];
         $indexes = [];
-        foreach ($attributes as $attribute) {
-            $table = AttributeHelper::getLocation(
-                $attribute,
-                $this->linkToData
+        foreach ($attributes as $attribute => $settings) {
+            $table = Converter::getDataLocation(
+                $settings[Searchable::DATA_TYPE_FIELD]
             );
 
             $column = "
@@ -113,7 +63,7 @@ WHERE
             $indexes[] = 'DROP INDEX IF EXISTS'
                 . " {$this->name()}_{$stripped}_ix;";
             $indexes[] = "CREATE INDEX {$this->name()}_{$stripped}_ix"
-                . " on {$this->name()} (\"{$attribute}\");";
+                . " on {$this->name()} (\"$attribute\");";
         }
 
         $selectPhase = implode(",", $columns);
@@ -132,39 +82,18 @@ WHERE
     E.code = '$essence'
 ";
 
+        $result = false;
         if ($isSuccess) {
             $ddl = "CREATE MATERIALIZED VIEW $name AS $contentRequest";
             $affected = $linkToData->exec($ddl);
             $result = $affected !== false;
 
             $ddl = implode('', $indexes);
+            /** @noinspection PhpUnusedLocalVariableInspection */
             $affected = $linkToData->exec($ddl);
         }
 
         return $result;
-    }
-
-    /**
-     * @return PDO
-     */
-    public function getDb(): PDO
-    {
-        return $this->linkToData;
-    }
-
-    public function name(): string
-    {
-        $name = self::STRUCTURE_PREFIX . $this->getEssence();
-
-        return $name;
-    }
-
-    /**
-     * @return string
-     */
-    public function getEssence(): string
-    {
-        return $this->essence;
     }
 
     public function refresh(array $values = []): bool
@@ -174,11 +103,15 @@ REFRESH MATERIALIZED VIEW {$this->name()}
 ";
         $linkToData = $this->getDb();
         $affected = $linkToData->exec($ddl);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $affected !== false;
 
         return $result;
     }
 
+    /**
+     * @throws Exception
+     */
     public function prune(string $attribute): bool
     {
         return $this->setup();

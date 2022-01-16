@@ -2,18 +2,14 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 6:19
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\SearchEngine;
 
-
-use AllThings\Blueprint\Attribute\AttributeHelper;
-use AllThings\DataAccess\Linkage\ForeignKey;
-use AllThings\DataAccess\Linkage\Linkage;
-use AllThings\DataAccess\Linkage\LinkageManager;
-use AllThings\DataAccess\Linkage\LinkageTable;
+use AllThings\ControlPanel\Relation\BlueprintFactory;
 use AllThings\StorageEngine\Installation;
+use Exception;
 use PDO;
 
 class Seeker implements Searching
@@ -28,12 +24,31 @@ class Seeker implements Searching
         $this->setSource($source);
     }
 
+    /**
+     * @throws Exception
+     */
     public function limits(): array
     {
-        $marker = new Marker($this->getSource());
-        $parameters = $this->getParams();
-        $filters = $marker->getBoundaries($parameters);
-        $result = $marker->getEnumerations($parameters);
+        $marker = new Marker($this->getStorage());
+        $parameters = $this->getParams([
+            Searchable::DATA_TYPE_FIELD,
+            Searchable::RANGE_TYPE_FIELD,
+        ]);
+        $continuous = [];
+        $discrete = [];
+        foreach ($parameters as $attribute => $settings) {
+            $dataType = $settings[Searchable::DATA_TYPE_FIELD];
+            $searchType = $settings[Searchable::RANGE_TYPE_FIELD];
+
+            if ($searchType === Searchable::CONTINUOUS) {
+                $continuous[] = new Filter($attribute, $dataType);
+            }
+            if ($searchType === Searchable::DISCRETE) {
+                $discrete[] = new Filter($attribute, $dataType);
+            }
+        }
+        $filters = $marker->getBoundaries($continuous);
+        $result = $marker->getEnumerations($discrete);
 
         /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = array_merge($result, $filters);
@@ -41,9 +56,12 @@ class Seeker implements Searching
         return $result;
     }
 
+    /**
+     * @throws Exception
+     */
     public function seek(array $limits = []): array
     {
-        $name = $this->getSource()->name();
+        $name = $this->getStorage()->name();
         $obtain = "SELECT * from $name";
 
         $isExists = !empty($limits);
@@ -52,13 +70,9 @@ class Seeker implements Searching
             foreach ($limits as $filter) {
                 /* @var Filter $filter */
                 $attribute = $filter->getAttribute();
-                $format = AttributeHelper::getFormat(
-                    $attribute,
-                    $this
-                        ->getSource()
-                        ->getDb()
+                $format = Converter::getFieldFormat(
+                    $filter->getDataType()
                 );
-
 
                 if ($filter instanceof ContinuousFilter) {
                     $min = $filter->getMin();
@@ -87,19 +101,21 @@ class Seeker implements Searching
             $obtain = "$obtain where $wherePhrase";
         }
 
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $data = $this->readData($obtain);
 
         return $data;
     }
 
-    public function getParams(): array
+    public function getParams(array $fields): array
     {
-        $specificationManager = $this->getSpecificationManager();
+        $store = $this->getStorage();
+        $essence = $store->getEssence();
+        $db = $store->getDb();
 
-        $essence = $this->getSource()->getEssence();
-        $linkage = (new Linkage())->setLeftValue($essence);
-
-        $attributes = $specificationManager->getAssociated($linkage);
+        $blueprint = (new BlueprintFactory($db))->make($essence);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $attributes = $blueprint->list($fields);
 
         return $attributes;
     }
@@ -107,7 +123,7 @@ class Seeker implements Searching
     /**
      * @return Installation
      */
-    private function getSource(): Installation
+    private function getStorage(): Installation
     {
         return $this->source;
     }
@@ -116,6 +132,7 @@ class Seeker implements Searching
      * @param Installation $source
      *
      * @return static
+     * @noinspection PhpReturnValueOfMethodIsNeverUsedInspection
      */
     private function setSource(Installation $source): static
     {
@@ -127,7 +144,7 @@ class Seeker implements Searching
     private function readData(string $sql): array
     {
         $cursor = $this
-            ->getSource()
+            ->getStorage()
             ->getDb()
             ->query($sql, PDO::FETCH_ASSOC);
 
@@ -142,29 +159,4 @@ class Seeker implements Searching
         return $data;
     }
 
-    /**
-     * @return LinkageManager
-     */
-    private function getSpecificationManager(): LinkageManager
-    {
-        $essenceKey = new ForeignKey(
-            'essence',
-            'id',
-            'code'
-        );
-        $attributeKey = new ForeignKey(
-            'attribute',
-            'id',
-            'code'
-        );
-        $specification = new LinkageTable(
-            'essence_attribute', $essenceKey, $attributeKey,
-        );
-        $specificationManager = new LinkageManager(
-            $this->getSource()->getDb(),
-            $specification,
-        );
-
-        return $specificationManager;
-    }
 }

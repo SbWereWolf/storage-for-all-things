@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\DataAccess\Nameable;
@@ -10,57 +10,53 @@ namespace AllThings\DataAccess\Nameable;
 
 class NamedEntity implements Nameable
 {
+    private string $code;
+    private string $title;
+    private string $remark;
 
-    private string $code = '';
-    private string $title = '';
-    private string $remark = '';
+    public function __construct(
+        string $code,
+        string $title = '',
+        string $remark = '',
+    ) {
+        $this->code = $code;
+        $this->title = $title;
+        $this->remark = $remark;
+    }
 
     public function getCode(): string
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $code = $this->code;
 
         return $code;
     }
 
-    public function setCode(string $value): Nameable
-    {
-        $this->code = $value;
-
-        return $this;
-    }
-
     public function getTitle(): string
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $title = $this->title;
 
         return $title;
     }
 
-    public function setTitle(string $value): Nameable
-    {
-        $this->title = $value;
-
-        return $this;
-    }
-
     public function getRemark(): string
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $remark = $this->remark;
 
         return $remark;
     }
 
-    public function setRemark(string $value): Nameable
-    {
-        $this->remark = $value;
-
-        return $this;
-    }
-
     public function getNameableCopy(): Nameable
     {
-        $copy = new NamedEntity();
-        $copy->setCode($this->code)->setTitle($this->title)->setRemark($this->remark);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $copy = (new NamedFactory())
+            ->setCode($this->code)
+            ->setTitle($this->title)
+            ->setRemark($this->remark)
+            ->makeNameable();
+
         return $copy;
     }
 }

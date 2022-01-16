@@ -2,13 +2,13 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 6:19
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\ControlPanel;
 
 use AllThings\DataAccess\Nameable\Nameable;
-use AllThings\DataAccess\Nameable\NamedEntity;
+use AllThings\DataAccess\Nameable\NamedFactory;
 use AllThings\DataAccess\Nameable\NamedManager;
 use Exception;
 use PDO;
@@ -38,29 +38,25 @@ class ProductionLine
         string $title = '',
         string $description = '',
     ): Nameable {
-        $nameable = (new NamedEntity())->setCode($code);
         $thingManager = new NamedManager(
-            $code,
+            $this->db,
             'thing',
-            $this->db
         );
 
-        $isSuccess = $thingManager->create();
+        $isSuccess = $thingManager->create($code);
         if (!$isSuccess) {
             throw new Exception(
                 'Product must be created with success'
             );
         }
 
-        if ($title) {
-            $nameable->setTitle($title);
-        }
-        if ($description) {
-            $nameable->setRemark($description);
-        }
-        $thingManager->setNamed($nameable);
+        $named = (new NamedFactory())
+            ->setCode($code)
+            ->setTitle($title)
+            ->setRemark($description)
+            ->makeNameable();
         if ($title || $description) {
-            $isSuccess = $thingManager->correct();
+            $isSuccess = $thingManager->correct($named);
         }
         if (!$isSuccess) {
             throw new Exception(
@@ -68,6 +64,6 @@ class ProductionLine
             );
         }
 
-        return $nameable;
+        return $named;
     }
 }

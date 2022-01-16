@@ -1,12 +1,14 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\SearchEngine;
 
+
+use Exception;
 
 class Filter implements Filtering
 {
@@ -14,10 +16,25 @@ class Filter implements Filtering
      * @var string
      */
     private string $attribute;
+    private string $dataType;
 
-    public function __construct(string $attribute)
+    /**
+     * @param string $attribute
+     * @param string $dataType
+     *
+     * @throws Exception
+     */
+    public function __construct(string $attribute, string $dataType)
     {
-        $this->setAttribute($attribute);
+        if (!in_array($dataType, Searchable::DATA_TYPES)) {
+            throw new Exception(
+                'Data type MUST be one of :'
+                . ' word | number | time | interval'
+                . ", `$dataType` given"
+            );
+        }
+        $this->attribute = $attribute;
+        $this->dataType = $dataType;
     }
 
     /**
@@ -29,14 +46,11 @@ class Filter implements Filtering
     }
 
     /**
-     * @param string $attribute
-     *
-     * @return Filter
+     * @return string
      */
-    private function setAttribute(string $attribute): self
+    public function getDataType(): string
     {
-        $this->attribute = $attribute;
-        return $this;
+        return $this->dataType;
     }
 
 }

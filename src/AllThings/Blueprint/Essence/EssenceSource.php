@@ -1,67 +1,75 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\Blueprint\Essence;
 
 
+use Exception;
 use PDO;
 
 class EssenceSource implements EssenceReader
 {
+    protected string $tableName;
+    protected PDO $db;
+    protected string $uniqueness;
+    protected string $uniqueIndex;
 
-    private string $tableName;
-    /**
-     * @var PDO
-     */
-    private PDO $dataSource;
-
-    public function __construct(string $table, PDO $dataSource)
-    {
+    public function __construct(
+        PDO $db,
+        string $table,
+        string $uniqueness,
+        string $uniqueIndex = 'code'
+    ) {
         $this->tableName = $table;
-        $this->dataSource = $dataSource;
+        $this->db = $db;
+        $this->uniqueness = $uniqueness;
+        $this->uniqueIndex = $uniqueIndex;
     }
 
-    public function select(IEssence $entity): bool
+    /**
+     * @return IEssence
+     * @throws Exception
+     */
+    public function select(): IEssence
     {
-        $target_code = $entity->getCode();
+        $sqlText = "
+select \"$this->uniqueIndex\",title,remark,store_at 
+from $this->tableName 
+where \"$this->uniqueIndex\"=:target";
 
-        $sqlText = 'select code,title,remark,store_at from '
-            . $this->tableName
-            . ' where code=:target_code';
-        $connection = $this->dataSource;
+        $query = $this->db->prepare($sqlText);
+        $query->bindParam(':target', $this->uniqueness);
+        $isSuccess = $query->execute();
 
-        $query = $connection->prepare($sqlText);
-        $query->bindParam(':target_code', $target_code);
-        $result = $query->execute();
-
-        $data = null;
-        $isSuccess = $result === true;
+        $data = [];
         if ($isSuccess) {
-            $data = $query->fetchAll();
+            $data = $query->fetchAll(PDO::FETCH_ASSOC);
         }
-
-        $isSuccess = !empty($data);
+        $isSuccess = $data !== false;
         if (!$isSuccess) {
-            $result = false;
+            throw new Exception(
+                "Fail read data for index `$this->uniqueness`"
+            );
         }
-        if ($isSuccess) {
-            $row = $data[0];
+        $row = $data[0];
 
-            $code = $row['code'];
-            $title = $row['title'];
-            $remark = $row['remark'];
-            $storeAt = $row['store_at'];
+        $code = $row[$this->uniqueIndex];
+        $title = $row['title'];
+        $remark = $row['remark'];
+        $storeAt = $row['store_at'];
 
-            $entity->setCode($code);
-            $entity->setTitle($title);
-            $entity->setRemark($remark);
-            $entity->setStorageKind($storeAt);
-        }
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $entity = (new EssenceFactory())
+            ->setCode($code)
+            ->setTitle($title)
+            ->setRemark($remark)
+            ->setStorageManner($storeAt)
+            ->makeEssence();
 
-        return $result;
+        return $entity;
     }
 }

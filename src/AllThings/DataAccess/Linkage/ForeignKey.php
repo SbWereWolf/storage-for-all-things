@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 6:19
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\DataAccess\Linkage;
@@ -11,38 +11,44 @@ class ForeignKey implements IForeignKey
 {
 
     private string $table;
-    private string $column;
-    private string $index;
+    private string $primary;
+    private string $matching;
 
     /**
      * @param string $table
      * @param string $column
      * @param string $index
      */
-    public function __construct(string $table, string $column, string $index)
-    {
-        $this->column = $column;
-        $this->index = $index;
+    public function __construct(
+        string $table,
+        string $column,
+        string $index
+    ) {
+        $this->primary = $column;
+        $this->matching = $index;
         $this->table = $table;
     }
 
     public function getTable(): string
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $this->table;
 
         return $result;
     }
 
-    public function getColumn(): string
+    public function getPrimaryIndex(): string
     {
-        $result = $this->column;
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $this->primary;
 
         return $result;
     }
 
-    public function getIndex(): string
+    public function getMatchColumn(): string
     {
-        $result = $this->index;
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $this->matching;
 
         return $result;
     }

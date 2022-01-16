@@ -2,13 +2,12 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\DataAccess\Nameable;
 
 interface ValuableReader
 {
-
-    public function select(Nameable $entity): bool;
+    public function select(): Nameable;
 }

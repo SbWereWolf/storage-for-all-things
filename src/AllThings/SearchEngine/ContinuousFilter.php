@@ -1,47 +1,31 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\SearchEngine;
+
+use Exception;
 
 class ContinuousFilter extends Filter
 {
     private string $min;
     private string $max;
 
+    /**
+     * @throws Exception
+     */
     public function __construct(
         string $attribute,
+        string $dataType,
         string $min,
         string $max
-    )
-    {
-        parent::__construct($attribute);
-        $this->setMin($min)->setMax($max);
-    }
-
-    /**
-     * @param mixed $max
-     *
-     * @return ContinuousFilter
-     */
-    private function setMax(string $max): self
-    {
-        $this->max = $max;
-        return $this;
-    }
-
-    /**
-     * @param mixed $min
-     *
-     * @return ContinuousFilter
-     */
-    private function setMin(string $min): self
-    {
+    ) {
+        parent::__construct($attribute, $dataType);
         $this->min = $min;
-        return $this;
+        $this->max = $max;
     }
 
     public function getMin(): string

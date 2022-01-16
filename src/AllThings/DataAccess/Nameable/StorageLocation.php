@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 9:02
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\DataAccess\Nameable;
@@ -15,38 +15,25 @@ class StorageLocation
     implements ValuableWriter,
                UniquableWriter
 {
-    public function update(Nameable $suggestion, string $target,): bool
+
+    public function update(Nameable $suggestion): bool
     {
-        if ($target) {
-            $target = $suggestion->getCode();
-        }
-        $code = $suggestion->getCode();
         $title = $suggestion->getTitle();
         $remark = $suggestion->getRemark();
 
-        $letUpdateCode = $target !== $code;
-        $updateCode = '';
-        if ($letUpdateCode) {
-            $updateCode = 'code = :code,';
-        }
-
         $sqlText = "
-update {$this->tableName} 
+update $this->tableName 
 set 
-    $updateCode
     title=:title,
     remark=:remark
 where
-      code=:target
+      \"$this->uniqueIndex\"=:target
 ";
         $query = $this->db->prepare($sqlText);
 
-        if ($letUpdateCode) {
-            $query->bindParam(':code', $code);
-        }
         $query->bindParam(':title', $title);
         $query->bindParam(':remark', $remark);
-        $query->bindParam(':target', $targetCode);
+        $query->bindParam(':target', $this->uniqueness);
 
         /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $query->execute();

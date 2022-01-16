@@ -1,85 +1,56 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 26.12.2021, 5:51
+ * Copyright © 2022 Volkhin Nikolay
+ * 16.01.2022, 8:05
  */
 
 
 namespace AllThings\SearchEngine;
 
 
-use Exception;
+use JetBrains\PhpStorm\Pure;
 
 class SearchTerm implements Searchable
 {
+    private string $dataType;
+    private string $rangeType;
 
-    private $dataType = '';
-    private $rangeType = '';
-
-    public function __construct()
-    {
-        $this->dataType = static::UNDEFINED;
-        $this->rangeType = static::UNDEFINED;
+    /**
+     * @param string $dataType
+     * @param string $rangeType
+     */
+    public function __construct(
+        string $dataType = self::UNDEFINED,
+        string $rangeType = self::UNDEFINED
+    ) {
+        $this->dataType = $dataType;
+        $this->rangeType = $rangeType;
     }
 
     public function getDataType(): string
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $this->dataType;
 
         return $result;
     }
 
-    public function setDataType(string $value): Searchable
-    {
-        $isAcceptable = in_array(
-            $value,
-            static::DATA_TYPE,
-            true
-        );
-        if (!$isAcceptable) {
-            throw new Exception('Data type'
-                . ' MUST be one of :'
-                . ' word | number | time | interval'
-                . ", `$value` given");
-        }
-
-        $this->dataType = $value;
-
-        return $this;
-    }
-
     public function getRangeType(): string
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $this->rangeType;
 
         return $result;
     }
 
-    public function setRangeType(string $value): Searchable
-    {
-        $isAcceptable = in_array(
-            $value,
-            static::RANGE_TYPE,
-            true
-        );
-        if (!$isAcceptable) {
-            throw new Exception('Range type'
-                . ' MUST be one of :'
-                . ' continuous | discrete'
-                . ", `$value` given");
-        }
-
-        $this->rangeType = $value;
-
-        return $this;
-    }
-
+    #[Pure]
     public function getSearchableCopy(): Searchable
     {
-        $copy = (new SearchTerm())
-            ->setDataType($this->dataType)
-            ->setRangeType($this->rangeType);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $copy = (new SearchTerm(
+            $this->getDataType(), $this->getRangeType()
+        ));
 
         return $copy;
     }

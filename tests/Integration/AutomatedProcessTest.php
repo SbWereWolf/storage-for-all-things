@@ -2,12 +2,11 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 8:09
+ * 16.01.2022, 8:05
  */
 
 namespace Integration;
 
-use AllThings\Blueprint\Attribute\Attribute;
 use AllThings\ControlPanel\Browser;
 use AllThings\ControlPanel\Designer;
 use AllThings\ControlPanel\ProductionLine;
@@ -15,11 +14,9 @@ use AllThings\ControlPanel\Relation\BlueprintFactory;
 use AllThings\ControlPanel\Relation\CatalogFactory;
 use AllThings\ControlPanel\Relation\SpecificationFactory;
 use AllThings\DataAccess\Crossover\Crossover;
-use AllThings\DataAccess\Nameable\NamedEntity;
 use AllThings\DataAccess\Nameable\NamedManager;
 use AllThings\SearchEngine\ContinuousFilter;
 use AllThings\SearchEngine\DiscreteFilter;
-use AllThings\SearchEngine\SearchTerm;
 use AllThings\StorageEngine\Storable;
 use AllThings\StorageEngine\StorageManager;
 use Environment\Database\PdoConnection;
@@ -201,7 +198,7 @@ class AutomatedProcessTest extends TestCase
         $productionLine = new ProductionLine($linkToData);
         $catalog = (new CatalogFactory($linkToData))->make($essence);
         foreach ($titles as $code => $title) {
-            $product = $productionLine->create($code, $title,);
+            $product = $productionLine->create($code, $title);
             $specification = (new SpecificationFactory($linkToData))
                 ->make($product->getCode());
 
@@ -494,21 +491,24 @@ class AutomatedProcessTest extends TestCase
         string $essence
     ): void {
         $filtersValue = 'a:3:{i:0;O:37:"AllThings\SearchEngine\Disc' .
-            'reteFilter":2:{s:45:" AllThings\SearchEngine\Discret' .
+            'reteFilter":3:{s:45:" AllThings\SearchEngine\Discret' .
             'eFilter values";a:2:{i:0;s:24:"Екатеринбург";i:1;s:1' .
             '8:"Челябинск";}s:40:" AllThings\SearchEngine\Filter' .
-            ' attribute";s:19:"place-of-production";}i:1;O:39:"Al' .
-            'lThings\SearchEngine\ContinuousFilter":3:{s:44:" All' .
-            'Things\SearchEngine\ContinuousFilter min";s:6:"4.500' .
-            '0";s:44:" AllThings\SearchEngine\ContinuousFilter ' .
-            'max";s:7:"15.5000";s:40:" AllThings\SearchEngine\Fil' .
-            'ter attribute";s:5:"price";}i:2;O:39:"AllThings\Sear' .
-            'chEngine\ContinuousFilter":3:{s:44:" AllThings\Searc' .
-            'hEngine\ContinuousFilter min";s:22:"2018-04-27 00:00' .
-            ':00+00";s:44:" AllThings\SearchEngine\ContinuousFilt' .
-            'er max";s:22:"2018-04-29 13:56:00+00";s:40:" AllTh' .
-            'ings\SearchEngine\Filter attribute";s:15:"production' .
-            '-date";}}';
+            ' attribute";s:19:"place-of-production";s:39:" AllT' .
+            'hings\SearchEngine\Filter dataType";s:4:"word";}i:1;' .
+            'O:39:"AllThings\SearchEngine\ContinuousFilter":4:{s:44' .
+            ':" AllThings\SearchEngine\ContinuousFilter min";s:' .
+            '6:"4.5000";s:44:" AllThings\SearchEngine\ContinuousF' .
+            'ilter max";s:7:"15.5000";s:40:" AllThings\SearchEn' .
+            'gine\Filter attribute";s:5:"price";s:39:" AllThing' .
+            's\SearchEngine\Filter dataType";s:6:"number";}i:2;O:' .
+            '39:"AllThings\SearchEngine\ContinuousFilter":4:{s:44:"' .
+            ' AllThings\SearchEngine\ContinuousFilter min";s:22' .
+            ':"2018-04-27 00:00:00+00";s:44:" AllThings\SearchEng' .
+            'ine\ContinuousFilter max";s:22:"2018-04-29 13:56:00+' .
+            '00";s:40:" AllThings\SearchEngine\Filter attribute' .
+            '";s:15:"production-date";s:39:" AllThings\SearchEngi' .
+            'ne\Filter dataType";s:4:"time";}}';
         $this->assertTrue(
             serialize($data) === $filtersValue,
             "Filters of essence `$essence` must have proper value"
@@ -528,10 +528,10 @@ class AutomatedProcessTest extends TestCase
         /* ## ## S002A4S04 сделать выборку экземпляров по заданным
         условиям поиска (поиск в представлении) */
         $continuous = new ContinuousFilter(
-            $context['price'], '4.50', '15.50'
+            $context['price'], 'number', '4.50', '9.50'
         );
         $discrete = new DiscreteFilter(
-            $context['place-of-production'], ['Челябинск']
+            $context['place-of-production'], 'word', ['Екатеринбург']
         );
         $browser = new Browser($context['PDO']);
 
@@ -619,10 +619,10 @@ class AutomatedProcessTest extends TestCase
         /* ## ## S002A4S04 сделать выборку экземпляров по заданным
         условиям поиска (поиск в представлении) */
         $continuous = new ContinuousFilter(
-            $context['price'], '4.50', '15.50'
+            $context['price'], 'number', '4.50', '9.50'
         );
         $discrete = new DiscreteFilter(
-            $context['place-of-production'], ['Челябинск']
+            $context['place-of-production'], 'word', ['Екатеринбург']
         );
         $browser = new Browser($context['PDO']);
 
@@ -708,10 +708,10 @@ class AutomatedProcessTest extends TestCase
         /* ## ## S002A4S04 сделать выборку экземпляров по заданным
         условиям поиска (поиск в представлении) */
         $continuous = new ContinuousFilter(
-            $context['price'], '4.50', '15.50'
+            $context['price'], 'number', '4.50', '9.50'
         );
         $discrete = new DiscreteFilter(
-            $context['place-of-production'], ['Челябинск']
+            $context['place-of-production'], 'word', ['Екатеринбург']
         );
         $browser = new Browser($context['PDO']);
 
@@ -959,16 +959,11 @@ class AutomatedProcessTest extends TestCase
     {
         $essence = $context['essence'];
         $linkToData = $context['PDO'];
-
         $schema = new StorageManager($linkToData, $essence,);
-        $schema->change(Storable::RAPID_RECORDING);
 
-        $attribute = new Attribute(
-            (new NamedEntity())->setCode('package'),
-            (new SearchTerm())->setDataType('word')
-                ->setRangeType('discrete'),
-        );
-        $schema->setup($attribute);
+        $schema->change(Storable::RAPID_RECORDING);
+        /* $schema->setup('package', 'word'); */
+        $schema->setup('package');
 
         $productList = [
             'bun-with-jam' => 'без упаковки',
@@ -1178,7 +1173,7 @@ class AutomatedProcessTest extends TestCase
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
-        $this->checkShowAll($context, $data, true,);
+        $this->checkShowAll($context, $data, true);
     }
 
     /**
@@ -1202,7 +1197,7 @@ class AutomatedProcessTest extends TestCase
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
-        $this->checkShowAll($context, $data, true,);
+        $this->checkShowAll($context, $data, true);
     }
 
     /**
@@ -1232,11 +1227,9 @@ class AutomatedProcessTest extends TestCase
         $catalog = (new CatalogFactory($linkToData))->make($essence);
         $catalog->detach($item);
 
-        $default = (new NamedEntity())->setCode($item);
-        $named = new NamedManager($item, 'thing', $linkToData);
-        $named->setNamed($default);
+        $named = new NamedManager($linkToData, 'thing');
+        $isSuccess = $named->remove($item);
 
-        $isSuccess = $named->remove();
         $this->assertTrue(
             $isSuccess,
             'Item must be created with success',
@@ -1265,7 +1258,7 @@ class AutomatedProcessTest extends TestCase
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
-        $this->checkShowAll($context, $data,);
+        $this->checkShowAll($context, $data);
     }
 
     /**
@@ -1289,7 +1282,7 @@ class AutomatedProcessTest extends TestCase
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
-        $this->checkShowAll($context, $data,);
+        $this->checkShowAll($context, $data);
     }
 
     /**
@@ -1312,7 +1305,7 @@ class AutomatedProcessTest extends TestCase
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
-        $this->checkShowAll($context, $data,);
+        $this->checkShowAll($context, $data);
     }
 
     /**

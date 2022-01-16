@@ -2,77 +2,58 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 13:52
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\Blueprint\Essence;
 
 use AllThings\DataAccess\Uniquable\UniqueManager;
+use Exception;
 
 class EssenceManager extends UniqueManager implements IEssenceManager
 {
-    private ?IEssence $subject = null;
-
     /**
-     * @return EssenceHandler
+     * @return IEssenceHandler
+     * @throws Exception
      */
-    private function getEssenceHandler(): EssenceHandler
+    private function getEssenceHandler(): IEssenceHandler
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $handler = new EssenceHandler(
-            $this->subject->getCode(),
+            $this->db,
             $this->storageLocation,
-            $this->dataPath,
+            $this->dataSource,
+            $this->uniqueIndex,
         );
-        $data = $this->subject->GetEssenceCopy();
-        $handler->setEssence($data);
 
         return $handler;
     }
 
-    public function correct(string $targetIdentity = ''): bool
+    /**
+     * @throws Exception
+     */
+    public function correct(object $attribute): bool
     {
         $handler = $this->getEssenceHandler();
-
-        $result = $handler->write($targetIdentity);
-
-        return $result;
-    }
-
-    public function browse(): bool
-    {
-        $handler = $this->getEssenceHandler();
-
-        $result = $handler->read();
-
-        if ($result) {
-            $this->subject = $handler->retrieve();
-        }
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $handler->write($attribute);
 
         return $result;
-    }
-
-    public function retrieve(): IEssence
-    {
-        $nameable = $this->subject->getNameableCopy();
-        $storable = $this->subject->getStorableCopy();
-
-        $data = new Essence($nameable, $storable);
-
-        return $data;
-    }
-
-    public function has(): bool
-    {
-        return !is_null($this->subject);
     }
 
     /**
-     * @param IEssence|null $subject
+     * @param string $uniqueness
+     *
+     * @return IEssence
+     * @throws Exception
      */
-    public function setEssence(IEssence $subject): bool
+    public function browse(string $uniqueness): IEssence
     {
-        $this->subject = $subject;
+        $handler = $this->getEssenceHandler();
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $handler->read($uniqueness);
 
-        return true;
+
+        return $result;
     }
 }

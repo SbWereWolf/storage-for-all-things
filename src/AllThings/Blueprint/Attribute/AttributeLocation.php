@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 9:02
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\Blueprint\Attribute;
@@ -11,48 +11,35 @@ use AllThings\DataAccess\Uniquable\UniqueLocation;
 
 class AttributeLocation extends UniqueLocation implements AttributeWriter
 {
-    public function update(
-        IAttribute $suggestion,
-        string $target
-    ): bool {
-        if (!$target) {
-            $target = $suggestion->getCode();
-        }
-
-        $code = $suggestion->getCode();
-        $title = $suggestion->getTitle();
-        $remark = $suggestion->getRemark();
-        $dataType = $suggestion->getDataType();
-        $rangeType = $suggestion->getRangeType();
-
-        $letUpdateCode = $target !== $code;
-        $updateCode = '';
-        if ($letUpdateCode) {
-            $updateCode = 'code = :code,';
-        }
-
+    public function update(IAttribute $suggestion): bool
+    {
         $sqlText = "
 update $this->tableName 
 set
-    $updateCode
     title=:title,
     remark=:remark,
     data_type=:data_type,
     range_type=:range_type
 where 
-      code=:target
+      \"$this->uniqueIndex\"=:target
 ";
 
         $query = $this->db->prepare($sqlText);
 
-        if ($letUpdateCode) {
-            $query->bindParam(':code', $code);
-        }
-        $query->bindParam(':title', $title);
-        $query->bindParam(':remark', $remark);
-        $query->bindParam(':data_type', $dataType);
-        $query->bindParam(':range_type', $rangeType);
+        $target = $suggestion->getCode();
         $query->bindParam(':target', $target);
+
+        $title = $suggestion->getTitle();
+        $query->bindParam(':title', $title);
+
+        $remark = $suggestion->getRemark();
+        $query->bindParam(':remark', $remark);
+
+        $dataType = $suggestion->getDataType();
+        $query->bindParam(':data_type', $dataType);
+
+        $rangeType = $suggestion->getRangeType();
+        $query->bindParam(':range_type', $rangeType);
 
         /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $query->execute();

@@ -2,69 +2,80 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 3:02
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\DataAccess\Nameable;
 
+use Exception;
 use PDO;
 
 class DataSource implements ValuableReader
 {
-
-    private string $tableName;
-    /**
-     * @var PDO
-     */
-    private PDO $dataSource;
+    protected string $tableName;
+    protected PDO $db;
+    protected string $uniqueness;
+    protected string $uniqueIndex;
 
     /**
+     * @param PDO    $db
      * @param string $table
-     * @param PDO $dataSource
+     * @param string $uniqueness
+     * @param string $uniqueIndex
      */
-    public function __construct(string $table, PDO $dataSource)
-    {
+    public function __construct(
+        PDO $db,
+        string $table,
+        string $uniqueness,
+        string $uniqueIndex = 'code'
+    ) {
         $this->tableName = $table;
-        $this->dataSource = $dataSource;
+        $this->db = $db;
+        $this->uniqueness = $uniqueness;
+        $this->uniqueIndex = $uniqueIndex;
     }
 
-    public function select(Nameable $entity): bool
+    /**
+     * @throws Exception
+     */
+    public function select(): Nameable
     {
-        $target = $entity->getCode();
-
         $sqlText = "
-select code,title,remark 
+select \"$this->uniqueIndex\",title,remark 
 from $this->tableName
-where code=:target
+where \"$this->uniqueIndex\"=:target
+ORDER BY \"$this->uniqueIndex\"
 ";
-        $connection = $this->dataSource;
 
-        $query = $connection->prepare($sqlText);
-        $query->bindParam(':target', $target);
+        $query = $this->db->prepare($sqlText);
+        $query->bindParam(':target', $this->uniqueness);
         $result = $query->execute();
 
         $data = null;
         $isSuccess = $result === true;
         if ($isSuccess) {
-            $data = $query->fetchAll();
+            $data = $query->fetchAll(PDO::FETCH_ASSOC);
         }
 
-        $isSuccess = !empty($data);
+        $isSuccess = $data !== false;
         if (!$isSuccess) {
-            $result = false;
+            throw new Exception(
+                "Fail read data for index `$this->uniqueness`"
+            );
         }
-        if ($isSuccess) {
-            $row = $data[0];
+        $row = $data[0];
 
-            $code = $row['code'];
-            $title = $row['title'];
-            $remark = $row['remark'];
+        $code = $row[$this->uniqueIndex];
+        $title = $row['title'];
+        $remark = $row['remark'];
 
-            $entity->setCode($code);
-            $entity->setTitle($title);
-            $entity->setRemark($remark);
-        }
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $entity = (new NamedFactory())
+            ->setCode($code)
+            ->setTitle($title)
+            ->setRemark($remark)
+            ->makeNameable();
 
-        return $result;
+        return $entity;
     }
 }

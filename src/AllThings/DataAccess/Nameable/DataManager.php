@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\DataAccess\Nameable;
@@ -11,7 +11,7 @@ use AllThings\DataAccess\Uniquable\UniquableManager;
 
 interface DataManager extends UniquableManager
 {
-    public function correct(string $targetIdentity = ''): bool;
+    public function correct(object $named): bool;
 
-    public function browse(): bool;
+    public function browse(string $uniqueness): Nameable;
 }

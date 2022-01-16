@@ -2,58 +2,24 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 6:19
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\StorageEngine;
 
+use AllThings\ControlPanel\Relation\BlueprintFactory;
+use AllThings\SearchEngine\Converter;
+use AllThings\SearchEngine\Searchable;
+use Exception;
 
-use AllThings\Blueprint\Attribute\AttributeHelper;
-use AllThings\Blueprint\Attribute\IAttribute;
-use AllThings\DataAccess\Linkage\ForeignKey;
-use AllThings\DataAccess\Linkage\Linkage;
-use AllThings\DataAccess\Linkage\LinkageManager;
-use AllThings\DataAccess\Linkage\LinkageTable;
-use PDO;
-
-class DirectReading implements Installation
+class DirectReading extends DBObject implements Installation
 {
     public const STRUCTURE_PREFIX = 'auto_v_';
 
-    private $essence = '';
     /**
-     * @var PDO
+     * @throws Exception
      */
-    private $linkToData;
-
-    public function __construct(string $essence, PDO $linkToData)
-    {
-        $this->setEssence($essence)->setLinkToData($linkToData);
-    }
-
-    /**
-     * @param PDO $linkToData
-     *
-     * @return DirectReading
-     */
-    private function setLinkToData(PDO $linkToData): DirectReading
-    {
-        $this->linkToData = $linkToData;
-        return $this;
-    }
-
-    /**
-     * @param string $essence
-     *
-     * @return DirectReading
-     */
-    private function setEssence(string $essence): DirectReading
-    {
-        $this->essence = $essence;
-        return $this;
-    }
-
-    public function setup(?IAttribute $attribute = null): bool
+    public function setup(string $attribute = '', string $dataType = ''): bool
     {
         $linkToData = $this->getDb();
 
@@ -64,34 +30,17 @@ class DirectReading implements Installation
         $essence = $this->getEssence();
         $attributes = [];
         if ($isSuccess) {
-            $essenceKey = new ForeignKey(
-                'essence',
-                'id',
-                'code'
+            $blueprint = (new BlueprintFactory($linkToData))
+                ->make($essence);
+            $attributes = $blueprint->list(
+                [Searchable::DATA_TYPE_FIELD]
             );
-            $attributeKey = new ForeignKey(
-                'attribute',
-                'id',
-                'code'
-            );
-            $specification = new LinkageTable(
-                'essence_attribute', $essenceKey, $attributeKey,
-            );
-            $specificationManager = new LinkageManager(
-                $this->linkToData,
-                $specification,
-            );
-
-            $linkage = (new Linkage())->setLeftValue($essence);
-            $attributes = $specificationManager
-                ->getAssociated($linkage);
         }
 
         $columns = [];
-        foreach ($attributes as $attribute) {
-            $table = AttributeHelper::getLocation(
-                $attribute,
-                $this->linkToData
+        foreach ($attributes as $attribute => $settings) {
+            $table = Converter::getDataLocation(
+                $settings[Searchable::DATA_TYPE_FIELD]
             );
 
             $column = "
@@ -125,32 +74,10 @@ WHERE
 ";
         $ddl = "CREATE VIEW {$this->name()} AS $contentRequest";
         $affected = $linkToData->exec($ddl);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $affected !== false;
 
         return $result;
-    }
-
-    /**
-     * @return PDO
-     */
-    public function getDb(): PDO
-    {
-        return $this->linkToData;
-    }
-
-    public function name(): string
-    {
-        $name = self::STRUCTURE_PREFIX . $this->getEssence();
-
-        return $name;
-    }
-
-    /**
-     * @return string
-     */
-    public function getEssence(): string
-    {
-        return $this->essence;
     }
 
     public function refresh(array $values = []): bool
@@ -158,6 +85,9 @@ WHERE
         return true;
     }
 
+    /**
+     * @throws Exception
+     */
     public function prune(string $attribute): bool
     {
         return $this->setup();

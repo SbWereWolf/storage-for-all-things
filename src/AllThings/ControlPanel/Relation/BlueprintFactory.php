@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 6:19
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\ControlPanel\Relation;
@@ -17,6 +17,9 @@ class BlueprintFactory
 {
     private PDO $db;
 
+    /**
+     * @param PDO $connection
+     */
     public function __construct(PDO $connection)
     {
         $this->db = $connection;
@@ -43,8 +46,9 @@ class BlueprintFactory
             $categoryTable,
         );
 
-        $category = new EssenceRelated($essence, $details,);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $blueprint = new EssenceRelated($essence, $details,);
 
-        return $category;
+        return $blueprint;
     }
 }

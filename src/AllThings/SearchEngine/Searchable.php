@@ -1,59 +1,39 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 26.12.2021, 5:51
+ * Copyright © 2022 Volkhin Nikolay
+ * 16.01.2022, 8:05
  */
 
 
 namespace AllThings\SearchEngine;
 
 
-interface Searchable
+interface Searchable extends Findable
 {
     public const UNDEFINED = 'undefined';
 
-    public const SYMBOLS = 'word';
-    public const DECIMAL = 'number';
-    public const TIMESTAMP = 'time';
-    public const INTERVAL = 'interval';
-
-    public const DATA_TYPE = [
+    public const DATA_TYPES = [
         self::SYMBOLS,
         self::DECIMAL,
         self::TIMESTAMP,
         self::INTERVAL,
     ];
 
-    public const DATA_LOCATION = [
-        self::SYMBOLS => 'word',
-        self::DECIMAL => 'number',
-        self::TIMESTAMP => 'time_moment',
-        self::INTERVAL => 'time_interval',
-    ];
-
-    public const DATA_FORMAT = [
-        self::SYMBOLS => 'text',
-        self::DECIMAL => 'decimal',
-        self::TIMESTAMP => 'timestamptz',
-        self::INTERVAL => 'interval',
-    ];
-
     public const CONTINUOUS = 'continuous';
     public const DISCRETE = 'discrete';
 
-    public const RANGE_TYPE = [
+    public const RANGE_TYPES = [
         self::CONTINUOUS,
         self::DISCRETE,
     ];
 
+    public const DATA_TYPE_FIELD = 'data_type';
+    public const RANGE_TYPE_FIELD = 'range_type';
+
     public function getDataType(): string;
 
-    public function setDataType(string $value): Searchable;
-
     public function getRangeType(): string;
-
-    public function setRangeType(string $value): Searchable;
 
     public function getSearchableCopy(): Searchable;
 }

@@ -2,33 +2,39 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 3:25
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\ControlPanel\Relation;
 
 use AllThings\ControlPanel\ContentAccessFactory;
 use AllThings\ControlPanel\Specification;
-use AllThings\SearchEngine\Searchable;
+use AllThings\SearchEngine\Findable;
+use JetBrains\PhpStorm\Pure;
 use PDO;
 
 class SpecificationFactory
 {
     private PDO $db;
 
+    /**
+     * @param PDO $connection
+     */
     public function __construct(PDO $connection)
     {
         $this->db = $connection;
     }
 
-    public function make(string $code): Specification
+    #[Pure]
+    public function make(string $product): Specification
     {
         $factory = new ContentAccessFactory(
             $this->db,
-            Searchable::DATA_LOCATION
+            Findable::DATA_LOCATIONS
         );
-        $product = new Specification($code, $factory,);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $specification = new Specification($product, $factory,);
 
-        return $product;
+        return $specification;
     }
 }

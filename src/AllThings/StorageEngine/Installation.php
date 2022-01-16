@@ -2,13 +2,12 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 10.01.2022, 6:49
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\StorageEngine;
 
 
-use AllThings\Blueprint\Attribute\IAttribute;
 use PDO;
 
 interface Installation
@@ -16,14 +15,19 @@ interface Installation
     /**
      * Создать структуру для записи данных
      *
-     * @param IAttribute|null $attribute
+     * @param string $attribute
+     * @param string $dataType
      *
      * @return bool
      */
-    public function setup(?IAttribute $attribute = null): bool;
+    public function setup(
+        string $attribute = '',
+        string $dataType = ''
+    ): bool;
 
     /**
      * Получить имя источника
+     *
      * @return string
      */
     public function name(): string;
@@ -40,6 +44,8 @@ interface Installation
 
     /**
      * Освежить данные в источнике
+     *
+     * @param array $values
      *
      * @return bool
      */

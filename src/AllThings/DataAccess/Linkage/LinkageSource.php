@@ -2,25 +2,19 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 9:02
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\DataAccess\Linkage;
 
-use AllThings\DataAccess\DataTransfer\Extractable;
-use AllThings\DataAccess\DataTransfer\Haves;
 use PDO;
 
-class LinkageSource
-    implements ColumnReader,
-               Extractable,
-               Haves
+class LinkageSource implements RelatedReading
 {
-    protected $tableStructure;
-    protected $db;
-    protected $rightKey;
-    protected $leftKey;
-    private array $dataSet = [];
+    protected ILinkageTable $tableStructure;
+    protected PDO $db;
+    protected IForeignKey $rightKey;
+    protected IForeignKey $leftKey;
 
     public function __construct(
         IForeignKey $leftKey,
@@ -34,61 +28,69 @@ class LinkageSource
         $this->leftKey = $leftKey;
     }
 
-    public function getForeignColumn(ILinkage $linkage): bool
-    {
+    public function getRelatedFields(
+        ILinkage $linkage,
+        string $filed,
+    ): array {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $this->getRelatedRecords($linkage, [$filed]);
+
+        return $result;
+    }
+
+    public function getRelatedRecords(
+        ILinkage $linkage,
+        array $fields
+    ): array {
+        $rColumn = $this->rightKey->getMatchColumn();
+        $letSimple = empty($fields) ||
+            (in_array($rColumn, $fields) && count($fields) === 1);
+
+        if (!in_array($rColumn, $fields)) {
+            $fields[] = $rColumn;
+        }
+
+        $fields = array_map(fn($field) => "R.\"$field\"", $fields);
+        $selectPhase = implode(',', $fields);
+
         $lTable = $this->leftKey->getTable();
-        $lColumn = $this->leftKey->getColumn();
-        $lIndex = $this->leftKey->getIndex();
+        $lPrimary = $this->leftKey->getPrimaryIndex();
+        $lColumn = $this->leftKey->getMatchColumn();
 
         $rTable = $this->rightKey->getTable();
-        $rColumn = $this->rightKey->getColumn();
-        $rIndex = $this->rightKey->getIndex();
+        $rPrimary = $this->rightKey->getPrimaryIndex();
 
         $tName = $this->tableStructure->getTableName();
-        $lKey = $this->tableStructure->getLeftColumn();
-        $rKey = $this->tableStructure->getRightColumn();
+        $lForeignKey = $this->tableStructure->getLeftForeign();
+        $rForeignKey = $this->tableStructure->getRightForeign();
 
         $sqlText = "
-select R.{$rIndex} as code 
+select $selectPhase
 from $tName LR 
-join $lTable L on LR.{$lKey} = L.{$lColumn} 
-join $rTable R on LR.{$rKey} = R.{$rColumn}
-where L.{$lIndex}=:l_value";
+join $lTable L on LR.$lForeignKey = L.$lPrimary 
+join $rTable R on LR.$rForeignKey = R.$rPrimary
+where L.$lColumn=:l_value
+ORDER BY 1";
 
-        $connection = $this->db;
-        $query = $connection->prepare($sqlText);
+        $query = $this->db->prepare($sqlText);
 
         $lValue = $linkage->getLeftValue();
         $query->bindParam(':l_value', $lValue);
 
         $result = $query->execute() !== false;
+        $data = $result ? $query->fetchAll(PDO::FETCH_ASSOC) : [];
 
-        $data = null;
-        if ($result) {
-            $data = $query->fetchAll();
+        if ($letSimple) {
+            $data = array_column($data, $rColumn);
+        }
+        if (!$letSimple) {
+            $data = array_column($data, null, $rColumn);
+
+            foreach ($data as $key => $val) {
+                unset($data[$key][$rColumn]);
+            }
         }
 
-        $this->dataSet = [];
-        if ($data) {
-            $this->dataSet = array_column($data, 'code');
-        }
-
-        $result = $result && !empty($this->dataSet);
-
-        return $result;
-    }
-
-    public function has(): bool
-    {
-        $has = !empty($this->dataSet);
-
-        return $has;
-    }
-
-    public function extract(): array
-    {
-        $result = $this->dataSet;
-
-        return $result;
+        return $data;
     }
 }

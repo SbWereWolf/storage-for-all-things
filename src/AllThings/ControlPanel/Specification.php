@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 3:25
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\ControlPanel;
@@ -17,6 +17,10 @@ class Specification
     private string $thing;
     private ContentAccessFactory $factory;
 
+    /**
+     * @param string               $thing
+     * @param ContentAccessFactory $accessFactory
+     */
     public function __construct(
         string $thing,
         ContentAccessFactory $accessFactory,
@@ -37,6 +41,10 @@ class Specification
         return $this;
     }
 
+    /** @noinspection PhpReturnValueOfMethodIsNeverUsedInspection */
+    /**
+     * @throws Exception
+     */
     private function attachOne(string $attribute): static
     {
         $linkage = (new Linkage())
@@ -66,6 +74,10 @@ class Specification
         return $this;
     }
 
+    /** @noinspection PhpReturnValueOfMethodIsNeverUsedInspection */
+    /**
+     * @throws Exception
+     */
     private function detachOne(string $attribute): static
     {
         $linkage = (new Linkage())
@@ -101,7 +113,7 @@ class Specification
     private function defineOne(
         string $attribute,
         string $content
-    ): static {
+    ): void {
         $value = (new Crossover())
             ->setContent($content);
         $value->setLeftValue($this->thing)
@@ -116,10 +128,11 @@ class Specification
                 'Value must be defined with success'
             );
         }
-
-        return $this;
     }
 
+    /**
+     * @throws Exception
+     */
     public function purge(array $attributes): static
     {
         $linkage = (new Crossover())

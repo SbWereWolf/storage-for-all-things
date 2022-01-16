@@ -2,14 +2,16 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 3:02
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\DataAccess\Uniquable;
 
 interface UniquableHandler
 {
-    public function erase(): bool;
+    public function add(string $uniqueness): bool;
 
-    public function add(): bool;
+    public function erase(string $uniqueness): bool;
+
+    public function take(array $fields, array $uniquenesses): array;
 }

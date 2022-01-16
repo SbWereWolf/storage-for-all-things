@@ -2,145 +2,85 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 6:19
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\StorageEngine;
 
-use AllThings\Blueprint\Attribute\Attribute;
-use AllThings\Blueprint\Attribute\AttributeHelper;
-use AllThings\Blueprint\Attribute\AttributeManager;
-use AllThings\Blueprint\Attribute\IAttribute;
-use AllThings\DataAccess\Crossover\CrossoverManager;
+use AllThings\ControlPanel\Relation\BlueprintFactory;
+use AllThings\ControlPanel\Relation\SpecificationFactory;
 use AllThings\DataAccess\Crossover\ICrossover;
-use AllThings\DataAccess\Linkage\ForeignKey;
-use AllThings\DataAccess\Linkage\Linkage;
-use AllThings\DataAccess\Linkage\LinkageManager;
-use AllThings\DataAccess\Linkage\LinkageTable;
+use AllThings\SearchEngine\Converter;
 use AllThings\SearchEngine\Searchable;
 use Exception;
-use PDO;
 
-class RapidRecording implements Installation
+class RapidRecording extends DBObject implements Installation
 {
     public const STRUCTURE_PREFIX = 'auto_t_';
     public const SEPARATORS = ['.', ':', '-', '+', '@', '#', '&',];
 
-    private $essence = '';
-    /**
-     * @var PDO
-     */
-    private $db;
-
-    public function __construct(string $essence, PDO $linkToData)
-    {
-        $this->setEssence($essence)->setDb($linkToData);
-    }
-
-    /**
-     * @param PDO $linkToData
-     *
-     * @return self
-     */
-    private function setDb(PDO $linkToData): static
-    {
-        $this->db = $linkToData;
-        return $this;
-    }
-
-    /**
-     * @param string $essence
-     *
-     * @return self
-     */
-    private function setEssence(string $essence): static
-    {
-        $this->essence = $essence;
-        return $this;
-    }
-
     /**
      * @param string $dml
+     *
      * @return bool
      */
     private function executeSql(string $dml): bool
     {
         $affected = $this->db->exec($dml);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $affected !== false;
 
         return $result;
     }
 
-    public function setup(?IAttribute $attribute = null): bool
-    {
+    /**
+     * @throws Exception
+     */
+    public function setup(
+        string $attribute = '',
+        string $dataType = ''
+    ): bool {
         $result = false;
         if (!$attribute) {
             $result = $this->setupTable();
         }
-        if ($attribute) {
-            $result = $this->setupColumn($attribute);
+        if ($attribute && !$dataType) {
+            $blueprint = (new BlueprintFactory($this->db))
+                ->make($this->getEssence());
+            $attributes = $blueprint->list([Searchable::DATA_TYPE_FIELD]);
+
+            $dataType = $attributes[$attribute][Searchable::DATA_TYPE_FIELD];
+        }
+        if ($attribute && $dataType) {
+            $result = $this->setupColumn($attribute, $dataType);
         }
 
         return $result;
     }
 
     /**
-     * @return PDO
+     * @throws Exception
      */
-    public function getDb(): PDO
-    {
-        return $this->db;
-    }
-
-    public function name(): string
-    {
-        $name = static::STRUCTURE_PREFIX . $this->getEssence();
-
-        return $name;
-    }
-
-    /**
-     * @return string
-     */
-    public function getEssence(): string
-    {
-        return $this->essence;
-    }
-
     public function refresh(array $values = []): bool
     {
         $linkToData = $this->getDb();
+        $essence = $this->getEssence();
 
         $attributes = [];
         if (!$values) {
-            $essenceKey = new ForeignKey(
-                'essence',
-                'id',
-                'code'
-            );
-            $attributeKey = new ForeignKey(
-                'attribute',
-                'id',
-                'code'
-            );
-            $specification = new LinkageTable(
-                'essence_attribute', $essenceKey, $attributeKey,
-            );
-            $essenceManager = new LinkageManager(
-                $this->db,
-                $specification,
-            );
-
-            $linkage = (new Linkage())
-                ->setLeftValue($this->getEssence());
-
-            $attributes = $essenceManager->getAssociated($linkage);
+            $blueprint = (new BlueprintFactory($this->db))
+                ->make($essence);
+            $attributes = $blueprint->list();
         }
         $columnNames = [];
         foreach ($attributes as $code) {
-            $columnNames[] = "\"{$code}\"";
+            $columnNames[$code] = "\"$code\"";
         }
 
+        $tableNames = '';
+        $prefix = '';
+        $viewNames = '';
+        $view = null;
         $result = false;
         if ($columnNames) {
             $prefix = 'v.';
@@ -148,7 +88,7 @@ class RapidRecording implements Installation
             $tableNames = implode(',', $columnNames);
 
             $view = new DirectReading(
-                $this->getEssence(),
+                $essence,
                 $this->getDb()
             );
             /* Удаляем из таблицы записи, которых нет в представлении */
@@ -181,46 +121,32 @@ WHERE t.thing_id IS NULL
             $result = $this->executeSql($dml);
         }
 
+        if ($values) {
+            $blueprint = (new BlueprintFactory($this->db))
+                ->make($essence);
+            $attributes = $blueprint->list(
+                [Searchable::DATA_TYPE_FIELD]
+            );
+        }
+
+        $value = '';
         $pieces = [];
         $setParts = [];
         foreach ($values as $index => $value) {
             /* @var ICrossover $value */
             $attribute = $value->getRightValue();
+            $content = $value->getContent();
 
-            $table = AttributeHelper::getLocation(
-                $attribute,
-                $this->db,
-            );
+            $specification = (new SpecificationFactory($this->db))
+                ->make($essence);
+            $specification->define([$attribute => $content]);
 
-            $thingKey = new ForeignKey(
-                'thing',
-                'id',
-                'code'
-            );
-            $attributeKey = new ForeignKey(
-                'attribute',
-                'id',
-                'code'
-            );
-            $contentTable = new LinkageTable(
-                $table, $thingKey, $attributeKey,
-            );
+            $type =
+                $attributes[$attribute][Searchable::DATA_TYPE_FIELD];
+            $format = Converter::getFieldFormat($type);
 
-            $manager = new CrossoverManager(
-                $this->db,
-                $contentTable,
-            );
-
-            $manager->setSubject($value);
-            $manager->store($value);
-
-            $format = AttributeHelper::getFormat(
-                $attribute,
-                $this->db,
-            );
-
-            $pieces[":new_value$index"] = $value->getContent();
-            $setParts[] = "\"{$value->getRightValue()}\"" .
+            $pieces[":new_value$index"] = $content;
+            $setParts[] = "\"$attribute\"" .
                 " = :new_value$index::$format";
         }
         $setClause = implode(',', $setParts);
@@ -250,6 +176,9 @@ WHERE thing_id = (
         return $result;
     }
 
+    /**
+     * @throws Exception
+     */
     private function setupTable(): bool
     {
         $linkToData = $this->getDb();
@@ -259,80 +188,22 @@ WHERE thing_id = (
         $result = $affected !== false;
 
         $essence = $this->getEssence();
-        $attributeCodes = [];
-        if ($result) {
-            $essenceKey = new ForeignKey(
-                'essence',
-                'id',
-                'code'
-            );
-            $attributeKey = new ForeignKey(
-                'attribute',
-                'id',
-                'code'
-            );
-            $specification = new LinkageTable(
-                'essence_attribute', $essenceKey, $attributeKey,
-            );
-            $specificationManager = new LinkageManager(
-                $this->db,
-                $specification,
-            );
-
-            $linkage = (new Linkage())->setLeftValue($essence);
-            $attributeCodes = $specificationManager
-                ->getAssociated($linkage);
-        }
-
         $attributes = [];
-        foreach ($attributeCodes as $code) {
-            $subject = Attribute::GetDefaultAttribute();
-            $subject->setCode($code);
-            $attributeManager = new AttributeManager(
-                $code,
-                'attribute',
-                $linkToData
+        if ($result) {
+            $blueprint = (new BlueprintFactory($linkToData))
+                ->make($essence);
+            $attributes = $blueprint->list(
+                [Searchable::DATA_TYPE_FIELD]
             );
-            $attributeManager->setAttribute($subject);
-
-            $isSuccess = $attributeManager->browse();
-            if ($isSuccess) {
-                $isSuccess = $attributeManager->has();
-            }
-            if ($isSuccess) {
-                $attributes[] = $attributeManager->retrieve();
-            }
         }
         $columns = [];
         $columnNames = [];
         $indexes = [];
-        foreach ($attributes as $attribute) {
-            /* @var IAttribute $attribute */
-
-            $dataType = $attribute->getDataType();
-            switch ($dataType) {
-                case Searchable::SYMBOLS:
-                    $sqlType = 'VARCHAR(255)';
-                    break;
-                case Searchable::DECIMAL:
-                    $sqlType = 'DECIMAL(14,4)';
-                    break;
-                case Searchable::TIMESTAMP:
-                    $sqlType = 'TIMESTAMP WITH TIME ZONE';
-                    break;
-                case Searchable::INTERVAL:
-                    $sqlType = 'INTERVAL';
-                    break;
-                default:
-
-                    throw new Exception(
-                        'SQL data type for'
-                        . " `$dataType` is not defined"
-                    );
-            }
-
-            $code = $attribute->getCode();
-            $name = "\"{$code}\"";
+        foreach ($attributes as $code => $settings) {
+            $sqlType = Converter::getFieldFormat(
+                $settings[Searchable::DATA_TYPE_FIELD]
+            );
+            $name = "\"$code\"";
 
             $columns[] = "$name $sqlType";
             $columnNames[] = $name;
@@ -372,6 +243,7 @@ FROM {$view->name()}
             $result = $affected !== false;
 
             $ddl = implode('', $indexes);
+            /** @noinspection PhpUnusedLocalVariableInspection */
             $affected = $linkToData->exec($ddl);
         }
 
@@ -379,48 +251,29 @@ FROM {$view->name()}
     }
 
     /**
-     * @param IAttribute $attribute
+     * @param string $attribute
+     * @param string $dataType
+     *
      * @return bool
      * @throws Exception
      */
-    private function setupColumn(IAttribute $attribute): bool
+    private function setupColumn(string $attribute, string $dataType): bool
     {
-        $dataType = $attribute->getDataType();
-        switch ($dataType) {
-            case Searchable::SYMBOLS:
-                $sqlType = 'VARCHAR(255)';
-                break;
-            case Searchable::DECIMAL:
-                $sqlType = 'DECIMAL(14,4)';
-                break;
-            case Searchable::TIMESTAMP:
-                $sqlType = 'TIMESTAMP WITH TIME ZONE';
-                break;
-            case Searchable::INTERVAL:
-                $sqlType = 'INTERVAL';
-                break;
-            default:
-
-                throw new Exception(
-                    'SQL data type for'
-                    . " `$dataType` is not defined"
-                );
-        }
-
-        $code = $attribute->getCode();
-        $name = "\"{$code}\"";
+        $sqlType = Converter::getFieldType($dataType);
+        $name = "\"$attribute\"";
 
         $ddl = "
-ALTER TABLE {$this->name()} ADD COLUMN {$name} $sqlType
+ALTER TABLE {$this->name()} ADD COLUMN $name $sqlType
 ";
         $linkToData = $this->getDb();
 
         $affected = $linkToData->exec($ddl);
         $result = $affected !== false;
 
-        $stripped = str_replace(static::SEPARATORS, '', $code);
+        $stripped = str_replace(static::SEPARATORS, '', $attribute);
         $columnIndex = "CREATE INDEX {$this->name()}_{$stripped}_ix"
             . " on {$this->name()}($name);";
+        /** @noinspection PhpUnusedLocalVariableInspection */
         $affected = $linkToData->exec($columnIndex);
 
         return $result;
@@ -428,12 +281,13 @@ ALTER TABLE {$this->name()} ADD COLUMN {$name} $sqlType
 
     public function prune(string $attribute): bool
     {
-        $name = "\"{$attribute}\"";
+        $name = "\"$attribute\"";
         $ddl = "
-ALTER TABLE {$this->name()} DROP COLUMN {$name}
+ALTER TABLE {$this->name()} DROP COLUMN $name
 ";
 
         $affected = $this->getDb()->exec($ddl);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $affected !== false;
 
         return $result;

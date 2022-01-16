@@ -7,9 +7,7 @@
 
 namespace AllThings\DataAccess\Uniquable;
 
-interface UniquableWriter
+interface UniquableReader
 {
-    public function insert(): bool;
-
-    public function delete(): bool;
+    public function select(array $fields): array;
 }

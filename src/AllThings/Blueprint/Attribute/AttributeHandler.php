@@ -2,89 +2,78 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 9:03
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\Blueprint\Attribute;
 
 use AllThings\DataAccess\Uniquable\UniqueHandler;
+use Exception;
+use JetBrains\PhpStorm\Pure;
 use PDO;
 
 class AttributeHandler
     extends UniqueHandler
     implements IAttributeHandler
 {
-    private ?IAttribute $stuff = null;
+    protected PDO $db;
+    protected string $storageLocation;
+    protected string $dataSourceName = '';
+    protected string $uniqueIndex;
 
-    public function __construct(
-        string $uniqueness,
-        string $locationName,
-        PDO $db,
-    ) {
-        parent::__construct($uniqueness, $locationName, $db);
-
-        $this->dataSource = $locationName;
-    }
-
-    public function setAttribute(
-        IAttribute $stuff
-    ): IAttributeHandler {
-        $this->stuff = $stuff;
-
-        return $this;
-    }
-
-    public function read(): bool
+    /**
+     * @throws Exception
+     */
+    public function read(string $uniqueness): IAttribute
     {
-        $source = $this->getSource();
+        $source = $this->getSource($uniqueness);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $source->select();
 
-        $result = $source->select($this->stuff);
-        if (!$result) {
-            $this->stuff = null;
+        return $result;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function write(object $attribute): bool
+    {
+        if (!($attribute instanceof IAttribute)) {
+            $className = IAttribute::class;
+            throw new Exception(
+                "Arg \$attribute MUST BE `$className`"
+            );
         }
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $this->getLocation($attribute->getCode())
+            ->update($attribute);
 
         return $result;
     }
 
-    public function write(string $code): bool
+    #[Pure]
+    private function getSource(string $uniqueness): AttributeSource
     {
-        $location = $this->getLocation();
-
-        $result = $location->update($this->stuff, $code);
-        if (!$result) {
-            $this->stuff = null;
-        }
-
-        return $result;
-    }
-
-    public function retrieve(): IAttribute
-    {
-        $result = $this->stuff->GetAttributeCopy();
-
-        return $result;
-    }
-
-    public function has(): bool
-    {
-        return !is_null($this->stuff);
-    }
-
-    private function getSource(): AttributeSource
-    {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $repository = new AttributeSource(
-            $this->dataSource,
-            $this->db
+            $this->db,
+            $this->dataSourceName,
+            $uniqueness,
+            $this->uniqueIndex,
         );
 
         return $repository;
     }
 
-    private function getLocation(): AttributeLocation
+    #[Pure]
+    private function getLocation(string $uniqueness): AttributeLocation
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $repository = new AttributeLocation(
+            $this->db,
             $this->storageLocation,
-            $this->db
+            $uniqueness,
+            $this->uniqueIndex,
         );
         return $repository;
     }

@@ -2,11 +2,12 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 6:19
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\DataAccess\Linkage;
 
+use JetBrains\PhpStorm\Pure;
 use PDO;
 
 class LinkageHandler
@@ -39,6 +40,7 @@ class LinkageHandler
         return $result;
     }
 
+    #[Pure]
     private function getLinkageWriter(): LinkageWriter
     {
         /** @noinspection PhpUnnecessaryLocalVariableInspection */
@@ -63,20 +65,40 @@ class LinkageHandler
         return $result;
     }
 
-    public function getRelated(ILinkage $linkage): array
+    public function getRelatedFields(
+        ILinkage $linkage,
+        string $filed,
+    ): array {
+        $dataSource = $this->getDataSource();
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $dataSource->getRelatedFields($linkage, $filed);
+
+        return $result;
+    }
+
+    /**
+     * @return LinkageSource
+     */
+    #[Pure]
+    private function getDataSource(): LinkageSource
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $dataSource = new LinkageSource(
             $this->leftKey,
             $this->rightKey,
             $this->table,
             $this->db,
         );
-        $isSuccess = $dataSource->getForeignColumn($linkage);
+        return $dataSource;
+    }
 
-        $result = [];
-        if ($isSuccess && $dataSource->has()) {
-            $result = $dataSource->extract();
-        }
+    public function getRelatedRecords(
+        ILinkage $linkage,
+        array $fields
+    ): array {
+        $dataSource = $this->getDataSource();
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $dataSource->getRelatedRecords($linkage, $fields);
 
         return $result;
     }

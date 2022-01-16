@@ -2,13 +2,12 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 13:52
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\StorageEngine;
 
-use AllThings\Blueprint\Attribute\IAttribute;
-use AllThings\Blueprint\Essence\Essence;
+use AllThings\Blueprint\Essence\EssenceFactory;
 use AllThings\Blueprint\Essence\EssenceManager;
 use AllThings\Blueprint\Essence\IEssence;
 use Exception;
@@ -98,36 +97,37 @@ class StorageManager
     /**
      * @throws Exception
      */
-    public function change(string $storageKind): bool
+    public function change(string $storageManner): bool
     {
         $essence = $this->reload();
-        if (!$essence) {
-            throw new Exception('Essence must be find with success');
-        }
 
-        $essence->setStorageKind($storageKind);
-        $handler = new EssenceManager(
-            $essence->getCode(),
-            'essence',
-            $this->db
-        );
-        $handler->setEssence($essence);
+        $modified = (new EssenceFactory())
+            ->setCode($essence->getCode())
+            ->setTitle($essence->getTitle())
+            ->setRemark($essence->getRemark())
+            ->setStorageManner($storageManner)
+            ->makeEssence();
+        $handler = new EssenceManager($this->db, 'essence',);
 
-        $isSuccess = $handler->correct();
+        $isSuccess = $handler->correct($modified);
         if (!$isSuccess) {
             throw new Exception(
                 'Essence must be corrected with success'
             );
         }
 
+        /** @noinspection PhpExpressionAlwaysConstantInspection */
         return $isSuccess;
     }
 
-    public function setup(?IAttribute $attribute = null): StorageManager
+    /**
+     * @throws Exception
+     */
+    public function setup(string $attribute = '', string $dataType = ''): StorageManager
     {
         $dataHandler = $this->getHandler();
 
-        $isSuccess = $dataHandler->setup($attribute);
+        $isSuccess = $dataHandler->setup($attribute, $dataType);
         if (!$isSuccess) {
             throw new Exception(
                 'Installation MUST BE defined with success'
@@ -137,6 +137,9 @@ class StorageManager
         return $this;
     }
 
+    /**
+     * @throws Exception
+     */
     public function prune(string $attribute): bool
     {
         $dataHandler = $this->getHandler();
@@ -148,6 +151,7 @@ class StorageManager
             );
         }
 
+        /** @noinspection PhpExpressionAlwaysConstantInspection */
         return $isSuccess;
     }
 
@@ -179,45 +183,34 @@ class StorageManager
             throw new Exception('Essence must be find with success');
         }
 
-        $storageKind = $essence->getStorageKind();
-        switch ($storageKind) {
-            case Storable::DIRECT_READING:
-                $source = new DirectReading($this->essence, $this->db);
-                break;
-            case Storable::RAPID_OBTAINMENT:
-                $source = new RapidObtainment($this->essence, $this->db);
-                break;
-            case Storable::RAPID_RECORDING:
-                $source = new RapidRecording($this->essence, $this->db);
-                break;
-            default:
-                throw new Exception(
-                    'Storage kind'
-                    . ' MUST be one of :'
-                    . ' view | materialized view | table'
-                    . ", `$storageKind` given"
-                );
-        }
+        $storageKind = $essence->getStorageManner();
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $source = match ($storageKind) {
+            Storable::DIRECT_READING =>
+            new DirectReading($this->essence, $this->db),
+            Storable::RAPID_OBTAINMENT =>
+            new RapidObtainment($this->essence, $this->db),
+            Storable::RAPID_RECORDING =>
+            new RapidRecording($this->essence, $this->db),
+            default => throw new Exception(
+                'Storage kind'
+                . ' MUST be one of :'
+                . ' view | materialized view | table'
+                . ", `$storageKind` given"
+            ),
+        };
         return $source;
     }
 
-    private function reload(): ?IEssence
+    /**
+     * @return IEssence
+     * @throws Exception
+     */
+    private function reload(): IEssence
     {
-        $essence = (Essence::GetDefaultEssence());
-        $essence->setCode($this->essence);
-
-        $manager = new EssenceManager(
-            $this->essence,
-            'essence',
-            $this->db,
-        );
-        $manager->setEssence($essence);
-
-        $isSuccess = $manager->browse();
-        $result = null;
-        if ($isSuccess && $manager->has()) {
-            $result = $manager->retrieve();
-        }
+        $manager = new EssenceManager($this->db, 'essence',);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $manager->browse($this->essence);
 
         return $result;
     }

@@ -1,19 +1,31 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\SearchEngine;
+
+use Exception;
 
 class DiscreteFilter extends Filter
 {
     private array $values;
 
-    public function __construct(string $attribute, array $values)
-    {
-        parent::__construct($attribute);
+    /**
+     * @param string $attribute
+     * @param string $dataType
+     * @param array  $values
+     *
+     * @throws Exception
+     */
+    public function __construct(
+        string $attribute,
+        string $dataType,
+        array $values,
+    ) {
+        parent::__construct($attribute, $dataType);
         $this->values = $values;
     }
 

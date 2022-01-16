@@ -1,8 +1,8 @@
 <?php
 /*
  * storage-for-all-things
- * Copyright © 2021 Volkhin Nikolay
- * 30.07.2021, 5:45
+ * Copyright © 2022 Volkhin Nikolay
+ * 16.01.2022, 8:05
  */
 
 /**
@@ -28,9 +28,7 @@ interface Storable
         self::RAPID_RECORDING,
     ];
 
-    public function getStorageKind(): string;
-
-    public function setStorageKind(string $value): Storable;
+    public function getStorageManner(): string;
 
     public function getStorableCopy(): Storable;
 }

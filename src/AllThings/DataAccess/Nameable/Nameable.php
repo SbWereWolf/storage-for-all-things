@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 05.01.2022, 2:51
+ * 16.01.2022, 8:05
  */
 
 /**
@@ -15,15 +15,9 @@ namespace AllThings\DataAccess\Nameable;
 
 interface Nameable
 {
-    public function setCode(string $value): Nameable;
-
     public function getCode(): string;
 
-    public function setTitle(string $value): Nameable;
-
     public function getTitle(): string;
-
-    public function setRemark(string $value): Nameable;
 
     public function getRemark(): string;
 

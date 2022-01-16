@@ -2,16 +2,13 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 8:09
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\Blueprint\Attribute;
 
-
 use AllThings\DataAccess\Nameable\Nameable;
-use AllThings\DataAccess\Nameable\NamedEntity;
 use AllThings\SearchEngine\Searchable;
-use AllThings\SearchEngine\SearchTerm;
 
 class Attribute implements IAttribute
 {
@@ -28,63 +25,36 @@ class Attribute implements IAttribute
         $this->searchable = $searchable;
     }
 
-    public static function GetDefaultAttribute(): IAttribute
-    {
-        $nameable = new NamedEntity();
-        $searchable = new SearchTerm();
-
-        $attribute = new Attribute($nameable, $searchable);
-
-        return $attribute;
-    }
-
     public function GetAttributeCopy(): IAttribute
     {
         $nameable = $this->nameable->getNameableCopy();
         $searchable = $this->searchable->getSearchableCopy();
 
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $attribute = new Attribute($nameable, $searchable);
 
         return $attribute;
     }
 
-    public function setCode(string $value): Nameable
-    {
-        $this->nameable->setCode($value);
-
-        return $this;
-    }
-
     public function getCode(): string
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $code = $this->nameable->getCode();
 
         return $code;
     }
 
-    public function setTitle(string $value): Nameable
-    {
-        $this->nameable->setTitle($value);
-
-        return $this;
-    }
-
     public function getTitle(): string
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $title = $this->nameable->getTitle();
 
         return $title;
     }
 
-    public function setRemark(string $value): Nameable
-    {
-        $this->nameable->setRemark($value);
-
-        return $this;
-    }
-
     public function getRemark(): string
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $remark = $this->nameable->getRemark();
 
         return $remark;
@@ -92,6 +62,7 @@ class Attribute implements IAttribute
 
     public function getNameableCopy(): Nameable
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $nameable = $this->nameable->getNameableCopy();
 
         return $nameable;
@@ -99,34 +70,23 @@ class Attribute implements IAttribute
 
     public function getDataType(): string
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $dataType = $this->searchable->getDataType();
 
         return $dataType;
     }
 
-    public function setDataType(string $value): Searchable
-    {
-        $this->searchable->setDataType($value);
-
-        return $this;
-    }
-
     public function getRangeType(): string
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $rangeType = $this->searchable->getRangeType();
 
         return $rangeType;
     }
 
-    public function setRangeType(string $value): Searchable
-    {
-        $this->searchable->setRangeType($value);
-
-        return $this;
-    }
-
     public function getSearchableCopy(): Searchable
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $searchable = $this->searchable->getSearchableCopy();
 
         return $searchable;

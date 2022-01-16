@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 10.01.2022, 6:49
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\DataAccess\Crossover;
@@ -25,16 +25,16 @@ class CrossoverLocation
         $proposalContent = $suggestionEntity->getContent();
 
         $leftKeyTable = $this->leftKey->getTable();
-        $leftKeyColumn = $this->leftKey->getColumn();
-        $leftKeyIndex = $this->leftKey->getIndex();
+        $leftKeyColumn = $this->leftKey->getPrimaryIndex();
+        $leftKeyIndex = $this->leftKey->getMatchColumn();
 
         $rightKeyTable = $this->rightKey->getTable();
-        $rightKeyColumn = $this->rightKey->getColumn();
-        $rightKeyIndex = $this->rightKey->getIndex();
+        $rightKeyColumn = $this->rightKey->getPrimaryIndex();
+        $rightKeyIndex = $this->rightKey->getMatchColumn();
 
         $tableName = $this->tableStructure->getTableName();
-        $leftColumn = $this->tableStructure->getLeftColumn();
-        $rightColumn = $this->tableStructure->getRightColumn();
+        $leftColumn = $this->tableStructure->getLeftForeign();
+        $rightColumn = $this->tableStructure->getRightForeign();
 
         $updateLeftKey = '';
         if ($proposalLeftValue !== $targetLeftValue) {
@@ -76,6 +76,7 @@ where $rightKeyIndex = :target_right)
         }
         $query->bindParam(':target_left', $targetLeftValue);
         $query->bindParam(':target_right', $targetRightValue);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $query->execute();
 
         return $result;

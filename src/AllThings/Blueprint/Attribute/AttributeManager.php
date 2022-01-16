@@ -2,143 +2,56 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 13.01.2022, 13:52
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\Blueprint\Attribute;
 
 use AllThings\DataAccess\Uniquable\UniqueManager;
-use AllThings\SearchEngine\Searchable;
 use Exception;
 
 class AttributeManager
     extends UniqueManager
     implements IAttributeManager
 {
-    private ?IAttribute $stuff;
 
     /**
-     * @return AttributeHandler
+     * @throws Exception
      */
-    private function getAttributeHandler(): AttributeHandler
+    private function getAttributeHandler(): IAttributeHandler
     {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $handler = new AttributeHandler(
-            $this->stuff->getCode(),
+            $this->db,
             $this->storageLocation,
-            $this->dataPath,
+            $this->dataSource,
+            $this->uniqueIndex,
         );
-        $handler->setAttribute($this->stuff);
 
         return $handler;
     }
 
     /**
-     * @param bool             $isSuccess
-     * @param AttributeHandler $handler
+     * @throws Exception
      */
-    public function loadSubject(
-        bool $isSuccess,
-        AttributeHandler $handler
-    ): void {
-        if ($isSuccess) {
-            $this->stuff = $handler->retrieve();
-        }
-    }
-
-    public function correct(string $targetIdentity = ''): bool
+    public function correct(object $attribute): bool
     {
         $handler = $this->getAttributeHandler();
-
-        $result = $handler->write($targetIdentity);
-
-        $this->loadSubject($result, $handler);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $handler->write($attribute);
 
         return $result;
     }
 
-    public function browse(): bool
+    /**
+     * @throws Exception
+     */
+    public function browse(string $uniqueness): IAttribute
     {
         $handler = $this->getAttributeHandler();
-
-        $result = $handler->read();
-
-        $this->loadSubject($result, $handler);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $handler->read($uniqueness);
 
         return $result;
-    }
-
-    public function retrieve(): IAttribute
-    {
-        $data = $this->stuff->GetAttributeCopy();
-
-        return $data;
-    }
-
-    public function has(): bool
-    {
-        return !is_null($this->stuff);
-    }
-
-    public function getLocation(): string
-    {
-        $dataType = $this->getDataType();
-
-        $isAcceptable = in_array(
-            $dataType,
-            array_keys(Searchable::DATA_LOCATION),
-            true
-        );
-        if (!$isAcceptable) {
-            throw new Exception(
-                'Data location'
-                . " for `$dataType` is not defined"
-            );
-        }
-
-        $table = Searchable::DATA_LOCATION[$dataType];
-
-        return $table;
-    }
-
-    public function getFormat(): string
-    {
-        $dataType = $this->getDataType();
-
-        $isAcceptable = in_array(
-            $dataType,
-            array_keys(Searchable::DATA_FORMAT),
-            true
-        );
-        if (!$isAcceptable) {
-            throw new Exception(
-                'Format for type'
-                . " `$dataType` is not defined"
-            );
-        }
-
-        $table = Searchable::DATA_FORMAT[$dataType];
-
-        return $table;
-    }
-
-    /**
-     * @return string
-     */
-    private function getDataType(): string
-    {
-        $this->browse();
-        $dataType = $this->retrieve()->getDataType();
-
-        return $dataType;
-    }
-
-    /**
-     * @param IAttribute|null $stuff
-     */
-    public function setAttribute(IAttribute $stuff): static
-    {
-        $this->stuff = $stuff;
-
-        return $this;
     }
 }

@@ -2,15 +2,15 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 14.01.2022, 6:19
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\ControlPanel;
 
-use AllThings\Blueprint\Attribute\Attribute;
+use AllThings\Blueprint\Attribute\AttributeFactory;
 use AllThings\Blueprint\Attribute\AttributeManager;
 use AllThings\Blueprint\Attribute\IAttribute;
-use AllThings\Blueprint\Essence\Essence;
+use AllThings\Blueprint\Essence\EssenceFactory;
 use AllThings\Blueprint\Essence\EssenceManager;
 use AllThings\Blueprint\Essence\IEssence;
 use AllThings\StorageEngine\Storable;
@@ -26,38 +26,39 @@ class Designer
         $this->db = $connection;
     }
 
+    /**
+     * @param string $code
+     * @param string $title
+     * @param string $description
+     * @param string $storageKind
+     *
+     * @return IEssence
+     * @throws Exception
+     */
     public function essence(
         string $code,
         string $title = '',
         string $description = '',
         string $storageKind = Storable::DIRECT_READING
     ): IEssence {
-        $essence = Essence::GetDefaultEssence();
-        $essence->setCode($code);
-
         $handler = new EssenceManager(
-            $code,
-            'essence',
             $this->db,
+            'essence',
         );
-        $isSuccess = $handler->create();
+        $isSuccess = $handler->create($code);
         if (!$isSuccess) {
             throw new Exception('Essence must be created with success');
         }
 
-        if ($storageKind) {
-            $essence->setStorageKind($storageKind);
-        }
-        if ($title) {
-            $essence->setTitle($title);
-        }
-        if ($description) {
-            $essence->setRemark($description);
-        }
-        $handler->setEssence($essence);
+        $essence = (new EssenceFactory())
+            ->setStorageManner($storageKind)
+            ->setTitle($title)
+            ->setRemark($description)
+            ->setCode($code)
+            ->makeEssence();
 
         if ($storageKind || $title || $description) {
-            $isSuccess = $handler->correct();
+            $isSuccess = $handler->correct($essence);
         }
         if (!$isSuccess) {
             throw new Exception('Essence must be updated with success');
@@ -66,6 +67,9 @@ class Designer
         return $essence;
     }
 
+    /**
+     * @throws Exception
+     */
     public function attribute(
         string $code,
         string $dataType,
@@ -73,37 +77,28 @@ class Designer
         string $title = '',
         string $description = ''
     ): IAttribute {
-        $attribute = Attribute::GetDefaultAttribute();
-        /** @noinspection PhpPossiblePolymorphicInvocationInspection */
-        $attribute->setCode($code)
-            ->setDataType($dataType)
-            ->setRangeType($rangeType);
-
         $attributeManager = new AttributeManager(
-            $code,
+            $this->db,
             'attribute',
-            $this->db
         );
 
-        $isSuccess = $attributeManager->create();
+        $isSuccess = $attributeManager->create($code);
         if (!$isSuccess) {
             throw new Exception(
                 'Attribute must be created with success'
             );
         }
 
-        $attribute->setDataType($dataType)
-            ->setRangeType($rangeType);
+        $attribute = (new AttributeFactory())
+            ->setCode($code)
+            ->setDataType($dataType)
+            ->setRangeType($rangeType)
+            ->setTitle($title)
+            ->setRemark($description)
+            ->makeAttribute();
 
-        if ($title) {
-            $attribute->setTitle($title);
-        }
-        if ($description) {
-            $attribute->setRemark($description);
-        }
-        $attributeManager->setAttribute($attribute);
 
-        $isSuccess = $attributeManager->correct();
+        $isSuccess = $attributeManager->correct($attribute);
         if (!$isSuccess) {
             throw new Exception(
                 'Attribute must be updated with success'

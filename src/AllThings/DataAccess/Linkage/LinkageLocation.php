@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 10.01.2022, 6:49
+ * 16.01.2022, 8:05
  */
 
 namespace AllThings\DataAccess\Linkage;
@@ -11,10 +11,10 @@ use PDO;
 
 class LinkageLocation implements LinkageWriter
 {
-    protected $tableStructure;
-    protected $db;
-    protected $rightKey;
-    protected $leftKey;
+    protected ILinkageTable $tableStructure;
+    protected PDO $db;
+    protected IForeignKey $rightKey;
+    protected IForeignKey $leftKey;
 
     public function __construct(
         IForeignKey $leftKey,
@@ -34,16 +34,16 @@ class LinkageLocation implements LinkageWriter
         $proposalLeftValue = $entity->getLeftValue();
 
         $leftKeyTable = $this->leftKey->getTable();
-        $leftKeyColumn = $this->leftKey->getColumn();
-        $leftKeyIndex = $this->leftKey->getIndex();
+        $leftKeyColumn = $this->leftKey->getPrimaryIndex();
+        $leftKeyIndex = $this->leftKey->getMatchColumn();
 
         $rightKeyTable = $this->rightKey->getTable();
-        $rightKeyColumn = $this->rightKey->getColumn();
-        $rightKeyIndex = $this->rightKey->getIndex();
+        $rightKeyColumn = $this->rightKey->getPrimaryIndex();
+        $rightKeyIndex = $this->rightKey->getMatchColumn();
 
         $tableName = $this->tableStructure->getTableName();
-        $leftColumn = $this->tableStructure->getLeftColumn();
-        $rightColumn = $this->tableStructure->getRightColumn();
+        $leftColumn = $this->tableStructure->getLeftForeign();
+        $rightColumn = $this->tableStructure->getRightForeign();
 
         $sqlText = "
 insert into $tableName ($leftColumn,$rightColumn)
@@ -56,6 +56,7 @@ select $rightKeyColumn from $rightKeyTable where $rightKeyIndex = :right_value
         $query = $connection->prepare($sqlText);
         $query->bindParam(':left_value', $proposalLeftValue);
         $query->bindParam(':right_value', $proposalRightValue);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $query->execute();
 
         return $result;
@@ -64,23 +65,23 @@ select $rightKeyColumn from $rightKeyTable where $rightKeyIndex = :right_value
     public function delete(ILinkage $entity): bool
     {
         $lTable = $this->leftKey->getTable();
-        $lColumn = $this->leftKey->getColumn();
-        $lIndex = $this->leftKey->getIndex();
+        $lColumn = $this->leftKey->getPrimaryIndex();
+        $lIndex = $this->leftKey->getMatchColumn();
 
         $sqlText = "
 delete from {$this->tableStructure->getTableName()}
 where 
-{$this->tableStructure->getLeftColumn()}=
+{$this->tableStructure->getLeftForeign()}=
 (select $lColumn from $lTable where $lIndex=:left)
 ";
         $right = $entity->getRightValue();
         if ($right) {
             $rTable = $this->rightKey->getTable();
-            $rColumn = $this->rightKey->getColumn();
-            $rIndex = $this->rightKey->getIndex();
+            $rColumn = $this->rightKey->getPrimaryIndex();
+            $rIndex = $this->rightKey->getMatchColumn();
 
             $sqlText .= "
-AND {$this->tableStructure->getRightColumn()}
+AND {$this->tableStructure->getRightForeign()}
 =(select $rColumn from $rTable where $rIndex=:right)
             ";
         }
@@ -94,6 +95,7 @@ AND {$this->tableStructure->getRightColumn()}
             $query->bindParam(':right', $right);
         }
 
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $query->execute();
 
         return $result;
