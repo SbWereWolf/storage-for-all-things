@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 17.01.2022, 7:56
+ * 17.01.2022, 23:55
  */
 
 namespace Integration;
@@ -770,7 +770,8 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::DIRECT_READING);
-        $schema->refresh();
+        $manager = new Manager($context['PDO']);
+        $manager->refresh($context['essence']);
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -791,7 +792,8 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::RAPID_OBTAINMENT);
-        $schema->refresh();
+        $manager = new Manager($context['PDO']);
+        $manager->refresh($context['essence']);
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -812,7 +814,8 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::RAPID_RECORDING);
-        $schema->refresh();
+        $manager = new Manager($context['PDO']);
+        $manager->refresh($context['essence']);
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -860,7 +863,7 @@ class AutomatedProcessTest extends TestCase
 
             /* Добавим сущности cake новую характеристику package */
             $manager = new Manager($linkToData);
-            $manager->expandCategory(
+            $manager->expandCatalog(
                 $essence,
                 'package',
                 'без упаковки'
@@ -898,7 +901,8 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::DIRECT_READING);
-        $schema->setup();
+        $manager = new Manager($context['PDO']);
+        $manager->setup($context['essence']);
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -920,7 +924,8 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::RAPID_OBTAINMENT);
-        $schema->setup();
+        $manager = new Manager($context['PDO']);
+        $manager->setup($context['essence']);
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -1001,7 +1006,8 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::DIRECT_READING);
-        $schema->refresh();
+        $manager = new Manager($context['PDO']);
+        $manager->refresh($context['essence']);
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -1031,7 +1037,8 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::RAPID_OBTAINMENT);
-        $schema->refresh();
+        $manager = new Manager($context['PDO']);
+        $manager->refresh($context['essence']);
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -1092,7 +1099,7 @@ class AutomatedProcessTest extends TestCase
 
         /* Удалим у сущности cake характеристику package */
         $manager = new Manager($linkToData);
-        $manager->pruneCategory($essence, 'package');
+        $manager->pruneCatalog($essence, 'package');
 
         $this->assertTrue(true);
 
@@ -1116,7 +1123,8 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::DIRECT_READING);
-        $schema->prune('package');
+        $manager = new Manager($context['PDO']);
+        $manager->prune($context['essence'], 'package');
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -1140,7 +1148,8 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::RAPID_OBTAINMENT);
-        $schema->prune('package');
+        $manager = new Manager($context['PDO']);
+        $manager->prune($context['essence'], 'package');
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -1214,7 +1223,8 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::DIRECT_READING);
-        $schema->refresh();
+        $manager = new Manager($context['PDO']);
+        $manager->refresh($context['essence']);
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -1238,7 +1248,8 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::RAPID_OBTAINMENT);
-        $schema->refresh();
+        $manager = new Manager($context['PDO']);
+        $manager->refresh($context['essence']);
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -1261,7 +1272,8 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::RAPID_RECORDING);
-        $schema->refresh();
+        $manager = new Manager($context['PDO']);
+        $manager->refresh($context['essence']);
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);

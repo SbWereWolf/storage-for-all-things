@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 17.01.2022, 7:56
+ * 17.01.2022, 23:55
  */
 
 namespace AllThings\ControlPanel;
@@ -23,10 +23,12 @@ use PDO;
 class Manager
 {
     private PDO $db;
+    private bool $letAutoUpdate = true;
 
     public function __construct(PDO $connection)
     {
         $this->db = $connection;
+        $this->enableAutoUpdate();
     }
 
     /**
@@ -64,7 +66,9 @@ class Manager
             $specification->define($values);
         }
 
-        $this->updateContent($essence, $product, $values);
+        if ($this->shouldAutoUpdate()) {
+            $this->forceUpdate($essence, $product, $values);
+        }
     }
 
     /**
@@ -76,14 +80,16 @@ class Manager
             ->make($product);
         $specification->define($values);
 
-        $essence = $this->getCategoryOfProduct($product);
-        $this->updateContent($essence, $product, $values);
+        if ($this->shouldAutoUpdate()) {
+            $essence = $this->getCategoryOfProduct($product);
+            $this->forceUpdate($essence, $product, $values);
+        }
     }
 
     /**
      * @throws Exception
      */
-    public function expandCategory(
+    public function expandCatalog(
         string $category,
         string $feature,
         string $default = '',
@@ -92,8 +98,9 @@ class Manager
             ->make($category);
         $blueprint->attach($feature);
 
-        $schema = new StorageManager($this->db, $category,);
-        $schema->setup($feature);
+        if ($this->shouldAutoUpdate()) {
+            $this->setup($category, $feature);
+        }
 
         $catalog = (new CatalogFactory($this->db))->make($category);
         $products = $catalog->list();
@@ -107,7 +114,9 @@ class Manager
                 $values = [$feature => $default];
 
                 $specification->define($values);
-                $this->updateContent($category, $product, $values);
+                if ($this->shouldAutoUpdate()) {
+                    $this->forceUpdate($category, $product, $values);
+                }
             }
         }
 
@@ -116,7 +125,7 @@ class Manager
     /**
      * @throws Exception
      */
-    public function pruneCategory(
+    public function pruneCatalog(
         string $category,
         string $feature,
     ) {
@@ -131,9 +140,9 @@ class Manager
                 ->make($product);
             $specification->detach([$feature]);
         }
-
-        $schema = new StorageManager($this->db, $category);
-        $schema->prune($feature);
+        if ($this->shouldAutoUpdate()) {
+            $this->prune($category, $feature);
+        }
     }
 
     /**
@@ -159,8 +168,9 @@ class Manager
         /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = $manager->remove($product);
 
-        $schema = new StorageManager($this->db, $category,);
-        $schema->refresh();
+        if ($this->shouldAutoUpdate()) {
+            $this->refresh($category);
+        }
 
         return $result;
     }
@@ -170,8 +180,9 @@ class Manager
      */
     public function deleteCategory(string $category): bool
     {
-        $schema = new StorageManager($this->db, $category,);
-        $schema->drop();
+        if ($this->shouldAutoUpdate()) {
+            $this->drop($category);
+        }
 
         $blueprint = (new BlueprintFactory($this->db))->make($category);
         $features = $blueprint->list();
@@ -228,7 +239,7 @@ class Manager
      *
      * @throws Exception
      */
-    private function updateContent(
+    public function forceUpdate(
         string $essence,
         string $product,
         array $values
@@ -241,7 +252,68 @@ class Manager
             $data[] = $content;
         }
 
-        $schema = new StorageManager($this->db, $essence,);
-        $schema->refresh($data);
+        $this->refresh($essence, $data);
+    }
+
+    /**
+     *
+     * @return Manager
+     */
+    public function enableAutoUpdate(): Manager
+    {
+        $this->letAutoUpdate = true;
+
+        return $this;
+    }
+
+    public function disableAutoUpdate(): Manager
+    {
+        $this->letAutoUpdate = false;
+
+        return $this;
+    }
+
+    /**
+     * @return bool
+     */
+    private function shouldAutoUpdate(): bool
+    {
+        return $this->letAutoUpdate;
+    }
+
+    public function setup(string $category, string $feature = ''): bool
+    {
+        $schema = new StorageManager($this->db, $category,);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $schema->setup($feature);
+
+        return $result;
+    }
+
+    public function refresh(string $catalog, array $data = []): bool
+    {
+        $schema = new StorageManager($this->db, $catalog,);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $schema->refresh($data);
+
+        return $result;
+    }
+
+    public function prune(string $catalog, string $feature): bool
+    {
+        $schema = new StorageManager($this->db, $catalog,);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $schema->prune($feature);
+
+        return $result;
+    }
+
+    public function drop(string $category): bool
+    {
+        $schema = new StorageManager($this->db, $category,);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $result = $schema->drop();
+
+        return $result;
     }
 }
