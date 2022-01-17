@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 17.01.2022, 7:56
  */
 
 namespace AllThings\StorageEngine;
@@ -18,6 +18,18 @@ class RapidRecording extends DBObject implements Installation
 {
     public const STRUCTURE_PREFIX = 'auto_t_';
     public const SEPARATORS = ['.', ':', '-', '+', '@', '#', '&',];
+
+    public function drop(): bool
+    {
+        $linkToData = $this->getDb();
+
+        $ddl = "DROP TABLE IF EXISTS {$this->name()}";
+        $affected = $linkToData->exec($ddl);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $isSuccess = $affected !== false;
+
+        return $isSuccess;
+    }
 
     /**
      * @param string $dml
@@ -181,15 +193,12 @@ WHERE thing_id = (
      */
     private function setupTable(): bool
     {
+        $isSuccess = $this->drop();
+
         $linkToData = $this->getDb();
-
-        $ddl = "DROP TABLE IF EXISTS {$this->name()}";
-        $affected = $linkToData->exec($ddl);
-        $result = $affected !== false;
-
         $essence = $this->getEssence();
         $attributes = [];
-        if ($result) {
+        if ($isSuccess) {
             $blueprint = (new BlueprintFactory($linkToData))
                 ->make($essence);
             $attributes = $blueprint->list(
@@ -213,11 +222,12 @@ WHERE thing_id = (
                 . " on {$this->name()}($name);";
         }
 
-        $columnsPhase = implode(',', $columns);
-        $names = implode(',', $columnNames);
-        $tablePrimaryKey = "{$essence}_pk";
+        if ($isSuccess) {
+            $columnsPhase = implode(',', $columns);
+            $names = implode(',', $columnNames);
+            $tablePrimaryKey = "{$essence}_pk";
 
-        $ddl = "
+            $ddl = "
 CREATE TABLE {$this->name()}
 (    
 	thing_id integer constraint $tablePrimaryKey primary key,    
@@ -225,10 +235,11 @@ CREATE TABLE {$this->name()}
     $columnsPhase
 )
 ";
-        $affected = $linkToData->exec($ddl);
-        $result = $affected !== false;
+            $affected = $linkToData->exec($ddl);
+            $isSuccess = $affected !== false;
+        }
 
-        if ($result) {
+        if ($isSuccess) {
             $view = new DirectReading(
                 $this->getEssence(),
                 $this->getDb()
@@ -240,14 +251,14 @@ SELECT thing_id,code,$names
 FROM {$view->name()}
 ";
             $affected = $linkToData->exec($dml);
-            $result = $affected !== false;
+            $isSuccess = $affected !== false;
 
             $ddl = implode('', $indexes);
             /** @noinspection PhpUnusedLocalVariableInspection */
             $affected = $linkToData->exec($ddl);
         }
 
-        return $result;
+        return $isSuccess;
     }
 
     /**

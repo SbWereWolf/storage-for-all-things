@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 17.01.2022, 7:56
  */
 
 namespace AllThings\StorageEngine;
@@ -18,18 +18,27 @@ class RapidObtainment extends DBObject implements Installation
     public const STRUCTURE_PREFIX = 'auto_mv_';
     public const SEPARATORS = ['.', ':', '-', '+', '@', '#', '&',];
 
-    /**
-     * @throws Exception
-     */
-    public function setup(string $attribute = '', string $dataType = ''): bool
+    public function drop(): bool
     {
         $linkToData = $this->getDb();
 
         $name = $this->name();
         $ddl = "DROP MATERIALIZED VIEW IF EXISTS $name";
         $affected = $linkToData->exec($ddl);
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $isSuccess = $affected !== false;
 
+        return $isSuccess;
+    }
+
+    /**
+     * @throws Exception
+     */
+    public function setup(string $attribute = '', string $dataType = ''): bool
+    {
+        $isSuccess = $this->drop();
+
+        $linkToData = $this->getDb();
         $essence = $this->getEssence();
         $attributes = [];
         if ($isSuccess) {
@@ -66,8 +75,9 @@ WHERE
                 . " on {$this->name()} (\"$attribute\");";
         }
 
-        $selectPhase = implode(",", $columns);
-        $contentRequest = "
+        if ($isSuccess) {
+            $selectPhase = implode(",", $columns);
+            $contentRequest = "
 SELECT
     T.id AS thing_id,
     T.code AS code,
@@ -82,18 +92,17 @@ WHERE
     E.code = '$essence'
 ";
 
-        $result = false;
-        if ($isSuccess) {
+            $name = $this->name();
             $ddl = "CREATE MATERIALIZED VIEW $name AS $contentRequest";
             $affected = $linkToData->exec($ddl);
-            $result = $affected !== false;
+            $isSuccess = $affected !== false;
 
             $ddl = implode('', $indexes);
             /** @noinspection PhpUnusedLocalVariableInspection */
             $affected = $linkToData->exec($ddl);
         }
 
-        return $result;
+        return $isSuccess;
     }
 
     public function refresh(array $values = []): bool

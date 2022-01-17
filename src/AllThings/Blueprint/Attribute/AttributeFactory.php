@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 17.01.2022, 7:56
  */
 
 namespace AllThings\Blueprint\Attribute;
@@ -21,7 +21,7 @@ class AttributeFactory extends NamedFactory
     #[Pure]
     public function makeAttribute(): IAttribute
     {
-        $nameable = $this->makeNameable();
+        $nameable = $this->makeNamed();
         $searchable = (new SearchTerm(
             $this->dataType,
             $this->rangeType,
@@ -77,6 +77,15 @@ class AttributeFactory extends NamedFactory
         }
 
         $this->rangeType = $value;
+
+        return $this;
+    }
+
+    public function setSearchable(Searchable $searchable): static
+    {
+        $this
+            ->setDataType($searchable->getDataType())
+            ->setRangeType($searchable->getRangeType());
 
         return $this;
     }

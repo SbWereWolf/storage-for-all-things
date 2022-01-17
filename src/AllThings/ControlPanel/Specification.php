@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 17.01.2022, 7:56
  */
 
 namespace AllThings\ControlPanel;
@@ -32,79 +32,83 @@ class Specification
     /**
      * @throws Exception
      */
-    public function attach(array $definition): static
+    public function attach(array $definition): bool
     {
+        $isSuccess = true;
         foreach ($definition as $attribute) {
-            $this->attachOne($attribute);
+            $isSuccess = $isSuccess && $this->attachOne($attribute);
         }
 
-        return $this;
+        return $isSuccess;
     }
 
-    /** @noinspection PhpReturnValueOfMethodIsNeverUsedInspection */
     /**
      * @throws Exception
      */
-    private function attachOne(string $attribute): static
+    private function attachOne(string $attribute): bool
     {
         $linkage = (new Linkage())
             ->setLeftValue($this->thing)
             ->setRightValue($attribute);
         $content = $this->factory->makeContentAccess($attribute);
 
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $isSuccess = $content->attach($linkage);
-        if (!$isSuccess) {
-            throw new Exception(
-                'Value must be attached with success'
-            );
-        }
+        /*        if (!$isSuccess) {
+                    throw new Exception(
+                        'Value must be attached with success'
+                    );
+                }*/
 
-        return $this;
+        return $isSuccess;
     }
 
     /**
      * @throws Exception
      */
-    public function detach(array $definition): static
+    public function detach(array $definition): bool
     {
+        $isSuccess = true;
         foreach ($definition as $attribute) {
-            $this->detachOne($attribute);
+            $isSuccess = $isSuccess && $this->detachOne($attribute);
         }
 
-        return $this;
+        return $isSuccess;
     }
 
-    /** @noinspection PhpReturnValueOfMethodIsNeverUsedInspection */
     /**
      * @throws Exception
      */
-    private function detachOne(string $attribute): static
+    private function detachOne(string $attribute): bool
     {
         $linkage = (new Linkage())
             ->setLeftValue($this->thing)
             ->setRightValue($attribute);
         $content = $this->factory->makeContentAccess($attribute);
 
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $isSuccess = $content->detach($linkage);
-        if (!$isSuccess) {
-            throw new Exception(
-                'Value must be detached with success'
-            );
-        }
+        /*        if (!$isSuccess) {
+                    throw new Exception(
+                        'Value must be detached with success'
+                    );
+                }*/
 
-        return $this;
+        return $isSuccess;
     }
 
     /**
      * @throws Exception
      */
-    public function define(array $definition): static
+    public function define(array $definition): bool
     {
+        $isSuccess = true;
         foreach ($definition as $attribute => $content) {
-            $this->defineOne($attribute, $content);
+            $isSuccess = $isSuccess &&
+                $this->defineOne($attribute, $content);
         }
 
-        return $this;
+        return $isSuccess;
     }
 
     /**
@@ -113,7 +117,7 @@ class Specification
     private function defineOne(
         string $attribute,
         string $content
-    ): void {
+    ): bool {
         $value = (new Crossover())
             ->setContent($content);
         $value->setLeftValue($this->thing)
@@ -122,33 +126,37 @@ class Specification
         $access = $this->factory->makeContentAccess($attribute);
         $access->setSubject($value);
 
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $isSuccess = $access->store($value);
-        if (!$isSuccess) {
-            throw new Exception(
-                'Value must be defined with success'
-            );
-        }
+        /*        if (!$isSuccess) {
+                    throw new Exception(
+                        'Value must be defined with success'
+                    );
+                }*/
+
+        return $isSuccess;
     }
 
     /**
      * @throws Exception
      */
-    public function purge(array $attributes): static
+    public function purge(array $attributes): bool
     {
         $linkage = (new Crossover())
             ->setLeftValue($this->thing);
 
         $accesses = $this->factory->makeAllAccess($attributes);
+        $isSuccess = true;
         foreach ($accesses as $access) {
             /** @var ICrossoverManager $access */
-            $isSuccess = $access->detach($linkage);
-            if (!$isSuccess) {
-                throw new Exception(
-                    'All Attribute must be detached with success'
-                );
-            }
+            $isSuccess = $isSuccess && $access->detach($linkage);
+            /*            if (!$isSuccess) {
+                            throw new Exception(
+                                'All Attribute must be detached with success'
+                            );
+                        }*/
         }
 
-        return $this;
+        return $isSuccess;
     }
 }

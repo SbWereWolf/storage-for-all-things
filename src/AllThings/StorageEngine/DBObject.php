@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 17.01.2022, 7:56
  */
 
 namespace AllThings\StorageEngine;
@@ -12,7 +12,7 @@ use PDO;
 
 class DBObject
 {
-    public const STRUCTURE_PREFIX = 'auto_';
+    protected const STRUCTURE_PREFIX = 'auto_';
     /**
      * @var PDO
      */

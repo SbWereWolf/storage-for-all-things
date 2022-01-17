@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 17.01.2022, 7:56
  */
 
 namespace AllThings\DataAccess\Nameable;
@@ -55,7 +55,7 @@ class NamedEntity implements Nameable
             ->setCode($this->code)
             ->setTitle($this->title)
             ->setRemark($this->remark)
-            ->makeNameable();
+            ->makeNamed();
 
         return $copy;
     }

@@ -2,12 +2,11 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 17.01.2022, 7:56
  */
 
 namespace AllThings\DataAccess\Nameable;
 
-use AllThings\Blueprint\Essence\IEssence;
 use AllThings\DataAccess\Uniquable\UniqueHandler;
 use Exception;
 
@@ -33,13 +32,15 @@ class NamedHandler extends UniqueHandler implements ValuableHandler
      */
     public function write(object $named): bool
     {
-        if (!($named instanceof Nameable)) {
-            $className = IEssence::class;
-            throw new Exception("Arg \$named MUST BE `$className`");
+        /*        if (!($named instanceof Nameable)) {
+                    $className = IEssence::class;
+                    throw new Exception("Arg \$named MUST BE `$className`");
+                }*/
+        $result = false;
+        if ($named instanceof Nameable) {
+            $location = $this->getLocation($named->getCode());
+            $result = $location->update($named);
         }
-        $location = $this->getLocation($named->getCode());
-        /** @noinspection PhpUnnecessaryLocalVariableInspection */
-        $result = $location->update($named);
 
         return $result;
     }

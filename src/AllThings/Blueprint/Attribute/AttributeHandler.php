@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 17.01.2022, 7:56
  */
 
 namespace AllThings\Blueprint\Attribute;
@@ -38,15 +38,17 @@ class AttributeHandler
      */
     public function write(object $attribute): bool
     {
-        if (!($attribute instanceof IAttribute)) {
-            $className = IAttribute::class;
-            throw new Exception(
-                "Arg \$attribute MUST BE `$className`"
-            );
+        /*        if (!($attribute instanceof IAttribute)) {
+                    $className = IAttribute::class;
+                    throw new Exception(
+                        "Arg \$attribute MUST BE `$className`"
+                    );
+                }*/
+        $result = false;
+        if ($attribute instanceof IAttribute) {
+            $result = $this->getLocation($attribute->getCode())
+                ->update($attribute);
         }
-        /** @noinspection PhpUnnecessaryLocalVariableInspection */
-        $result = $this->getLocation($attribute->getCode())
-            ->update($attribute);
 
         return $result;
     }

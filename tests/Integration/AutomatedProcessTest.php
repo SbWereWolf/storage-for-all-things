@@ -2,19 +2,15 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 17.01.2022, 7:56
  */
 
 namespace Integration;
 
 use AllThings\ControlPanel\Browser;
 use AllThings\ControlPanel\Designer;
+use AllThings\ControlPanel\Manager;
 use AllThings\ControlPanel\ProductionLine;
-use AllThings\ControlPanel\Relation\BlueprintFactory;
-use AllThings\ControlPanel\Relation\CatalogFactory;
-use AllThings\ControlPanel\Relation\SpecificationFactory;
-use AllThings\DataAccess\Crossover\Crossover;
-use AllThings\DataAccess\Nameable\NamedManager;
 use AllThings\SearchEngine\ContinuousFilter;
 use AllThings\SearchEngine\DiscreteFilter;
 use AllThings\StorageEngine\Storable;
@@ -96,6 +92,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testKindCreate(array $context): array
     {
+        $linkToData = $context['PDO'];
         /* ## S001A1S03 создать характеристику */
         /* ## S001A1S04 задать свойства характеристики */
 
@@ -118,7 +115,7 @@ class AutomatedProcessTest extends TestCase
         ];
 
         foreach ($codes as $code => $settings) {
-            $designer = new Designer($context['PDO']);
+            $designer = new Designer($linkToData);
             $attribute = $designer->attribute(
                 $code,
                 $settings['DataType'],
@@ -148,20 +145,18 @@ class AutomatedProcessTest extends TestCase
      */
     public function testDefineBlueprint(array $context): array
     {
-        /* ## S001A1S05 охарактеризовать сущность (назначить
-         характеристики для предметов этого типа) */
+        $linkToData = $context['PDO'];
         $essence = $context['essence'];
-
-        $blueprint = (new BlueprintFactory($context['PDO']))
-            ->make($essence);
         $attributes = [
             'price',
             'production-date',
             'place-of-production'
         ];
-        foreach ($attributes as $attribute) {
-            $blueprint->attach($attribute);
-        }
+        /* ## S001A1S05 охарактеризовать сущность (назначить
+         характеристики для предметов этого типа) */
+
+        $manager = new Manager($linkToData);
+        $manager->setupCategory($essence, $attributes);
 
         $this->assertTrue(true);
 
@@ -179,38 +174,27 @@ class AutomatedProcessTest extends TestCase
      */
     public function testCreateItem(array $context): array
     {
-        /* ## S001A2S01 создать предметы типа "пирожок"
-        (создать пирожки) */
-        /* ## S001A2S02 задать значения свойствам предметов
-        (дать имена пирожкам) */
+        $linkToData = $context['PDO'];
         $titles = [];
         $titles['bun-with-jam'] = 'Булочка с повидлом';
         $titles['bun-with-raisins'] = 'Булочка с изюмом';
         $titles['cinnamon-bun'] = 'Булочка с корицей';
 
-        $linkToData = $context['PDO'];
-        $essence = $context['essence'];
-
-        $blueprint = (new BlueprintFactory($linkToData))
-            ->make($essence);
-        $attributes = $blueprint->list();
+        /* ## S001A2S01 создать предметы типа "пирожок"
+        (создать пирожки) */
+        /* ## S001A2S02 задать значения свойствам предметов
+        (дать имена пирожкам) */
 
         $productionLine = new ProductionLine($linkToData);
-        $catalog = (new CatalogFactory($linkToData))->make($essence);
         foreach ($titles as $code => $title) {
-            $product = $productionLine->create($code, $title);
-            $specification = (new SpecificationFactory($linkToData))
-                ->make($product->getCode());
-
-            $specification->attach($attributes);
-            $catalog->attach($product->getCode());
-
             $context[$code] = $code;
+
+            $product = $productionLine->create($code, $title);
         }
 
-        $this->assertTrue(
-            true,
-            'Thing must be created with success'
+        $this->assertNotEmpty(
+            $product,
+            'Product must be created with success'
         );
 
         return $context;
@@ -227,9 +211,8 @@ class AutomatedProcessTest extends TestCase
      */
     public function testCreateContent(array $context): array
     {
-        /* ## S001A2S03 задать значения для характеристики предмета */
         $codes = [
-            /* модель */
+            /* элемент каталога */
             $context['bun-with-jam'] => [
                 /* характеристика и её значение */
                 $context['price'] => '15.50',
@@ -247,12 +230,14 @@ class AutomatedProcessTest extends TestCase
                 $context['place-of-production'] => 'Челябинск',
             ],
         ];
-
         $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+
+        /* ## S001A2S03 задать значения для характеристики предмета */
+
+        $manager = new Manager($linkToData);
         foreach ($codes as $code => $settings) {
-            $specification = (new SpecificationFactory($linkToData))
-                ->make($code);
-            $specification->define($settings);
+            $manager->setupProduct($essence, $code, $settings);
         }
         $this->assertTrue(
             true,
@@ -705,6 +690,7 @@ class AutomatedProcessTest extends TestCase
      */
     public function testSearchWithinTable(array $context)
     {
+        $essence = $context['essence'];
         /* ## ## S002A4S04 сделать выборку экземпляров по заданным
         условиям поиска (поиск в представлении) */
         $continuous = new ContinuousFilter(
@@ -715,14 +701,14 @@ class AutomatedProcessTest extends TestCase
         );
         $browser = new Browser($context['PDO']);
 
-        $data = $browser->find($context['essence'], [$continuous]);
+        $data = $browser->find($essence, [$continuous]);
         $this->assertNotEmpty($data);
 
-        $data = $browser->find($context['essence'], [$discrete]);
+        $data = $browser->find($essence, [$discrete]);
         $this->assertNotEmpty($data);
 
         $data = $browser->find(
-            $context['essence'],
+            $essence,
             [$discrete, $continuous]
         );
         $this->assertNotEmpty($data);
@@ -739,35 +725,28 @@ class AutomatedProcessTest extends TestCase
     public function testAddNewItem(array $context): array
     {
         $linkToData = $context['PDO'];
-        $context['new-thing'] = 'new-thing';
         $essence = $context['essence'];
+        $code = 'new-thing';
+        $context['new-thing'] = $code;
 
         /* добавляем модель, задаём для неё значения атрибутов */
         /* даём модели название */
         $productionLine = new ProductionLine($linkToData);
+        /** @noinspection PhpUnusedLocalVariableInspection */
         $product = $productionLine->create(
-            $context['new-thing'],
+            $code,
             'новая модель',
+            'Описание позиции каталога'
         );
 
-        $specification = (new SpecificationFactory($context['PDO']))
-            ->make($product->getCode());
-        $blueprint = (new BlueprintFactory($context['PDO']))
-            ->make($essence);
-
-        $attributes = $blueprint->list();
-        $specification->attach($attributes);
-
-        $catalog = (new CatalogFactory($linkToData))->make($essence);
-        $catalog->attach($product->getCode());
-
-        /* устанавливаем значения для характеристик модели */
         $definition = [
             $context['price'] => '11.11',
             $context['production-date'] => '20210531T0306',
             $context['place-of-production'] => 'Екатеринбург',
         ];
-        $specification->define($definition);
+        /* устанавливаем значения для характеристик модели */
+        $manager = new Manager($linkToData);
+        $manager->setupProduct($essence, $code, $definition);
 
         $this->assertTrue(
             true,
@@ -880,9 +859,12 @@ class AutomatedProcessTest extends TestCase
             $context[$code] = $code;
 
             /* Добавим сущности cake новую характеристику package */
-            $blueprint = (new BlueprintFactory($linkToData))
-                ->make($essence);
-            $blueprint->attach($code);
+            $manager = new Manager($linkToData);
+            $manager->expandCategory(
+                $essence,
+                'package',
+                'без упаковки'
+            );
         }
 
         /* Добавим существующим моделям новую характеристику. */
@@ -896,10 +878,7 @@ class AutomatedProcessTest extends TestCase
         foreach ($productList as $product => $value) {
             $context[$product] = $product;
 
-            $specification = (new SpecificationFactory($linkToData))
-                ->make($product);
-            $specification->attach([$code]);
-            $specification->define([$code => $value]);
+            $manager->updateProduct($product, ['package' => $value]);
         }
 
         return $context;
@@ -963,19 +942,19 @@ class AutomatedProcessTest extends TestCase
 
         $schema->change(Storable::RAPID_RECORDING);
         /* $schema->setup('package', 'word'); */
-        $schema->setup('package');
+        /*        $schema->setup('package');
 
-        $productList = [
-            'bun-with-jam' => 'без упаковки',
-            'bun-with-raisins' => 'без упаковки',
-            'cinnamon-bun' => 'пакет',
-            'new-thing' => 'пакет',
-        ];
-        foreach ($productList as $product => $content) {
-            $value = (new Crossover())->setContent($content);
-            $value->setLeftValue($product)->setRightValue('package');
-            $schema->refresh([$value]);
-        }
+                $productList = [
+                    'bun-with-jam' => 'без упаковки',
+                    'bun-with-raisins' => 'без упаковки',
+                    'cinnamon-bun' => 'пакет',
+                    'new-thing' => 'пакет',
+                ];
+                foreach ($productList as $product => $content) {
+                    $value = (new Crossover())->setContent($content);
+                    $value->setLeftValue($product)->setRightValue('package');
+                    $schema->refresh([$value]);
+                }*/
 
         $browser = new Browser($linkToData);
         $data = $browser->find($essence, []);
@@ -993,9 +972,12 @@ class AutomatedProcessTest extends TestCase
      */
     public function testChangeContent(array $context): array
     {
-        $specification = (new SpecificationFactory($context['PDO']))
-            ->make($context['new-thing']);
-        $specification->define([$context['package'] => 'коробка',]);
+        $linkToData = $context['PDO'];
+        $product = $context['new-thing'];
+        $attribute = $context['package'];
+
+        $manager = new Manager($linkToData);
+        $manager->updateProduct($product, [$attribute => 'коробка']);
 
         $this->assertTrue(
             true,
@@ -1077,10 +1059,10 @@ class AutomatedProcessTest extends TestCase
         );
         $schema->change(Storable::RAPID_RECORDING);
 
-        $content = (new Crossover())->setContent('коробка');
-        $content->setLeftValue($context['new-thing'])
-            ->setRightValue($context['package']);
-        $schema->refresh([$content]);
+        /*        $content = (new Crossover())->setContent('коробка');
+                $content->setLeftValue($context['new-thing'])
+                    ->setRightValue($context['package']);
+                $schema->refresh([$content]);*/
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -1109,19 +1091,8 @@ class AutomatedProcessTest extends TestCase
         $essence = $context['essence'];
 
         /* Удалим у сущности cake характеристику package */
-        $catalog = (new CatalogFactory($linkToData))->make($essence);
-        $attributes = $catalog->list();
-
-        foreach ($attributes as $specificationCode) {
-            /** @var string $specificationCode */
-            $specification = (new SpecificationFactory($linkToData))
-                ->make($specificationCode);
-            $specification->detach(['package']);
-        }
-
-        $blueprint = (new BlueprintFactory($context['PDO']))
-            ->make($essence);
-        $blueprint->detach('package');
+        $manager = new Manager($linkToData);
+        $manager->pruneCategory($essence, 'package');
 
         $this->assertTrue(true);
 
@@ -1193,7 +1164,7 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::RAPID_RECORDING);
-        $schema->prune('package');
+        /*$schema->prune('package');*/
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -1213,25 +1184,14 @@ class AutomatedProcessTest extends TestCase
     public function testRemoveItem(array $context): array
     {
         $linkToData = $context['PDO'];
-        $essence = $context['essence'];
         $item = $context['new-thing'];
+
         /* Удаляем модель */
-        $specification = (new SpecificationFactory($linkToData))
-            ->make($item);
-        $blueprint = (new BlueprintFactory($context['PDO']))
-            ->make($essence);
-
-        $attributes = $blueprint->list();
-        $specification->purge($attributes);
-
-        $catalog = (new CatalogFactory($linkToData))->make($essence);
-        $catalog->detach($item);
-
-        $named = new NamedManager($linkToData, 'thing');
-        $isSuccess = $named->remove($item);
+        $manager = new Manager($linkToData);
+        $manager->deleteProduct($item);
 
         $this->assertTrue(
-            $isSuccess,
+            true,
             'Item must be created with success',
         );
 
@@ -1306,6 +1266,33 @@ class AutomatedProcessTest extends TestCase
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
         $this->checkShowAll($context, $data);
+    }
+
+    /**
+     * Удаляем модель
+     *
+     * @depends testAddNewItem
+     *
+     * @param array $context
+     *
+     * @return array
+     * @throws Exception
+     */
+    public function testRemoveCategory(array $context): array
+    {
+        $linkToData = $context['PDO'];
+        $essence = $context['essence'];
+
+        /* Удаляем модель */
+        $manager = new Manager($linkToData);
+        $manager->deleteCategory($essence);
+
+        $this->assertTrue(
+            true,
+            'Category must be removed with success',
+        );
+
+        return $context;
     }
 
     /**

@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 17.01.2022, 7:56
  */
 
 namespace AllThings\ControlPanel;
@@ -41,28 +41,30 @@ class Designer
         string $description = '',
         string $storageKind = Storable::DIRECT_READING
     ): IEssence {
-        $handler = new EssenceManager(
-            $this->db,
-            'essence',
-        );
+        $handler = new EssenceManager($this->db);
+        $handler->setLocation('essence');
+        $handler->setSource('essence');
+        $handler->setUniqueIndex('code');
+        /** @noinspection PhpUnusedLocalVariableInspection */
         $isSuccess = $handler->create($code);
-        if (!$isSuccess) {
-            throw new Exception('Essence must be created with success');
-        }
+        /*        if (!$isSuccess) {
+                    throw new Exception('Essence must be created with success');
+                }*/
 
         $essence = (new EssenceFactory())
             ->setStorageManner($storageKind)
+            ->setCode($code)
             ->setTitle($title)
             ->setRemark($description)
-            ->setCode($code)
             ->makeEssence();
 
         if ($storageKind || $title || $description) {
+            /** @noinspection PhpUnusedLocalVariableInspection */
             $isSuccess = $handler->correct($essence);
         }
-        if (!$isSuccess) {
-            throw new Exception('Essence must be updated with success');
-        }
+        /*        if (!$isSuccess) {
+                    throw new Exception('Essence must be updated with success');
+                }*/
 
         return $essence;
     }
@@ -82,12 +84,13 @@ class Designer
             'attribute',
         );
 
+        /** @noinspection PhpUnusedLocalVariableInspection */
         $isSuccess = $attributeManager->create($code);
-        if (!$isSuccess) {
-            throw new Exception(
-                'Attribute must be created with success'
-            );
-        }
+        /*        if (!$isSuccess) {
+                    throw new Exception(
+                        'Attribute must be created with success'
+                    );
+                }*/
 
         $attribute = (new AttributeFactory())
             ->setCode($code)
@@ -97,13 +100,13 @@ class Designer
             ->setRemark($description)
             ->makeAttribute();
 
-
+        /** @noinspection PhpUnusedLocalVariableInspection */
         $isSuccess = $attributeManager->correct($attribute);
-        if (!$isSuccess) {
-            throw new Exception(
-                'Attribute must be updated with success'
-            );
-        }
+        /*        if (!$isSuccess) {
+                    throw new Exception(
+                        'Attribute must be updated with success'
+                    );
+                }*/
 
         return $attribute;
     }

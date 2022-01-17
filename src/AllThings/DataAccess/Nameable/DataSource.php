@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 17.01.2022, 7:56
  */
 
 namespace AllThings\DataAccess\Nameable;
@@ -74,7 +74,7 @@ ORDER BY \"$this->uniqueIndex\"
             ->setCode($code)
             ->setTitle($title)
             ->setRemark($remark)
-            ->makeNameable();
+            ->makeNamed();
 
         return $entity;
     }

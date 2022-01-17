@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 17.01.2022, 7:56
  */
 
 namespace AllThings\StorageEngine;
@@ -58,4 +58,6 @@ interface Installation
      * @return bool
      */
     public function prune(string $attribute): bool;
+
+    public function drop(): bool;
 }

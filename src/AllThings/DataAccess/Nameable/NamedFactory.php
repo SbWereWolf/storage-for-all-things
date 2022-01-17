@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 17.01.2022, 7:56
  */
 
 namespace AllThings\DataAccess\Nameable;
@@ -16,7 +16,7 @@ class NamedFactory
     protected string $remark = '';
 
     #[Pure]
-    public function makeNameable(): Nameable
+    public function makeNamed(): Nameable
     {
         /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result = (new NamedEntity(
@@ -45,6 +45,16 @@ class NamedFactory
     public function setRemark(string $value): NamedFactory
     {
         $this->remark = $value;
+
+        return $this;
+    }
+
+    public function setNameable(Nameable $nameable): NamedFactory
+    {
+        $this
+            ->setCode($nameable->getCode())
+            ->setTitle($nameable->getTitle())
+            ->setRemark($nameable->getRemark());
 
         return $this;
     }

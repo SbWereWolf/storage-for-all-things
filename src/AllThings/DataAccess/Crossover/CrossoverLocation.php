@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 17.01.2022, 7:56
  */
 
 namespace AllThings\DataAccess\Crossover;
@@ -19,9 +19,6 @@ class CrossoverLocation
     ): bool {
         $targetRightValue = $targetEntity->getRightValue();
         $targetLeftValue = $targetEntity->getLeftValue();
-
-        $proposalRightValue = $suggestionEntity->getRightValue();
-        $proposalLeftValue = $suggestionEntity->getLeftValue();
         $proposalContent = $suggestionEntity->getContent();
 
         $leftKeyTable = $this->leftKey->getTable();
@@ -36,27 +33,9 @@ class CrossoverLocation
         $leftColumn = $this->tableStructure->getLeftForeign();
         $rightColumn = $this->tableStructure->getRightForeign();
 
-        $updateLeftKey = '';
-        if ($proposalLeftValue !== $targetLeftValue) {
-            $updateLeftKey =
-                "$leftColumn = (select $leftKeyColumn "
-                . "from $leftKeyTable"
-                . " where $leftKeyIndex = :proposal_left),";
-        }
-        $updateRightKey = '';
-        if ($proposalRightValue !== $targetRightValue) {
-            $updateRightKey =
-                "$rightColumn = (select $rightKeyColumn "
-                . "from $rightKeyTable "
-                . "where $rightKeyIndex = :proposal_right),";
-        }
-
         $sqlText = "
 UPDATE $tableName
-SET 
-$updateLeftKey
-$updateRightKey
-content = :content
+SET content = :content
 WHERE 
     $leftColumn = 
     (select $leftKeyColumn from $leftKeyTable 
@@ -68,12 +47,6 @@ where $rightKeyIndex = :target_right)
         $connection = $this->db;
         $query = $connection->prepare($sqlText);
         $query->bindParam(':content', $proposalContent);
-        if ($updateLeftKey) {
-            $query->bindParam(':proposal_left', $proposalLeftValue);
-        }
-        if ($updateRightKey) {
-            $query->bindParam(':proposal_right', $proposalRightValue);
-        }
         $query->bindParam(':target_left', $targetLeftValue);
         $query->bindParam(':target_right', $targetRightValue);
         /** @noinspection PhpUnnecessaryLocalVariableInspection */

@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 17.01.2022, 7:56
  */
 
 namespace AllThings\StorageEngine;
@@ -16,17 +16,25 @@ class DirectReading extends DBObject implements Installation
 {
     public const STRUCTURE_PREFIX = 'auto_v_';
 
+    public function drop(): bool
+    {
+        $ddl = "DROP VIEW IF EXISTS {$this->name()}";
+        $linkToData = $this->getDb();
+
+        $affected = $linkToData->exec($ddl);
+        $isSuccess = $affected !== false;
+
+        return $isSuccess;
+    }
+
     /**
      * @throws Exception
      */
     public function setup(string $attribute = '', string $dataType = ''): bool
     {
+        $isSuccess = $this->drop();
+
         $linkToData = $this->getDb();
-
-        $ddl = "DROP VIEW IF EXISTS {$this->name()}";
-        $affected = $linkToData->exec($ddl);
-        $isSuccess = $affected !== false;
-
         $essence = $this->getEssence();
         $attributes = [];
         if ($isSuccess) {
@@ -57,8 +65,9 @@ WHERE
             $columns[$attribute] = "($column) AS \"$attribute\"";
         }
 
-        $selectPhase = implode(",", $columns);
-        $contentRequest = "
+        if ($isSuccess) {
+            $selectPhase = implode(",", $columns);
+            $contentRequest = "
 SELECT
     T.id AS thing_id,
     T.code AS code,
@@ -72,12 +81,13 @@ FROM
 WHERE 
     E.code = '$essence'
 ";
-        $ddl = "CREATE VIEW {$this->name()} AS $contentRequest";
-        $affected = $linkToData->exec($ddl);
-        /** @noinspection PhpUnnecessaryLocalVariableInspection */
-        $result = $affected !== false;
+            $ddl = "CREATE VIEW {$this->name()} AS $contentRequest";
 
-        return $result;
+            $affected = $linkToData->exec($ddl);
+            $isSuccess = $affected !== false;
+        }
+
+        return $isSuccess;
     }
 
     public function refresh(array $values = []): bool

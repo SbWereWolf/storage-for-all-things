@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 17.01.2022, 7:56
  */
 
 namespace AllThings\Blueprint\Essence;
@@ -36,12 +36,16 @@ class EssenceHandler
      */
     public function write(object $essence): bool
     {
-        if (!($essence instanceof IEssence)) {
-            $className = IEssence::class;
-            throw new Exception("Arg \$named MUST BE `$className`");
+        /*        if (!($essence instanceof IEssence)) {
+                    $className = IEssence::class;
+                    throw new Exception("Arg \$named MUST BE `$className`");
+                }*/
+        $result = false;
+        if ($essence instanceof IEssence) {
+            $result = $this->getLocation($essence->getCode())
+                ->update($essence);
         }
-        /** @noinspection PhpUnnecessaryLocalVariableInspection */
-        $result = $this->getLocation($essence->getCode())->update($essence);
+
 
         return $result;
     }

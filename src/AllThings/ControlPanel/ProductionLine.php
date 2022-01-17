@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 17.01.2022, 7:56
  */
 
 namespace AllThings\ControlPanel;
@@ -43,26 +43,28 @@ class ProductionLine
             'thing',
         );
 
+        /** @noinspection PhpUnusedLocalVariableInspection */
         $isSuccess = $thingManager->create($code);
-        if (!$isSuccess) {
-            throw new Exception(
-                'Product must be created with success'
-            );
-        }
+        /*        if (!$isSuccess) {
+                    throw new Exception(
+                        'Product must be created with success'
+                    );
+                }*/
 
         $named = (new NamedFactory())
             ->setCode($code)
             ->setTitle($title)
             ->setRemark($description)
-            ->makeNameable();
+            ->makeNamed();
         if ($title || $description) {
+            /** @noinspection PhpUnusedLocalVariableInspection */
             $isSuccess = $thingManager->correct($named);
         }
-        if (!$isSuccess) {
-            throw new Exception(
-                'Product must be updated with success'
-            );
-        }
+        /*        if (!$isSuccess) {
+                    throw new Exception(
+                        'Product must be updated with success'
+                    );
+                }*/
 
         return $named;
     }

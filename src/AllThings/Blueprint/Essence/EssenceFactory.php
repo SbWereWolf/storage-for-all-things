@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 17.01.2022, 7:56
  */
 
 namespace AllThings\Blueprint\Essence;
@@ -20,7 +20,7 @@ class EssenceFactory extends NamedFactory
     #[Pure]
     public function makeEssence(): IEssence
     {
-        $nameable = $this->makeNameable();
+        $nameable = $this->makeNamed();
         $storable = new StorageManner($this->storageManner);
 
         /** @noinspection PhpUnnecessaryLocalVariableInspection */

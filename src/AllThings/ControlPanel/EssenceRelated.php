@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 17.01.2022, 7:56
  */
 
 namespace AllThings\ControlPanel;
@@ -31,60 +31,60 @@ class EssenceRelated
     /**
      * @throws Exception
      */
-    public function attach(string $related): static
+    public function attach(string $related): bool
     {
         $linkage = (new Linkage())
             ->setLeftValue($this->essence)
             ->setRightValue($related);
 
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $isSuccess = $this->relation->attach($linkage);
+        /*        if (!$isSuccess) {
+                    throw new Exception(
+                        "Related `$related` must be attached with success"
+                    );
+                }*/
 
-        if (!$isSuccess) {
-            throw new Exception(
-                "Related `$related` must be attached with success"
-            );
-        }
-
-        return $this;
+        return $isSuccess;
     }
 
     /**
      * @throws Exception
      */
-    public function detach(string $related): static
+    public function detach(string $related): bool
     {
         $linkage = (new Linkage())
             ->setLeftValue($this->essence)
             ->setRightValue($related);
 
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $isSuccess = $this->relation->detach($linkage);
+        /*        if (!$isSuccess) {
+                    throw new Exception(
+                        "Related `$related` must be detached with success"
+                    );
+                }*/
 
-        if (!$isSuccess) {
-            throw new Exception(
-                "Related `$related` must be detached with success"
-            );
-        }
-
-        return $this;
+        return $isSuccess;
     }
 
     /**
      * @throws Exception
      */
-    public function purge(): static
+    public function purge(): bool
     {
         $linkage = (new Linkage())
             ->setLeftValue($this->essence);
 
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $isSuccess = $this->relation->detach($linkage);
+        /*        if (!$isSuccess) {
+                    throw new Exception(
+                        'All Related must be detached with success'
+                    );
+                }*/
 
-        if (!$isSuccess) {
-            throw new Exception(
-                'All Related must be detached with success'
-            );
-        }
-
-        return $this;
+        return $isSuccess;
     }
 
     public function list(array $fields = []): array

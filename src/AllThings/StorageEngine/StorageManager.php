@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 17.01.2022, 7:56
  */
 
 namespace AllThings\StorageEngine;
@@ -31,7 +31,7 @@ class StorageManager
     /**
      * @throws Exception
      */
-    public function handleWithDirectReading(): StorageManager
+    public function handleWithDirectReading(): bool
     {
         $this->change(Storable::DIRECT_READING);
         $handler = new DirectReading(
@@ -39,21 +39,22 @@ class StorageManager
             $this->db
         );
 
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $isSuccess = $handler->setup();
-        if (!$isSuccess) {
-            throw new Exception(
-                'DB source'
-                . ' must be created with success'
-            );
-        }
+        /*        if (!$isSuccess) {
+                    throw new Exception(
+                        'DB source'
+                        . ' must be created with success'
+                    );
+                }*/
 
-        return $this;
+        return $isSuccess;
     }
 
     /**
      * @throws Exception
      */
-    public function handleWithRapidObtainment(): StorageManager
+    public function handleWithRapidObtainment(): bool
     {
         $this->change(Storable::RAPID_OBTAINMENT);
         $handler = new RapidObtainment(
@@ -61,21 +62,22 @@ class StorageManager
             $this->db
         );
 
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $isSuccess = $handler->setup();
-        if (!$isSuccess) {
-            throw new Exception(
-                'DB source'
-                . ' must be created with success'
-            );
-        }
+        /*        if (!$isSuccess) {
+                    throw new Exception(
+                        'DB source'
+                        . ' must be created with success'
+                    );
+                }*/
 
-        return $this;
+        return $isSuccess;
     }
 
     /**
      * @throws Exception
      */
-    public function handleWithRapidRecording(): StorageManager
+    public function handleWithRapidRecording(): bool
     {
         $this->change(Storable::RAPID_RECORDING);
         $handler = new RapidRecording(
@@ -83,15 +85,16 @@ class StorageManager
             $this->db
         );
 
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $isSuccess = $handler->setup();
-        if (!$isSuccess) {
-            throw new Exception(
-                'DB source'
-                . ' must be created with success'
-            );
-        }
+        /*        if (!$isSuccess) {
+                    throw new Exception(
+                        'DB source'
+                        . ' must be created with success'
+                    );
+                }*/
 
-        return $this;
+        return $isSuccess;
     }
 
     /**
@@ -102,39 +105,36 @@ class StorageManager
         $essence = $this->reload();
 
         $modified = (new EssenceFactory())
-            ->setCode($essence->getCode())
-            ->setTitle($essence->getTitle())
-            ->setRemark($essence->getRemark())
+            ->setNameable($essence)
             ->setStorageManner($storageManner)
             ->makeEssence();
         $handler = new EssenceManager($this->db, 'essence',);
 
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $isSuccess = $handler->correct($modified);
-        if (!$isSuccess) {
-            throw new Exception(
-                'Essence must be corrected with success'
-            );
-        }
+        /*        if (!$isSuccess) {
+                    throw new Exception(
+                        'Essence must be corrected with success'
+                    );
+                }*/
 
-        /** @noinspection PhpExpressionAlwaysConstantInspection */
         return $isSuccess;
     }
 
     /**
      * @throws Exception
      */
-    public function setup(string $attribute = '', string $dataType = ''): StorageManager
+    public function setup(string $attribute = '', string $dataType = ''): bool
     {
-        $dataHandler = $this->getHandler();
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $isSuccess = $this->getHandler()->setup($attribute, $dataType);
+        /*        if (!$isSuccess) {
+                    throw new Exception(
+                        'Installation MUST BE defined with success'
+                    );
+                }*/
 
-        $isSuccess = $dataHandler->setup($attribute, $dataType);
-        if (!$isSuccess) {
-            throw new Exception(
-                'Installation MUST BE defined with success'
-            );
-        }
-
-        return $this;
+        return $isSuccess;
     }
 
     /**
@@ -144,32 +144,43 @@ class StorageManager
     {
         $dataHandler = $this->getHandler();
 
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $isSuccess = $dataHandler->prune($attribute);
-        if (!$isSuccess) {
-            throw new Exception(
-                'Installation MUST BE defined with success'
-            );
-        }
+        /*        if (!$isSuccess) {
+                    throw new Exception(
+                        'Installation MUST BE pruned with success'
+                    );
+                }*/
 
-        /** @noinspection PhpExpressionAlwaysConstantInspection */
         return $isSuccess;
     }
 
     /**
      * @throws Exception
      */
-    public function refresh(array $values = []): StorageManager
+    public function refresh(array $values = []): bool
     {
-        $dataHandler = $this->getHandler();
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $isSuccess = $this->getHandler()->refresh($values);
+        /*        if (!$isSuccess) {
+                    throw new Exception(
+                        'Installation MUST BE refreshed with success'
+                    );
+                }*/
 
-        $isSuccess = $dataHandler->refresh($values);
-        if (!$isSuccess) {
-            throw new Exception(
-                'Installation MUST BE refreshed with success'
-            );
-        }
+        return $isSuccess;
+    }
 
-        return $this;
+
+    /**
+     * @throws Exception
+     */
+    public function drop(): bool
+    {
+        /** @noinspection PhpUnnecessaryLocalVariableInspection */
+        $isSuccess = $this->getHandler()->drop();
+
+        return $isSuccess;
     }
 
     /**
@@ -179,10 +190,6 @@ class StorageManager
     public function getHandler(): Installation
     {
         $essence = $this->reload();
-        if (!$essence) {
-            throw new Exception('Essence must be find with success');
-        }
-
         $storageKind = $essence->getStorageManner();
         /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $source = match ($storageKind) {
@@ -199,6 +206,7 @@ class StorageManager
                 . ", `$storageKind` given"
             ),
         };
+
         return $source;
     }
 
