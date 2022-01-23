@@ -2,11 +2,12 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 23.01.2022, 12:58
  */
 
 namespace AllThings\DataAccess\Uniquable;
 
+use AllThings\DataAccess\Common\ColumnManager;
 use PDO;
 
 class UniqueSource implements UniquableReader
@@ -66,10 +67,7 @@ where \"$index\" in ($uniquenesses)
             $query->fetchAll(PDO::FETCH_ASSOC)
             : [];
 
-        $data = array_column($data, null, $index);
-        foreach ($data as $key => $val) {
-            unset($data[$key][$index]);
-        }
+        $data = (new ColumnManager($data))->indexWith($index);
 
         return $data;
     }

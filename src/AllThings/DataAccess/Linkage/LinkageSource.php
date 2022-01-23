@@ -2,11 +2,12 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 23.01.2022, 12:58
  */
 
 namespace AllThings\DataAccess\Linkage;
 
+use AllThings\DataAccess\Common\ColumnManager;
 use PDO;
 
 class LinkageSource implements RelatedReading
@@ -84,11 +85,7 @@ ORDER BY 1";
             $data = array_column($data, $rColumn);
         }
         if (!$letSimple) {
-            $data = array_column($data, null, $rColumn);
-
-            foreach ($data as $key => $val) {
-                unset($data[$key][$rColumn]);
-            }
+            $data = (new ColumnManager($data))->indexWith($rColumn);
         }
 
         return $data;
