@@ -30,10 +30,10 @@ class LinkageSource implements RelatedReading
 
     public function getRelatedFields(
         ILinkage $linkage,
-        string $filed,
+        string $field,
     ): array {
         /** @noinspection PhpUnnecessaryLocalVariableInspection */
-        $result = $this->getRelatedRecords($linkage, [$filed]);
+        $result = $this->getRelatedRecords($linkage, [$field]);
 
         return $result;
     }
@@ -44,7 +44,7 @@ class LinkageSource implements RelatedReading
     ): array {
         $rColumn = $this->rightKey->getMatchColumn();
         $letSimple = empty($fields) ||
-            (in_array($rColumn, $fields) && count($fields) === 1);
+            (count($fields) === 1 && current($fields) === $rColumn);
 
         if (!in_array($rColumn, $fields)) {
             $fields[] = $rColumn;

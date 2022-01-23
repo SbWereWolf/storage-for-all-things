@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 23.01.2022, 12:53
  */
 
 namespace AllThings\DataAccess\Linkage;
@@ -67,11 +67,11 @@ class LinkageHandler
 
     public function getRelatedFields(
         ILinkage $linkage,
-        string $filed,
+        string $field,
     ): array {
         $dataSource = $this->getDataSource();
         /** @noinspection PhpUnnecessaryLocalVariableInspection */
-        $result = $dataSource->getRelatedFields($linkage, $filed);
+        $result = $dataSource->getRelatedFields($linkage, $field);
 
         return $result;
     }

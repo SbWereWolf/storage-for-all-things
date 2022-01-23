@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 23.01.2022, 12:53
  */
 
 namespace AllThings\DataAccess\Linkage;
@@ -45,11 +45,11 @@ class LinkageManager implements ILinkageManager
 
     public function getAssociated(
         ILinkage $linkage,
-        string $filed = 'code',
+        string $field = 'code',
     ): array {
         /** @noinspection PhpUnnecessaryLocalVariableInspection */
         $result =
-            $this->linkageHandler->getRelatedFields($linkage, $filed);
+            $this->linkageHandler->getRelatedFields($linkage, $field);
 
         return $result;
     }

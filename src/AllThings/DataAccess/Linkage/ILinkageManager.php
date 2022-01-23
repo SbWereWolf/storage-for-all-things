@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 23.01.2022, 12:53
  */
 
 namespace AllThings\DataAccess\Linkage;
@@ -15,13 +15,14 @@ interface ILinkageManager
 
     /**
      * @param ILinkage $linkage
-     * @param string   $filed
+     * @param array $exclude
+     * @param string $field
      *
      * @return array
      */
     public function getAssociated(
         ILinkage $linkage,
-        string $filed,
+        string $field,
     ): array;
 
     public function getAssociatedData(

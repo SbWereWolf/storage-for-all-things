@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 23.01.2022, 12:53
  */
 
 
@@ -58,7 +58,7 @@ where \"$this->uniqueIndex\"=:target_code";
             );
         }
 
-        $row = $data[0];
+        $row = current($data);
 
         $code = $row[$this->uniqueIndex];
         $title = $row['title'];

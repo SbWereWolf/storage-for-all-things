@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 17.01.2022, 23:55
+ * 23.01.2022, 12:53
  */
 
 namespace AllThings\ControlPanel;
@@ -227,7 +227,7 @@ class Manager
 
         $linkage = (new Linkage())->setLeftValue($product);
         /** @noinspection PhpUnnecessaryLocalVariableInspection */
-        $essence = $manager->getAssociated($linkage)[0];
+        $essence = current($manager->getAssociated($linkage));
 
         return $essence;
     }

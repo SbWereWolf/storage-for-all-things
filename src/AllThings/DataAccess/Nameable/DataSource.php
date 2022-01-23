@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 17.01.2022, 7:56
+ * 23.01.2022, 12:53
  */
 
 namespace AllThings\DataAccess\Nameable;
@@ -63,7 +63,7 @@ ORDER BY \"$this->uniqueIndex\"
                 "Fail read data for index `$this->uniqueness`"
             );
         }
-        $row = $data[0];
+        $row = current($data);
 
         $code = $row[$this->uniqueIndex];
         $title = $row['title'];

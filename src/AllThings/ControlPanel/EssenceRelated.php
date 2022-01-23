@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 17.01.2022, 7:56
+ * 23.01.2022, 12:53
  */
 
 namespace AllThings\ControlPanel;
@@ -29,7 +29,8 @@ class EssenceRelated
     }
 
     /**
-     * @throws Exception
+     * @param string $related
+     * @return bool
      */
     public function attach(string $related): bool
     {
@@ -49,7 +50,8 @@ class EssenceRelated
     }
 
     /**
-     * @throws Exception
+     * @param string $related
+     * @return bool
      */
     public function detach(string $related): bool
     {
