@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 23.01.2022, 12:58
+ * 23.01.2022, 13:07
  */
 
 namespace AllThings\DataAccess\Common;
