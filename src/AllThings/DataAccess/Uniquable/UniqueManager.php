@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 16.01.2022, 8:05
+ * 4/10/22, 2:45 PM
  */
 
 namespace AllThings\DataAccess\Uniquable;
@@ -18,21 +18,21 @@ class UniqueManager implements UniquableManager
     protected string $uniqueIndex;
 
     /**
-     * @param PDO    $db
+     * @param PDO $db
      * @param string $storageLocation
      * @param string $dataSource
-     * @param string $uniqueIndex
+     * @param string $uniqueColumn
      */
     public function __construct(
         PDO $db,
         string $storageLocation = '',
         string $dataSource = '',
-        string $uniqueIndex = 'code',
+        string $uniqueColumn = 'code',
     ) {
         $this->db = $db;
         $this->storageLocation = $storageLocation;
         $this->dataSource = $dataSource;
-        $this->uniqueIndex = $uniqueIndex;
+        $this->uniqueIndex = $uniqueColumn;
     }
 
     /**
@@ -102,7 +102,7 @@ class UniqueManager implements UniquableManager
      *
      * @return UniqueManager
      */
-    public function setUniqueIndex(
+    public function setUniqueness(
         string $uniqueIndex
     ): UniqueManager {
         $this->uniqueIndex = $uniqueIndex;

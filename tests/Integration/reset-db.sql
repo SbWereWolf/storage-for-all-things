@@ -1,13 +1,13 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 11.01.2022, 6:34
+ * 4/10/22, 2:45 PM
  */
 
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 07.01.2022, 3:56
+ * 11.01.2022, 6:34
  */
 
 /* purge db after auto testing */

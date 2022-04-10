@@ -2,10 +2,10 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 23.01.2022, 12:53
+ * 4/10/22, 2:45 PM
  */
 
-namespace AllThings\ControlPanel;
+namespace AllThings\Blueprint\Relation;
 
 use AllThings\DataAccess\Linkage\Linkage;
 use AllThings\DataAccess\Linkage\LinkageManager;

@@ -2,14 +2,21 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 17.01.2022, 23:55
+ * 4/10/22, 2:45 PM
  */
+
+/*
+ * !! WARNING !!
+ * Option 'timezone' of postgresql.conf MUST BE 'UTC':
+ * timezone = 'UTC'
+ * */
 
 namespace Integration;
 
 use AllThings\ControlPanel\Browser;
+use AllThings\ControlPanel\CatalogManager;
+use AllThings\ControlPanel\CategoryManager;
 use AllThings\ControlPanel\Designer;
-use AllThings\ControlPanel\Manager;
 use AllThings\ControlPanel\ProductionLine;
 use AllThings\SearchEngine\ContinuousFilter;
 use AllThings\SearchEngine\DiscreteFilter;
@@ -69,7 +76,7 @@ class AutomatedProcessTest extends TestCase
         $essence = $designer->essence(
             'cake',
             'The Cakes',
-            'Cakes  of all kinds',
+            'Cakes of all kinds',
         );
         $this->assertNotEmpty(
             $essence,
@@ -155,8 +162,8 @@ class AutomatedProcessTest extends TestCase
         /* ## S001A1S05 охарактеризовать сущность (назначить
          характеристики для предметов этого типа) */
 
-        $manager = new Manager($linkToData);
-        $manager->setupCategory($essence, $attributes);
+        $manager = new CategoryManager($linkToData, $essence);
+        $manager->expand($attributes);
 
         $this->assertTrue(true);
 
@@ -185,11 +192,11 @@ class AutomatedProcessTest extends TestCase
         /* ## S001A2S02 задать значения свойствам предметов
         (дать имена пирожкам) */
 
-        $productionLine = new ProductionLine($linkToData);
+        $designer = new Designer($linkToData);
         foreach ($titles as $code => $title) {
             $context[$code] = $code;
 
-            $product = $productionLine->create($code, $title);
+            $product = $designer->product($code, $title);
         }
 
         $this->assertNotEmpty(
@@ -216,17 +223,17 @@ class AutomatedProcessTest extends TestCase
             $context['bun-with-jam'] => [
                 /* характеристика и её значение */
                 $context['price'] => '15.50',
-                $context['production-date'] => '20180429T1356',
+                $context['production-date'] => '20180429T1356+00:00',
                 $context['place-of-production'] => 'Екатеринбург',
             ],
             $context['bun-with-raisins'] => [
                 $context['price'] => '9.50',
-                $context['production-date'] => '20180427',
+                $context['production-date'] => '20180427T00:00+00:00',
                 $context['place-of-production'] => 'Екатеринбург',
             ],
             $context['cinnamon-bun'] => [
                 $context['price'] => '4.50',
-                $context['production-date'] => '20180429',
+                $context['production-date'] => '20180429T00:00+00:00',
                 $context['place-of-production'] => 'Челябинск',
             ],
         ];
@@ -234,10 +241,9 @@ class AutomatedProcessTest extends TestCase
         $essence = $context['essence'];
 
         /* ## S001A2S03 задать значения для характеристики предмета */
-
-        $manager = new Manager($linkToData);
         foreach ($codes as $code => $settings) {
-            $manager->setupProduct($essence, $code, $settings);
+            (new ProductionLine($linkToData, $code))
+                ->setup($essence, $settings);
         }
         $this->assertTrue(
             true,
@@ -476,24 +482,24 @@ class AutomatedProcessTest extends TestCase
         string $essence
     ): void {
         $filtersValue = 'a:3:{i:0;O:37:"AllThings\SearchEngine\Disc' .
-            'reteFilter":3:{s:45:" AllThings\SearchEngine\Discret' .
-            'eFilter values";a:2:{i:0;s:24:"Екатеринбург";i:1;s:1' .
-            '8:"Челябинск";}s:40:" AllThings\SearchEngine\Filter' .
+            'reteFilter":3:{s:40:" AllThings\SearchEngine\Filter' .
             ' attribute";s:19:"place-of-production";s:39:" AllT' .
-            'hings\SearchEngine\Filter dataType";s:4:"word";}i:1;' .
-            'O:39:"AllThings\SearchEngine\ContinuousFilter":4:{s:44' .
-            ':" AllThings\SearchEngine\ContinuousFilter min";s:' .
-            '6:"4.5000";s:44:" AllThings\SearchEngine\ContinuousF' .
-            'ilter max";s:7:"15.5000";s:40:" AllThings\SearchEn' .
-            'gine\Filter attribute";s:5:"price";s:39:" AllThing' .
-            's\SearchEngine\Filter dataType";s:6:"number";}i:2;O:' .
-            '39:"AllThings\SearchEngine\ContinuousFilter":4:{s:44:"' .
-            ' AllThings\SearchEngine\ContinuousFilter min";s:22' .
-            ':"2018-04-27 00:00:00+00";s:44:" AllThings\SearchEng' .
-            'ine\ContinuousFilter max";s:22:"2018-04-29 13:56:00+' .
-            '00";s:40:" AllThings\SearchEngine\Filter attribute' .
-            '";s:15:"production-date";s:39:" AllThings\SearchEngi' .
-            'ne\Filter dataType";s:4:"time";}}';
+            'hings\SearchEngine\Filter dataType";s:4:"word";s:45:' .
+            '" AllThings\SearchEngine\DiscreteFilter values";a:' .
+            '2:{i:0;s:24:"Екатеринбург";i:1;s:18:"Челябинск";}}i:1;' .
+            'O:39:"AllThings\SearchEngine\ContinuousFilter":4:{s:40' .
+            ':" AllThings\SearchEngine\Filter attribute";s:5:"p' .
+            'rice";s:39:" AllThings\SearchEngine\Filter dataTyp' .
+            'e";s:6:"number";s:44:" AllThings\SearchEngine\Contin' .
+            'uousFilter min";s:6:"4.5000";s:44:" AllThings\Sear' .
+            'chEngine\ContinuousFilter max";s:7:"15.5000";}i:2;O:' .
+            '39:"AllThings\SearchEngine\ContinuousFilter":4:{s:40:"' .
+            ' AllThings\SearchEngine\Filter attribute";s:15:"pr' .
+            'oduction-date";s:39:" AllThings\SearchEngine\Filter' .
+            ' dataType";s:4:"time";s:44:" AllThings\SearchEngin' .
+            'e\ContinuousFilter min";s:22:"2018-04-27 00:00:00+00' .
+            '";s:44:" AllThings\SearchEngine\ContinuousFilter m' .
+            'ax";s:22:"2018-04-29 13:56:00+00";}}';
         $this->assertTrue(
             serialize($data) === $filtersValue,
             "Filters of essence `$essence` must have proper value"
@@ -731,12 +737,12 @@ class AutomatedProcessTest extends TestCase
 
         /* добавляем модель, задаём для неё значения атрибутов */
         /* даём модели название */
-        $productionLine = new ProductionLine($linkToData);
+        $designer = new Designer($linkToData);
         /** @noinspection PhpUnusedLocalVariableInspection */
-        $product = $productionLine->create(
+        $product = $designer->product(
             $code,
             'новая модель',
-            'Описание позиции каталога'
+            'Описание позиции каталога',
         );
 
         $definition = [
@@ -745,8 +751,8 @@ class AutomatedProcessTest extends TestCase
             $context['place-of-production'] => 'Екатеринбург',
         ];
         /* устанавливаем значения для характеристик модели */
-        $manager = new Manager($linkToData);
-        $manager->setupProduct($essence, $code, $definition);
+        $line = new ProductionLine($linkToData, $code);
+        $line->setup($essence, $definition);
 
         $this->assertTrue(
             true,
@@ -770,8 +776,7 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::DIRECT_READING);
-        $manager = new Manager($context['PDO']);
-        $manager->refresh($context['essence']);
+        $schema->refresh();
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -792,8 +797,7 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::RAPID_OBTAINMENT);
-        $manager = new Manager($context['PDO']);
-        $manager->refresh($context['essence']);
+        $schema->refresh();
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -814,8 +818,7 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::RAPID_RECORDING);
-        $manager = new Manager($context['PDO']);
-        $manager->refresh($context['essence']);
+        $schema->refresh();
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -862,9 +865,12 @@ class AutomatedProcessTest extends TestCase
             $context[$code] = $code;
 
             /* Добавим сущности cake новую характеристику package */
-            $manager = new Manager($linkToData);
-            $manager->expandCatalog(
-                $essence,
+            (new CategoryManager($linkToData, $essence))
+                ->expand(['package']);
+            /* Добавим у всех моделей каталога cake значения для
+            характеристики package */
+            $manager = new CatalogManager($linkToData, $essence);
+            $manager->expand(
                 'package',
                 'без упаковки'
             );
@@ -881,7 +887,8 @@ class AutomatedProcessTest extends TestCase
         foreach ($productList as $product => $value) {
             $context[$product] = $product;
 
-            $manager->updateProduct($product, ['package' => $value]);
+            (new ProductionLine($linkToData, $product))
+                ->update(['package' => $value]);
         }
 
         return $context;
@@ -901,8 +908,7 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::DIRECT_READING);
-        $manager = new Manager($context['PDO']);
-        $manager->setup($context['essence']);
+        $schema->setup();
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -924,8 +930,7 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::RAPID_OBTAINMENT);
-        $manager = new Manager($context['PDO']);
-        $manager->setup($context['essence']);
+        $schema->setup();
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -946,6 +951,8 @@ class AutomatedProcessTest extends TestCase
         $schema = new StorageManager($linkToData, $essence,);
 
         $schema->change(Storable::RAPID_RECORDING);
+        //$schema->setup();
+
         /* $schema->setup('package', 'word'); */
         /*        $schema->setup('package');
 
@@ -981,8 +988,8 @@ class AutomatedProcessTest extends TestCase
         $product = $context['new-thing'];
         $attribute = $context['package'];
 
-        $manager = new Manager($linkToData);
-        $manager->updateProduct($product, [$attribute => 'коробка']);
+        $line = new ProductionLine($linkToData, $product);
+        $line->update([$attribute => 'коробка']);
 
         $this->assertTrue(
             true,
@@ -1006,8 +1013,7 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::DIRECT_READING);
-        $manager = new Manager($context['PDO']);
-        $manager->refresh($context['essence']);
+        $schema->refresh();
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -1037,8 +1043,7 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::RAPID_OBTAINMENT);
-        $manager = new Manager($context['PDO']);
-        $manager->refresh($context['essence']);
+        $schema->refresh();
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -1098,8 +1103,12 @@ class AutomatedProcessTest extends TestCase
         $essence = $context['essence'];
 
         /* Удалим у сущности cake характеристику package */
-        $manager = new Manager($linkToData);
-        $manager->pruneCatalog($essence, 'package');
+        (new CategoryManager($linkToData, $essence))
+            ->reduce(['package']);
+        /* Удалим у всех моделей каталога cake значения для
+        характеристики package */
+        $manager = new CatalogManager($linkToData, $essence);
+        $manager->reduce('package');
 
         $this->assertTrue(true);
 
@@ -1123,8 +1132,7 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::DIRECT_READING);
-        $manager = new Manager($context['PDO']);
-        $manager->prune($context['essence'], 'package');
+        $schema->prune('package');
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -1148,8 +1156,7 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::RAPID_OBTAINMENT);
-        $manager = new Manager($context['PDO']);
-        $manager->prune($context['essence'], 'package');
+        $schema->prune('package');
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -1196,8 +1203,8 @@ class AutomatedProcessTest extends TestCase
         $item = $context['new-thing'];
 
         /* Удаляем модель */
-        $manager = new Manager($linkToData);
-        $manager->deleteProduct($item);
+        $productionLine = new ProductionLine($linkToData, $item);
+        $productionLine->delete();
 
         $this->assertTrue(
             true,
@@ -1223,8 +1230,7 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::DIRECT_READING);
-        $manager = new Manager($context['PDO']);
-        $manager->refresh($context['essence']);
+        $schema->refresh();
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -1248,8 +1254,7 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::RAPID_OBTAINMENT);
-        $manager = new Manager($context['PDO']);
-        $manager->refresh($context['essence']);
+        $schema->refresh();
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -1272,8 +1277,7 @@ class AutomatedProcessTest extends TestCase
             $context['essence']
         );
         $schema->change(Storable::RAPID_RECORDING);
-        $manager = new Manager($context['PDO']);
-        $manager->refresh($context['essence']);
+        $schema->refresh();
 
         $browser = new Browser($context['PDO']);
         $data = $browser->find($context['essence'], []);
@@ -1295,9 +1299,10 @@ class AutomatedProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        /* Удаляем модель */
-        $manager = new Manager($linkToData);
-        $manager->deleteCategory($essence);
+        /* Удаляем все модели */
+        (new CatalogManager($linkToData, $essence))->delete();
+        /* удаляем сущность */
+        (new CategoryManager($linkToData, $essence))->delete();
 
         $this->assertTrue(
             true,
