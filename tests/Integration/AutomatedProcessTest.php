@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 4/10/22, 3:10 PM
+ * 4/10/22, 10:38 PM
  */
 
 /*
@@ -14,10 +14,9 @@
 namespace Integration;
 
 use AllThings\ControlPanel\Browser;
+use AllThings\ControlPanel\Category;
 use AllThings\ControlPanel\Designer;
-use AllThings\ControlPanel\Operator;
 use AllThings\ControlPanel\ProductionLine;
-use AllThings\ControlPanel\Redactor;
 use AllThings\SearchEngine\ContinuousFilter;
 use AllThings\SearchEngine\DiscreteFilter;
 use AllThings\StorageEngine\Storable;
@@ -155,15 +154,13 @@ class AutomatedProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
         $attributes = [
-            'price',
-            'production-date',
-            'place-of-production'
+            'price' => 0,
+            'production-date' => 0,
+            'place-of-production' => 0,
         ];
         /* ## S001A1S05 охарактеризовать сущность (назначить
          характеристики для предметов этого типа) */
-
-        $manager = new Redactor($linkToData, $essence);
-        $manager->expand($attributes);
+        (new Category($linkToData, $essence))->expand($attributes);
 
         $this->assertTrue(true);
 
@@ -865,15 +862,8 @@ class AutomatedProcessTest extends TestCase
             $context[$code] = $code;
 
             /* Добавим сущности cake новую характеристику package */
-            (new Redactor($linkToData, $essence))
-                ->expand(['package']);
-            /* Добавим у всех моделей каталога cake значения для
-            характеристики package */
-            $manager = new Operator($linkToData, $essence);
-            $manager->expand(
-                'package',
-                'без упаковки'
-            );
+            (new Category($linkToData, $essence))
+                ->expand(['package' => 'без упаковки']);
         }
 
         /* Добавим существующим моделям новую характеристику. */
@@ -1103,12 +1093,7 @@ class AutomatedProcessTest extends TestCase
         $essence = $context['essence'];
 
         /* Удалим у сущности cake характеристику package */
-        (new Redactor($linkToData, $essence))
-            ->reduce(['package']);
-        /* Удалим у всех моделей каталога cake значения для
-        характеристики package */
-        $manager = new Operator($linkToData, $essence);
-        $manager->reduce('package');
+        (new Category($linkToData, $essence))->reduce(['package']);
 
         $this->assertTrue(true);
 
@@ -1299,10 +1284,8 @@ class AutomatedProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
-        /* Удаляем все модели */
-        (new Operator($linkToData, $essence))->delete();
         /* удаляем сущность */
-        (new Redactor($linkToData, $essence))->delete();
+        (new Category($linkToData, $essence))->delete();
 
         $this->assertTrue(
             true,
