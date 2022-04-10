@@ -2,14 +2,16 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 4/10/22, 3:10 PM
+ * 2022-04-10
  */
 
-namespace AllThings\ControlPanel;
+namespace AllThings\ControlPanel\Category;
 
 use AllThings\Blueprint\Relation\BlueprintFactory;
 use AllThings\Blueprint\Relation\CatalogFactory;
 use AllThings\Blueprint\Relation\SpecificationFactory;
+use AllThings\ControlPanel\AutoUpdate;
+use AllThings\ControlPanel\ForceUpdate;
 use AllThings\DataAccess\Nameable\NamedManager;
 use AllThings\StorageEngine\StorageManager;
 use Exception;

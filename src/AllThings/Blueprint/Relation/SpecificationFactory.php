@@ -2,12 +2,12 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 4/10/22, 2:45 PM
+ * 2022-04-10
  */
 
 namespace AllThings\Blueprint\Relation;
 
-use AllThings\ControlPanel\Specification;
+use AllThings\ControlPanel\Product\Specification;
 use AllThings\SearchEngine\Findable;
 use JetBrains\PhpStorm\Pure;
 use PDO;

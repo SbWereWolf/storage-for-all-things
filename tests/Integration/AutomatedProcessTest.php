@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 4/10/22, 10:38 PM
+ * 2022-04-10
  */
 
 /*
@@ -14,9 +14,9 @@
 namespace Integration;
 
 use AllThings\ControlPanel\Browser;
-use AllThings\ControlPanel\Category;
+use AllThings\ControlPanel\Category\Category;
 use AllThings\ControlPanel\Designer;
-use AllThings\ControlPanel\ProductionLine;
+use AllThings\ControlPanel\Product\ProductionLine;
 use AllThings\SearchEngine\ContinuousFilter;
 use AllThings\SearchEngine\DiscreteFilter;
 use AllThings\StorageEngine\Storable;

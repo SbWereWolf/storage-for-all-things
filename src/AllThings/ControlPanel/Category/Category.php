@@ -2,10 +2,10 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 4/10/22, 10:38 PM
+ * 2022-04-10
  */
 
-namespace AllThings\ControlPanel;
+namespace AllThings\ControlPanel\Category;
 
 use Exception;
 use PDO;

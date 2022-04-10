@@ -2,12 +2,13 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 4/10/22, 3:10 PM
+ * 2022-04-10
  */
 
-namespace AllThings\ControlPanel;
+namespace AllThings\ControlPanel\Category;
 
 use AllThings\Blueprint\Relation\BlueprintFactory;
+use AllThings\ControlPanel\AutoUpdate;
 use AllThings\DataAccess\Nameable\NamedManager;
 use Exception;
 use PDO;

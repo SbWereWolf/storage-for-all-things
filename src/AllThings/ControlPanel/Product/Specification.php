@@ -2,10 +2,10 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 4/10/22, 2:45 PM
+ * 2022-04-10
  */
 
-namespace AllThings\ControlPanel;
+namespace AllThings\ControlPanel\Product;
 
 use AllThings\Blueprint\Relation\ContentAccessFactory;
 use AllThings\DataAccess\Crossover\Crossover;
