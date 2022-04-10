@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 4/10/22, 2:45 PM
+ * 4/10/22, 3:10 PM
  */
 
 namespace AllThings\ControlPanel;
@@ -12,7 +12,7 @@ use AllThings\DataAccess\Nameable\NamedManager;
 use Exception;
 use PDO;
 
-class CategoryManager
+class Redactor
 {
     use AutoUpdate;
 

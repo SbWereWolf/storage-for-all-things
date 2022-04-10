@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 4/10/22, 2:45 PM
+ * 4/10/22, 3:10 PM
  */
 
 namespace AllThings\ControlPanel;
@@ -13,7 +13,7 @@ trait AutoUpdate
 
     /** Поднять флаг автоматического обновления производных данных
      *
-     * @return CatalogManager
+     * @return $this
      */
     public function enableAutoUpdate(): static
     {

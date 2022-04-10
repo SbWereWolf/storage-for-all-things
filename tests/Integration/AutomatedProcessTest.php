@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 4/10/22, 2:45 PM
+ * 4/10/22, 3:10 PM
  */
 
 /*
@@ -14,10 +14,10 @@
 namespace Integration;
 
 use AllThings\ControlPanel\Browser;
-use AllThings\ControlPanel\CatalogManager;
-use AllThings\ControlPanel\CategoryManager;
 use AllThings\ControlPanel\Designer;
+use AllThings\ControlPanel\Operator;
 use AllThings\ControlPanel\ProductionLine;
+use AllThings\ControlPanel\Redactor;
 use AllThings\SearchEngine\ContinuousFilter;
 use AllThings\SearchEngine\DiscreteFilter;
 use AllThings\StorageEngine\Storable;
@@ -162,7 +162,7 @@ class AutomatedProcessTest extends TestCase
         /* ## S001A1S05 охарактеризовать сущность (назначить
          характеристики для предметов этого типа) */
 
-        $manager = new CategoryManager($linkToData, $essence);
+        $manager = new Redactor($linkToData, $essence);
         $manager->expand($attributes);
 
         $this->assertTrue(true);
@@ -865,11 +865,11 @@ class AutomatedProcessTest extends TestCase
             $context[$code] = $code;
 
             /* Добавим сущности cake новую характеристику package */
-            (new CategoryManager($linkToData, $essence))
+            (new Redactor($linkToData, $essence))
                 ->expand(['package']);
             /* Добавим у всех моделей каталога cake значения для
             характеристики package */
-            $manager = new CatalogManager($linkToData, $essence);
+            $manager = new Operator($linkToData, $essence);
             $manager->expand(
                 'package',
                 'без упаковки'
@@ -1103,11 +1103,11 @@ class AutomatedProcessTest extends TestCase
         $essence = $context['essence'];
 
         /* Удалим у сущности cake характеристику package */
-        (new CategoryManager($linkToData, $essence))
+        (new Redactor($linkToData, $essence))
             ->reduce(['package']);
         /* Удалим у всех моделей каталога cake значения для
         характеристики package */
-        $manager = new CatalogManager($linkToData, $essence);
+        $manager = new Operator($linkToData, $essence);
         $manager->reduce('package');
 
         $this->assertTrue(true);
@@ -1300,9 +1300,9 @@ class AutomatedProcessTest extends TestCase
         $essence = $context['essence'];
 
         /* Удаляем все модели */
-        (new CatalogManager($linkToData, $essence))->delete();
+        (new Operator($linkToData, $essence))->delete();
         /* удаляем сущность */
-        (new CategoryManager($linkToData, $essence))->delete();
+        (new Redactor($linkToData, $essence))->delete();
 
         $this->assertTrue(
             true,

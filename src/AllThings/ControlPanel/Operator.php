@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 4/10/22, 2:45 PM
+ * 4/10/22, 3:10 PM
  */
 
 namespace AllThings\ControlPanel;
@@ -15,7 +15,7 @@ use AllThings\StorageEngine\StorageManager;
 use Exception;
 use PDO;
 
-class CatalogManager
+class Operator
 {
     use AutoUpdate;
     use ForceUpdate;
