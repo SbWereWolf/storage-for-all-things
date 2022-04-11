@@ -7,7 +7,6 @@
 
 namespace AllThings\ControlPanel\Category;
 
-use AllThings\Blueprint\Relation\BlueprintFactory;
 use AllThings\Blueprint\Relation\CatalogFactory;
 use AllThings\ControlPanel\AutoUpdate;
 use AllThings\ControlPanel\ForceUpdate;
@@ -39,12 +38,8 @@ class Positions
      * @return array
      * @throws Exception
      */
-    public function delete()
+    public function delete(array $features)
     {
-        $features = (new BlueprintFactory($this->db))
-            ->make($this->catalog)
-            ->list();
-
         $products = (new CatalogFactory($this->db))
             ->make($this->catalog)
             ->list();

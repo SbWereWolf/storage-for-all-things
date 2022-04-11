@@ -7,12 +7,12 @@
 
 namespace AllThings\ControlPanel\Category;
 
+use AllThings\Blueprint\Relation\BlueprintFactory;
 use Exception;
 use PDO;
 
 class Category
 {
-
     private PDO $db;
     private string $category;
 
@@ -33,9 +33,11 @@ class Category
      */
     public function expand(array $features)
     {
-        $characteristics =
-            new Characteristics($this->db, $this->category);
-        $characteristics->expand(array_keys($features));
+        $blueprint = (new BlueprintFactory($this->db))
+            ->make($this->category);
+        foreach (array_keys($features) as $feature) {
+            $blueprint->attach($feature);
+        }
 
         $positions = new Positions($this->db, $this->category);
         foreach ($features as $feature => $default) {
@@ -45,9 +47,11 @@ class Category
 
     public function reduce(array $features)
     {
-        $characteristics =
-            new Characteristics($this->db, $this->category);
-        $characteristics->reduce($features);
+        $blueprint = (new BlueprintFactory($this->db))
+            ->make($this->category);
+        foreach ($features as $feature) {
+            $blueprint->detach($feature);
+        }
 
         $positions = new Positions($this->db, $this->category);
         foreach ($features as $feature) {
@@ -57,21 +61,23 @@ class Category
 
     public function delete()
     {
-        $positions = new Positions($this->db, $this->category);
-        $things = $positions->delete();
+        $blueprint = (new BlueprintFactory($this->db))
+            ->make($this->category);
+        $features = $blueprint->list();
+        $blueprint->purge();
 
-        $characteristics =
-            new Characteristics($this->db, $this->category);
-        $characteristics->delete();
+        $positions = new Positions($this->db, $this->category);
+        $things = $positions->delete($features);
+
 
         return $things;
     }
 
     public function remove(string $product)
     {
-        $characteristics =
-            new Characteristics($this->db, $this->category);
-        $features = $characteristics->features();
+        $features = (new BlueprintFactory($this->db))
+            ->make($this->category)
+            ->list();
 
         $positions = new Positions($this->db, $this->category);
         $positions->remove($product, $features);
