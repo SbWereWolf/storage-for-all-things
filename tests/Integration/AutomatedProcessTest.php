@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 2022-04-10
+ * 2022-04-11
  */
 
 /*
@@ -16,7 +16,7 @@ namespace Integration;
 use AllThings\ControlPanel\Browser;
 use AllThings\ControlPanel\Category\Category;
 use AllThings\ControlPanel\Designer;
-use AllThings\ControlPanel\Product\ProductionLine;
+use AllThings\DataAccess\Nameable\NamedManager;
 use AllThings\SearchEngine\ContinuousFilter;
 use AllThings\SearchEngine\DiscreteFilter;
 use AllThings\StorageEngine\Storable;
@@ -193,7 +193,7 @@ class AutomatedProcessTest extends TestCase
         foreach ($titles as $code => $title) {
             $context[$code] = $code;
 
-            $product = $designer->product($code, $title);
+            $product = $designer->thing($code, $title);
         }
 
         $this->assertNotEmpty(
@@ -238,10 +238,11 @@ class AutomatedProcessTest extends TestCase
         $essence = $context['essence'];
 
         /* ## S001A2S03 задать значения для характеристики предмета */
-        foreach ($codes as $code => $settings) {
-            (new ProductionLine($linkToData, $code))
-                ->setup($essence, $settings);
+        $category = new Category($linkToData, $essence);
+        foreach ($codes as $code => $values) {
+            $category->add($code, $values);
         }
+
         $this->assertTrue(
             true,
             'Content must be created with success'
@@ -736,20 +737,20 @@ class AutomatedProcessTest extends TestCase
         /* даём модели название */
         $designer = new Designer($linkToData);
         /** @noinspection PhpUnusedLocalVariableInspection */
-        $product = $designer->product(
+        $product = $designer->thing(
             $code,
             'новая модель',
             'Описание позиции каталога',
         );
 
-        $definition = [
+        $values = [
             $context['price'] => '11.11',
             $context['production-date'] => '20210531T0306',
             $context['place-of-production'] => 'Екатеринбург',
         ];
         /* устанавливаем значения для характеристик модели */
-        $line = new ProductionLine($linkToData, $code);
-        $line->setup($essence, $definition);
+        $category = new Category($linkToData, $essence);
+        $category->add($code, $values);
 
         $this->assertTrue(
             true,
@@ -847,6 +848,7 @@ class AutomatedProcessTest extends TestCase
         $essence = $context['essence'];
 
         $designer = new Designer($linkToData);
+        $category = (new Category($linkToData, $essence));
         foreach ($codes as $code => $settings) {
             $attribute = $designer->attribute(
                 $code,
@@ -862,7 +864,7 @@ class AutomatedProcessTest extends TestCase
             $context[$code] = $code;
 
             /* Добавим сущности cake новую характеристику package */
-            (new Category($linkToData, $essence))
+            $category
                 ->expand(['package' => 'без упаковки']);
         }
 
@@ -877,8 +879,7 @@ class AutomatedProcessTest extends TestCase
         foreach ($productList as $product => $value) {
             $context[$product] = $product;
 
-            (new ProductionLine($linkToData, $product))
-                ->update(['package' => $value]);
+            $category->update($product, ['package' => $value]);
         }
 
         return $context;
@@ -977,9 +978,10 @@ class AutomatedProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $product = $context['new-thing'];
         $attribute = $context['package'];
+        $essence = $context['essence'];
 
-        $line = new ProductionLine($linkToData, $product);
-        $line->update([$attribute => 'коробка']);
+        $category = new Category($linkToData, $essence);
+        $category->update($product, [$attribute => 'коробка']);
 
         $this->assertTrue(
             true,
@@ -1186,10 +1188,11 @@ class AutomatedProcessTest extends TestCase
     {
         $linkToData = $context['PDO'];
         $item = $context['new-thing'];
+        $essence = $context['essence'];
 
         /* Удаляем модель */
-        $productionLine = new ProductionLine($linkToData, $item);
-        $productionLine->delete();
+        $category = new Category($linkToData, $essence);
+        $category->remove($item);
 
         $this->assertTrue(
             true,
@@ -1284,8 +1287,18 @@ class AutomatedProcessTest extends TestCase
         $linkToData = $context['PDO'];
         $essence = $context['essence'];
 
+        /* удаляем значения атрибутов */
+        $things = (new Category($linkToData, $essence))->delete();
+
+        /* удаляем предметы */
+        $manager = new NamedManager($linkToData, 'thing');
+        foreach ($things as $thing) {
+            $manager->remove($thing);
+        }
+
         /* удаляем сущность */
-        (new Category($linkToData, $essence))->delete();
+        $manager = new NamedManager($linkToData, 'essence');
+        $manager->remove($essence);
 
         $this->assertTrue(
             true,

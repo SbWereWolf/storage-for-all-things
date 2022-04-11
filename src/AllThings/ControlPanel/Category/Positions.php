@@ -2,22 +2,21 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 2022-04-10
+ * 2022-04-11
  */
 
 namespace AllThings\ControlPanel\Category;
 
 use AllThings\Blueprint\Relation\BlueprintFactory;
 use AllThings\Blueprint\Relation\CatalogFactory;
-use AllThings\Blueprint\Relation\SpecificationFactory;
 use AllThings\ControlPanel\AutoUpdate;
 use AllThings\ControlPanel\ForceUpdate;
-use AllThings\DataAccess\Nameable\NamedManager;
+use AllThings\ControlPanel\Product\ProductionLine;
 use AllThings\StorageEngine\StorageManager;
 use Exception;
 use PDO;
 
-class Operator
+class Positions
 {
     use AutoUpdate;
     use ForceUpdate;
@@ -25,6 +24,10 @@ class Operator
     private PDO $db;
     private string $catalog;
 
+    /**
+     * @param PDO $connection
+     * @param string $catalog
+     */
     public function __construct(PDO $connection, string $catalog)
     {
         $this->db = $connection;
@@ -33,35 +36,30 @@ class Operator
     }
 
     /** Удалить каталог (все товары каталога)
-     * @return void
+     * @return array
      * @throws Exception
      */
-    public function delete(): void
+    public function delete()
     {
-        if ($this->shouldAutoUpdate()) {
-            (new StorageManager($this->db, $this->catalog,))
-                ->drop();
-        }
-
-        $catalog = (new CatalogFactory($this->db))
-            ->make($this->catalog);
-        $products = $catalog->list();
-
         $features = (new BlueprintFactory($this->db))
             ->make($this->catalog)
             ->list();
 
+        $products = (new CatalogFactory($this->db))
+            ->make($this->catalog)
+            ->list();
+
         foreach ($products as $product) {
-            (new SpecificationFactory($this->db))
-                ->make($product)
-                ->purge($features);
+            $line = new ProductionLine($this->db, $product);
+            $line->disableAutoUpdate();
+
+            $this->remove($product, $features);
         }
 
-        $catalog->purge();
-        foreach ($products as $product) {
-            (new NamedManager($this->db, 'thing',))
-                ->remove($product);
-        }
+        (new StorageManager($this->db, $this->catalog,))
+            ->drop();
+
+        return $products;
     }
 
     /** Добавить всем продуктам каталога заданный атрибут
@@ -73,10 +71,12 @@ class Operator
     public function expand(
         string $feature,
         $default = '',
-    ): bool {
+    ): bool
+    {
         $isSuccess = true;
+
+        $schema = new StorageManager($this->db, $this->catalog,);
         if ($this->shouldAutoUpdate()) {
-            $schema = new StorageManager($this->db, $this->catalog,);
             $isSuccess = $schema->setup($feature);
         }
 
@@ -88,22 +88,18 @@ class Operator
             if (!$isSuccess) {
                 break;
             }
-            $specification = (new SpecificationFactory($this->db))
-                ->make($product);
-            $isSuccess = $specification->attach([$feature]);
+            $line = new ProductionLine($this->db, $product);
+            $isSuccess = $line->expand(
+                [$feature => $default],
+                $this->catalog
+            );
 
-            $values = [];
-            if ($isSuccess && $default) {
-                $values = [$feature => $default];
-                $isSuccess = $specification->define($values);
-            }
-
-            if (
-                $isSuccess &&
-                !empty($values) &&
-                $this->shouldAutoUpdate()
-            ) {
-                $this->forceUpdate($this->catalog, $product, $values);
+            if ($isSuccess && $this->shouldAutoUpdate()) {
+                $isSuccess = $this->forceUpdate(
+                    $this->catalog,
+                    $product,
+                    [$feature => $default]
+                );
             }
         }
 
@@ -120,14 +116,48 @@ class Operator
         $products = (new CatalogFactory($this->db))
             ->make($this->catalog)
             ->list();
+
         foreach ($products as $product) {
-            (new SpecificationFactory($this->db))
-                ->make($product)
-                ->detach([$feature]);
+            $line = new ProductionLine($this->db, $product);
+            $line->disableAutoUpdate();
+            $line->reduce([$feature]);
         }
         if ($this->shouldAutoUpdate()) {
             (new StorageManager($this->db, $this->catalog,))
                 ->prune($feature);
         }
+    }
+
+    public function add(string $product, array $values)
+    {
+        $isSuccess = (new CatalogFactory($this->db))
+            ->make($this->catalog)
+            ->attach($product);
+
+        if ($isSuccess) {
+            $isSuccess = (new ProductionLine($this->db, $product))
+                ->expand($values, $this->catalog);
+        }
+
+        return $isSuccess;
+    }
+
+    public function remove(string $product, array $features)
+    {
+        $isSuccess = (new CatalogFactory($this->db))
+            ->make($this->catalog)
+            ->detach($product);
+
+        $productionLine = new ProductionLine($this->db, $product);
+        $productionLine->enableAutoUpdate();
+        $productionLine->reduce($features, $this->catalog);
+
+        return $isSuccess;
+    }
+
+    public function update(string $product, array $values)
+    {
+        (new ProductionLine($this->db, $product))
+            ->update($values, $this->catalog);
     }
 }

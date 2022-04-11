@@ -2,18 +2,17 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 2022-04-10
+ * 2022-04-11
  */
 
 namespace AllThings\ControlPanel\Category;
 
 use AllThings\Blueprint\Relation\BlueprintFactory;
 use AllThings\ControlPanel\AutoUpdate;
-use AllThings\DataAccess\Nameable\NamedManager;
 use Exception;
 use PDO;
 
-class Redactor
+class Characteristics
 {
     use AutoUpdate;
 
@@ -33,12 +32,9 @@ class Redactor
      */
     public function delete(): bool
     {
-        (new BlueprintFactory($this->db))
+        $result = (new BlueprintFactory($this->db))
             ->make($this->category)
             ->purge();
-
-        $result = (new NamedManager($this->db, 'essence',))
-            ->remove($this->category);
 
         return $result;
     }
@@ -67,4 +63,12 @@ class Redactor
         }
     }
 
+    public function features()
+    {
+        $features = (new BlueprintFactory($this->db))
+            ->make($this->category)
+            ->list();
+
+        return $features;
+    }
 }

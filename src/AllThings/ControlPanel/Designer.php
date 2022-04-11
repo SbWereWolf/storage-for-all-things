@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 4/10/22, 2:45 PM
+ * 2022-04-11
  */
 
 namespace AllThings\ControlPanel;
@@ -127,7 +127,7 @@ class Designer
      * @return Nameable
      * @throws Exception
      */
-    public function product(
+    public function thing(
         string $code,
         string $title = '',
         string $description = '',
