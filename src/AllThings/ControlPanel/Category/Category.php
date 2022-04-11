@@ -8,11 +8,17 @@
 namespace AllThings\ControlPanel\Category;
 
 use AllThings\Blueprint\Relation\BlueprintFactory;
+use AllThings\ControlPanel\AutoUpdate;
+use AllThings\ControlPanel\ForceUpdate;
+use AllThings\StorageEngine\StorageManager;
 use Exception;
 use PDO;
 
 class Category
 {
+    use AutoUpdate;
+    use ForceUpdate;
+
     private PDO $db;
     private string $category;
 
@@ -41,7 +47,21 @@ class Category
 
         $positions = new Positions($this->db, $this->category);
         foreach ($features as $feature => $default) {
-            $positions->expand($feature, $default);
+            $schema = new StorageManager($this->db, $this->category,);
+            if ($this->shouldAutoUpdate()) {
+                $schema->setup($feature);
+            }
+
+            $products = $positions->expand($feature, $default);
+            if ($this->shouldAutoUpdate()) {
+                foreach ($products as $product) {
+                    $this->forceUpdate(
+                        $this->category,
+                        $product,
+                        [$feature => $default]
+                    );
+                }
+            }
         }
     }
 
@@ -56,6 +76,11 @@ class Category
         $positions = new Positions($this->db, $this->category);
         foreach ($features as $feature) {
             $positions->reduce($feature);
+
+            if ($this->shouldAutoUpdate()) {
+                (new StorageManager($this->db, $this->category,))
+                    ->prune($feature);
+            }
         }
     }
 
@@ -69,6 +94,8 @@ class Category
         $positions = new Positions($this->db, $this->category);
         $things = $positions->delete($features);
 
+        (new StorageManager($this->db, $this->category,))
+            ->drop();
 
         return $things;
     }

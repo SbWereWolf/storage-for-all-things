@@ -8,18 +8,12 @@
 namespace AllThings\ControlPanel\Category;
 
 use AllThings\Blueprint\Relation\CatalogFactory;
-use AllThings\ControlPanel\AutoUpdate;
-use AllThings\ControlPanel\ForceUpdate;
 use AllThings\ControlPanel\Product\ProductionLine;
-use AllThings\StorageEngine\StorageManager;
 use Exception;
 use PDO;
 
 class Positions
 {
-    use AutoUpdate;
-    use ForceUpdate;
-
     private PDO $db;
     private string $catalog;
 
@@ -30,7 +24,6 @@ class Positions
     public function __construct(PDO $connection, string $catalog)
     {
         $this->db = $connection;
-        $this->enableAutoUpdate();
         $this->catalog = $catalog;
     }
 
@@ -45,14 +38,11 @@ class Positions
             ->list();
 
         foreach ($products as $product) {
-            $line = new ProductionLine($this->db, $product);
-            $line->disableAutoUpdate();
+            $productionLine = new ProductionLine($this->db, $product);
+            $productionLine->disableAutoUpdate();
 
             $this->remove($product, $features);
         }
-
-        (new StorageManager($this->db, $this->catalog,))
-            ->drop();
 
         return $products;
     }
@@ -60,21 +50,14 @@ class Positions
     /** Добавить всем продуктам каталога заданный атрибут
      * @param string $feature
      * @param $default
-     * @return bool
+     * @return array
      * @throws Exception
      */
     public function expand(
         string $feature,
         $default = '',
-    ): bool
-    {
+    ) {
         $isSuccess = true;
-
-        $schema = new StorageManager($this->db, $this->catalog,);
-        if ($this->shouldAutoUpdate()) {
-            $isSuccess = $schema->setup($feature);
-        }
-
         $products = (new CatalogFactory($this->db))
             ->make($this->catalog)
             ->list();
@@ -83,22 +66,14 @@ class Positions
             if (!$isSuccess) {
                 break;
             }
-            $line = new ProductionLine($this->db, $product);
-            $isSuccess = $line->expand(
+            $productionLine = new ProductionLine($this->db, $product);
+            $isSuccess = $productionLine->expand(
                 [$feature => $default],
                 $this->catalog
             );
-
-            if ($isSuccess && $this->shouldAutoUpdate()) {
-                $isSuccess = $this->forceUpdate(
-                    $this->catalog,
-                    $product,
-                    [$feature => $default]
-                );
-            }
         }
 
-        return $isSuccess;
+        return $products;
     }
 
     /** Удалить у всех продуктов каталога заданный атрибут
@@ -113,13 +88,9 @@ class Positions
             ->list();
 
         foreach ($products as $product) {
-            $line = new ProductionLine($this->db, $product);
-            $line->disableAutoUpdate();
-            $line->reduce([$feature]);
-        }
-        if ($this->shouldAutoUpdate()) {
-            (new StorageManager($this->db, $this->catalog,))
-                ->prune($feature);
+            $productionLine = new ProductionLine($this->db, $product);
+            $productionLine->disableAutoUpdate();
+            $productionLine->reduce([$feature]);
         }
     }
 
