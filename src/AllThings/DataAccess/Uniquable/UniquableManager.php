@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 4/10/22, 2:45 PM
+ * 2022-04-18
  */
 
 namespace AllThings\DataAccess\Uniquable;
@@ -11,7 +11,7 @@ interface UniquableManager
 {
     public function create(string $uniqueness): bool;
 
-    public function remove(string $uniqueness): bool;
+    public function destroy(string $uniqueness): bool;
 
     public function properties(array $entities, array $fields): array;
 

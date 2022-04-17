@@ -177,7 +177,7 @@ class Designer
             if (!$isSuccess) {
                 break;
             }
-            $isSuccess = $manager->remove($thing);
+            $isSuccess = $manager->destroy($thing);
         }
 
         return $isSuccess;
@@ -191,7 +191,7 @@ class Designer
     public function drop(string $essence): bool
     {
         $manager = new NamedManager($this->db, 'essence');
-        $isSuccess = $manager->remove($essence);
+        $isSuccess = $manager->destroy($essence);
 
         return $isSuccess;
     }
