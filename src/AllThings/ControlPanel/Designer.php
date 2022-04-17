@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 2022-04-11
+ * 2022-04-18
  */
 
 namespace AllThings\ControlPanel;
@@ -27,49 +27,6 @@ class Designer
     public function __construct(PDO $connection)
     {
         $this->db = $connection;
-    }
-
-    /** Создать и настроить сущность
-     * @param string $code
-     * @param string $title
-     * @param string $description
-     * @param string $storageKind
-     *
-     * @return IEssence
-     * @throws Exception
-     */
-    public function essence(
-        string $code,
-        string $title = '',
-        string $description = '',
-        string $storageKind = Storable::DIRECT_READING
-    ): IEssence {
-        $handler = new EssenceManager($this->db);
-        $handler->setLocation('essence');
-        $handler->setSource('essence');
-        $handler->setUniqueness('code');
-        /** @noinspection PhpUnusedLocalVariableInspection */
-        $isSuccess = $handler->create($code);
-        /*        if (!$isSuccess) {
-                    throw new Exception('Essence must be created with success');
-                }*/
-
-        $essence = (new EssenceFactory())
-            ->setStorageManner($storageKind)
-            ->setCode($code)
-            ->setTitle($title)
-            ->setRemark($description)
-            ->makeEssence();
-
-        if ($storageKind || $title || $description) {
-            /** @noinspection PhpUnusedLocalVariableInspection */
-            $isSuccess = $handler->correct($essence);
-        }
-        /*        if (!$isSuccess) {
-                    throw new Exception('Essence must be updated with success');
-                }*/
-
-        return $essence;
     }
 
     /** Создать и настроить атрибут
@@ -120,6 +77,49 @@ class Designer
         return $attribute;
     }
 
+    /** Создать и настроить сущность
+     * @param string $code
+     * @param string $title
+     * @param string $description
+     * @param string $storageKind
+     *
+     * @return IEssence
+     * @throws Exception
+     */
+    public function essence(
+        string $code,
+        string $title = '',
+        string $description = '',
+        string $storageKind = Storable::DIRECT_READING
+    ): IEssence {
+        $handler = new EssenceManager($this->db);
+        $handler->setLocation('essence');
+        $handler->setSource('essence');
+        $handler->setUniqueness('code');
+        /** @noinspection PhpUnusedLocalVariableInspection */
+        $isSuccess = $handler->create($code);
+        /*        if (!$isSuccess) {
+                    throw new Exception('Essence must be created with success');
+                }*/
+
+        $essence = (new EssenceFactory())
+            ->setStorageManner($storageKind)
+            ->setCode($code)
+            ->setTitle($title)
+            ->setRemark($description)
+            ->makeEssence();
+
+        if ($storageKind || $title || $description) {
+            /** @noinspection PhpUnusedLocalVariableInspection */
+            $isSuccess = $handler->correct($essence);
+        }
+        /*        if (!$isSuccess) {
+                    throw new Exception('Essence must be updated with success');
+                }*/
+
+        return $essence;
+    }
+
     /** Создать и продукт и задать значения его характеристикам
      * @param string $code
      * @param string $title
@@ -161,5 +161,38 @@ class Designer
                 }*/
 
         return $named;
+    }
+
+    /** Удалить вещи (предметы)
+     * @param array $things
+     * @return bool
+     * @throws Exception
+     */
+    public function destroy(array $things): bool
+    {
+        $manager = new NamedManager($this->db, 'thing');
+
+        $isSuccess = true;
+        foreach ($things as $thing) {
+            if (!$isSuccess) {
+                break;
+            }
+            $isSuccess = $manager->remove($thing);
+        }
+
+        return $isSuccess;
+    }
+
+    /** Удалить сущность
+     * @param string $essence
+     * @return bool
+     * @throws Exception
+     */
+    public function drop(string $essence): bool
+    {
+        $manager = new NamedManager($this->db, 'essence');
+        $isSuccess = $manager->remove($essence);
+
+        return $isSuccess;
     }
 }

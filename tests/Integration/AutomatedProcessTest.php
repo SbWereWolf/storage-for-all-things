@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 2022-04-11
+ * 2022-04-18
  */
 
 /*
@@ -16,7 +16,6 @@ namespace Integration;
 use AllThings\ControlPanel\Browser;
 use AllThings\ControlPanel\Category\Category;
 use AllThings\ControlPanel\Designer;
-use AllThings\DataAccess\Nameable\NamedManager;
 use AllThings\SearchEngine\ContinuousFilter;
 use AllThings\SearchEngine\DiscreteFilter;
 use AllThings\StorageEngine\Storable;
@@ -1289,19 +1288,21 @@ class AutomatedProcessTest extends TestCase
 
         /* удаляем значения атрибутов */
         $things = (new Category($linkToData, $essence))->delete();
+        $isSuccess = !empty($things);
 
         /* удаляем предметы */
-        $manager = new NamedManager($linkToData, 'thing');
-        foreach ($things as $thing) {
-            $manager->remove($thing);
+        $designer = new Designer($linkToData);
+        if ($isSuccess) {
+            $isSuccess = $designer->destroy($things);
         }
 
         /* удаляем сущность */
-        $manager = new NamedManager($linkToData, 'essence');
-        $manager->remove($essence);
+        if ($isSuccess) {
+            $isSuccess = $designer->drop($essence);
+        }
 
         $this->assertTrue(
-            true,
+            $isSuccess,
             'Category must be removed with success',
         );
 
