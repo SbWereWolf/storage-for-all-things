@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 2022-04-10
+ * 2022-04-18
  */
 
 namespace AllThings\ControlPanel\Product;
@@ -98,7 +98,9 @@ class Specification
         return $isSuccess;
     }
 
-    /**
+    /** Задать значения для атрибутов предмета
+     * @param array $definition
+     * @return bool
      * @throws Exception
      */
     public function define(array $definition): bool

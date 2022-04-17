@@ -2,18 +2,27 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 13:35
+ * 2022-04-18
  */
 
 declare(strict_types=1);
 
 use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Essence\IEssence;
-use AllThings\ControlPanel\Category;
-use AllThings\ControlPanel\Lots;
-use AllThings\ControlPanel\Product;
+use AllThings\Blueprint\Relation\SpecificationFactory;
+use AllThings\ControlPanel\Category\Category;
+use AllThings\ControlPanel\Designer;
 use AllThings\SearchEngine\Searchable;
 use Environment\Database\PdoConnection;
+
+/*
+ NOTIFICATION
+Potentially you may needed to raise max_locks_per_transaction,
+for example (postgresql.conf) :
+max_locks_per_transaction = 1024
+The location of configuration file, you can discover with help of
+'SHOW config_file;'
+ * */
 
 $path = [
     __DIR__,
@@ -41,21 +50,24 @@ $path = implode(DIRECTORY_SEPARATOR, $pathParts);
 $conn = (new PdoConnection($path))->get();
 $conn->beginTransaction();
 
+$designer = new Designer($conn);
+
 $attributes = [];
 echo date('H:i:s') . ': Starting generating of kinds' . PHP_EOL;
 for ($cycle = 0; $cycle < MULTIPLIER; $cycle++) {
     foreach ($names as $key => $adjective) {
         $isDiscrete = roll(0, 1) === 0;
         $adjective = "$adjective$cycle";
-        $redactor = new Category($conn, $adjective);
         if ($isDiscrete) {
-            $attribute = $redactor->create(
+            $attribute = $designer->attribute(
+                $adjective,
                 Searchable::SYMBOLS,
                 Searchable::DISCRETE,
             );
         }
         if (!$isDiscrete) {
-            $attribute = $redactor->create(
+            $attribute = $designer->attribute(
+                $adjective,
                 Searchable::DECIMAL,
                 Searchable::CONTINUOUS,
             );
@@ -119,6 +131,7 @@ for ($i = 0; $i < $entityLimit; $i++) {
 
     /* @var IAttribute[] $kinds */
     $kinds = [];
+    $features = [];
     for ($n = 1; $n <= $numbers; $n++) {
         $exists = true;
         do {
@@ -126,19 +139,17 @@ for ($i = 0; $i < $entityLimit; $i++) {
             $exists = key_exists($index, $kinds);
             if (!$exists) {
                 $kinds[$index] = $attributes[$index];
+                $features[] = $attributes[$index]->getCode();
             }
         } while ($exists);
     }
 
-    $schema = new Lots($conn, $nouns[$i]);
-    $essence = $schema->create($nouns[$i],);
-    $allKinds[$essence->getCode()] = $kinds;
+    $essence = $designer->essence($nouns[$i]);
     $allEssences[] = $essence;
-    foreach ($kinds as $kind) {
-        $redactor->attach(
-            $essence->getCode(),
-        );
-    }
+    $allKinds[$essence->getCode()] = $kinds;
+
+    $catalog = new Category($conn, $essence->getCode());
+    $catalog->expand(array_flip($features));
 }
 
 echo date('H:i:s') . ': Finish generate essences' . PHP_EOL;
@@ -146,6 +157,8 @@ $conn->commit();
 
 
 echo date('H:i:s') . ': Starting generating of items' . PHP_EOL;
+
+$factory = new SpecificationFactory($conn);
 foreach ($allEssences as $essence) {
     echo date('H:i:s') .
         ": Make items for {$essence->getCode()}" .
@@ -160,18 +173,18 @@ foreach ($allEssences as $essence) {
     if ($dice > HIGH) {
         $numbers = roll(MANY / 2 + 1, MANY);
     }
+
     /* @var IAttribute[] $kinds */
     $kinds = $allKinds[$essence->getCode()];
     for ($n = 0; $n < $numbers; $n++) {
         $item = $essence->getCode() . $n;
-        $operator = new Product($conn, $item);
+        $thing = $designer->thing($item);
 
-        $operator->create($essence->getCode());
         $definition = [];
         foreach ($kinds as $kind) {
             $isDiscrete =
                 $kind->getRangeType() === Searchable::DISCRETE;
-            $value = '' . PHP_EOL;
+            $value = '';
             if ($isDiscrete) {
                 $index = roll(0, $attributeLimit - 1);
                 $value = $attributes[$index]->getCode();
@@ -182,7 +195,9 @@ foreach ($allEssences as $essence) {
             }
             $definition[$kind->getCode()] = $value;
         }
-        $operator->define($definition);
+
+        $specs = $factory->make($thing->getCode());
+        $specs->define($definition);
     }
     $conn->commit();
     echo date('H:i:s') .
