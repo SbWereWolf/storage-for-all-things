@@ -9,7 +9,6 @@ declare(strict_types=1);
 
 use AllThings\Blueprint\Attribute\IAttribute;
 use AllThings\Blueprint\Essence\IEssence;
-use AllThings\Blueprint\Relation\SpecificationFactory;
 use AllThings\ControlPanel\Category\Category;
 use AllThings\ControlPanel\Designer;
 use AllThings\SearchEngine\Searchable;
@@ -120,6 +119,8 @@ $allEssences = [];
 $allKinds = [];
 echo date('H:i:s') . ': Starting generating of essences' . PHP_EOL;
 for ($i = 0; $i < $entityLimit; $i++) {
+    echo date('H:i:s') . ': #' . $i . PHP_EOL;
+
     $dice = roll(MIN, MAX);
     $numbers = roll(POOR * 2, RICH / 2);
     if ($dice < LOW) {
@@ -134,12 +135,17 @@ for ($i = 0; $i < $entityLimit; $i++) {
     $features = [];
     for ($n = 1; $n <= $numbers; $n++) {
         $exists = true;
+        $circuitBreaker = 0;
         do {
             $index = roll(0, $attributeLimit - 1);
             $exists = key_exists($index, $kinds);
             if (!$exists) {
                 $kinds[$index] = $attributes[$index];
                 $features[] = $attributes[$index]->getCode();
+            }
+            $circuitBreaker++;
+            if ($circuitBreaker > $attributeLimit) {
+                break;
             }
         } while ($exists);
     }
@@ -148,8 +154,8 @@ for ($i = 0; $i < $entityLimit; $i++) {
     $allEssences[] = $essence;
     $allKinds[$essence->getCode()] = $kinds;
 
-    $catalog = new Category($conn, $essence->getCode());
-    $catalog->expand(array_flip($features));
+    $category = new Category($conn, $essence->getCode());
+    $category->expand(array_flip($features));
 }
 
 echo date('H:i:s') . ': Finish generate essences' . PHP_EOL;
@@ -158,8 +164,9 @@ $conn->commit();
 
 echo date('H:i:s') . ': Starting generating of items' . PHP_EOL;
 
-$factory = new SpecificationFactory($conn);
 foreach ($allEssences as $essence) {
+    $category = new Category($conn, $essence->getCode());
+
     echo date('H:i:s') .
         ": Make items for {$essence->getCode()}" .
         PHP_EOL;
@@ -186,8 +193,8 @@ foreach ($allEssences as $essence) {
                 $kind->getRangeType() === Searchable::DISCRETE;
             $value = '';
             if ($isDiscrete) {
-                $index = roll(0, $attributeLimit - 1);
-                $value = $attributes[$index]->getCode();
+                $index = roll(0, $namesNumber - 1);
+                $value = $names[$index];
             }
             if (!$isDiscrete) {
                 $index = roll(1111, 9999);
@@ -196,9 +203,9 @@ foreach ($allEssences as $essence) {
             $definition[$kind->getCode()] = $value;
         }
 
-        $specs = $factory->make($thing->getCode());
-        $specs->define($definition);
+        $category->add($thing->getCode(), $definition);
     }
+
     $conn->commit();
     echo date('H:i:s') .
         ": Finish items for {$essence->getCode()}" .

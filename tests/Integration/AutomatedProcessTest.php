@@ -9,6 +9,8 @@
  * !! WARNING !!
  * Option 'timezone' of postgresql.conf MUST BE 'UTC':
  * timezone = 'UTC'
+ * The location of configuration file, you can discover with help of
+ * 'SHOW config_file;'
  * */
 
 namespace Integration;
