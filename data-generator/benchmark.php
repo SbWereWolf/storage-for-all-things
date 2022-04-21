@@ -2,16 +2,14 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 12.01.2022, 13:35
+ * 2022-04-21
  */
 
 declare(strict_types=1);
 
-use AllThings\Blueprint\Attribute\AttributeManager;
 use AllThings\ControlPanel\Browser;
-use AllThings\ControlPanel\Category;
-use AllThings\ControlPanel\Lots;
-use AllThings\ControlPanel\Product;
+use AllThings\ControlPanel\Category\Category;
+use AllThings\ControlPanel\Designer;
 use AllThings\DataAccess\Crossover\Crossover;
 use AllThings\DataAccess\Nameable\Nameable;
 use AllThings\SearchEngine\ContinuousFilter;
@@ -20,6 +18,7 @@ use AllThings\SearchEngine\Searchable;
 use AllThings\SearchEngine\Seeker;
 use AllThings\StorageEngine\RapidRecording;
 use AllThings\StorageEngine\Storable;
+use AllThings\StorageEngine\StorageManager;
 use Environment\Database\PdoConnection;
 
 $pathParts = [__DIR__, '..', 'vendor', 'autoload.php',];
@@ -33,18 +32,18 @@ $linkToData = (new PdoConnection($path))->get();
 $browser = new Browser($linkToData);
 
 $essences = [
-    'MANY' => 'underclothes',
-    'AVERAGE' => 'sugar',
-    'FEW' => 'salad',
+    'MANY' => 'shelf',
+    'AVERAGE' => 'restaurant',
+    'FEW' => 'mirror',
 ];
 
-foreach ($essences as $category => $essence) {
+foreach ($essences as $type => $essence) {
     echo PHP_EOL .
         'Benchmark with ' .
         $essence .
-        "($category)" .
+        "($type)" .
         PHP_EOL;
-    $schema = new Lots($linkToData, $essence);
+    $schema = new StorageManager($linkToData, $essence);
     $average = setupSource($schema, 'handleWithDirectReading');
     echo 'MAKE VIEW ' . $average . PHP_EOL;
 
@@ -121,7 +120,13 @@ foreach ($essences as $category => $essence) {
 
     /* @var Nameable $thing */
 
-    [$average, $thing] = addNewItem($linkToData, $essence);
+    $noun = 'new-thing-' . time() . uniqid();
+
+    $source = $schema->getHandler();
+    $seeker = new Seeker($source);
+    $kinds = $seeker->getParams(['range_type', 'data_type']);
+    $category = new Category($linkToData, $essence);
+    [$average, $thing] = addNewItem($linkToData, $noun, $category, $kinds);
     echo 'ADD NEW ITEM ' . $average . PHP_EOL;
 
     $schema->change(Storable::RAPID_OBTAINMENT);
@@ -146,32 +151,11 @@ foreach ($essences as $category => $essence) {
 
     echo 'ADD NEW ITEM TO TABLE ' . $duration . PHP_EOL;
 
-    $source = $schema->getHandler();
-    $seeker = new Seeker($source);
-    $kinds = $seeker->getParams();
-
-    foreach ($kinds as $key => $code) {
-        $attribute = \AllThings\Blueprint\Attribute\Attribute
-            ::GetDefaultAttribute();
-        $attribute->setCode($code);
-
-        $manager = new AttributeManager(
-            $code,
-            'attribute',
-            $linkToData,
-        );
-        $manager->setSubject($attribute);
-
-        $manager->browse();
-        $kinds[$key] = $manager->retrieveData();
-    }
-
     $schema->change(Storable::DIRECT_READING);
 
-    $operator = new Product($linkToData, $thing->getCode());
     $average = setupThing(
         $kinds,
-        $operator,
+        $category,
         $thing,
         $schema,
     );
@@ -182,7 +166,7 @@ foreach ($essences as $category => $essence) {
 
     $average = setupThing(
         $kinds,
-        $operator,
+        $category,
         $thing,
         $schema,
     );
@@ -193,7 +177,7 @@ foreach ($essences as $category => $essence) {
 
     $average = setupThing(
         $kinds,
-        $operator,
+        $category,
         $thing,
         $schema,
     );
@@ -201,14 +185,16 @@ foreach ($essences as $category => $essence) {
     echo 'SETUP NEW ITEM FOR TABLE ' . $average . PHP_EOL;
 
     $adjective = 'test-' . time() . uniqid();
-    $redactor = new Category($linkToData, $adjective);
-    $attribute = $redactor->create(
+    $attribute = (new Designer($linkToData))->attribute(
+        $adjective,
         Searchable::SYMBOLS,
         Searchable::DISCRETE,
     );
-    $redactor->attach($essence,);
+
 
     $schema->change(Storable::DIRECT_READING);
+    $category->expand([$adjective => 'default']);
+
 
     $start = microtime(true);
 
@@ -234,7 +220,7 @@ foreach ($essences as $category => $essence) {
 
     $start = microtime(true);
 
-    $schema->setup($attribute);
+    $schema->setup($adjective, Searchable::SYMBOLS);
 
     $finish = microtime(true);
     $duration = $finish - $start;
@@ -243,12 +229,12 @@ foreach ($essences as $category => $essence) {
 }
 
 /**
- * @param Lots   $schema
+ * @param StorageManager $schema
  * @param string $fn
  *
  * @return float
  */
-function setupSource(Lots $schema, string $fn): float
+function setupSource(StorageManager $schema, string $fn): float
 {
     $maxVal = PHP_FLOAT_MIN;
     $minVal = PHP_FLOAT_MAX;
@@ -391,6 +377,7 @@ function reduceFilters(mixed $filters): array
 
             $filter = new ContinuousFilter(
                 $filter->getAttribute(),
+                $filter->getDataType(),
                 (string)$min,
                 (string)$max,
             );
@@ -410,6 +397,7 @@ function reduceFilters(mixed $filters): array
 
             $filter = new DiscreteFilter(
                 $filter->getAttribute(),
+                $filter->getDataType(),
                 $vals
             );
             $filters[$key] = $filter;
@@ -418,7 +406,7 @@ function reduceFilters(mixed $filters): array
     return $filters;
 }
 
-function addNewItem(PDO $db, $essence): array
+function addNewItem(PDO $db, $noun, Category $category, array $features): array
 {
     $maxVal = PHP_FLOAT_MIN;
     $minVal = PHP_FLOAT_MAX;
@@ -429,11 +417,22 @@ function addNewItem(PDO $db, $essence): array
         $start = microtime(true);
 
         $suffix = $start;
-        $operator = new Product($db, 'new-thing-' . $suffix);
-        $thing = $operator->create(
-            $essence,
+        $designer = new Designer($db);
+        $thing = $designer->thing(
+            $noun . $i,
             'новая модель' . $suffix,
         );
+
+        $definition = [];
+        foreach ($features as $code => $properties) {
+            if ($properties['data_type'] === Searchable::DECIMAL) {
+                $definition[$code] = 0;
+            }
+            if ($properties['data_type'] === Searchable::SYMBOLS) {
+                $definition[$code] = '';
+            }
+        }
+        $category->add($thing->getCode(), $definition);
 
         $finish = microtime(true);
         $duration = $finish - $start;
@@ -459,52 +458,52 @@ function addNewItem(PDO $db, $essence): array
 }
 
 /**
- * @param array    $kinds
- * @param Product  $operator
+ * @param array $kinds
+ * @param Category $category
  * @param Nameable $thing
- * @param Lots     $schema
+ * @param StorageManager $schema
  *
  * @return array
  * @throws Exception
  */
 function defineThing(
     array $kinds,
-    Product $operator,
+    Category $category,
     Nameable $thing,
-    Lots $schema,
+    StorageManager $schema,
 ): array {
     $isTable = $schema->getHandler() instanceof RapidRecording;
     $definition = [];
     $result = [];
-    foreach ($kinds as $kind) {
+    foreach ($kinds as $code => $kind) {
         $value = '';
-        if ($kind->getDataType() === Searchable::SYMBOLS
+        if ($kind['data_type'] === Searchable::SYMBOLS
         ) {
             $value = uniqid();
         }
-        if ($kind->getDataType() === Searchable::DECIMAL
+        if ($kind['data_type'] === Searchable::DECIMAL
         ) {
             $value = (string)roll(1111, 9999);
         }
         if (!$isTable) {
-            $definition[$kind->getCode()] = $value;
+            $definition[$code] = $value;
         }
 
         $result[] = (new Crossover())
             ->setLeftValue($thing->getCode())
-            ->setRightValue($kind->getCode())
+            ->setRightValue($code)
             ->setContent($value);
     }
-    $operator->define($definition);
+    $category->update($thing->getCode(), $definition);
 
     return $result;
 }
 
 function setupThing(
     array $kinds,
-    Product $operator,
+    Category $category,
     Nameable $thing,
-    Lots $schema,
+    StorageManager $schema,
 ): float {
     $maxVal = PHP_FLOAT_MIN;
     $minVal = PHP_FLOAT_MAX;
@@ -514,7 +513,7 @@ function setupThing(
     for ($i = 0; $i < 5; $i++) {
         $start = microtime(true);
 
-        $data = defineThing($kinds, $operator, $thing, $schema);
+        $data = defineThing($kinds, $category, $thing, $schema);
         $schema->refresh($data);
 
         $finish = microtime(true);
