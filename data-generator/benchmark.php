@@ -2,7 +2,7 @@
 /*
  * storage-for-all-things
  * Copyright © 2022 Volkhin Nikolay
- * 2022-04-21
+ * 2022-08-21
  */
 
 declare(strict_types=1);
@@ -13,11 +13,11 @@ use AllThings\ControlPanel\Designer;
 use AllThings\DataAccess\Crossover\Crossover;
 use AllThings\DataAccess\Nameable\Nameable;
 use AllThings\SearchEngine\ContinuousFilter;
+use AllThings\SearchEngine\Converter;
 use AllThings\SearchEngine\DiscreteFilter;
+use AllThings\SearchEngine\Filter;
 use AllThings\SearchEngine\Searchable;
-use AllThings\SearchEngine\Seeker;
 use AllThings\StorageEngine\RapidRecording;
-use AllThings\StorageEngine\Storable;
 use AllThings\StorageEngine\StorageManager;
 use Environment\Database\PdoConnection;
 
@@ -32,9 +32,9 @@ $linkToData = (new PdoConnection($path))->get();
 $browser = new Browser($linkToData);
 
 $essences = [
-    'MANY' => 'shelf',
-    'AVERAGE' => 'restaurant',
-    'FEW' => 'mirror',
+    'MANY' => 'rug',
+    'AVERAGE' => 'cream',
+    'FEW' => 'helicopter',
 ];
 
 foreach ($essences as $type => $essence) {
@@ -118,114 +118,121 @@ foreach ($essences as $type => $essence) {
     }
     echo 'TAKE SOME FROM TABLE ' . $average . PHP_EOL;
 
+    try {
+        $average = filterJson($essence, $filters, $linkToData);
+    } catch (Exception $e) {
+        var_dump($e);
+    }
+    echo 'TAKE SOME FROM JSON ' . $average . PHP_EOL;
+
     /* @var Nameable $thing */
+    /*
+        $noun = 'new-thing-' . time() . uniqid();
 
-    $noun = 'new-thing-' . time() . uniqid();
+        $source = $schema->getHandler();
+        $seeker = new Seeker($source);
+        $kinds = $seeker->getParams(['range_type', 'data_type']);
+        $category = new Category($linkToData, $essence);
+        [$average, $thing] = addNewItem($linkToData, $noun, $category, $kinds);
+        echo 'ADD NEW ITEM ' . $average . PHP_EOL;
 
-    $source = $schema->getHandler();
-    $seeker = new Seeker($source);
-    $kinds = $seeker->getParams(['range_type', 'data_type']);
-    $category = new Category($linkToData, $essence);
-    [$average, $thing] = addNewItem($linkToData, $noun, $category, $kinds);
-    echo 'ADD NEW ITEM ' . $average . PHP_EOL;
+        $schema->change(Storable::RAPID_OBTAINMENT);
 
-    $schema->change(Storable::RAPID_OBTAINMENT);
+        $start = microtime(true);
 
-    $start = microtime(true);
+        $schema->refresh();
 
-    $schema->refresh();
+        $finish = microtime(true);
+        $duration = $finish - $start;
 
-    $finish = microtime(true);
-    $duration = $finish - $start;
+        echo 'ADD NEW ITEM TO MAT VIEW ' . $duration . PHP_EOL;
 
-    echo 'ADD NEW ITEM TO MAT VIEW ' . $duration . PHP_EOL;
+        $schema->change(Storable::RAPID_RECORDING);
 
-    $schema->change(Storable::RAPID_RECORDING);
+        $start = microtime(true);
 
-    $start = microtime(true);
+        $schema->refresh();
 
-    $schema->refresh();
+        $finish = microtime(true);
+        $duration = $finish - $start;
 
-    $finish = microtime(true);
-    $duration = $finish - $start;
+        echo 'ADD NEW ITEM TO TABLE ' . $duration . PHP_EOL;
 
-    echo 'ADD NEW ITEM TO TABLE ' . $duration . PHP_EOL;
+        $schema->change(Storable::DIRECT_READING);
 
-    $schema->change(Storable::DIRECT_READING);
+        $average = setupThing(
+            $kinds,
+            $category,
+            $thing,
+            $schema,
+        );
 
-    $average = setupThing(
-        $kinds,
-        $category,
-        $thing,
-        $schema,
-    );
+        echo 'SETUP NEW ITEM FOR VIEW ' . $average . PHP_EOL;
 
-    echo 'SETUP NEW ITEM FOR VIEW ' . $average . PHP_EOL;
+        $schema->change(Storable::RAPID_OBTAINMENT);
 
-    $schema->change(Storable::RAPID_OBTAINMENT);
+        $average = setupThing(
+            $kinds,
+            $category,
+            $thing,
+            $schema,
+        );
 
-    $average = setupThing(
-        $kinds,
-        $category,
-        $thing,
-        $schema,
-    );
+        echo 'SETUP NEW ITEM FOR MAT VIEW ' . $average . PHP_EOL;
 
-    echo 'SETUP NEW ITEM FOR MAT VIEW ' . $average . PHP_EOL;
+        $schema->change(Storable::RAPID_RECORDING);
 
-    $schema->change(Storable::RAPID_RECORDING);
+        $average = setupThing(
+            $kinds,
+            $category,
+            $thing,
+            $schema,
+        );
 
-    $average = setupThing(
-        $kinds,
-        $category,
-        $thing,
-        $schema,
-    );
+        echo 'SETUP NEW ITEM FOR TABLE ' . $average . PHP_EOL;
 
-    echo 'SETUP NEW ITEM FOR TABLE ' . $average . PHP_EOL;
-
-    $adjective = 'test-' . time() . uniqid();
-    $attribute = (new Designer($linkToData))->attribute(
-        $adjective,
-        Searchable::SYMBOLS,
-        Searchable::DISCRETE,
-    );
-
-
-    $schema->change(Storable::DIRECT_READING);
-    $category->expand([$adjective => 'default']);
+        $adjective = 'test-' . time() . uniqid();
+        $attribute = (new Designer($linkToData))->attribute(
+            $adjective,
+            Searchable::SYMBOLS,
+            Searchable::DISCRETE,
+        );
 
 
-    $start = microtime(true);
+        $schema->change(Storable::DIRECT_READING);
+        $category->expand([$adjective => 'default']);
 
-    $schema->setup();
 
-    $finish = microtime(true);
-    $duration = $finish - $start;
+        $start = microtime(true);
 
-    echo 'ADD NEW KIND FOR VIEW ' . $duration . PHP_EOL;
+        $schema->setup();
 
-    $schema->change(Storable::RAPID_OBTAINMENT);
+        $finish = microtime(true);
+        $duration = $finish - $start;
 
-    $start = microtime(true);
+        echo 'ADD NEW KIND FOR VIEW ' . $duration . PHP_EOL;
 
-    $schema->setup();
+        $schema->change(Storable::RAPID_OBTAINMENT);
 
-    $finish = microtime(true);
-    $duration = $finish - $start;
+        $start = microtime(true);
 
-    echo 'ADD NEW KIND FOR MAT VIEW ' . $duration . PHP_EOL;
+        $schema->setup();
 
-    $schema->change(Storable::RAPID_RECORDING);
+        $finish = microtime(true);
+        $duration = $finish - $start;
 
-    $start = microtime(true);
+        echo 'ADD NEW KIND FOR MAT VIEW ' . $duration . PHP_EOL;
 
-    $schema->setup($adjective, Searchable::SYMBOLS);
+        $schema->change(Storable::RAPID_RECORDING);
 
-    $finish = microtime(true);
-    $duration = $finish - $start;
+        $start = microtime(true);
 
-    echo 'ADD NEW KIND FOR TABLE ' . $duration . PHP_EOL;
+        $schema->setup($adjective, Searchable::SYMBOLS);
+
+        $finish = microtime(true);
+        $duration = $finish - $start;
+
+        echo 'ADD NEW KIND FOR TABLE ' . $duration . PHP_EOL;*/
 }
 
 /**
@@ -324,6 +331,93 @@ function filterData(Browser $browser, string $essence, array $filters): float
     for ($i = 0; $i < 5; $i++) {
         $start = microtime(true);
         $browser->find($essence, $filters);
+        $finish = microtime(true);
+        $duration = $finish - $start;
+        $runs[$i] = $duration;
+        if ($duration > $maxVal) {
+            $maxVal = $duration;
+            $maxKey = $i;
+        }
+        if ($duration < $minVal) {
+            $minVal = $duration;
+            $minKey = $i;
+        }
+    }
+    unset($runs[$maxKey]);
+    unset($runs[$minKey]);
+    $allRuns = 0;
+    foreach ($runs as $run) {
+        $allRuns += $run;
+    }
+    /** @noinspection PhpUnnecessaryLocalVariableInspection */
+    $average = $allRuns / 3;
+
+    return $average;
+}
+
+/**
+ * @param string $essence
+ * @param array $filters
+ * @param PDO $linkToData
+ * @param Browser $browser
+ * @return float
+ * @throws Exception
+ */
+function filterJson(
+    string $essence,
+    array $filters,
+    PDO $linkToData
+): float {
+    $maxVal = PHP_FLOAT_MIN;
+    $minVal = PHP_FLOAT_MAX;
+    $maxKey = -1;
+    $minKey = -1;
+    $runs = [];
+    for ($i = 0; $i < 5; $i++) {
+        $start = microtime(true);
+
+        $table = "json_t_$essence";
+        $obtain = "SELECT * from $table";
+
+        $where = [];
+        foreach ($filters as $filter) {
+            /* @var Filter $filter */
+            $attribute = $filter->getAttribute();
+            $format = Converter::getFieldFormat(
+                $filter->getDataType()
+            );
+
+            if ($filter instanceof ContinuousFilter) {
+                $min = $filter->getMin();
+                $max = $filter->getMax();
+                $condition =
+                    "(data ->> '$attribute')::double precision" .
+                    " between '$min'::$format and '$max'::$format";
+                $where[] = $condition;
+            }
+
+            if ($filter instanceof DiscreteFilter) {
+                $condition = implode(
+                    "'::$format,'",
+                    $filter->getValues()
+                );
+                $condition = "data ->> '$attribute' " .
+                    "IN ('$condition'::$format)";
+                $where[] = $condition;
+            }
+        }
+
+        $wherePhrase = implode(' AND ', $where);
+        $obtain = "$obtain where $wherePhrase";
+
+        $cursor = $linkToData
+            ->query($obtain, PDO::FETCH_ASSOC);
+
+        $isSuccess = $cursor !== false;
+        if ($isSuccess) {
+            $data = $cursor->fetchAll();
+        }
+
         $finish = microtime(true);
         $duration = $finish - $start;
         $runs[$i] = $duration;
