@@ -68,28 +68,28 @@
 
 ### A1 essence processing
 
-обработка сущностей
+Обработка сущностей
 
 ### A2 content processing
 
-обработка содержимого
+Обработка содержимого
 
 ### A3 search engine
 
-движок поиска
+Движок поиска
 
 ### A4 direct reading
 
-прямое чтение (view)
+Прямое чтение (view)
 
 ### A5 rapid obtainment
 
-быстрое получение (materialized view)
+Быстрое получение (materialized view)
 
 ### A6 rapid recording
 
-быстрая запись (table)
+Быстрая запись (table)
 
 ### A7 outputting
 
-вывод результатов поиска
+Вывод результатов поиска
